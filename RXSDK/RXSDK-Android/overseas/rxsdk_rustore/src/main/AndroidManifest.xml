@@ -1,0 +1,40 @@
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="com.ruixue.sdk.rustore">
+
+    <uses-permission android:name="android.permission.INTERNET" />
+
+    <!--
+        宿主 App 必须在自己的 AndroidManifest 中配置以下两项 meta-data，否则 RuStore Pay SDK
+        会在 init / purchase 时抛出 RuStorePayInvalidConsoleAppId / ApplicationSchemeWasNotProvided：
+
+        <meta-data
+            android:name="console_app_id_value"
+            android:value="${RUSTORE_CONSOLE_APP_ID}" />
+        <meta-data
+            android:name="sdk_pay_scheme_value"
+            android:value="${RUSTORE_APP_SCHEME}" />
+
+        注意：Pay SDK 10.x 抛出的异常文案为 "Set app_scheme_value into AndroidManifest"，
+        但通过反编译 RuStorePayContentProvider 确认，SDK 实际读取的 meta-data 键仍是
+        sdk_pay_scheme_value；未来版本可能迁移到 app_scheme_value，到时需同步修改。
+
+        同时支付承载 Activity 需声明 launchMode="singleTop" 并添加 deeplink intent-filter：
+
+        <intent-filter>
+            <action android:name="android.intent.action.VIEW" />
+            <category android:name="android.intent.category.DEFAULT" />
+            <category android:name="android.intent.category.BROWSABLE" />
+            <data android:scheme="${RUSTORE_APP_SCHEME}" />
+        </intent-filter>
+
+        在 Activity 的 onCreate（savedInstanceState==null）/ onNewIntent 中调用
+        RuStoreSdkWrapper 对应生命周期方法，或通过 RuiXueSdk.onCreate/onNewIntent 自动分发，
+        由本 SDK 内部透传给 PayClient.getIntentInteractor().proceedIntent() 完成还原。
+    -->
+    <application>
+        <meta-data
+            android:name="RX_PLUGIN_RUSTORE"
+            android:value="com.ruixue.sdk.rustore.RuStoreSdkWrapper" />
+    </application>
+
+</manifest>

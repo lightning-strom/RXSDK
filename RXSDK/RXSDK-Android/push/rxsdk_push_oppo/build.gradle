@@ -1,0 +1,50 @@
+plugins {
+    id 'com.android.library'
+}
+project.group 'com.ruixue'
+apply from: "${rootDir}/maven.gradle"
+
+android {
+    compileSdkVersion rootProject.ext.compileSdkVersion
+
+    defaultConfig {
+        minSdkVersion rootProject.ext.minSdkVersion
+        targetSdkVersion rootProject.ext.targetSdkVersion
+        versionCode rootProject.ext.versionCode
+        versionName rootProject.ext.versionName
+
+        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+        consumerProguardFiles "consumer-rules.pro"
+        buildConfigField("String", "BUILD_TIME", "\"${getTimestamp()}\"")
+        buildConfigField("String", "COMMIT_ID", "\"${getGitCommit()}\"")
+    }
+
+    buildTypes {
+
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+        }
+        packagingAAR(project, android)
+    }
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
+}
+
+dependencies {
+
+    implementation libs.appcompat
+//    implementation libs.material
+
+    //maven依赖start
+    implementation 'com.heytap.msp:push:3.5.3'
+    implementation 'commons-codec:commons-codec:1.6'
+//    implementation 'com.android.support:support-annotations:28.0.0'( //SDK中的接入最小依赖项，也可以参考demo中的依赖)
+    api project(path: ':push:rxsdk_push_base')
+
+    testImplementation libs.junit
+    androidTestImplementation libs.test.ext.junit
+    androidTestImplementation libs.espresso.core
+}

@@ -1,0 +1,65 @@
+plugins {
+    id 'com.android.library'
+}
+project.group 'com.ruixue'
+apply from: "${rootDir}/maven.gradle"
+
+android {
+    compileSdkVersion rootProject.ext.compileSdkVersion
+    buildToolsVersion rootProject.ext.buildToolsVersion
+
+    defaultConfig {
+        minSdkVersion rootProject.ext.minSdkVersion
+        targetSdkVersion rootProject.ext.targetSdkVersion
+        versionCode rootProject.ext.versionCode
+        versionName rootProject.ext.versionName
+
+        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+        consumerProguardFiles "consumer-rules.pro"
+        buildConfigField("String", "BUILD_TIME", "\"${getTimestamp()}\"")
+        buildConfigField("String", "COMMIT_ID", "\"${getGitCommit()}\"")
+    }
+
+    buildTypes {
+        release {
+            aaptOptions {
+                ignoreAssetsPattern '!supplierconfig.json:'
+            }
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+        }
+        packagingAAR(project, android)
+    }
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
+    sourceSets {
+        main {
+            jniLibs.srcDirs = ['libs']
+        }
+    }
+
+}
+
+def channel_version="channel_2_0_0"
+def maven_url='https://maven-release.webapp.163.com/repository/maven-releases/com/netease/yofun/'+channel_version+'/maven-metadata.xml'
+def yofun_version = new XmlSlurper().parse(maven_url).versioning.release
+dependencies {
+
+    api fileTree(dir: 'libs', include: ['*.aar'])
+
+    testImplementation libs.junit
+    androidTestImplementation libs.test.ext.junit
+    androidTestImplementation libs.espresso.core
+
+    api(project(path: ':rxsdk_base')) {
+        exclude group: 'com.google.zxing', module: 'core'
+    }
+    implementation 'com.android.support:multidex:1.0.3'
+
+    api "com.netease.yofun:${channel_version}:${yofun_version}"
+
+}
+
+repositories { flatDir { dirs 'libs' } }

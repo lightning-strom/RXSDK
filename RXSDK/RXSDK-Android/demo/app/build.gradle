@@ -1,0 +1,1361 @@
+plugins {
+    id 'com.android.application'
+}
+
+def buildTask = getGradle().getStartParameter().getTaskNames().toString().toLowerCase()
+if (buildTask.contains("overseas")) {
+    println("Task  apply plugin:`com.google.gms.google-services` " + buildTask)
+    apply plugin: 'com.google.gms.google-services'
+    apply plugin: 'com.google.firebase.crashlytics'
+
+//    apply plugin: 'com.huawei.agconnect'
+}
+if (buildTask.contains("huawei")) {
+//    println("Task    " + buildTask)
+    apply plugin: 'com.huawei.agconnect'
+}
+
+
+android {
+    compileSdkVersion rootProject.ext.compileSdkVersion
+//    buildToolsVersion rootProject.ext.buildToolsVersion
+    ndkVersion '23.1.7779620'
+
+    defaultConfig {
+        // rxsdk_overseas 传递依赖 rxsdk_google；Billing 8.x 要求宿主 API 23+。
+        minSdkVersion 23
+        //noinspection ExpiredTargetSdkVersion
+        targetSdkVersion 30
+        versionCode rootProject.ext.versionCode
+        versionName rootProject.ext.versionName
+
+
+        applicationId "com.weile.doudizhu.ld"
+        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+//        ndk {
+////            abiFilters "armeabi"//,,"armeabi-v7a", "arm64-v8a""armeabi", "x86", "mips"
+//            abiFilters "armeabi-v7a", "arm64-v8a"//,"armeabi", "x86", "mips"
+//        }
+
+        //字节游戏联运接入文档 v2.0.5.2配置
+        multiDexEnabled false
+        //字节游戏联运接入埋点数据实时验证功能，如果不需要可以填其他值，比如应用包名，详见以下文档：https://datarangers.com.cn/help/doc?lid=2230&did=45237
+        manifestPlaceholders.put("APPLOG_SCHEME", "union_game")
+
+        manifestPlaceholders = ["AMAP_APIKEY": "please set key in productFlavors"]
+        flavorDimensions "versionCode"
+    }
+
+    buildTypes {
+
+        release {
+            // 不显示Log
+            buildConfigField "boolean", "LOG_DEBUG", "false"
+
+            //混淆
+            minifyEnabled false
+            //Zipalign优化
+            zipAlignEnabled true
+            // 移除无用的resource文件
+            shrinkResources false
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+
+        }
+        debug {
+
+            //混淆
+            minifyEnabled false
+            //Zipalign优化
+            zipAlignEnabled true
+            // 移除无用的resource文件
+            shrinkResources false
+            proguardFiles getDefaultProguardFile("proguard-android.txt"), "proguard-rules.pro"
+            signingConfig null //使用Flavors签名
+
+        }
+
+    }
+
+    signingConfigs {
+        aiwutest {
+            // MD5: 2C:43:8D:04:A5:A5:FB:E7:C7:69:11:24:11:36:DF:2B
+            // SHA1: 2C:ED:69:6F:B9:3E:E5:90:F4:47:6B:1A:17:DF:9F:B5:F5:46:F2:DD
+            // SHA-256: F6:96:9A:95:9B:0B:2F:67:0D:97:10:81:7F:E3:30:1C:3A:AE:5A:32:EC:5E:58:B7:55:36:85:8D:0C:77:67:3C
+            keyAlias "25game"
+            keyPassword "25game"
+            storeFile file("keystore/aiwutest.jks")
+            storePassword "25game"
+        }
+        qzw {
+            // MD5: D9:43:38:93:6B:DF:A9:AF:37:1D:B9:3A:CF:30:B2:12
+            // SHA1: 74:64:C8:DF:19:40:92:05:25:DC:D2:09:57:F8:A0:50:F0:6D:58:FA
+            // SHA-256: 36:2A:C7:16:C6:C4:DC:65:48:D4:B2:91:AE:F3:5C:44:59:4B:EF:C3:0C:59:EA:8A:DC:E0:21:1C:07:2F:70:4D
+            keyAlias "qzw"
+            keyPassword "weile123"
+            storeFile file("keystore/qzw.keystore")
+            storePassword "weile123"
+        }
+        domino {
+            // MD5: 64:81:AE:D0:D0:3F:09:EF:3B:4F:A6:6C:A8:A4:91:F8
+            // SHA1: 00:38:5B:42:E0:B3:56:7F:63:9E:1F:EB:B9:8D:67:39:B8:2E:F8:E2
+            // SHA-256: 2A:96:42:AC:56:D5:0E:B4:41:7E:40:A7:B0:C5:9D:3F:8A:6A:BF:11:44:FD:F4:19:B1:97:AB:AB:40:05:98:07
+            keyAlias "domino"
+            keyPassword "123987"
+            storeFile file("keystore/domino.keystore")
+            storePassword "gq19940815"
+        }
+        yzsh {
+
+            keyAlias "yzsh"
+            keyPassword "123456"
+            storeFile file("keystore/yzsh.keystore")
+            storePassword "123456"
+        }
+        miaokesi {
+            // MD5: 83:E3:13:A3:52:DB:C6:B8:FF:42:39:AC:0A:B0:EC:28
+            // SHA1: 80:4F:06:44:5B:C8:B7:E3:37:E0:3F:F3:FF:F6:24:2B:28:EC:E0:B1
+            // SHA-256: 91:DE:21:82:58:69:42:09:97:26:22:A5:E6:60:C9:99:A3:44:8D:3F:FB:5E:2A:25:EB:08:9B:62:2A:FE:6F:8A
+            keyAlias "weile cats"
+            keyPassword "weile2021"
+            storeFile file("keystore/Cat Keeper.keystore")
+            storePassword "weile2021"
+        }
+        jixiang {
+            // MD5: BF:AD:C9:F8:73:FD:EF:AB:71:AD:79:A6:AE:1E:95:39
+            // SHA1: 20:CC:DB:4C:4C:7E:A2:38:E1:48:FE:99:A6:8C:46:FC:F2:F6:45:48
+            // SHA-256: EE:A7:39:A0:40:02:C4:B3:B0:13:19:5B:56:41:18:AB:80:C6:74:94:DE:AA:EC:C6:AA:6F:B4:39:C7:BC:4F:16
+            keyAlias "jixiangqipaiguan"
+            keyPassword STORE_PASSWORD_577588599
+            storeFile file("keystore/jixiangqipaiguan.keystore")
+            storePassword KEY_PASSWORD_577588599
+        }
+        byweilegame {
+            // MD5: C3:B4:E5:E3:0F:44:29:68:BD:57:F0:85:AB:B4:7E:4D
+            // SHA1: 46:6D:FE:4D:2D:EC:68:B6:7E:A6:45:A6:59:34:35:E9:98:B6:AF:25
+            // SHA-256: 6D:6B:72:D1:70:E1:86:FF:8F:87:D9:31:09:3C:8D:72:69:7C:95:63:D1:81:B6:33:6C:E4:92:B0:59:88:2C:F4
+            keyAlias "weilegame"
+            keyPassword STORE_PASSWORD_577588599
+            storeFile file("keystore/weileGlobal.keystore")
+            storePassword KEY_PASSWORD_577588599
+        }
+        ynby {
+            // MD5: 72:B7:8B:97:C4:83:13:00:2F:90:9B:3F:51:D5:99:4E
+            // SHA1: C2:E2:A2:70:B4:A9:0C:C4:02:83:D4:13:DA:43:86:49:CD:D7:87:D8
+            // SHA-256: 09:6E:FE:1C:E8:BC:E1:DA:63:B1:6B:E6:C3:75:1E:65:4D:C0:AF:14:BA:9E:16:96:4A:C3:E5:35:E9:DF:45:54
+            keyAlias "weilevi"
+            keyPassword "1234561"
+            storeFile file("keystore/weileVi.keystore")
+            storePassword "1234561"
+        }
+        weilegame {
+            // MD5: 88:D9:0C:FB:31:EB:73:41:1A:99:99:76:F7:20:2B:4E
+            // SHA1: 98:D5:60:7F:C3:2A:03:58:3B:4C:D0:CA:FD:50:4E:9E:5F:71:C0:A0
+            // SHA-256: 9D:65:D3:DA:2C:49:D3:8F:07:99:9B:5E:29:DF:F3:70:9E:74:E3:4E:76:8A:7E:7D:4D:07:04:24:6A:9D:89:62
+            v1SigningEnabled true
+            v2SigningEnabled true
+
+            keyAlias "weilegame"
+            keyPassword STORE_PASSWORD_577588599
+            storeFile file("keystore/weileHall.keystore")
+            storePassword KEY_PASSWORD_577588599
+        }
+        zhadanji {
+            // MD5: DB:A7:94:57:39:D0:69:37:DA:C4:CA:8F:E5:12:9C:32
+            // SHA1: 0B:FD:67:7E:B5:EC:B5:44:52:04:22:57:9B:AB:39:90:CA:72:73:83
+            // SHA-256: 4E:90:F4:5B:CD:D9:88:D3:42:77:86:82:EB:2E:D6:90:84:9B:AB:BB:A6:63:CE:95:90:13:D7:C5:6E:4D:12:2F
+            keyAlias "jxmzone"
+            keyPassword STORE_PASSWORD_577588599
+            storeFile file("keystore/jxmzone.keystore")
+            storePassword KEY_PASSWORD_577588599
+        }
+        // 海外印度 Rummy（Gin Rummy Go）测试包用签名。
+        // 与 google-services.json 中 oauth_client.android_info.certificate_hash
+        // (SHA1=7da625c2d779d576a461f5bca0870a0b98894acb) 严格对齐，否则 Google Sign-In 会失败。
+        zhouge {
+            // MD5: 80:CC:A1:F2:56:9E:F5:39:FC:0C:13:0A:9A:82:7A:90
+            // SHA1: 7D:A6:25:C2:D7:79:D5:76:A4:61:F5:BC:A0:87:0A:0B:98:89:4A:CB
+            // SHA-256: ED:2D:7C:78:02:B7:4A:6E:FA:99:E7:54:F0:80:64:B6:78:71:69:77:40:27:89:86:9E:3A:05:16:6D:75:18:F8
+            keyAlias "key0"
+            keyPassword "888888"
+            storeFile file("keystore/zhouge.keystore")
+            storePassword "888888"
+        }
+        scs {
+            // SHA1: 62:1E:B4:73:82:11:B5:F4:7B:9F:32:CC:D9:73:B6:13:D4:D3:88:F6
+            // SHA-256: A2:75:5F:11:46:B6:BE:F0:6A:96:53:33:44:D1:0E:2C:AB:61:44:72:DA:54:40:D5:E8:8F:66:D8:4D:65:26:6C
+            keyAlias "scs"
+            keyPassword "com.homeland.scs"
+            storeFile file("keystore/scs.keystore")
+            storePassword "com.homeland.scs"
+        }
+    }
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
+
+    flavorDimensions "versionCode"
+
+    productFlavors {
+        qzw {
+            applicationId "com.weile.qzw"
+            resValue "string", "app_qipai_name", "雀之舞"
+            manifestPlaceholders.put("FACEBOOK_APP_ID", "1350265355970397")
+
+            versionCode 12
+            versionName "1.0.14"
+            signingConfig signingConfigs.qzw
+
+            dependencies {
+                resValue "string", "facebook_app_id", "1350265355970397"
+                resValue "string", "facebook_client_token", "743b3c4177d84233a42558b4f94c8895"
+                qzwImplementation project(':overseas:rxsdk_overseas')
+//                qzwImplementation project(':overseas:rxsdk_line')
+//                qzwImplementation project(':overseas:rxsdk_tiktok')
+//                qzwImplementation project(':overseas:rxsdk_twitter')
+//                qzwImplementation project(':overseas:rxsdk_firebase')
+//                qzwImplementation project(':rxsdk_catappult')
+//                qzwImplementation project(':rxsdk_h5pay')
+//                qzwImplementation project(':rxsdk_upay')
+                qzwImplementation project(':demo:app_demo_overseas')
+            }
+        }
+
+        os_huawei {
+            applicationId 'com.weile.bygame.huawei'
+            resValue "string", "app_qipai_name", "海外华为"
+            versionCode 109011
+            versionName "10.11.1"
+            signingConfig signingConfigs.byweilegame
+            manifestPlaceholders.put("FACEBOOK_APP_ID", "1688134101629555")
+            resValue "string", "facebook_app_id", "1688134101629555"
+            resValue "string", "facebook_client_token", "140aaab9e9bebae946b3d242be2bc19d"
+//            resValue "string", "facebook_app_id", "1226138115321851"
+//             resValue "string", "facebook_client_token", "5ae6dd8dac4551ed3e7d347937a59359"
+
+
+//            resValue "string", "google_app_id", "302429863905-5c237rh19tecnmu08p6e8p4jj6uhfsvv"
+//            resValue "string", "google_client_id", "<REDACTED_GOOGLE_CLIENT_ID>"
+//            resValue "string", "google_app_id", "728854069094"
+//            resValue "string", "google_client_id", "<REDACTED_GOOGLE_CLIENT_ID>"
+//            <REDACTED_GOOGLE_CLIENT_ID>
+//            <REDACTED_GOOGLE_CLIENT_SECRET>
+
+            resValue "string", "google_app_id", "964536114368"
+            resValue "string", "google_client_id", "<REDACTED_GOOGLE_CLIENT_ID>"
+
+//            <REDACTED_GOOGLE_CLIENT_SECRET>
+
+
+            dependencies {
+                os_huaweiImplementation project(':overseas:rxsdk_overseas_huawei')
+                os_huaweiImplementation project(':push:rxsdk_push_huawei')
+                os_huaweiImplementation project(':demo:app_demo_push')
+                os_huaweiImplementation project(':demo:app_demo_overseas')
+
+            }
+        }
+        // 海外订阅支付测试包：宿主为 rxsdk_overseas（Google Billing + Facebook）。进「海外测试」页点「Google订阅(rxdy)」。
+        overseas_demo {
+            applicationId 'com.weile.domino'
+            manifestPlaceholders.put("FACEBOOK_APP_ID", "7472805502731255")
+            // RuStore Pay SDK（BOM 2026.06.01 / pay 10.5.0）必填项。
+            // RUSTORE_CONSOLE_APP_ID：RuStore Console 的「App ID」（应用 ID）。
+            // RUSTORE_APP_SCHEME：自定义 Deep link scheme，需与 RuStore Console 后台配置的回跳 scheme 一致；
+            //                     支付回跳 Activity 的 intent-filter 内 data android:scheme 必须与此值完全相同。
+            manifestPlaceholders.put("RUSTORE_CONSOLE_APP_ID", "2063706637")
+            manifestPlaceholders.put("RUSTORE_APP_SCHEME", "rustore.weile.domino")
+            def vkClientId = (project.findProperty("VKID_CLIENT_ID") ?: System.getenv("VKID_CLIENT_ID") ?: "54593763").toString()
+            def vkClientSecret = (project.findProperty("VKID_CLIENT_SECRET") ?: System.getenv("VKID_CLIENT_SECRET") ?: "").toString()
+            manifestPlaceholders.put("VKIDClientID", vkClientId)
+            manifestPlaceholders.put("VKIDClientSecret", vkClientSecret)
+            manifestPlaceholders.put("VKIDRedirectHost", "vk.ru")
+            manifestPlaceholders.put("VKIDRedirectScheme", "vk${vkClientId}")
+            resValue "string", "app_qipai_name", "海外domino"
+            resValue "string", "google_client_id", "<REDACTED_GOOGLE_CLIENT_ID>"
+            versionCode 14
+            versionName "1.0.14"
+            signingConfig signingConfigs.domino
+            minSdkVersion 24
+            targetSdkVersion 36
+            multiDexEnabled true
+            dependencies {
+                resValue "string", "facebook_app_id", "7472805502731255"
+                resValue "string", "facebook_client_token", "5ae6dd8dac4551ed3e7d347937a59359"
+                overseas_demoImplementation project(':overseas:rxsdk_overseas')
+
+                overseas_demoImplementation project(':overseas:rxsdk_vk')
+                overseas_demoImplementation project(':overseas:rxsdk_rustore')
+                overseas_demoImplementation project(':demo:app_demo_overseas')
+                overseas_demoImplementation project(':overseas:rxsdk_firebase')
+                overseas_demoImplementation project(':demo:app_demo_push')
+            }
+        }
+
+        // 海外印度 Rummy（Gin Rummy Go）测试包：用于业务方 com.weile.rummy 的回归验证。
+        //   - 服务端：cpid=1000350 / productid=107 / channelid=1002（rxconfig.json 已包含该 product）。
+        //   - Firebase：google-services.json 放在 src/overseas_rummy/ 下，flavor 名带 "overseas"
+        //     会自动触发顶部 apply plugin 'com.google.gms.google-services' / 'com.google.firebase.crashlytics'。
+        //   - 签名：zhouge.keystore，SHA1 与 google-services.json 中 OAuth client 的 certificate_hash 对齐，
+        //     更换签名/包名都会让 Google Sign-In 失效，需同步刷新 Firebase 控制台 + 重新下载 json。
+        //   - applicationId 必须是 com.weile.rummy（与 google-services.json 内 package_name 严格一致），否则
+        //     google-services 插件会报 "No matching client found for package name"。
+        overseas_rummy {
+            applicationId 'com.weile.rummy'
+            resValue "string", "app_qipai_name", "海外Rummy测试"
+            manifestPlaceholders.put("FACEBOOK_APP_ID", "1633319624553836")
+            versionCode 10002
+            versionName "1.0.1"
+            signingConfig signingConfigs.zhouge
+            minSdkVersion 24
+            targetSdkVersion 36
+            multiDexEnabled true
+            dependencies {
+                resValue "string", "facebook_app_id", "1633319624553836"
+                resValue "string", "facebook_client_token", "68bb1fb324979af77ccaf021d9803360"
+                resValue "string", "google_client_id", "<REDACTED_GOOGLE_CLIENT_ID>"
+                overseas_rummyImplementation project(':overseas:rxsdk_overseas')
+                overseas_rummyImplementation project(':overseas:rxsdk_firebase')
+                overseas_rummyImplementation project(':demo:app_demo_overseas')
+                overseas_rummyImplementation project(':demo:app_demo_push')
+            }
+        }
+
+        // Apkpure/VGP 测试包（瑞雪 Demo 包名）
+        overseas_vgamepop {
+            applicationId 'com.ruixue.sdkdemo.vgamepop'
+            def vkClientId = (project.findProperty("VKID_VGAMEPOP_CLIENT_ID") ?: System.getenv("VKID_VGAMEPOP_CLIENT_ID") ?: "54593763").toString()
+            def vkClientSecret = (project.findProperty("VKID_VGAMEPOP_CLIENT_SECRET") ?: System.getenv("VKID_VGAMEPOP_CLIENT_SECRET") ?: "").toString()
+            manifestPlaceholders.put("VKIDClientID", vkClientId)
+            manifestPlaceholders.put("VKIDClientSecret", vkClientSecret)
+            manifestPlaceholders.put("VKIDRedirectHost", "vk.ru")
+            manifestPlaceholders.put("VKIDRedirectScheme", "vk${vkClientId}")
+            resValue "string", "app_qipai_name", "海外vgamepop"
+            resValue "string", "facebook_app_id", ""
+            resValue "string", "facebook_client_token", ""
+            versionCode rootProject.ext.versionCode
+            versionName rootProject.ext.versionName
+            signingConfig signingConfigs.byweilegame
+            minSdkVersion 24
+            targetSdkVersion 35
+            multiDexEnabled true
+            dependencies {
+                overseas_vgamepopImplementation project(':overseas:rxsdk_apkpure')
+                overseas_vgamepopImplementation project(':overseas:rxsdk_vk')
+                overseas_vgamepopImplementation project(':overseas:rxsdk_rustore')
+                overseas_vgamepopImplementation project(':demo:app_demo_overseas')
+            }
+        }
+
+        // Apkpure/VGP 业务包：com.weile.bygame.vgamepop（homeland / cpid 1000112 / channel 1011）。
+        // Firebase：请用业务方 google-services.json 覆盖 src/overseas_vgamepop_bygame/。
+        overseas_vgamepop_bygame {
+            applicationId 'com.weile.bygame.vgamepop'
+            // 与线上 APK（os_apkpure_20260507213441_release.apk）对齐
+            manifestPlaceholders.put("FACEBOOK_APP_ID", "1487092892893865")
+            manifestPlaceholders.put("RUSTORE_APP_SCHEME", "com.weile.bygame.vgamepop.arcb")
+            resValue "string", "app_qipai_name", "海外捕鱼vgamepop"
+            resValue "string", "facebook_app_id", "1487092892893865"
+            resValue "string", "facebook_client_token", "HciAS5zT5O4wLRSBdZu/TRQFDEPgW3J/wjGpvIyeJhzOuWs8ZskR5xNDQs1aKHBckZXiUt7E/4WfCS3b"
+            resValue "string", "google_client_id", "<REDACTED_GOOGLE_CLIENT_ID>"
+            versionCode 50367
+            versionName "5.0.16"
+            signingConfig signingConfigs.byweilegame
+            minSdkVersion 24
+            targetSdkVersion 35
+            multiDexEnabled true
+            dependencies {
+                overseas_vgamepop_bygameImplementation project(':overseas:rxsdk_apkpure')
+//                overseas_vgamepop_bygameImplementation project(':overseas:rxsdk_vk')
+                overseas_vgamepop_bygameImplementation project(':overseas:rxsdk_rustore')
+                overseas_vgamepop_bygameImplementation project(':overseas:rxsdk_facebook')
+                overseas_vgamepop_bygameImplementation project(':demo:app_demo_overseas')
+            }
+        }
+
+        overseas_huawei {
+            applicationId 'com.weile.bygame.huawei'
+            resValue "string", "app_qipai_name", "海外华为"
+            versionCode 109011
+            versionName "10.11.1"
+            signingConfig signingConfigs.byweilegame
+            manifestPlaceholders.put("FACEBOOK_APP_ID", "1688134101629555")
+            resValue "string", "facebook_app_id", "1688134101629555"
+            resValue "string", "facebook_client_token", "140aaab9e9bebae946b3d242be2bc19d"
+//            resValue "string", "facebook_app_id", "1226138115321851"
+//             resValue "string", "facebook_client_token", "5ae6dd8dac4551ed3e7d347937a59359"
+
+
+//            resValue "string", "google_app_id", "302429863905-5c237rh19tecnmu08p6e8p4jj6uhfsvv"
+//            resValue "string", "google_client_id", "<REDACTED_GOOGLE_CLIENT_ID>"
+//            resValue "string", "google_app_id", "728854069094"
+//            resValue "string", "google_client_id", "<REDACTED_GOOGLE_CLIENT_ID>"
+//            <REDACTED_GOOGLE_CLIENT_ID>
+//            <REDACTED_GOOGLE_CLIENT_SECRET>
+
+//            resValue "string", "google_app_id", "964536114368"
+            resValue "string", "google_client_id", "<REDACTED_GOOGLE_CLIENT_ID>"
+
+//            <REDACTED_GOOGLE_CLIENT_SECRET>
+
+
+            dependencies {
+                overseas_huaweiImplementation project(':overseas:rxsdk_overseas_huawei')
+                overseas_huaweiImplementation project(':push:rxsdk_push_huawei')
+                overseas_huaweiImplementation project(':demo:app_demo_push')
+                overseas_huaweiImplementation project(':demo:app_demo_overseas')
+
+            }
+        }
+
+        overseas {
+            //rx push test params
+            //[可选]vivo 厂商参数，接入vivo推送时配置
+            manifestPlaceholders.put("VIVO_APP_ID", "105529756");
+            manifestPlaceholders.put("VIVO_API_KEY", "384add9f2aa0c613a9ee6791a236878c");
+            //[可选]oppo 厂商参数，接入oppo推送时配置
+//            manifestPlaceholders.put("OPPO_APP_SECRET", "ad4e4dbaebbc4a1284fc8cf68bfef840");
+//            manifestPlaceholders.put("OPPO_APP_KEY", "b78afd5ecd494bd8b910ddef7f969b44");
+            //[可选]魅族 厂商参数，接入魅族推送时配置
+            manifestPlaceholders.put("MZ_APP_ID", "145966");
+            manifestPlaceholders.put("MZ_APP_KEY", "6eebaf90d5e443d8a7e3b09ad6fdde84");
+            //[可选]小米厂 商参数，接入小米推送时配置
+//            manifestPlaceholders.put("MI_APP_ID", "2882303761520118272");
+//            manifestPlaceholders.put("MI_APP_KEY", "5982011817272");
+
+            manifestPlaceholders.put("HONOR_APP_ID", "104427074");
+            manifestPlaceholders.put("FACEBOOK_APP_ID", "7472805502731255")
+
+            applicationId "com.weile.bombchicken"
+            resValue "string", "app_qipai_name", "海外测试"
+            versionCode 12
+            versionName "1.0.14"
+            signingConfig signingConfigs.zhadanji
+
+            dependencies {
+                resValue "string", "facebook_app_id", "7472805502731255"
+                resValue "string", "facebook_client_token", "5ae6dd8dac4551ed3e7d347937a59359"
+                overseasImplementation project(':overseas:rxsdk_overseas')
+//                overseasImplementation project(':overseas:rxsdk_qoo')
+                overseasImplementation project(':overseas:rxsdk_line')
+                overseasImplementation project(':overseas:rxsdk_tiktok')
+                overseasImplementation project(':overseas:rxsdk_twitter')
+                overseasImplementation project(':overseas:rxsdk_reddit')
+                overseasImplementation project(':overseas:rxsdk_firebase')
+                overseasImplementation project(':push:rxsdk_push_honor')
+                overseasImplementation project(':rxsdk_catappult')
+                overseasImplementation project(':rxsdk_h5pay')
+                overseasImplementation project(':rxsdk_upay')
+                overseasImplementation project(':demo:app_demo_overseas')
+                overseasImplementation project(':demo:app_demo_topon')
+                overseasImplementation project(':rxsdk_bytedance_log')
+
+                overseasImplementation project(':demo:app_demo_push')
+                overseasImplementation project(':push:rxsdk_push_huawei')
+                overseasImplementation project(':push:rxsdk_push_meizu')
+//                overseasImplementation project(':push:rxsdk_push_oppo')
+                overseasImplementation project(':push:rxsdk_push_vivo')
+//                overseasImplementation project(':push:rxsdk_push_mi')
+
+            }
+        }
+        overseas_byYueNan {
+            manifestPlaceholders.put("FACEBOOK_APP_ID", "1087270825305691")
+
+            applicationId "com.wl.fishinggamezone"
+            resValue "string", "app_qipai_name", "越南捕鱼"
+            versionCode 116
+            versionName "1.0.1"
+            signingConfig signingConfigs.ynby
+
+            dependencies {
+                resValue "string", "facebook_app_id", "1087270825305691"
+                resValue "string", "facebook_client_token", "1eff01a000f0858b25cb0a345bade073"
+                overseas_byYueNanImplementation project(':overseas:rxsdk_overseas')
+                overseas_byYueNanImplementation project(':rxsdk_h5pay')
+                overseas_byYueNanImplementation project(':demo:app_demo_overseas')
+            }
+        }
+        overseasBy {
+            manifestPlaceholders.put("FACEBOOK_APP_ID", "1688134101629555")
+            applicationId "com.weile.bygame"
+            resValue "string", "app_qipai_name", "捕鱼国际"
+            versionCode 50303
+            versionName "5.0.13"
+            signingConfig signingConfigs.byweilegame
+
+            dependencies {
+                resValue "string", "facebook_app_id", "1688134101629555"
+                resValue "string", "facebook_client_token", "140aaab9e9bebae946b3d242be2bc19d"
+                overseasByImplementation project(':overseas:rxsdk_overseas')
+                overseasByImplementation project(':rxsdk_h5pay')
+                overseasByImplementation project(':overseas:rxsdk_line')
+                overseasByImplementation project(':demo:app_demo_overseas')
+                overseasByImplementation project(':overseas:rxsdk_adjust')
+                overseasByImplementation project(':rxsdk_openinstall_os')
+//                overseasByImplementation('com.ruixue.sdk:adjust_sign:3.20.0')
+                overseasByImplementation project(':rxsdk_kwai_monitor')
+                overseasByImplementation project(':rxsdk_oaidv2')
+//                overseasByImplementation('com.kwai.monitor.payload:channelsdk:0.2.3')
+//                overseasByImplementation ('com.bytedance.hume:HumeSDK:1.1.1')
+//                overseasByImplementation project(':rxsdk_upay')
+//                overseasByImplementation project(':overseas:rxsdk_line')
+//                overseasByImplementation project(':overseas:rxsdk_tiktok')
+//                overseasByImplementation project(':overseas:rxsdk_zalo')
+            }
+        }
+        overseas_jf {
+
+            manifestPlaceholders.put("FACEBOOK_APP_ID", "7472805502731255")
+            applicationId "com.weile.bombchicken"
+            resValue "string", "app_qipai_name", "瑞雪 JFSdk"
+            versionCode 12
+            versionName "1.0.14"
+            signingConfig signingConfigs.zhadanji
+
+            dependencies {
+                resValue "string", "facebook_app_id", "7472805502731255"
+                resValue "string", "facebook_client_token", "5ae6dd8dac4551ed3e7d347937a59359"
+                overseas_jfImplementation project(':overseas:rxsdk_overseas_weizhi')
+                overseas_jfImplementation project(':overseas:rxsdk_line')
+                overseas_jfImplementation project(':overseas:rxsdk_tiktok')
+                overseas_jfImplementation project(':overseas:rxsdk_reddit')
+                overseas_jfImplementation project(':overseas:rxsdk_firebase')
+                overseas_jfImplementation project(':rxsdk_catappult')
+                overseas_jfImplementation project(':rxsdk_h5pay')
+                overseas_jfImplementation project(':rxsdk_upay')
+                overseas_jfImplementation project(':demo:app_demo_overseas')
+                overseas_jfImplementation project(':demo:app_demo_topon')
+                overseas_jfImplementation project(':rxsdk_bytedance_log')
+                overseas_jfImplementation project(':demo:app_demo_push')
+            }
+        }
+
+        //--------------------------------------------------------------------
+        yc_gnjh {
+            applicationId "com.gm.gnjh002.youcheng"
+            resValue "string", "app_qipai_name", "光年计划"
+            versionCode 1
+            versionName "1.0.1"
+            signingConfig signingConfigs.weilegame
+            dependencies {
+                yc_gnjhImplementation project(':channel:rxsdk_weile')
+                yc_gnjhImplementation project(':rxsdk_bytedance_log')
+                yc_gnjhImplementation project(':demo:app_rxsdk_demo')
+            }
+        }
+
+        honor_wlddz {
+            manifestPlaceholders.put("HONOR_APP_ID", "104415463")
+
+            applicationId "app.weile.doudizhu.honor"
+            resValue "string", "app_qipai_name", "荣耀斗地主"
+            versionCode 1
+            versionName "1.0.1"
+            signingConfig signingConfigs.weilegame
+            dependencies {
+                honor_wlddzImplementation project(':channel:rxsdk_honor')
+                honor_wlddzImplementation project(':push:rxsdk_push_honor')
+                honor_wlddzImplementation project(':demo:app_demo_push')
+            }
+        }
+
+
+        ucgame {
+            applicationId "com.weile.bygame"
+            resValue "string", "app_qipai_name", "UCGameDemo"
+            versionCode 12
+            versionName "1.0.14"
+            signingConfig signingConfigs.byweilegame
+
+            dependencies {
+                ucgameImplementation project(':channel:rxsdk_9game')
+            }
+        }
+
+        jx_ddz {
+            applicationId "com.jixiang.game.ddz"
+            resValue "string", "app_qipai_name", "吉祥斗地主"
+            versionCode 1
+            versionName "1.0.1"
+            signingConfig signingConfigs.jixiang
+            dependencies {
+                jx_ddzImplementation project(':channel:rxsdk_weile')
+                jx_ddzImplementation(project(':rxsdk_weixin_withpay'))
+                jx_ddzImplementation(project(':demo:app_demo_wechat'))
+                jx_ddzImplementation(project(':rxsdk_alipay'))
+                jx_ddzImplementation(project(':rxsdk_h5pay'))
+                jx_ddzImplementation(project(':rxsdk_yeepay'))
+                jx_ddzImplementation(project(':rxsdk_unifypay'))
+            }
+        }
+
+        jx_jxmj_huawei {
+            applicationId "com.jixiang.game.sichuan.huawei"
+            resValue "string", "app_qipai_name", "四川华为"
+            versionCode 1
+            versionName "1.0.1"
+            signingConfig signingConfigs.jixiang
+//            buildConfigField "String", "CHANNEL", "\"kwaiallin\""
+            dependencies {
+                jx_jxmj_huaweiImplementation project(':channel:rxsdk_weile')
+                jx_jxmj_huaweiImplementation(project(':rxsdk_weixin'))
+                jx_jxmj_huaweiImplementation(project(':rxsdk_alipay'))
+            }
+        }
+
+        wl_ddz_kwai {
+
+            manifestPlaceholders.put("KWAI_APP_ID", "ks716072344388205519")
+            manifestPlaceholders.put("KWAI_APP_NAME", "快手斗地主")
+            applicationId "com.weile.ddz.kuaishou"
+            resValue "string", "app_qipai_name", "快手斗地主"
+            versionCode 100
+            versionName "100.0.1"
+            signingConfig signingConfigs.weilegame
+            dependencies {
+                wl_ddz_kwaiImplementation project(':channel:rxsdk_kwaiallin')
+                wl_ddz_kwaiImplementation(project(':rxsdk_weixin')) {
+                    exclude group: 'com.tencent.mm.opensdk', module: 'wechat-sdk-android'
+                }
+            }
+        }
+        wl_jxmj_kwaiallin {
+
+
+            manifestPlaceholders.put("KWAI_APP_ID", "ks666532749113713598")
+            manifestPlaceholders.put("KWAI_APP_NAME", "快手测试 Demo")
+            applicationId "com.weile.jxmj.kwaiopen"
+            resValue "string", "app_qipai_name", "家乡快手联运"
+            versionCode 1
+            versionName "1.0.1"
+            signingConfig signingConfigs.weilegame
+//            buildConfigField "String", "CHANNEL", "\"kwaiallin\""
+            dependencies {
+                wl_jxmj_kwaiallinImplementation project(':channel:rxsdk_kwaiallin')
+                wl_jxmj_kwaiallinImplementation(project(':rxsdk_weixin')) {
+                    exclude group: 'com.tencent.mm.opensdk', module: 'wechat-sdk-android'
+                }
+            }
+        }
+
+        jx_by {
+            applicationId "com.jixiang.game.fish"
+            resValue "string", "app_qipai_name", "吉祥捕鱼"
+            versionCode 1000
+            versionName "1000.5.2"
+            signingConfig signingConfigs.jixiang
+            dependencies {
+                jx_byImplementation project(':channel:rxsdk_weile')
+                jx_byImplementation(project(':rxsdk_weixin_withpay'))
+                jx_byImplementation(project(':demo:app_demo_wechat'))
+                jx_byImplementation(project(':rxsdk_alipay'))
+                jx_byImplementation(project(':rxsdk_h5pay'))
+                jx_byImplementation(project(':rxsdk_yeepay'))
+                jx_byImplementation(project(':rxsdk_unifypay'))
+            }
+        }
+
+        vivo_jxby {
+            applicationId "com.jixiang.game.fish.vivo"
+            resValue "string", "app_qipai_name", "吉祥捕鱼vivo"
+            versionCode 1000
+            versionName "1000.5.2"
+            signingConfig signingConfigs.jixiang
+//            buildConfigField "String", "CHANNEL", "\"vivo\""
+            dependencies {
+                vivo_jxbyImplementation project(':channel:rxsdk_vivo')
+                vivo_jxbyImplementation project(':rxsdk_weixin')
+                vivo_jxbyImplementation project(':rxsdk_alimobile')
+            }
+        }
+        jx_by_huawei {
+            applicationId 'com.jixiang.game.fish.huawei'
+            resValue "string", "app_qipai_name", "jx捕鱼华为"
+            versionCode 109011
+            versionName "10.11.1"
+            signingConfig signingConfigs.jixiang
+//            buildConfigField "String", "CHANNEL", "\"huawei\""
+            dependencies {
+                jx_by_huaweiImplementation project(':channel:rxsdk_huawei')
+                jx_by_huaweiImplementation project(':rxsdk_weixin')
+                jx_by_huaweiImplementation project(':rxsdk_alimobile')
+//                jx_by_huaweiImplementation project(':rxsdk_gaode')
+                jx_by_huaweiImplementation project(':demo:app_demo_push')
+                jx_by_huaweiImplementation project(':push:rxsdk_push_huawei')
+                jx_by_huaweiImplementation project(':demo:app_demo_huawei')
+            }
+
+        }
+        wddj_huawei {
+            applicationId 'com.yueyang.wddj.huawei'
+            resValue "string", "app_qipai_name", "武道对决"
+            versionCode 109011
+            versionName "10.11.1"
+            signingConfig signingConfigs.weilegame
+
+            dependencies {
+                wddj_huaweiImplementation project(':channel:rxsdk_huawei')
+                wddj_huaweiImplementation project(':rxsdk_weixin')
+                wddj_huaweiImplementation project(':demo:app_demo_push')
+                wddj_huaweiImplementation project(':push:rxsdk_push_huawei')
+                wddj_huaweiImplementation project(':demo:app_demo_huawei')
+            }
+        }
+
+        wl_jxmj_huawei {
+
+            applicationId "app.weile.jiaxiangmjmj.huawei"
+            resValue "string", "app_qipai_name", "jxmj华为"
+            versionCode 1000
+            versionName "1000.0.1"
+            signingConfig signingConfigs.weilegame
+//            buildConfigField "String", "CHANNEL", "\"huawei\""
+            manifestPlaceholders.put("AMAP_APIKEY", "1308b49662fd830477a91d379d403c48")
+            //[可选]魅族 厂商参数，接入魅族推送时配置
+            manifestPlaceholders.put("MZ_APP_ID", "141345")
+            manifestPlaceholders.put("MZ_APP_KEY", "c3784b4268b446ffaf4163b647b8b521")
+            //[可选]小米厂 商参数，接入小米推送时配置
+            manifestPlaceholders.put("MI_APP_ID", "2882303761517690901")
+            manifestPlaceholders.put("MI_APP_KEY", "5441769030901")
+
+            dependencies {
+                wl_jxmj_huaweiImplementation project(':channel:rxsdk_huawei')
+                wl_jxmj_huaweiImplementation project(':rxsdk_weixin')
+                wl_jxmj_huaweiImplementation project(':rxsdk_alimobile')
+//                wl_jxmj_huaweiImplementation project(':rxsdk_gaode')
+                wl_jxmj_huaweiImplementation project(':demo:app_demo_wechat')
+
+                wl_jxmj_huaweiImplementation project(':demo:app_demo_push')
+                wl_jxmj_huaweiImplementation project(':push:rxsdk_push_huawei')
+            }
+
+        }
+
+        wl_ddz_huawei {
+
+            applicationId "app.weile.doudizhu.huawei"
+            resValue "string", "app_qipai_name", "wlddz华为"
+            versionCode 10000
+            versionName "10000.0.1"
+            signingConfig signingConfigs.weilegame
+//            buildConfigField "String", "CHANNEL", "\"huawei\""
+            manifestPlaceholders.put("AMAP_APIKEY", "1308b49662fd830477a91d379d403c48")
+            //[可选]魅族 厂商参数，接入魅族推送时配置
+            manifestPlaceholders.put("MZ_APP_ID", "141345")
+            manifestPlaceholders.put("MZ_APP_KEY", "c3784b4268b446ffaf4163b647b8b521")
+            //[可选]小米厂 商参数，接入小米推送时配置
+            manifestPlaceholders.put("MI_APP_ID", "2882303761517690901")
+            manifestPlaceholders.put("MI_APP_KEY", "5441769030901")
+
+            dependencies {
+                wl_ddz_huaweiImplementation project(':channel:rxsdk_huawei')
+                wl_ddz_huaweiImplementation project(':rxsdk_weixin')
+                wl_ddz_huaweiImplementation project(':rxsdk_alimobile')
+//                wl_jxmj_huaweiImplementation project(':rxsdk_gaode')
+                wl_ddz_huaweiImplementation project(':demo:app_demo_wechat')
+
+                wl_ddz_huaweiImplementation project(':demo:app_demo_push')
+                wl_ddz_huaweiImplementation project(':push:rxsdk_push_huawei')
+                wl_ddz_huaweiImplementation project(':demo:app_demo_huawei')
+            }
+
+        }
+
+        yjhc {
+            applicationId "com.gm.yjhc.youcheng"
+            resValue "string", "app_qipai_name", "御剑红尘"
+            versionCode 10101
+            versionName "1.1.1"
+            signingConfig signingConfigs.aiwutest
+            dependencies {
+                yjhcImplementation project(':channel:rxsdk_weile')
+
+                yjhcImplementation project(':rxsdk_bytedance_log')
+                yjhcImplementation project(':rxsdk_weixin')
+                yjhcImplementation project(":demo:app_demo_wechat")
+            }
+        }
+
+        bytt {
+            applicationId "weile.byqpb.kstg"
+            resValue "string", "app_qipai_name", "捕鱼头条"
+            versionCode 104
+            versionName "3.6.3"
+            signingConfig signingConfigs.byweilegame
+            dependencies {
+                byttImplementation project(':channel:rxsdk_weile')
+                byttImplementation project(':rxsdk_weixin')
+                byttImplementation project(':rxsdk_alimobile')
+                byttImplementation project(':rxsdk_bytedance_log')
+                byttImplementation project(':rxsdk_h5pay')
+                byttImplementation project(':rxsdk_yeepay')
+                byttImplementation project(':rxsdk_snfpay')
+                byttImplementation project(":demo:app_demo_wechat")
+            }
+        }
+
+
+        wl_ddz {
+            applicationId "com.weile.ddz"
+            resValue "string", "app_qipai_name", "wl斗地主"
+            versionCode 1759
+            versionName "7.1.71"
+            signingConfig signingConfigs.weilegame
+            dependencies {
+                wl_ddzImplementation project(':channel:rxsdk_weile')
+                wl_ddzImplementation project(':rxsdk_alimobile')
+                wl_ddzImplementation project(':rxsdk_weixin')
+                wl_ddzImplementation project(":rxsdk_kwai_monitor")
+                wl_ddzImplementation project(":demo:app_demo_wechat")
+                wl_ddzImplementation project(":rxsdk_oaid")
+            }
+        }
+
+        wl_ddz_ld {
+            applicationId "com.weile.doudizhu.ld"
+            resValue "string", "app_qipai_name", "wlld斗地主"
+            versionCode 13090
+            versionName "1000.0.4"
+            signingConfig signingConfigs.weilegame
+            dependencies {
+                wl_ddz_ldImplementation project(':channel:rxsdk_ld')
+            }
+        }
+
+        wl_ddz_douyin {
+
+            applicationId "com.weile.doudizhu.bytedance.gamecenter"
+            resValue "string", "app_qipai_name", "斗地主抖音"
+            versionCode 1004
+            versionName "1000.0.4"
+            signingConfig signingConfigs.weilegame
+            dependencies {
+                wl_ddz_douyinImplementation project(':channel:rxsdk_douyin_gb')
+                wl_ddz_douyinImplementation project(':rxsdk_weixin')
+                wl_ddz_douyinImplementation project(":demo:app_demo_wechat")
+            }
+        }
+
+        vivo_wlddz {
+            manifestPlaceholders.put("VIVO_APP_ID", "37134");
+            manifestPlaceholders.put("VIVO_API_KEY", "13c7b6c7f78df0f3b7d9319b8f096c05");
+            applicationId "com.jxhd.weile.ddz.vivo"
+            resValue "string", "app_qipai_name", "斗地主vivo"
+            versionCode 1004
+            versionName "1000.0.4"
+            signingConfig signingConfigs.weilegame
+            dependencies {
+                vivo_wlddzImplementation project(':channel:rxsdk_vivo')
+                vivo_wlddzImplementation project(':push:rxsdk_push_vivo')
+                vivo_wlddzImplementation project(':rxsdk_weixin')
+
+                vivo_wlddzImplementation project(":demo:app_demo_wechat")
+                vivo_wlddzImplementation project(':demo:app_demo_push')
+            }
+        }
+
+        vivo_wlscmj {
+            manifestPlaceholders.put("VIVO_APP_ID", "37154");
+            manifestPlaceholders.put("VIVO_API_KEY", "1be6a0a103bfb44d462bd6b3bdf2297f");
+            applicationId "com.jxhd.weile.scmj.vivo"
+            resValue "string", "app_qipai_name", "四川vivo"
+            versionCode 1004
+            versionName "1000.0.4"
+            signingConfig signingConfigs.weilegame
+            dependencies {
+                vivo_wlscmjImplementation project(':channel:rxsdk_vivo')
+                vivo_wlscmjImplementation project(':push:rxsdk_push_vivo')
+                vivo_wlscmjImplementation project(':rxsdk_weixin')
+                vivo_wlscmjImplementation project(":demo:app_demo_wechat")
+                vivo_wlscmjImplementation project(':demo:app_demo_push')
+            }
+        }
+
+        wl_ddz_yyb {
+            manifestPlaceholders.put("QQ_APP_ID", "1106727070")
+            manifestPlaceholders.put("WX_APP_ID", "wx386e6e4dbdb0fc03")
+            applicationId "com.tencent.tmgp.weile.doudizhu"
+            resValue "string", "app_qipai_name", "斗地主yyb"
+            versionCode 1004
+            versionName "1000.0.4"
+            signingConfig signingConfigs.weilegame
+            dependencies {
+                wl_ddz_yybImplementation project(':channel:rxsdk_ysdk')
+                wl_ddz_yybImplementation project(":demo:app_demo_ysdk")
+                wl_ddz_yybImplementation project(":demo:app_rxsdk_demo")
+            }
+        }
+
+
+        ruixue {
+            applicationId "com.weile.jxmj"
+            resValue "string", "app_qipai_name", "国内测试"
+            versionCode 1004
+            versionName "1000.0.4"
+            signingConfig signingConfigs.weilegame
+            manifestPlaceholders.put("AMAP_APIKEY", "2642d735325ae5de2d00328104fbb8ce")
+
+            //[可选]魅族 厂商参数，接入魅族推送时配置
+            manifestPlaceholders.put("MZ_APP_ID", "141345")
+            manifestPlaceholders.put("MZ_APP_KEY", "c3784b4268b446ffaf4163b647b8b521")
+            //[可选]小米厂 商参数，接入小米推送时配置
+            manifestPlaceholders.put("MI_APP_ID", "2882303761517690901")
+            manifestPlaceholders.put("MI_APP_KEY", "5441769030901")
+
+            dependencies {
+                ruixueImplementation project(':channel:rxsdk_weile')
+                ruixueImplementation project(':rxsdk_weixin')
+                ruixueImplementation project(':rxsdk_alipay')
+                ruixueImplementation project(':rxsdk_alimobile')
+                ruixueImplementation project(':rxsdk_h5pay')
+                ruixueImplementation project(':rxsdk_gaode')
+                ruixueImplementation project(":rxsdk_unifypay")
+                ruixueImplementation project(":demo:app_demo_wechat")
+                ruixueImplementation project(':demo:app_demo_push')
+                ruixueImplementation project(':rxsdk_bytedance_log')
+
+                ruixueImplementation project(':push:rxsdk_push_huawei')
+                ruixueImplementation project(':push:rxsdk_push_meizu')
+                ruixueImplementation project(':push:rxsdk_push_mi')
+                ruixueImplementation project(':rxsdk_h5pay')
+                ruixueImplementation project(':rxsdk_openinstall')
+                ruixueImplementation project(':rxsdk_gdt')
+                ruixueImplementation project(':rxsdk_kwai_monitor')
+                ruixueImplementation project(':rxsdk_oaidv2')
+//                ruixueImplementation project(':rxsdk_install_appinfo')
+
+            }
+        }
+        jjdsyj001 {
+            applicationId "com.gm.jjdsyj001.youcheng"
+            resValue "string", "app_qipai_name", "进击的商业街"
+            versionCode 1
+            versionName "1.0"
+            signingConfig signingConfigs.weilegame
+
+            dependencies {
+                jjdsyj001Implementation project(':channel:rxsdk_weile')
+
+                jjdsyj001Implementation project(':rxsdk_bytedance_log')
+
+
+            }
+        }
+
+        rxdemo {
+            applicationId "com.ruixue.sdkdemo"
+            resValue "string", "app_qipai_name", "瑞雪国内Demo"
+            versionCode 1
+            versionName "1.0.1"
+            signingConfig signingConfigs.weilegame
+
+            dependencies {
+                rxdemoImplementation project(':channel:rxsdk_weile')
+                rxdemoImplementation project(':rxsdk_bytedance_log')
+                rxdemoImplementation project(':rxsdk_kwai_monitor')
+                rxdemoImplementation project(':rxsdk_oaidv2')
+
+                rxdemoImplementation project(':rxsdk_weixin')
+                rxdemoImplementation project(':rxsdk_alipay')
+                rxdemoImplementation project(":rxsdk_unifypay")
+                rxdemoImplementation project(":rxsdk_h5pay")
+                rxdemoImplementation project(":demo:app_demo_wechat")
+                rxdemoImplementation project(':demo:app_demo_push')
+
+            }
+        }
+
+        sdkpublic {
+            applicationId "com.ruixue.sdkpublic"
+            resValue "string", "app_qipai_name", "瑞雪国内Public Demo"
+            versionCode 1
+            versionName "1.0.1"
+            signingConfig signingConfigs.weilegame
+
+            dependencies {
+                sdkpublicImplementation project(':channel:rxsdk_weile')
+                sdkpublicImplementation project(':rxsdk_bytedance_log')
+
+                sdkpublicImplementation project(':rxsdk_weixin')
+                sdkpublicImplementation project(':rxsdk_alipay')
+                sdkpublicImplementation project(":rxsdk_unifypay")
+                sdkpublicImplementation project(":rxsdk_h5pay")
+                sdkpublicImplementation project(":demo:app_demo_wechat")
+                sdkpublicImplementation project(':demo:app_demo_push')
+            }
+        }
+
+        xingyi_demo {
+            applicationId "com.ruixue.sdkdemo.xingyi"
+            resValue "string", "app_qipai_name", "星驿支付测试"
+            versionCode 1
+            versionName "1.0.0"
+            signingConfig signingConfigs.weilegame
+
+            dependencies {
+                xingyi_demoImplementation project(':channel:rxsdk_weile')
+                xingyi_demoImplementation project(':rxsdk_h5pay')
+                xingyi_demoImplementation project(':channel:rxsdk_xingyi')
+                xingyi_demoImplementation project(':rxsdk_bytedance_log')
+                xingyi_demoImplementation project(":demo:app_demo_push")
+            }
+        }
+
+        taptap_mljy {
+            applicationId "com.jiayuan.mljy"
+            resValue "string", "app_qipai_name", "TapTap 测试"
+            versionCode 120400
+            versionName "12.4.0"
+
+            signingConfig signingConfigs.yzsh
+            dependencies {
+                taptap_mljyImplementation project(':channel:rxsdk_taptap')
+                taptap_mljyImplementation project(':rxsdk_weixin')
+                taptap_mljyImplementation project(':demo:app_rxsdk_demo')
+            }
+        }
+
+        honor_mljy {
+            applicationId "weile.jymxpd.honor"
+            resValue "string", "app_qipai_name", "荣耀家园梦想派对"
+            versionCode 3
+            versionName "12.4"
+            // Source APK cert SHA-256:
+            // 2B76A8E52D02305C31B775612CA5C200AE779E1C8D3AAC9C925CEBC18FA49EB1.
+            // No matching local signingConfig was found in this repo; use the repo default for local builds.
+            signingConfig signingConfigs.weilegame
+            dependencies {
+                honor_mljyImplementation project(':channel:rxsdk_honor')
+                honor_mljyImplementation project(':demo:app_rxsdk_demo')
+            }
+        }
+
+        // 虎牙联运 114 测试包（包名需与虎牙后台配置一致）。
+        huya_114 {
+            applicationId "com.huya.berry.jymxpd"
+            resValue "string", "app_qipai_name", "虎牙家园梦想派对测试"
+            versionCode 1
+            versionName "1.0.0"
+            // 线上包签名待接入方提供；本地测试先复用仓库现有签名。
+            signingConfig signingConfigs.weilegame
+            dependencies {
+                huya_114Implementation project(':channel:rxsdk_huya')
+                huya_114Implementation project(':demo:app_rxsdk_demo')
+            }
+        }
+
+        // 业务包 com.homeland.scs 的海外 Google 测试包；初始化配置 key=cp_1000361_301_1002。
+        overseas_homeland_scs {
+            applicationId "com.homeland.scs"
+            minSdkVersion 23
+            resValue "string", "app_qipai_name", "homeland scs"
+            resValue "string", "google_client_id", "<REDACTED_GOOGLE_CLIENT_ID>"
+            versionCode 1
+            versionName "1.0.2"
+            signingConfig signingConfigs.scs
+            manifestPlaceholders.put("FACEBOOK_APP_ID", "7472805502731255")
+            dependencies {
+                resValue "string", "facebook_app_id", "7472805502731255"
+                resValue "string", "facebook_client_token", "5ae6dd8dac4551ed3e7d347937a59359"
+                overseas_homeland_scsImplementation project(':overseas:rxsdk_overseas')
+                overseas_homeland_scsImplementation project(':demo:app_demo_overseas')
+                overseas_homeland_scsImplementation project(':rxsdk_h5pay')
+            }
+        }
+
+        qoo {
+            applicationId "com.ruixue.qooapp"
+            resValue "string", "app_qipai_name", "qoo demo"
+            versionCode 1
+            versionName "1.0.1"
+            signingConfig signingConfigs.weilegame
+            dependencies {
+                resValue "string", "facebook_app_id", "7472805502731255"
+                resValue "string", "facebook_client_token", "5ae6dd8dac4551ed3e7d347937a59359"
+
+                dependencies {
+                    resValue "string", "facebook_app_id", "7472805502731255"
+                    resValue "string", "facebook_client_token", "5ae6dd8dac4551ed3e7d347937a59359"
+                    qooImplementation project(':demo:app_demo_overseas')
+
+                    qooImplementation project(':overseas:rxsdk_qoo')
+
+
+                }
+            }
+        }
+
+        pushGN {
+            //rx push test params
+            //[可选]vivo 厂商参数，接入vivo推送时配置
+            manifestPlaceholders.put("VIVO_APP_ID", "105529756");
+            manifestPlaceholders.put("VIVO_API_KEY", "384add9f2aa0c613a9ee6791a236878c");
+            //[可选]oppo 厂商参数，接入oppo推送时配置
+            manifestPlaceholders.put("OPPO_APP_SECRET", "ad4e4dbaebbc4a1284fc8cf68bfef840");
+            manifestPlaceholders.put("OPPO_APP_KEY", "b78afd5ecd494bd8b910ddef7f969b44");
+            //[可选]魅族 厂商参数，接入魅族推送时配置
+            manifestPlaceholders.put("MZ_APP_ID", "145966");
+            manifestPlaceholders.put("MZ_APP_KEY", "6eebaf90d5e443d8a7e3b09ad6fdde84");
+            //[可选]小米厂 商参数，接入小米推送时配置
+            manifestPlaceholders.put("MI_APP_ID", "2882303761520118272");
+            manifestPlaceholders.put("MI_APP_KEY", "5982011817272");
+
+            manifestPlaceholders.put("HONOR_APP_ID", "104427074");
+            manifestPlaceholders.put("FACEBOOK_APP_ID", "7472805502731255")
+
+            applicationId "com.weile.bombchicken"
+            resValue "string", "app_qipai_name", "推送测试gn"
+            versionCode 12
+            versionName "1.0.14"
+            signingConfig signingConfigs.zhadanji
+
+            dependencies {
+
+                pushGNImplementation project(':channel:rxsdk_weile')
+//               pushGNasImplementation project(':overseas:rxsdk_firebase')
+                pushGNImplementation project(':demo:app_demo_push')
+                pushGNImplementation project(':push:rxsdk_push_huawei')
+                pushGNImplementation project(':push:rxsdk_push_honor')
+                pushGNImplementation project(':push:rxsdk_push_meizu')
+                pushGNImplementation project(':push:rxsdk_push_oppo')
+                pushGNImplementation project(':push:rxsdk_push_vivo')
+                pushGNImplementation project(':push:rxsdk_push_mi')
+            }
+        }
+
+// 包名：com.ruixue.sdk
+//AppID：31476607
+//AppKey：b919ff66060b48f2945b2beca911bc98
+//AppSecret：0c4aeb09cb124f5e80af8bb44731769f
+        push_oppo {
+            //rx push test params
+//            //[可选]oppo 厂商参数，接入oppo推送时配置
+            manifestPlaceholders.put("OPPO_APP_SECRET", "0c4aeb09cb124f5e80af8bb44731769f");
+            manifestPlaceholders.put("OPPO_APP_KEY", "b919ff66060b48f2945b2beca911bc98");
+
+
+            applicationId "com.ruixue.sdk"
+            resValue "string", "app_qipai_name", "oppopush测试"
+            versionCode 12
+            versionName "1.0.14"
+            signingConfig signingConfigs.zhadanji
+
+            dependencies {
+                push_oppoImplementation project(':channel:rxsdk_weile')
+                push_oppoImplementation project(':push:rxsdk_push_oppo')
+                push_oppoImplementation project(':demo:app_demo_push')
+            }
+        }
+
+        oppo_jxddz {
+
+            manifestPlaceholders.put("OPPO_APP_SECRET", "a1bf288cf6404950b6cdb8af29cb73a6");
+            manifestPlaceholders.put("OPPO_APP_KEY", "7577d378837042e2849aad494b22fbe1");
+
+            applicationId "com.jixiang.game.ddz.nearme.gamecenter"
+            resValue "string", "app_qipai_name", "吉祥斗地主oppo"
+            versionCode 112
+            versionName "11.0.14"
+            signingConfig signingConfigs.jixiang
+
+            dependencies {
+                oppo_jxddzImplementation project(':channel:rxsdk_oppo')
+                oppo_jxddzImplementation project(':push:rxsdk_push_oppo')
+                oppo_jxddzImplementation project(':demo:app_demo_push')
+            }
+        }
+
+        oppo_scmj {
+            //rx push test params
+//            //[可选]oppo 厂商参数，接入oppo推送时配置
+            manifestPlaceholders.put("OPPO_APP_SECRET", "07447c0EC7E3A407FD0c91fe859bcC79");
+            manifestPlaceholders.put("OPPO_APP_KEY", "C2602l96hfcW4kcko0wWw000s");
+
+            applicationId "weile.sichuanmj.nearme.gamecenter"
+            resValue "string", "app_qipai_name", "oppo四川麻将"
+            versionCode 112
+            versionName "11.0.14"
+            signingConfig signingConfigs.weilegame
+
+            dependencies {
+                oppo_scmjImplementation project(':channel:rxsdk_oppo')
+                oppo_scmjImplementation project(':push:rxsdk_push_oppo')
+                oppo_scmjImplementation project(':demo:app_demo_push')
+            }
+        }
+        leidian {
+
+            applicationId "com.weile.doudizhu.ld"
+            resValue "string", "app_qipai_name", "雷电斗地主"
+            versionCode 13090
+            versionName "1000.0.4"
+            signingConfig signingConfigs.weilegame
+            dependencies {
+                leidianImplementation project(':channel:rxsdk_ld')
+
+            }
+        }
+        oppo_wl_zjmj {
+            manifestPlaceholders.put("OPPO_APP_KEY", "7mj4SHboaEO8s080CwOO00kg4");
+
+            applicationId "weile.guiyangmj.nearme.gamecenter"
+            resValue "string", "app_qipai_name", "oppo捉鸡麻将"
+            versionCode 112
+            versionName "11.0.14"
+            signingConfig signingConfigs.weilegame
+
+            dependencies {
+                oppo_wl_zjmjImplementation project(':channel:rxsdk_oppo')
+            }
+        }
+
+        oppo_miaokesi {
+
+            manifestPlaceholders.put("OPPO_APP_SECRET", "01bc05dc742a4319bb2ac4c312b2a8a8");
+            manifestPlaceholders.put("OPPO_APP_KEY", "6886780eac78480f8c3e21bf7e9c3ae1");
+
+            applicationId "com.weile.yjmks.nearme.gamecenter"
+            resValue "string", "app_qipai_name", "oppo喵克斯"
+            versionCode 112
+            versionName "11.0.14"
+            signingConfig signingConfigs.miaokesi
+
+            dependencies {
+                oppo_miaokesiImplementation project(':channel:rxsdk_oppo')
+                oppo_miaokesiImplementation project(':push:rxsdk_push_oppo')
+                oppo_miaokesiImplementation project(':demo:app_demo_push')
+            }
+        }
+
+
+        bilibili {
+            applicationId "com.weile.jxmj"
+            resValue "string", "app_qipai_name", "国内测试"
+            versionCode 1004
+            versionName "1000.0.4"
+            signingConfig signingConfigs.weilegame
+            manifestPlaceholders.put("AMAP_APIKEY", "2642d735325ae5de2d00328104fbb8ce")
+
+            //[可选]魅族 厂商参数，接入魅族推送时配置
+            manifestPlaceholders.put("MZ_APP_ID", "141345")
+            manifestPlaceholders.put("MZ_APP_KEY", "c3784b4268b446ffaf4163b647b8b521")
+            //[可选]小米厂 商参数，接入小米推送时配置
+            manifestPlaceholders.put("MI_APP_ID", "2882303761517690901")
+            manifestPlaceholders.put("MI_APP_KEY", "5441769030901")
+
+            dependencies {
+                bilibiliImplementation(project(':channel:rxsdk_bilibili'))
+            }
+        }
+
+        bilibili_ddz {
+            applicationId "com.weile.doudizhu.bilibili"
+            resValue "string", "app_qipai_name", "bili ddz"
+            versionCode 712
+            versionName "6.3.1"
+            signingConfig signingConfigs.weilegame
+
+            dependencies {
+                bilibili_ddzImplementation(project(':channel:rxsdk_bilibili'))
+            }
+        }
+
+        m4399_scmj {
+            applicationId "com.weile.scmj.m4399"
+            resValue "string", "app_qipai_name", "四川4399"
+            versionCode 712
+            versionName "6.3.1"
+            signingConfig signingConfigs.weilegame
+            dependencies {
+                m4399_scmjImplementation(project(':channel:rxsdk_4399'))
+            }
+        }
+
+
+        ysdk_scmj {
+            applicationId "com.tencent.tmgp.weile.sichuanmj"
+            resValue "string", "app_qipai_name", "应用宝川麻"
+            versionCode 1004
+            versionName "1000.0.4"
+            signingConfig signingConfigs.weilegame
+
+            manifestPlaceholders.put("QQ_APP_ID", "1106591567")
+            manifestPlaceholders.put("WX_APP_ID", "wxac4ab87b6e4dd09f")
+            dependencies {
+                ysdk_scmjImplementation project(':demo:app_demo_ysdk')
+            }
+        }
+
+        xiaomi {
+            applicationId "com.weile.jxmj"
+            resValue "string", "app_qipai_name", "小米渠道"
+            versionCode 1004
+            versionName "1000.0.4"
+            signingConfig signingConfigs.weilegame
+
+            //[必填]小米游戏中心 AppID / AppKey，需与 applicationId、签名在小米开放平台登记的一致
+            manifestPlaceholders.put("MI_APP_ID", "2882303761517690901")
+            manifestPlaceholders.put("MI_APP_KEY", "5441769030901")
+
+            dependencies {
+                xiaomiImplementation project(':channel:rxsdk_xiaomi')
+            }
+        }
+
+    }
+
+    productFlavors.all {
+        //        flavor -> flavor.manifestPlaceholders = ["WEILE_CHANNEL_VALUE": name]
+        //替换风味名
+//        flavor -> flavor.manifestPlaceholders.put("WEILE_CHANNEL_VALUE", name)
+    }
+    sourceSets {
+        main {
+            jniLibs.srcDirs = ['libs']
+        }
+    }
+    bundle {
+        language {
+            enableSplit = true
+        }
+        density {
+            enableSplit = true
+        }
+        abi {
+            enableSplit = true
+        }
+    }
+
+}
+
+
+dependencies {
+    implementation 'androidx.multidex:multidex:2.0.1'
+    implementation libs.appcompat
+    implementation libs.constraintlayout
+
+
+//    implementation project(path: ':rxsdk_bugly')
+    implementation(project(path: ':demo:app_rxsdk_demo')) {
+        exclude group: 'com.squareup.okhttp3', module: 'okhttp'
+    }
+
+}
+
+configurations {
+    all*.exclude group: 'com.google.guava', module: 'listenablefuture'
+//    all*.exclude group: 'com.squareup.okhttp3', module: 'okhttp'
+//    all*.exclude group: 'com.google.code.gson', module: 'gson'
+}
+
+
+def ldFlavorPrefixes = ['wl_ddz_ld', 'leidian']
+configurations.configureEach { cfg ->
+    if (ldFlavorPrefixes.any { cfg.name.startsWith(it) }) {
+        cfg.exclude group: 'com.google.code.gson', module: 'gson'
+        cfg.exclude group: 'com.squareup.okhttp3', module: 'okhttp'
+        cfg.exclude group: 'com.squareup.okio', module: 'okio'
+    }
+}

@@ -1,0 +1,69 @@
+plugins {
+    id 'com.android.library'
+}
+project.group 'com.ruixue'
+apply from: "${rootDir}/maven.gradle"
+
+android {
+    compileSdkVersion rootProject.ext.compileSdkVersion
+
+
+    defaultConfig {
+        minSdkVersion rootProject.ext.minSdkVersion
+        targetSdkVersion rootProject.ext.targetSdkVersion
+        versionCode rootProject.ext.versionCode
+        versionName rootProject.ext.versionName
+
+        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+        consumerProguardFiles "consumer-rules.pro"
+        buildConfigField("String", "BUILD_TIME", "\"${getTimestamp()}\"")
+        buildConfigField("String", "COMMIT_ID", "\"${getGitCommit()}\"")
+//        ndk {
+//            abiFilters 'armeabi-v7a', 'x86'
+//        }
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+        }
+        packagingAAR(project, android)
+    }
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
+    sourceSets {
+        main {
+            jniLibs.srcDirs = ['libs']
+        }
+    }
+}
+
+dependencies {
+//    implementation fileTree(include: ['*.jar'], dir: 'libs')
+
+    testImplementation libs.junit
+    androidTestImplementation libs.test.ext.junit
+    androidTestImplementation libs.espresso.core
+
+    //noinspection GradleCompatible
+    implementation libs.appcompat
+
+    // 运营 SDK：建议使用最新版本，可通过浏览仓库地址或向运营咨询版本 https://open.4399.cn/console/doc#/mobilegame/sdk
+    api 'cn.m4399.sdk:operate:3.20.1'
+    // volley / support / okhttp / kotlin 是 SDK 外部依赖（官方 3.20.1 文档），若接入方已有可忽略
+    implementation 'com.android.volley:volley:1.2.1'
+    //noinspection GradleCompatible
+    implementation "com.android.support:support-v4:28.0.0"
+    implementation 'com.squareup.okhttp3:okhttp:3.12.8'
+    implementation 'com.squareup.okio:okio:1.15.0'
+    implementation 'com.squareup.okhttp3:logging-interceptor:3.12.8'
+    // 与工程 kotlin_version 对齐（官方要求 ≥1.6.0；根工程 resolutionStrategy 统一 stdlib）
+    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:${rootProject.ext.kotlin_version}"
+    implementation "org.jetbrains.kotlin:kotlin-stdlib:${rootProject.ext.kotlin_version}"
+    implementation "org.jetbrains.kotlin:kotlin-android-extensions-runtime:${rootProject.ext.kotlin_version}"
+    implementation fileTree(include: ['*.jar'], dir: 'libs')
+    api project(path: ':rxsdk_base')
+}

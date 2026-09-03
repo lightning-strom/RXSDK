@@ -1,0 +1,2 @@
+-keep class com.vk.id.** { *; }
+-dontwarn com.vk.id.**

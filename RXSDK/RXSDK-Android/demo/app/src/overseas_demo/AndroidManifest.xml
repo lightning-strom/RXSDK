@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <uses-permission android:name="android.permission.CAMERA" tools:node="remove" />
+    <uses-permission android:name="android.permission.READ_PHONE_STATE" tools:node="remove" />
+    <uses-permission android:name="android.permission.SEND_SMS" tools:node="remove" />
+    <uses-permission android:name="android.permission.RECEIVE_SMS" tools:node="remove" />
+    <uses-permission android:name="android.permission.READ_CALENDAR" tools:node="remove" />
+    <uses-permission android:name="android.permission.WRITE_CALENDAR" tools:node="remove" />
+    <uses-permission android:name="android.permission.ANSWER_PHONE_CALLS" tools:node="remove" />
+    <uses-permission android:name="android.permission.READ_PHONE_NUMBERS" tools:node="remove" />
+    <uses-permission android:name="android.permission.BODY_SENSORS" tools:node="remove" />
+    <uses-permission android:name="android.permission.ACTIVITY_RECOGNITION" tools:node="remove" />
+    <uses-permission android:name="android.permission.BLUETOOTH_ADVERTISE" tools:node="remove" />
+    <uses-permission android:name="android.permission.BLUETOOTH_CONNECT" tools:node="remove" />
+    <uses-permission android:name="android.permission.WRITE_SECURE_SETTINGS" tools:node="remove" />
+    <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW" tools:node="remove" />
+    <uses-permission android:name="android.permission.WRITE_SETTINGS" tools:node="remove" />
+    <uses-permission android:name="android.permission.PACKAGE_USAGE_STATS" tools:node="remove" />
+    <uses-permission android:name="android.permission.QUERY_ALL_PACKAGES" tools:node="remove" />
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" tools:node="remove" />
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" tools:node="remove" />
+    <uses-permission android:name="android.permission.ACCESS_MEDIA_LOCATION" tools:node="remove" />
+    <uses-permission android:name="android.permission.SCHEDULE_EXACT_ALARM" tools:node="remove" />
+
+    <application>
+        <!-- 与 com.weile.bombchicken 等同 FACEBOOK_APP_ID 时，默认 authority 相同会导致 INSTALL_FAILED_CONFLICTING_PROVIDER；追加包名后缀保证可并存安装。 -->
+        <provider
+            android:name="com.facebook.FacebookContentProvider"
+            android:authorities="com.facebook.app.FacebookContentProvider${FACEBOOK_APP_ID}.com.ruixue.sdkdemo"
+            android:exported="true"
+            tools:replace="android:authorities"
+            tools:ignore="ExportedContentProvider" />
+
+        <!-- RuStore Pay SDK 必填：缺失会抛 RuStorePayInvalidConsoleAppId / ApplicationSchemeWasNotProvided。
+             具体值通过 build.gradle 的 manifestPlaceholders 注入。 -->
+        <meta-data
+            android:name="console_app_id_value"
+            android:value="${RUSTORE_CONSOLE_APP_ID}" />
+        <meta-data
+            android:name="sdk_pay_scheme_value"
+            android:value="${RUSTORE_APP_SCHEME}" />
+    </application>
+</manifest>

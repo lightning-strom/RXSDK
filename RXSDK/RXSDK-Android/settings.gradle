@@ -1,0 +1,139 @@
+pluginManagement {
+    buildscript {
+        repositories {
+            maven { url "https://maven.aliyun.com/repository/google" }
+            google()
+            mavenCentral()
+        }
+        dependencies {
+            // AGP 7.4.2 bundles R8/D8 4.0.52, which can crash while dexing newer
+            // AndroidX artifacts such as lifecycle 2.8.x. Put a newer R8 first on
+            // the buildscript classpath without changing the AGP version.
+            classpath("com.android.tools:r8:8.3.37")
+        }
+    }
+}
+
+rootProject.name = "rxsdk-android"
+
+// local_repo：自动 include 所有含 build.gradle 的子目录，新增 AAR 无需改 settings.gradle
+file("local_repo").listFiles()?.each { f ->
+    if (f.isDirectory() && new File(f, "build.gradle").exists()) {
+        include ":local_repo:${f.name}"
+    }
+}
+
+//include ':unifypay_plugin'
+
+include ':demo:app_demo_adjust'
+include ':demo:app_demo_firebase'
+
+include ':demo:app'
+include ':demo:app_rxsdk_demo'
+include ':demo:app_demo_overseas'
+include ':demo:app_demo_wechat'
+include ':demo:app_demo_ysdk'
+include ':demo:app_demo_push'
+include ':demo:app_demo_007'
+include ':demo:app_demo_quick'
+include ':demo:app_demo_jf'
+include ':demo:app_demo_huawei'
+include ':demo:app_demo_infinix'
+include ':demo:app_demo_overseas_oppo'
+include ':demo:app_demo_xuteng'
+
+
+include ':rxsdk_bugly'
+include ':rxsdk_oaid'
+include ':rxsdk_oaidv2'
+include ':rxsdk_base'
+include ':rxsdk_base_ui'
+
+include ':rxsdk_weixin'
+include ':rxsdk_weixin_withpay'
+include ':rxsdk_gaode'
+include ':rxsdk_alimobile'
+include ':rxsdk_txmobile'
+include ':rxsdk_alipay'
+include ':rxsdk_catappult'
+
+
+include ':overseas:rxsdk_overseas'
+include ':overseas:rxsdk_overseas_huawei'
+include ':overseas:rxsdk_google'
+include ':overseas:rxsdk_firebase'
+include ':overseas:rxsdk_adjust'
+include ':overseas:rxsdk_facebook'
+include ':overseas:rxsdk_line'
+include ':overseas:rxsdk_tiktok'
+include ':overseas:rxsdk_twitter'
+include ':overseas:rxsdk_zalo'
+include ':overseas:rxsdk_snapchat'
+include ':overseas:rxsdk_instagram'
+include ':overseas:rxsdk_reddit'
+include ':overseas:rxsdk_qoo'
+include ':overseas:rxsdk_overseas_weizhi'
+
+include ':channel:app_channel'
+include ':channel:rxsdk_xiaomi'
+include ':channel:rxsdk_ysdk'
+include ':channel:rxsdk_weile'
+include ':channel:rxsdk_vivo'
+include ':channel:rxsdk_oppo'
+include ':channel:rxsdk_huawei'
+include ':channel:rxsdk_honor'
+include ':channel:rxsdk_kwaiallin'
+include ':channel:rxsdk_kwai_buy'
+include ':channel:rxsdk_douyin_gb'
+
+include ':channel:rxsdk_baidu_wangxun'
+include ':channel:rxsdk_bilibili'
+include ':channel:rxsdk_taptap'
+include ':channel:rxsdk_xingyi'
+include ':channel:rxsdk_4399'
+include ':channel:rxsdk_yofun'
+include ':channel:rxsdk_9game'
+include ':channel:rxsdk_ld'
+include ':channel:rxsdk_007'
+include ':channel:rxsdk_quick'
+include ':channel:rxsdk_xuteng'
+include ':channel:rxsdk_huya'
+
+//push
+include ':push:rxsdk_push_base'
+include ':push:rxsdk_push_mi'
+include ':push:rxsdk_push_huawei'
+include ':push:rxsdk_push_honor'
+include ':push:rxsdk_push_vivo'
+include ':push:rxsdk_push_oppo'
+include ':push:rxsdk_push_meizu'
+
+include ':rxsdk_unifypay'
+include ':rxsdk_upay'
+include ':rxsdk_snfpay'
+include ':rxsdk_h5pay'
+include ':rxsdk_yeepay'
+
+include ':rxsdk_bytedance_log'
+include ':rxsdk_websocket'
+include ':rxsdk_install_appinfo'
+include ':rxsdk_contacts'
+include ':demo:app_demo_mumu'
+include ':rxsdk_topon'
+include ':demo:app_demo_topon'
+include ':rxsdk_deviceinfo'
+include ':ruixue_tencent_dns'
+include ':ruixue_aliyun_dns'
+include ':rxsdk_performance'
+include ':rxsdk_feedback_ui'
+include ':rxsdk_huawei_replay'
+include ':rxsdk_huawei_moment'
+include ':overseas:rxsdk_overseas_oppo'
+include ':overseas:rxsdk_apkpure'
+include ':overseas:rxsdk_vk'
+include ':overseas:rxsdk_rustore'
+include ':overseas:rxsdk_infinix'
+include ':rxsdk_openinstall'
+include ':rxsdk_openinstall_os'
+include ':rxsdk_gdt'
+include ':rxsdk_kwai_monitor'

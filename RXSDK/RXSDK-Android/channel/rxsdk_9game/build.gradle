@@ -1,0 +1,56 @@
+plugins {
+    id 'com.android.library'
+}
+project.group 'com.ruixue'
+apply from: "${rootDir}/maven.gradle"
+
+android {
+    compileSdkVersion rootProject.ext.compileSdkVersion
+
+
+    defaultConfig {
+        minSdkVersion rootProject.ext.minSdkVersion
+        targetSdkVersion rootProject.ext.targetSdkVersion
+        versionCode rootProject.ext.versionCode
+        versionName rootProject.ext.versionName
+
+        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+        consumerProguardFiles "consumer-rules.pro"
+        buildConfigField("String", "BUILD_TIME", "\"${getTimestamp()}\"")
+        buildConfigField("String", "COMMIT_ID", "\"${getGitCommit()}\"")
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+        }
+        packagingAAR(project, android)
+    }
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
+    sourceSets {
+        main {
+            jniLibs.srcDirs = ['libs']
+        }
+    }
+
+    repositories {
+        flatDir {
+            dirs 'libs'
+        }
+    }
+
+}
+
+dependencies {
+
+    api project(path: ':rxsdk_base')
+
+    api('com.alipay.sdk:alipaysdk:15.8.03-20210429105552')
+    api('cn.uc.gamesdk:net-sdk:9.8.10.2')
+    api('cn.uc.paysdk:ugpsdk-net:7.8.5.0')
+
+}

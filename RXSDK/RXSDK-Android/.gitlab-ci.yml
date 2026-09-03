@@ -1,0 +1,140 @@
+image: runmymind/docker-android-sdk:latest
+
+cache:
+  paths:
+    - .gradle/wrapper
+    - .gradle/caches
+  untracked: true
+
+before_script:
+  # Gradle **须 JDK 17+**：overseas:rxsdk_rustore 依赖 RuStore pay 10.x（Java 17 字节码）；其余模块仍为 compile target 11
+  - chmod +x ./gradlew
+  - |
+    if [ -d "/usr/lib/jvm/java-17-openjdk-amd64" ]; then
+      export JAVA_HOME="/usr/lib/jvm/java-17-openjdk-amd64"
+    elif [ -d "/usr/lib/jvm/java-17-openjdk" ]; then
+      export JAVA_HOME="/usr/lib/jvm/java-17-openjdk"
+    elif [ -d "/usr/lib/jvm/temurin-17-jdk-amd64" ]; then
+      export JAVA_HOME="/usr/lib/jvm/temurin-17-jdk-amd64"
+    else
+      apt-get update -qq && apt-get install -y -qq openjdk-17-jdk || true
+      if [ -d "/usr/lib/jvm/java-17-openjdk-amd64" ]; then
+        export JAVA_HOME="/usr/lib/jvm/java-17-openjdk-amd64"
+      fi
+    fi
+    export PATH="${JAVA_HOME:+$JAVA_HOME/bin:}$PATH"
+  - java -version
+  - |
+    if ! java -version 2>&1 | head -1 | grep -qE 'version "17\.|version "1[89]\.|version "[2-9][0-9]\.'; then
+      echo "CI 需要 JDK 17+（rxsdk_rustore / RuStore SDK 依赖为 Java 17 class file）"
+      exit 1
+    fi
+  - echo "JAVA_HOME=${JAVA_HOME:-<default PATH>}"
+  - echo "GRADLE_USER_HOME = $GRADLE_USER_HOME"
+
+variables:
+  ANDROID_SDK_ROOT: "/opt/android-sdk-linux"
+  GRADLE_USER_HOME: "$CI_PROJECT_DIR/.gradle"
+  GRADLE_OPTS: >
+    -Dorg.gradle.daemon=false
+    -Dorg.gradle.jvmargs=-Xmx2g
+    -Dorg.gradle.caching=true
+    -Dorg.gradle.parallel=true
+
+stages:
+  - test
+  - build
+
+
+# 跑单元测试
+test-unit:
+  stage: test
+  script:
+    - ./gradlew test --no-daemon -x lint
+  when: manual
+
+# 依赖升级后验证：编译核心模块与 Demo
+verify-after-upgrade:
+  stage: test
+  script:
+    - ./gradlew :rxsdk_base:assembleRelease :demo:app_rxsdk_demo:assembleRelease --no-daemon
+  when: manual
+
+# 产出依赖可更新报告（dependencyUpdates）
+report-dependency-updates:
+  stage: build
+  script:
+    - ./gradlew dependencyUpdates -Drevision=release --no-daemon
+  artifacts:
+    when: always
+    paths:
+      - build/dependencyUpdates/
+  when: manual
+
+.default_build: &default_build
+  stage: build
+#  before_script:
+#    - chmod +x ./gradlew
+#    - mkdir -p $ANDROID_SDK_ROOT/licenses
+#    - echo "24333f8a63b6825ea9c5514f83c2829b004d1fee" > $ANDROID_SDK_ROOT/licenses/android-sdk-license
+#    - echo "84831b9409646a918e30573bab4c9c91346d8abd" > $ANDROID_SDK_ROOT/licenses/android-sdk-preview-license
+#    # 安装 Android 34 平台和 Build-Tools
+#    - $ANDROID_SDK_ROOT/cmdline-tools/latest/bin/sdkmanager --install "platforms;android-34" "build-tools;34.0.0" --sdk_root=$ANDROID_SDK_ROOT
+  script:
+    - ./gradlew clean --no-daemon
+    - ./tasks.sh publish
+    - ./notify.sh || { echo "Notification failed"; exit 1; }
+  artifacts:
+    paths:
+      - ./build/
+
+
+
+# 按版本 tag（v*.*.*）自动触发全量发布
+publish-on-tag:
+  <<: *default_build
+  only:
+    - /^v\d+\.\d+\.\d+$/
+
+# 全量发布所有模块（tasks.sh publish）
+publish-all-modules:
+  <<: *default_build
+  when: manual
+
+# 发布到阿里云 Maven 仓库
+publish-to-aliyun:
+  stage: build
+  script:
+    - ./gradlew clean
+    - ./tasks.sh publishReleasePublicationToAliRepository
+    - ./notify.sh || { echo "Notification failed"; exit 1; }
+  artifacts:
+    paths:
+      - ./build/
+  when: manual
+
+# 发布到睿学 Maven 仓库
+publish-to-ruixue:
+  stage: build
+  script:
+    - ./gradlew clean
+    - ./tasks.sh publishReleasePublicationToRuixueRepository
+    - ./notify.sh || { echo "Notification failed"; exit 1; }
+  artifacts:
+    paths:
+      - ./build/
+  when: manual
+
+# 仅发布 local_repo 三方 AAR → 阿里云
+publish-local-repo-to-aliyun:
+  stage: build
+  script:
+    - ./scripts/publish_local_repo.sh ali
+  when: manual
+
+# 仅发布 local_repo 三方 AAR → Nexus
+publish-local-repo-to-nexus:
+  stage: build
+  script:
+    - ./scripts/publish_local_repo.sh nexus
+  when: manual

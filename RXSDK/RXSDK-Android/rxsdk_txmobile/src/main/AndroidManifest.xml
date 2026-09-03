@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="com.ruixue.txmobile">
+
+    <uses-permission android:name="android.permission.INTERNET" />   <!-- 网络访问 -->
+    <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" /> <!-- 检查wifi网络状态 -->
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" /> <!-- 检查网络状态 -->
+    <uses-permission android:name="android.permission.CHANGE_NETWORK_STATE" /> <!-- 切换网络通道 -->
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" /> <!-- 本地信息缓存 -->
+    <uses-permission android:name="android.permission.CHANGE_WIFI_STATE" /> <!-- 开关wifi状态，解决国内机型移动网络权限问题需要 -->
+
+    <application>
+        <meta-data
+            android:name="RX_PLUGIN_TXAUTH"
+            android:value="com.ruixue.shlogin.TXAuthSdkWrapper" />
+        <!-- *******************************授权⻚*********************************** -->
+        <activity
+            android:name="com.shlogin.sdk.view.OneKeyLoginActivity"
+            android:configChanges="keyboardHidden|orientation|screenSize"
+            android:exported="false"
+            android:launchMode="singleTop"
+            android:screenOrientation="behind"
+            android:theme="@style/Theme.ActivityDialogStyle" />
+        <!-- *******************************协议⻚*********************************** -->
+        <activity
+            android:name="com.shlogin.sdk.view.PrivacyProtocolActivity"
+            android:configChanges="keyboardHidden|orientation|screenSize"
+            android:exported="false"
+            android:launchMode="singleTop"
+            android:screenOrientation="behind"
+            android:theme="@style/Theme.ActivityDialogStyle" />
+
+    </application>
+</manifest>

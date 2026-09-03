@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    package="com.ruixue.sdk.snapchat">
+
+    <application>
+        <meta-data
+            android:name="RX_PLUGIN_SNAPCHAT"
+            android:value="com.ruixue.sdk.snapchat.SnapchatSdkWrapper" />
+
+        <provider
+            android:name="com.snap.corekit.SnapKitInitProvider"
+            android:enabled="false"
+            />
+        <meta-data android:name="com.snap.kit.scopes" android:resource="@array/snap_connect_scopes" />
+
+        <provider
+            android:authorities="${applicationId}.fileprovider"
+            android:name="androidx.core.content.FileProvider"
+            android:exported="false"
+            android:grantUriPermissions="true"
+            >
+            <meta-data
+                android:name="android.support.FILE_PROVIDER_PATHS"
+                android:resource="@xml/rx_snapchat_file_paths"
+                />
+        </provider>
+
+    </application>
+
+    <queries>
+        <package android:name="com.snapchat.android" />
+    </queries>
+
+</manifest>

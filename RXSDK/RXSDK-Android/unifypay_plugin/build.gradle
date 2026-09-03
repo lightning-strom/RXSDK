@@ -1,0 +1,159 @@
+plugins {
+    id 'com.android.application'
+}
+
+def buildTask = getGradle().getStartParameter().getTaskNames().toString().toLowerCase()
+println("Task app:" + buildTask)
+
+
+
+android {
+    compileSdkVersion rootProject.ext.compileSdkVersion
+    buildToolsVersion rootProject.ext.buildToolsVersion
+    ndkVersion '21.3.6528147'
+    defaultConfig {
+        minSdkVersion rootProject.ext.minSdkVersion
+        targetSdkVersion rootProject.ext.targetSdkVersion
+        versionCode rootProject.ext.versionCode
+        versionName rootProject.ext.versionName
+        applicationId "com.jixiang.game.fish"
+//        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+//        ndk {
+//            abiFilters "armeabi-v7a", "arm64-v8a", "armeabi", "x86", "mips"
+//        }
+    }
+
+
+    signingConfigs {
+
+        weilegame {
+            keyAlias "weilegame"
+            keyPassword STORE_PASSWORD_577588599
+            storeFile file("keystore/weileHall.keystore")
+            storePassword KEY_PASSWORD_577588599
+        }
+
+        jixiang {
+            keyAlias "jixiangqipaiguan"
+            keyPassword STORE_PASSWORD_577588599
+            storeFile file("keystore/jixiangqipaiguan.keystore")
+            storePassword KEY_PASSWORD_577588599
+        }
+
+    }
+    buildTypes {
+
+        release {
+            // 不显示Log
+            buildConfigField "boolean", "LOG_DEBUG", "false"
+            //混淆
+            minifyEnabled false
+            //Zipalign优化
+            zipAlignEnabled true
+            // 移除无用的resource文件
+            shrinkResources false
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+
+
+        }
+        debug {
+            //混淆
+            minifyEnabled false
+            //Zipalign优化
+            zipAlignEnabled true
+            // 移除无用的resource文件
+            shrinkResources false
+            proguardFiles getDefaultProguardFile("proguard-android.txt"), "proguard-rules.pro"
+            signingConfig null //使用Flavors签名
+
+        }
+
+    }
+
+    applicationVariants.all { variant ->
+        if (variant.buildType.name == 'release') {
+            variant.outputs.all { output ->
+                // 文件名修改
+                def fileName = "${variant.productFlavors[0].applicationId.replace(".", "_")}_${variant.productFlavors[0].versionCode}.apk"
+                // 重命名赋值
+                outputFileName = fileName
+//                println("outputapk:" + outputFileName)
+                //可以用这种方法指定apk输出目录
+//                variant.packageApplication.outputDirectory = new File("${rootDir}/build/apk/${variant.productFlavors[0].applicationId.replace(".", "_")}")
+                variant.packageApplicationProvider.get().outputDirectory = new File("${rootDir}/build/apk/${variant.productFlavors[0].applicationId.replace(".", "_")}")
+            }
+        }
+    }
+
+    lintOptions {
+        checkReleaseBuilds false
+        // Or, if you prefer, you can continue to check for errors in release builds,
+        // but continue the build even when errors are found:
+        abortOnError false
+    }
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
+
+    flavorDimensions "versionCode"
+    productFlavors {
+        ceshiPlugin {
+            applicationId "com.jixiang.game.fish"
+            resValue "string", "app_name", "支付插件测试"
+            versionCode 1
+            versionName "1.0.1"
+            signingConfig signingConfigs.jixiang
+            manifestPlaceholders = ["APP_SCHEME": "jixiang433"]
+        }
+        weilePlugin {
+            applicationId "com.weile.scmj1.tttg"
+            resValue "string", "app_name", "微乐支付助手"
+            versionCode 1
+            versionName "1.0.1"
+            signingConfig signingConfigs.weilegame
+            manifestPlaceholders = ["APP_SCHEME": "ruixuepay"]
+
+        }
+        jixiangPlugin {
+            applicationId "com.jixiang.game.qipai"
+            resValue "string", "app_name", "吉祥支付助手"
+            versionCode 1
+            versionName "1.0.1"
+            signingConfig signingConfigs.jixiang
+            manifestPlaceholders = ["APP_SCHEME": "jixiangpay"]
+        }
+    }
+
+    sourceSets {
+        main {
+            jniLibs.srcDirs = ['libs']
+        }
+        jixiangPlugin.res.srcDirs = ['src/main/res-jx']
+        weilePlugin.res.srcDirs = ['src/main/res-wl']
+    }
+    packagingOptions {
+        doNotStrip '**/*.so'
+    }
+    bundle {
+        language {
+            enableSplit = true
+        }
+        density {
+            enableSplit = true
+        }
+        abi {
+            enableSplit = true
+        }
+    }
+}
+
+dependencies {
+    implementation fileTree(include: ['*.jar'], dir: 'libs')
+    api project(path: ':rxsdk_base')
+    implementation project(path: ':rxsdk_weixin')
+
+    implementation 'com.chinaums.pppay:qmf-ppplugin:3.1.4'    //微信
+    implementation 'com.tencent.mm.opensdk:wechat-sdk-android:+'
+
+}

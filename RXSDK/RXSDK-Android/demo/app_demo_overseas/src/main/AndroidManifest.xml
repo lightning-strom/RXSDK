@@ -1,0 +1,146 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    package="com.ruixue.demo.overseas">
+
+    <application>
+        <activity
+            android:name=".QooActivity"
+            android:exported="false" />
+        <activity
+            android:name=".ZaloShareDemoActivity"
+            android:exported="false"
+            android:theme="@style/Theme.AppCompat.Light" />
+        <activity
+            android:name=".TiktokShareDemoActivity"
+            android:exported="false"
+            android:theme="@style/Theme.AppCompat.Light" />
+
+        <meta-data
+            android:name="com.qooapp.APP_ID"
+            android:value="SAND6d0d2d07c4e741ac89d01e10c58c988a"/>
+        <meta-data
+            android:name="com.qooapp.PUBLIC_KEY"
+            android:value="@string/qoo_public_key"/>
+
+        <!-- 可选 -->
+        <meta-data
+            android:name="com.qooapp.ENC_VERSION"
+            android:value="2" />
+
+        <activity android:name=".SnapchatShareDemoActivity"
+            android:exported="false"
+            android:theme="@style/Theme.AppCompat.Light" />
+
+        <activity android:name=".InstagramShareDemoActivity"
+            android:exported="false"
+            android:theme="@style/Theme.AppCompat.Light" />
+
+        <meta-data
+            android:name="com.facebook.sdk.ApplicationId"
+            android:value="@string/facebook_app_id" />
+        <meta-data
+            android:name="com.facebook.sdk.ClientToken"
+            android:value="@string/facebook_client_token" />
+
+        <!-- zalo -->
+        <meta-data
+            android:name="com.zing.zalo.zalosdk.appID"
+            android:value="@string/zalo_app_id" />
+
+        <activity
+            android:name="com.zing.zalo.zalosdk.oauth.BrowserLoginActivity"
+            android:exported="true">
+
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <!-- zalo- + app id -->
+                <data android:scheme="zalo-1290303975374472026" />
+            </intent-filter>
+        </activity>
+
+        <meta-data
+            android:name="com.ruixue.sdk.tiktok.clientKey"
+            android:value="awu72crzsonssopy" />
+
+        <meta-data
+            android:name="com.ruixue.sdk.tiktok.auth.scheme"
+            android:value="ruixue://sdkresponse" />
+
+        <activity android:name="com.ruixue.sdk.tiktok.AuthResultActivity"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+
+                <data
+                    android:host="sdkresponse"
+                    android:scheme="ruixue" />
+            </intent-filter>
+        </activity>
+
+        <!-- instagram -->
+        <meta-data android:name="com.ruixue.sdk.instagram.clientId"
+            android:value="@string/instagram_client_id" />
+        <meta-data android:name="com.ruixue.sdk.instagram.redirectUrl"
+            android:value="https://ruixue.com/instagram/oauth2" />
+
+        <!-- snapchat -->
+        <meta-data android:name="com.snap.kit.clientId" android:value="817a23af-8d9c-4707-bb2c-1965d15e37fa" />
+        <meta-data android:name="com.snap.kit.redirectUrl" android:value="qiye://rxloginresp/oauth2" />
+
+        <activity
+            android:name="com.snap.corekit.SnapKitActivity"
+            android:launchMode="singleTask"
+            android:exported="true"
+            >
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <!--
+                    Enter the parts of your redirect url below
+                    e.g., if your redirect url is myapp://snap-kit/oauth2
+                        android:scheme="myapp"
+                        android:host="snap-kit"
+                        android:path="oauth2"
+                !-->
+                <data
+                    android:scheme="qiye"
+                    android:host="rxloginresp"
+                    android:path="/oauth2"
+                    />
+            </intent-filter>
+
+        </activity>
+
+        <activity
+            android:name=".OverseasDemoActivity"
+            android:exported="true"
+            android:theme="@style/Theme.AppCompat.Light.NoActionBar"
+            android:launchMode="singleTop"
+            android:label="海外功能测试页面">
+            <!-- RuStore Pay 支付完成后会 deep link 回跳该 Activity；scheme 必须与 AndroidManifest 里
+                 sdk_pay_scheme_value 以及 RuStore Console「Deep link」后台配置完全一致。 -->
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <data android:scheme="${RUSTORE_APP_SCHEME}" />
+            </intent-filter>
+        </activity> <!-- <activity -->
+        <!-- android:name=".CheckoutActivity" -->
+        <!-- android:exported="true" -->
+        <!-- android:theme="@style/Theme.Ruixuesdkandroid" /> -->
+        <!-- This element is required to enable Google Pay in your app. -->
+        <meta-data
+            android:name="com.google.android.gms.wallet.api.enabled"
+            android:value="true" />
+    </application>
+
+</manifest>

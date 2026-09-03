@@ -1,0 +1,69 @@
+plugins {
+    id 'com.android.library'
+}
+project.group 'com.ruixue'
+apply from: "${rootDir}/maven.gradle"
+
+
+
+android {
+    compileSdkVersion rootProject.ext.compileSdkVersion
+
+
+    defaultConfig {
+        minSdkVersion rootProject.ext.minSdkVersion
+        targetSdkVersion rootProject.ext.targetSdkVersion
+        versionCode rootProject.ext.versionCode
+        versionName rootProject.ext.versionName
+
+        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+        consumerProguardFiles "consumer-rules.pro"
+        buildConfigField("String", "BUILD_TIME", "\"${getTimestamp()}\"")
+        buildConfigField("String", "COMMIT_ID", "\"${getGitCommit()}\"")
+    }
+
+    buildTypes {
+        release {
+            aaptOptions {
+                ignoreAssetsPattern '!config.json:'
+            }
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+        }
+        packagingAAR(project, android)
+    }
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
+    sourceSets {
+        main {
+            jniLibs.srcDirs = ['libs']
+        }
+    }
+
+}
+
+
+dependencies {
+
+    //noinspection GradleDependency
+    implementation libs.appcompat
+    api project(path: ':rxsdk_base')
+
+    def sdkVersion = "2.4.3.2"
+    api "com.bytedance.ttgame:gbsdk_common_host:$sdkVersion"
+    api "com.bytedance.ttgame:gbsdk_common_plugin:$sdkVersion"
+    api "com.bytedance.ttgame:gbsdk_optional_applog:$sdkVersion"
+    api "com.bytedance.ttgame:gbsdk_optional_aweme:$sdkVersion"
+
+    // 抖音渠道分账能力
+    api "com.bytedance.ttgame:gbsdk_optional_union_plugin:$sdkVersion"
+
+//    api "com.bytedance.ttgame:gbsdk_optional_share_plugin:$sdkVersion"
+
+
+//    api "com.bytedance.ttgame:gbsdk_optional_ad:$sdkVersion"
+//    api 'com.bytedance.ttgame:gbsdk_optional_devtools:$version'
+
+}

@@ -1,0 +1,63 @@
+>  2026年5月9日（4.0.5）
+**构建**
+1. 根工程 Android 子模块 `compileOptions` 与 Kotlin `jvmTarget` 恢复为 **Java 11**（兼容常见 CI 镜像与 AGP 7.4 / R8，避免 JDK17 字节码在 minify 阶段触发部分 R8 限制）。
+2. GitLab CI `before_script` 改为选用/安装 **OpenJDK 11**，校验非 Java 8。
+
+---
+
+>  2026年5月9日（4.0.4）
+**修复**
+1. GitLab CI：`before_script` 固定使用 JDK 17，消除 `invalid source release: 17`（与根工程统一 Java 17 一致）。
+2. `rxsdk_base` 声明 `namespace 'com.ruixue.base'`，消除 Manifest `package` 弃用告警。
+
+---
+
+>  2026年5月9日（4.0.3）
+**新增**
+1. `RXSdkApiPlugin` 增加 `buildOverseasSdkInfo`，类文档约定海外 `SdkInfo.state == 1`；默认 `getSdkInfo()` 同步带 `setState(1)`。
+
+**修复**
+1. 海外宿主 `ApkpureSdkApiImpl`、`OverseasOppoSdkApiImpl`、`QooSdkApiImpl` 等补充 `setState(1)`，避免 `RuiXueSdk.isOasVersion()` 误判导致 H5/支付路由走错。
+
+---
+
+>  2026年3月11日
+**新增**
+1. 新增 disableMultiLanguage API，支持 CP 禁用 SDK 多语言切换。
+2. Demo 测试按钮配置化，新增按钮只需一行配置（DemoTestButtons / DemoClickHandler）。
+3. DemoClickHandler 新增 ActivityRoute 配置表，统一管理跳转类按钮。
+4. 新增 DateUtils 单元测试（DateUtilsTest），覆盖阿拉伯语环境数字稳定性与时区格式。
+5. 新增 trackAsync(eventName, distinctId, properties) 重载，支持指定 distinctId 的异步埋点上报。
+
+**修复**
+1. 修复 Google 登录重复初始化判断逻辑（serverClientId 为空时误跳过初始化），补充关键流程日志。
+2. 修复 DateUtils 在阿拉伯语等环境下输出本地化数字（如 ١٢٣）导致服务端时间解析失败。
+3. 修复 PendingIntent flag=0 在 Android 12+ 崩溃问题，改为 FLAG_UPDATE_CURRENT | FLAG_IMMUTABLE。
+4. 修复 MainActivity 退出使用 System.exit(0) 导致的异常退出，改为 finishAffinity()。
+5. 修复版本号获取使用已弃用 versionCode，改为 PackageInfoCompat.getLongVersionCode()。
+6. 修复 Demo 日志面板/浮动日志时间显示受系统语言影响。
+7. 修复 CI 流水线 publishAllLocalRepoToNexus 任务找不到问题，改用 scripts/publish_local_repo.sh。
+8. 修复 CI report-dependency-updates stage 不存在导致无法运行。
+9. 修复大数据上报（TrackDataMgr）持锁执行网络请求导致主线程 ANR，缩小锁粒度并采用快照-发送-失败回填策略。
+10. 重写大数据上报模块（TrackDataMgrV2），替代原 TrackDataMgr 实现，API 完全兼容，修复 ANR/线程安全/空指针/数据乱序等问题。
+
+**优化**
+1. DateUtils 全面优化：统一 Locale.US、新增 createFormatter() 收口格式器创建、去除 android.text.TextUtils 依赖、增加空参保护与 NPE 防护、清理 System.out.println 调试输出、时区偏移计算支持夏令时。
+2. DemoClickHandler 跳转按钮全部配置化，支持后置回调（RoutePostAction）。
+3. CI 发布脚本统一走 scripts/publish_local_repo.sh，避免聚合任务名不可见问题。
+4. AGP 升级至 7.4.2，提升构建性能与兼容性。
+5. EasyFloat 悬浮窗模块优化：修复 PermissionFragment/PermissionUtils 空指针风险，替换废弃 API（Display.getRectSize → WindowMetrics.bounds、toLowerCase → contains ignoreCase）。
+6. CI publish-on-tag 改为打标签自动触发发布，无需手动点击。
+
+---
+
+>  2022年1月27日 
+**新增**
+1.注册登录 接口添加 ad 参数，
+2.兼容捕鱼已发版本错误参数。
+3.添加打包编译日期以及 git commitid 追踪。
+4.银联综合支付插件支持 ，需要提升 minSdkVersion=22。
+**修复**
+1.Android Q 启动时无法获取剪贴板内容问题。
+2.Android R 设备 ysdk 渠道不支持拉起微信、QQ问题兼容处理。
+3.微信登录支付返回错误参为微信错误码。

@@ -1,0 +1,72 @@
+plugins {
+    id 'com.android.library'
+}
+project.group 'com.ruixue'
+
+
+android {
+    compileSdkVersion rootProject.ext.compileSdkVersion
+    buildToolsVersion rootProject.ext.buildToolsVersion
+
+    defaultConfig {
+        minSdkVersion rootProject.ext.minSdkVersion
+        targetSdkVersion rootProject.ext.targetSdkVersion
+        versionCode rootProject.ext.versionCode
+        versionName rootProject.ext.versionName
+
+        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+
+        // RuStore Pay 回跳 scheme 的默认值；真实 flavor（如 overseas_demo）会在 app 的
+        // manifestPlaceholders 中覆盖为 Console 后台配置的同名值。
+        manifestPlaceholders = [RUSTORE_APP_SCHEME: "rustore.placeholder"]
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+        }
+    }
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
+    buildFeatures {
+        viewBinding true
+    }
+}
+
+dependencies {
+
+    implementation libs.appcompat
+//    implementation libs.material
+    implementation libs.constraintlayout
+
+    testImplementation 'junit:junit:4.13.2'
+    androidTestImplementation 'androidx.test.ext:junit:1.1.3'
+    androidTestImplementation 'androidx.test.espresso:espresso-core:3.4.0'
+
+    implementation 'com.nex3z:flow-layout:1.3.3'
+//    implementation libs.material
+    implementation 'com.google.android.gms:play-services-wallet:19.1.0'
+//    implementation 'androidx.lifecycle:lifecycle-viewmodel-ktx:2.3.1'
+//    implementation 'androidx.lifecycle:lifecycle-livedata-ktx:2.3.1'
+
+
+    api project(path: ':rxsdk_base')
+    // compileOnly：由宿主提供 rxsdk_overseas（或同类海外 SDK），避免与联运包内 RXSdkApiImpl 重复
+    compileOnly project(path: ':overseas:rxsdk_overseas')
+    compileOnly project(path: ':overseas:rxsdk_apkpure')
+    compileOnly project(path: ':overseas:rxsdk_vk')
+    compileOnly project(path: ':overseas:rxsdk_rustore')
+    implementation project(path: ':overseas:rxsdk_zalo')
+    implementation project(path: ':overseas:rxsdk_snapchat')
+    implementation project(path: ':overseas:rxsdk_instagram')
+    implementation project(path: ':rxsdk_catappult')
+//    implementation project(path: ':overseas:rxsdk_firebase')
+    implementation project(path: ':overseas:rxsdk_adjust')
+//    implementation project(path: ':overseas:rxsdk_qoo')
+    implementation project(path: ':demo:app_rxsdk_demo')
+    implementation project(path: ':rxsdk_h5pay')
+    compileOnly 'com.vgamepop:asdk:1.0.16.4'
+}

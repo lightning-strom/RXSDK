@@ -1,0 +1,2 @@
+-keep class * implements com.bun.miitmdid.interfaces.IIdentifierListener { *; }
+-keep class com.kwai.monitor.** { *; }

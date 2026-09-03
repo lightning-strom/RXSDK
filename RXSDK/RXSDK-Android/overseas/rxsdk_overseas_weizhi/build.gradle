@@ -1,0 +1,59 @@
+plugins {
+    id 'com.android.library'
+    id 'com.kezong.fat-aar'
+}
+project.group 'com.ruixue'
+apply from: "${rootDir}/maven.gradle"
+
+android {
+    compileSdkVersion rootProject.ext.compileSdkVersion
+    buildToolsVersion rootProject.ext.buildToolsVersion
+
+    defaultConfig {
+        minSdkVersion rootProject.ext.minSdkVersion
+        targetSdkVersion rootProject.ext.targetSdkVersion
+        versionCode rootProject.ext.versionCode
+        versionName rootProject.ext.versionName
+
+        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+        consumerProguardFiles "consumer-rules.pro"
+        buildConfigField("String", "BUILD_TIME", "\"${getTimestamp()}\"")
+        buildConfigField("String", "COMMIT_ID", "\"${getGitCommit()}\"")
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+        }
+        packagingAAR(project, android)
+    }
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
+    sourceSets {
+        main {
+            jniLibs.srcDirs = ['libs']
+        }
+    }
+
+}
+repositories {
+    flatDir {
+        dirs 'libs'
+    }
+}
+
+dependencies {
+
+    api project(path: ':rxsdk_base')
+    api project(path: ':rxsdk_base_ui')
+//    api fileTree(dir: 'libs', include: ['*.jar'])
+//    embed(name: 'jfsdk_5.7.5', ext: 'aar')
+//    embed(name: 'jfsdk-core-5.7.5', ext: 'aar')
+//    embed(name: 'jfsdk_base-5.7.5', ext: 'aar')
+    api "com.jfsdk.sdk:jfsdk:5.7.5"
+    api "com.juefeng.base:jfsdk_base:5.7.5"
+    api "com.jfsdk.billing:jfsdk_core:5.7.5"
+}

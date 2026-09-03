@@ -1,0 +1,111 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:gravity="center">
+
+    <androidx.cardview.widget.CardView
+        android:id="@+id/cv_root"
+        android:layout_width="@dimen/dialog_width"
+        android:layout_height="@dimen/dialog_height"
+        android:layout_marginHorizontal="@dimen/card_common_margin_hor"
+        android:layout_marginVertical="@dimen/dp_15"
+        app:cardBackgroundColor="@color/white"
+        app:cardCornerRadius="@dimen/corner_radius">
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+            <TextView
+                android:id="@+id/txt_title"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerHorizontal="true"
+                android:layout_marginTop="@dimen/dp_15"
+                android:text="@string/rx_txt_switch_account"
+                android:textColor="@color/black"
+                android:textSize="@dimen/sp_18"
+                android:textStyle="bold" />
+
+            <ImageView
+                android:id="@+id/back"
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:layout_alignParentStart="true"
+                android:layout_marginStart="15dp"
+                android:layout_marginTop="@dimen/dp_3"
+                android:rotationY="@integer/rotation"
+                android:scaleType="centerInside"
+                android:src="@drawable/ruixue_arrow_left" />
+
+            <ImageView
+                android:id="@+id/close"
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:layout_alignParentEnd="true"
+                android:layout_marginTop="@dimen/dp_3"
+                android:layout_marginEnd="15dp"
+                android:scaleType="centerInside"
+                android:src="@drawable/ruixue_close_dialog"
+                android:visibility="gone" />
+
+            <LinearLayout
+                android:id="@+id/list_container"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_above="@id/login_other_method"
+                android:layout_below="@+id/txt_title"
+                android:layout_marginTop="@dimen/dp_13"
+                android:layout_marginBottom="10dp"
+                android:orientation="vertical"
+                android:paddingHorizontal="28dp">
+
+                <ListView
+                    android:id="@+id/lv_account"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:cacheColorHint="@color/transparent"
+                    android:divider="@null"
+                    android:dividerHeight="@dimen/dp_8"
+                    android:listSelector="@color/transparent"
+                    android:minHeight="@dimen/dp_40"
+                    android:scrollbars="none" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/login_other_method"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentBottom="true"
+                android:layout_centerHorizontal="true"
+                android:layout_gravity="center_horizontal"
+                android:layout_marginBottom="@dimen/dp_12"
+                android:background="@drawable/bg_quick_btn"
+                android:paddingVertical="6dp"
+                android:paddingStart="11dp"
+                android:paddingEnd="12dp"
+                android:visibility="gone">
+
+                <ImageView
+                    android:layout_width="@dimen/dp_18"
+                    android:layout_height="@dimen/dp_18"
+                    android:layout_gravity="center_vertical"
+                    android:background="@drawable/rx_ico_more_2" />
+
+                <TextView
+                    android:id="@+id/tv_name"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center_vertical"
+                    android:layout_marginStart="4dp"
+                    android:singleLine="true"
+                    android:text="@string/rx_txt_more_login_method1"
+                    android:textColor="@color/black"
+                    android:textSize="@dimen/sp_12" />
+
+            </LinearLayout>
+
+        </RelativeLayout>
+    </androidx.cardview.widget.CardView>
+</RelativeLayout>

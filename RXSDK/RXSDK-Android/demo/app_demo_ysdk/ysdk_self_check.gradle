@@ -1,0 +1,637 @@
+// 按照《ysdk标准接入》里配置的ysdkconf.ini文件
+def ysdkconf_path = "${rootDir}/demo/app_demo_ysdk/src/main/assets/ysdkconf.ini"
+// 项目的manifest的相对路径
+def manifest_path = "${rootDir}/channel/rxsdk_ysdk/src/main/AndroidManifest.xml"
+// 项目申请的qqAppId，需要与ysdkconf.ini上一致。如果不需要集成手Q登录功能，那么此处填入""即可
+def qq_app_id = "1110747661"
+// 项目申请的wxAppId，需要与ysdkconf.ini上一致。如果不需要集成微信登录功能，那么此处填入""即可
+def wx_app_id = "wx7d4eb088d9ce5eec"
+project.ext {
+    //android xml tag
+    ANDROID_NAME = "android:name"
+    ANDROID_SCHEME = "android:scheme"
+    ANDROID_LAUNCH = "android:launchMode"
+    ANDROID_CONFIG_CHANGES = "android:configChanges"
+    ANDROID_SCREEN_ORIENTATION = "android:screenOrientation"
+    ANDROID_AUTHORITIES = "authorities"
+    ANDROID_EXPORTED = "exported"
+
+    //key
+    QQ_APP_ID = "QQ_APP_ID"
+    WX_APP_ID = "WX_APP_ID"
+    OFFER_ID = "OFFER_ID"
+    YSDK_URL = "YSDK_URL"
+    YSDK_ICON_SWITCH = "YSDK_ICON_SWITCH"
+    YSDK_ICON_WEBVIEW_DEBUG = "YSDK_ICON_WEBVIEW_DEBUG"
+    YSDK_ICON_CAPTURE_SWITCH = "YSDK_ICON_CAPTURE_SWITCH"
+    YSDK_ICON_LOCATION = "YSDK_ICON_LOCATION"
+    YSDK_IMMERSIVE_ICON_SWITCH = "YSDK_IMMERSIVE_ICON_SWITCH"
+    YSDK_H5GAME_SWITCH = "YSDK_H5GAME_SWITCH"
+    YSDK_ANTIADDICTION_SWITCH = "YSDK_ANTIADDICTION_SWITCH"
+
+    confKeyList = [QQ_APP_ID,
+                   WX_APP_ID,
+                   OFFER_ID,
+                   YSDK_URL,
+                   YSDK_ICON_SWITCH,
+                   YSDK_ICON_WEBVIEW_DEBUG,
+                   YSDK_ICON_CAPTURE_SWITCH,
+                   YSDK_ICON_LOCATION,
+                   YSDK_IMMERSIVE_ICON_SWITCH,
+                   YSDK_H5GAME_SWITCH,
+                   YSDK_ANTIADDICTION_SWITCH
+    ]
+    configMap = new HashMap<String, String>()
+    activityMap = null
+    userPermission = null
+    providerMap = null
+    confFile = null
+    manifestFile = null
+    qqAppid = null
+    wxAppid = null
+    packageName = null
+
+    //手Q配置
+    ACT_NAME_ASSIST_ACTIVITY = "com.tencent.connect.common.AssistActivity"
+    ACT_NAME_AUTH_ACTIVITY = "com.tencent.tauth.AuthActivity"
+
+    //微信配置
+    ACT_NAME_WX_ACTIVITY = ".wxapi.WXEntryActivity"
+
+    //米大师
+    ACT_NAME_MIDAS_PROXY_ACTIVITY = "com.tencent.midas.proxyactivity.APMidasPayProxyActivity"
+    ACT_NAME_MIDAS_WX_ACTIVITY = "com.tencent.midas.wx.APMidasWXPayActivity"
+    ACT_NAME_MIDAS_QQ_ACTIVITY = "com.tencent.midas.qq.APMidasQQWalletActivity"
+    ACT_NAME_MIDAS_JS_ACTIVITY = "com.tencent.midas.jsbridge.APWebJSBridgeActivity"
+
+    //实名认证
+    ACT_NAME_REAL_NAME = "com.tencent.ysdk.module.realName.impl.RegisterRealNameActivity"
+
+    //provider
+    PROVIDER_MIDAS = "com.tencent.mid.api.MidProvider"
+
+
+    //权限
+    PERMISSION_ACCESS_FINE_LOCATION = "android.permission.ACCESS_FINE_LOCATION"
+    PERMISSION_GET_TASKS = "android.permission.GET_TASKS"
+    PERMISSION_RESTART_PACKAGES = "android.permission.RESTART_PACKAGES"
+    PERMISSION_SYSTEM_ALERT_WINDOW = "android.permission.SYSTEM_ALERT_WINDOW"
+    PERMISSION_REQUEST_INSTALL_PACKAGES = "android.permission.REQUEST_INSTALL_PACKAGES"
+
+    PERMISSION_INTERNET = "android.permission.INTERNET"
+    PERMISSION_ACCESS_NETWORK_STATE = "android.permission.ACCESS_NETWORK_STATE"
+    PERMISSION_READ_EXTERNAL_STORAGE = "android.permission.READ_EXTERNAL_STORAGE"
+    PERMISSION_WRITE_EXTERNAL_STORAGE = "android.permission.WRITE_EXTERNAL_STORAGE"
+    PERMISSION_READ_PHONE_STATE = "android.permission.READ_PHONE_STATE"
+    PERMISSION_ACCESS_WIFI_STATE = "android.permission.ACCESS_WIFI_STATE"
+    PERMISSION_CHANGE_WIFI_STATE = "android.permission.CHANGE_WIFI_STATE"
+    PERMISSION_RESTART_PACKAGES = "android.permission.RESTART_PACKAGES"
+    PERMISSION_GET_TASKS = "android.permission.GET_TASKS"
+    PERMISSION_READ_SMS = "android.permission.READ_SMS"
+    PERMISSION_SEND_SMS = "android.permission.SEND_SMS"
+    PERMISSION_WRITE_SETTINGS = "android.permission.WRITE_SETTINGS"
+    PERMISSION_MOUNT_UNMOUNT_FILESYSTEMS = "android.permission.MOUNT_UNMOUNT_FILESYSTEMS"
+
+    PERMISSION_ACCESS_NETWORK_STATE = "android.permission.ACCESS_NETWORK_STATE"
+    PERMISSION_WAKE_LOCK = "android.permission.WAKE_LOCK"
+    PERMISSION_VIBRATE = "android.permission.VIBRATE"
+
+    PERMISSION_RECEIVE_USER_PRESENT = "android.permission.RECEIVE_USER_PRESENT"
+    PERMISSION_RECEIVE_BOOT_COMPLETED = "android.permission.RECEIVE_BOOT_COMPLETED"
+    PERMISSION_WRITE_EXTERNAL_STORAGE = "android.permission.WRITE_EXTERNAL_STORAGE"
+    PERMISSION_WRITE_SETTINGS = "android.permission.WRITE_SETTINGS"
+
+}
+
+//检查初始化
+task ysdkcheck() {
+    printYellow("---------------  ysdk开始配置自检  ---------------\r\n\r\n")
+    //检查初试配置
+    checkInitConf(ysdkconf_path, manifest_path, qq_app_id, wx_app_id)
+    //解析并加载manifest
+    loadManifest(manifestFile)
+    //解析配置文件
+    checkYsdkConf(confFile)
+    //模块自检
+    checkAndGenerateResult()
+}
+
+boolean isReleaseBuildType() {
+    for (String s : gradle.startParameter.taskNames) {
+        if (s.contains("Release") | s.contains("release")) {
+            return true
+        }
+    }
+    return false
+}
+
+def checkInitConf(String ysdkConfPath, String manifestPath, String qqId, String wxId) {
+    def conf = new File(ysdkConfPath)
+    if (!conf.exists()) {
+        throw new RuntimeException(ysdkConfPath+"文件不存在！！请检查配置的路径是否正确！！")
+    }
+    confFile = conf
+    def manifest = new File(manifestPath)
+    if (!manifest.exists()) {
+        throw new RuntimeException(manifestPath+"文件不存在！！请检查配置的路径是否正确！！")
+    }
+    manifestFile = manifest
+
+    qqAppid = qqId
+    wxAppid = wxId
+}
+
+def loadManifest(File manifestFile) {
+    def manifestContent = manifestFile.getText()
+    Node node = new XmlParser(false, false).parseText(manifestContent)
+
+    packageName = getPackageName(node)
+    if (isEmpty(packageName)) {
+        throw new RuntimeException("没有找到对应的包名！！")
+    }
+    ACT_NAME_WX_ACTIVITY = "com.tencent.ysdk.module.user.impl.wx.YSDKWXEntryActivity"
+    userPermission = getUserPermission(node)
+    activityMap = getActivities(node)
+    providerMap = getProviderMap(node)
+}
+
+def checkYsdkConf(File file) {
+    String line
+    file.withReader { reader ->
+        while ((line = reader.readLine()) != null) {
+            if (!line.startsWith(";")) {
+                def conf = line.trim().split("=")
+                if (conf != null && confKeyList.contains(conf[0])) {
+                    configMap[conf[0]] = conf[1]
+                }
+            }
+        }
+    }
+
+    checkAppId(QQ_APP_ID, qqAppid, configMap.get(QQ_APP_ID))
+    checkAppId(WX_APP_ID, wxAppid, configMap.get(WX_APP_ID))
+
+}
+
+def checkAppId(String type, String source, String conf) {
+    if (isEmpty(source) && isEmpty(conf)) return
+    if (isEmpty(source) || isEmpty(conf)) {
+        throw new RuntimeException("脚本上配置的" + type + "需要与ysdkconf.ini上配置的相同！！ 脚本上的appId为"
+                + source + " , ysdkconf.ini上的appId为" + conf)
+    }
+    if (!source.equals(conf)) {
+        throw new RuntimeException("脚本上配置的" + type + "需要与ysdkconf.ini上配置的相同！！ 脚本上的appId为"
+                + source + " , ysdkconf.ini上的appId为" + conf)
+    }
+}
+
+def checkAndGenerateResult() {
+    def commonCheckRes = checkCommonModule()
+    def qqCheckRes = checkQQModule()
+    def wxCheckRes = checkWxModule()
+    def midasCheckRes = checkMidasModule()
+    println ""
+    printYellow("---------------  ysdk自检完成  ---------------\r\n")
+
+    printYellow("自检结果:")
+    println ""
+    printYSDKConf()
+    printYellow("ysdk标准接入模块：")
+    printRed(commonCheckRes)
+    printYellow("手Q模块：")
+    printRed(qqCheckRes)
+    printYellow("微信模块：")
+    printRed(wxCheckRes)
+    printYellow("米大师模块：")
+    printRed(midasCheckRes)
+}
+
+String checkCommonModule() {
+    printYellow("--->   ysdk标准接入模块开始自检\r\n")
+    String res = null
+    def task = new ModuleTask()
+    task.name = "ysdk标准模块自检"
+    def permissions = new ArrayList<String>()
+    permissions.add(PERMISSION_ACCESS_NETWORK_STATE)
+    permissions.add(PERMISSION_ACCESS_WIFI_STATE)
+    permissions.add(PERMISSION_INTERNET)
+    permissions.add(PERMISSION_READ_PHONE_STATE)
+    def permissionTask = generatePermissionCheckTask(task.name, permissions)
+    task.tasks.add(permissionTask)
+    res = task.check()
+    printYellow("ysdk标准接入模块自检结束    <---\r\n")
+    return res
+}
+
+def printYSDKConf() {
+    printYellow("ysdkconf.ini配置：")
+    for (conf in configMap) {
+        printYellow(conf.key + "=" + conf.value)
+    }
+    println ""
+}
+
+String checkQQModule() {
+    printYellow("--->   手Q模块开始自检\r\n")
+    String res = null
+    def task = new ModuleTask()
+    task.name = "手Q模块自检"
+    String qqAppIdFromConfig = configMap.get(QQ_APP_ID)
+    printYellow("ysdkconf.ini中配置的qq_app_id = " + qqAppIdFromConfig)
+    if (isEmpty(qqAppIdFromConfig)) {
+        res = "没有在ysdkconf.ini中配置qq_app_id，手Q模块尚未集成."
+    } else {
+        def assist = generateActivityCheckTask(ACT_NAME_ASSIST_ACTIVITY, null, null, null, null)
+        def auth = generateActivityCheckTask(ACT_NAME_AUTH_ACTIVITY, null, "tencent" + qqAppIdFromConfig, null, null)
+        def realName = generateActivityCheckTask(ACT_NAME_REAL_NAME, null, null
+                , null, null)
+        task.tasks.add(assist)
+        task.tasks.add(auth)
+//        task.tasks.add(realName)
+
+        res = task.check()
+    }
+    println ""
+    printYellow("手Q模块自检结束    <---\r\n")
+    return res
+}
+
+String checkWxModule() {
+    printYellow("--->   微信模块开始自检\r\n")
+    String res = null
+    def task = new ModuleTask()
+    task.name = "微信模块自检"
+    String wxAppIdFromConfig = configMap.get(WX_APP_ID)
+    printYellow("ysdkconf.ini中配置的WX_APP_ID = " + wxAppIdFromConfig)
+    if (isEmpty(wxAppIdFromConfig)) {
+        res = "没有在ysdkconf.ini中配置WX_APP_ID，微信模块尚未集成."
+    } else {
+        def wx = generateActivityCheckTask(ACT_NAME_WX_ACTIVITY, null, wxAppIdFromConfig, null, null)
+        def realName = generateActivityCheckTask(ACT_NAME_REAL_NAME, null, null
+                , null, null)
+
+        task.tasks.add(wx)
+//        task.tasks.add(realName)
+
+        res = task.check()
+    }
+    println ""
+    printYellow("微信模块自检结束    <---\r\n")
+    return res
+}
+
+String checkMidasModule() {
+    printYellow("--->   米大师模块开始自检\r\n")
+    String res = null
+    def task = new ModuleTask()
+    task.name = "米大师模块自检"
+    String offerIdFromConfig = configMap.get(OFFER_ID)
+    printYellow("ysdkconf.ini中配置的OFFER_ID = " + offerIdFromConfig)
+    if (isEmpty(offerIdFromConfig)) {
+        res = "没有在ysdkconf.ini中配置OFFER_I，米大师模块尚未集成."
+    } else {
+        def proxy = generateActivityCheckTask(ACT_NAME_MIDAS_PROXY_ACTIVITY, null, null, null, null)
+        def wx = generateActivityCheckTask(ACT_NAME_MIDAS_WX_ACTIVITY, null, null, null, null)
+        def qq = generateActivityCheckTask(ACT_NAME_MIDAS_QQ_ACTIVITY, null, "qwallet100703379", null, null)
+        def js = generateActivityCheckTask(ACT_NAME_MIDAS_JS_ACTIVITY, null, null, null, null)
+
+        task.tasks.add(proxy)
+        task.tasks.add(wx)
+        task.tasks.add(qq)
+        task.tasks.add(js)
+
+        def permissions = [
+                PERMISSION_INTERNET,
+                PERMISSION_ACCESS_NETWORK_STATE,
+                PERMISSION_READ_PHONE_STATE,
+                PERMISSION_ACCESS_WIFI_STATE,
+        ]
+        def permission = generatePermissionCheckTask(task.name, permissions)
+        task.tasks.add(permission)
+
+        res = task.check()
+    }
+    println ""
+    printYellow("米大师模块自检结束    <---\r\n")
+    return res
+}
+
+ActivityCheckTask generateActivityCheckTask(String name, String launchMode, String data,
+                                            String configChanges, String screenOrientation) {
+    def task = new ActivityCheckTask()
+    task.name = name
+    task.obj = activityMap.get(task.name)
+    task.configChanges = configChanges
+    task.launchMode = launchMode
+    task.data = data
+    task.screenOrientation = screenOrientation
+    return task
+}
+
+PermissionCheckTask generatePermissionCheckTask(String name, List<String> permissions) {
+    def task = new PermissionCheckTask()
+    task.name = name
+    task.obj = userPermission
+    task.permissions = permissions
+    return task
+}
+
+ProviderCheckTask generateProviderCheckTask(String name, List<Provider> providers) {
+    ProviderCheckTask task = new ProviderCheckTask()
+    task.providers = providers
+    task.name = name
+    task.obj = providerMap
+    return task
+}
+
+//获取包名
+String getPackageName(Node node) {
+    return node.attributes().package
+}
+
+//获取manifest上的权限列表
+Set<String> getUserPermission(Node node) {
+    def userPermissions = new HashSet<String>()
+    node["uses-permission"].forEach { userPermission ->
+        def permission = userPermission.attributes().get("android:name")
+        if (!isEmpty(permission)) {
+            userPermissions.add(permission)
+        }
+    }
+    return userPermissions
+}
+
+//获取activity列表
+Map<String, Activity> getActivities(Node node) {
+    def map = new HashMap<String, Activity>()
+    node.application[0].activity.forEach { act ->
+        def name = act.attributes().get("android:name")
+        if (!isEmpty(name)) {
+            parseActivity(act, name, map)
+        }
+    }
+
+    return map
+}
+
+def parseActivity(Node act, String name, Map<String, Activity> map) {
+    Activity activity = new Activity()
+    if (name.startsWith(".")) {
+        name = packageName + name
+    }
+    activity.name = name
+    activity.configChanges = act.attributes().get(ANDROID_CONFIG_CHANGES)
+    activity.screenOrientation = act.attributes().get(ANDROID_SCREEN_ORIENTATION)
+    activity.launchMode = act.attributes().get(ANDROID_LAUNCH)
+    parseIntentFilter(act, activity)
+    map.put(activity.name, activity)
+}
+
+def parseIntentFilter(Node act, Activity activity) {
+    act["intent-filter"].forEach { it ->
+        def filter = new IntentFilter()
+        it["data"].forEach { data ->
+            def d = data.attributes().get(ANDROID_SCHEME)
+            if (!isEmpty(d)) {
+                filter.datas.add(d)
+            }
+        }
+        it["action"].forEach { action ->
+            def a = action.attributes().get(ANDROID_NAME)
+            if (!isEmpty(a)) {
+                filter.actions.add(a)
+            }
+        }
+        it["category"].forEach { category ->
+            def c = category.attributes().get(ANDROID_NAME)
+            if (!isEmpty(c)) {
+                filter.categories.add(c)
+            }
+        }
+        activity.filters.add(filter)
+    }
+}
+
+Map<String, Provider> getProviderMap(Node node) {
+    def map = new HashMap<String, Provider>()
+    node.application[0].provider.forEach { pro ->
+        def name = pro.attributes().get("android:name")
+        if (!isEmpty(name)) {
+            parseProvider(pro, name, map)
+        }
+    }
+    return map
+}
+
+def parseProvider(Node node, String name, Map<String, Provider> map) {
+    Provider provider = new Provider()
+    provider.name = name
+    provider.exported = node.attributes().get("android:exported")
+    provider.authorities = node.attributes().get("android:authorities")
+    map.put(provider.name, provider)
+}
+
+static boolean isEmpty(String str) {
+    return str == null || str == ""
+}
+
+static def printNormal(String msg) {
+    System.out.println(msg)
+}
+
+static def printYellow(String msg) {
+    System.out.println("\033[32;4m" + msg + "\033[0m")
+}
+
+def printRed(String msg) {
+    System.out.println("\033[31;4m" + msg + "\033[0m")
+}
+
+class Activity {
+    String name
+    String configChanges
+    String screenOrientation
+    String launchMode
+    List<IntentFilter> filters = new ArrayList<IntentFilter>()
+
+    def printSelf() {
+        def sb = new StringBuilder()
+        sb.append("name = ").append(name).append(" , ")
+                .append("configChanges = ").append(configChanges).append(" , ")
+                .append("screenOrientation = ").append(screenOrientation).append(" , ")
+                .append("launchMode = ").append(launchMode).append(" , ")
+                .append(Arrays.toString(filters))
+        println sb.toString()
+    }
+}
+
+class IntentFilter {
+    List<String> categories = new ArrayList<String>()
+    List<String> actions = new ArrayList<String>()
+    List<String> datas = new ArrayList<String>()
+
+    @Override
+    String toString() {
+        def sb = new StringBuilder();
+        sb.append("categories = ").append(Arrays.toString(categories)).append(" , ")
+                .append("actions = ").append(Arrays.toString(actions)).append(" , ")
+                .append("datas = ").append(Arrays.toString(datas))
+        return sb.toString()
+    }
+}
+
+class Provider {
+    String name
+    String authorities
+    String exported = "false"
+}
+
+abstract class Task {
+    String name
+    Object obj
+
+    abstract String check()
+
+    boolean isEmpty(String str) {
+        return str == null || str == ""
+    }
+}
+
+class ModuleTask extends Task {
+
+    List<Task> tasks = new ArrayList<>()
+
+    @Override
+    String check() {
+        def sb = new StringBuilder()
+        for (task in tasks) {
+            String res = task.check()
+            if (!isEmpty(res)) {
+                sb.append(res).append("\r\n")
+            }
+        }
+        def res = sb.toString()
+        if (isEmpty(res)) {
+            res = name + "自检没有发现异常."
+        }
+        return res
+    }
+
+}
+
+class ActivityCheckTask extends Task {
+    String configChanges
+    String screenOrientation
+    String launchMode
+    String data
+
+    @Override
+    String check() {
+        def sb = new StringBuilder()
+        if (obj instanceof Activity) {
+            if (!isEmpty(screenOrientation) && !obj.screenOrientation.equals(screenOrientation)) {
+                sb.append(obj.name).append("的configChanges应该配置为")
+                        .append(screenOrientation)
+                        .append(" , 当前值为").append(obj.screenOrientation)
+                        .append("\r\n")
+            }
+
+            if (!isEmpty(configChanges)) {
+                def configs = obj.configChanges.split("\\|")
+                def set = new HashSet<String>()
+                configs.each { it ->
+                    set.add(it)
+                }
+
+                def taskConfigs = configChanges.split("\\|")
+
+                for (configChange in taskConfigs) {
+                    if (!set.contains(configChange)) {
+                        sb.append(obj.name).append("的configChanges应该配置为")
+                                .append(configChanges)
+                                .append(" , 当前值为").append(obj.configChanges)
+                                .append("\r\n")
+                        break
+                    }
+                }
+            }
+
+            if (!isEmpty(launchMode) && !obj.launchMode.equals(launchMode)) {
+                sb.append(obj.name).append("的launchMode应该配置为").append(launchMode).append("\r\n")
+            }
+
+            if (!isEmpty(data)) {
+                if (obj.filters.size() == 0) {
+                    sb.append(obj.name).append("需要设置intent-filter,具体参照这个网址：")
+                } else {
+                    for (filter in obj.filters) {
+                        for (da in filter.datas) {
+                            if (!da.equals(data)) {
+                                sb.append(obj.name).append("的intent-filter的data的scheme设置不正确，期望值是")
+                                        .append(data).append(" , 现值为")
+                                        .append(da)
+                                break
+                            }
+                        }
+                    }
+                }
+            }
+
+        } else {
+            sb.append("需要在manifest中配置").append(name)
+        }
+        return sb.toString()
+    }
+}
+
+class PermissionCheckTask extends Task {
+
+    List<String> permissions = new ArrayList<>()
+
+    @Override
+    String check() {
+        def sb = new StringBuilder()
+        if (obj instanceof HashSet) {
+            for (permission in permissions) {
+                if (!obj.contains(permission)) {
+                    sb.append("需要在manifest上配置").append(permission).append("\r\n")
+                }
+            }
+        }
+        return sb.toString()
+    }
+}
+
+class ProviderCheckTask extends Task {
+
+    List<Provider> providers = new ArrayList<>()
+
+    @Override
+    String check() {
+        def sb = new StringBuilder()
+        if (obj instanceof HashMap) {
+            for (pro in providers) {
+                if (!obj.containsKey(pro.name)) {
+                    sb.append("需要在manifest上配置").append(pro.name).append("\r\n")
+                } else {
+                    def cachePro = obj.get(pro.name)
+
+                    if (cachePro instanceof Provider) {
+                        if (!cachePro.authorities.equals(pro.authorities)) {
+                            sb.append(pro.name).append("的authorities期望值为").append(pro.authorities)
+                                    .append("， 当前值为").append(cachePro.authorities).append("\r\n")
+                        }
+
+                        if (cachePro.exported.equals(pro.exported)) {
+                            sb.append(pro.name).append("的exported期望值为").append(pro.exported)
+                                    .append("， 当前值为").append(cachePro.exported).append("\r\n")
+                        }
+                    }
+
+                }
+            }
+        }
+        return sb.toString()
+    }
+
+}

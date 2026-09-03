@@ -1,0 +1,356 @@
+// Top-level build file where you can add configuration options common to all sub-projects/modules.
+def loadVersionProperties() {
+    def versionPropsFile = rootProject.file('version.properties') // 从根目录读取
+    def versionProps = new Properties()
+    if (versionPropsFile.exists()) {
+        versionProps.load(new FileInputStream(versionPropsFile))
+    } else {
+        logger.warn("⚠️ version.properties not found. Using default values.")
+    }
+    return versionProps
+}
+
+def versionProps = loadVersionProperties()
+
+buildscript {
+    ext {
+        // Kotlin 编译器与 stdlib 统一锁定在 1.8.22：
+        //   - 1.8.22 是 AGP 7.4.2 内置 R8 能稳定处理的最高 Kotlin 版本（1.9+ 会触发
+        //     com.android.tools.r8.kotlin.H 异常，见 rxsdk_google/build.gradle 里的注释）。
+        //   - Kotlin 1.6.21 的 metadata 上限是 1.6.x，与 androidx lifecycle 2.5+/2.6+、
+        //     savedstate 1.2+、navigation 2.5+ 不兼容；升到 1.8.22 后这些 artifact 解锁。
+        kotlin_version = '1.8.22'
+        // AGP 7.4.2 + AAPT2 7.4.2 与 android-35 资源表存在兼容问题，先降到 34 以恢复构建
+        buildToolsVersion = '34.0.0'
+        targetSdkVersion = 28
+        minSdkVersion = 21
+        compileSdkVersion = 34
+        // 依赖版本已迁移至 gradle/libs.versions.toml，子项目通过 libs.xxx 引用
+    }
+
+    repositories {
+        gradlePluginPortal()
+        maven { url 'https://maven.aliyun.com/repository/public' }  //central仓和jcenter仓的聚合仓
+        maven { url 'https://maven.aliyun.com/repository/google' }
+        google()
+        mavenCentral()
+        maven { url 'https://developer.hihonor.com/repo' }
+        maven { url 'https://developer.huawei.com/repo/' }
+        maven {
+            url 'https://maven.aliyun.com/nexus/content/repositories/releases/'
+        }
+        //library_openMediation
+//        maven {
+//            url 'https://dl.openmediation.com/omcenter/'
+//        }
+//        //字节游戏联运
+//        maven {
+//            url 'https://artifact.bytedance.com/repository/ttgamesdk/'
+//        }
+
+    }
+    dependencies {
+        classpath "com.android.tools.build:gradle:7.4.2"
+
+        def task = getGradle().getStartParameter().getTaskNames().toString().toLowerCase()
+        println "Task :" + task
+        if (task.contains("huawei")) {//华为
+//            classpath 'com.huawei.agconnect:agcp:1.6.0.300'
+            classpath 'com.huawei.agconnect:agcp:1.9.1.300'
+        }
+        if (task.contains("overseas")) {
+//            classpath 'com.google.gms:google-services:4.1.0'
+            classpath 'com.google.firebase:firebase-crashlytics-gradle:2.5.2'
+            classpath 'com.google.gms:google-services:4.3.10'
+        }
+        //        classpath "org.jetbrains.kotlin:kotlin-android-extensions:$kotlin_version"
+        if (task.contains("firebase") || task.contains("clean") || task == "[]") {
+            // Add the dependency for the Crashlytics Gradle plugin
+
+        }
+        classpath 'com.google.firebase:firebase-crashlytics-gradle:2.5.2'
+        classpath 'com.google.gms:google-services:4.3.10'
+        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
+        classpath 'com.github.kezong:fat-aar:1.3.8'
+
+
+        //字节游戏联运接入文档 v2.0.5.2
+//        classpath 'com.bytedance.ttgame:gbsdk_helper:1.0.9'
+
+        // NOTE: Do not place your application dependencies here; they belong
+        // in the individual module build.gradle filesw
+
+        // Add the following line: 在根级（项目级）Gradle 文件 (build.gradle) 中添加规则，以纳入 Google 服务 Gradle 插件。此外，请确认您拥有 Google 的 Maven 代码库。
+//        classpath 'com.google.gms:google-services:4.3.10'  // Google Services plugin
+        classpath 'com.github.ben-manes:gradle-versions-plugin:0.51.0'
+    }
+}
+apply plugin: 'com.github.ben-manes.versions'
+
+ext.versionName = versionProps['versionName'] ?: "1.0.0"
+ext.versionCode = versionProps['versionCode']?.toInteger() ?: 2
+println("SDK Version: ${versionName} (Code: ${versionCode})")
+
+allprojects {
+    repositories {
+//        maven {
+//            url 'http://60.205.123.114:8081/repository/maven-releases/
+//            allowInsecureProtocol = true
+//        }
+        maven { url 'https://maven.aliyun.com/repository/public' }//central仓和jcenter仓的聚合仓
+
+        maven {
+            url 'https://artifact.bytedance.com/repository/ttgamesdk/'
+        }
+        //增加小米游戏SDK的Maven仓库地址
+        maven {
+            url "https://repos.xiaomi.com/maven"
+            credentials {
+                username 'mi-gamesdk'
+                password '<REDACTED>'
+            }
+        }
+        // 华为的库的仓库地址
+        maven { url 'https://developer.huawei.com/repo/' }
+        maven {
+            url "https://gitee.com/mopush/androidrepo/raw/master/"//MO PUSH maven 地址
+        }
+        //library_openMediation
+        maven {
+            url 'https://dl.openmediation.com/omcenter/'
+        }
+
+
+        //oppo push
+        maven {
+            url 'https://maven.columbus.heytapmobi.com/repository/releases/'
+            credentials {
+                username 'nexus'
+                password '<REDACTED>'
+            }
+        }
+
+        maven {
+            credentials {
+                username '600685104fb2132a19e09a29'
+                password '<REDACTED>'
+            }
+            url 'https://packages.aliyun.com/maven/repository/2168735-release-Zcdy1x/'
+        }
+        maven {
+            credentials {
+                username '600685104fb2132a19e09a29'
+                password '<REDACTED>'
+            }
+            url 'https://packages.aliyun.com/maven/repository/2168735-snapshot-WdZfVk/'
+        }
+
+        maven {
+            // 4399 SDK 开放仓库：正式
+            url 'https://mvn.4399doc.com/repository/maven-releases'
+        }
+        maven {
+            // 4399 SDK 开放仓库：快照
+            url 'https://mvn.4399doc.com/repository/maven-snapshots'
+        }
+        // 巨量广告
+        maven {
+            url 'https://artifact.bytedance.com/repository/Volcengine/'
+        }
+        //tiktok
+        maven { url "https://artifact.bytedance.com/repository/AwemeOpenSDK" }
+        //honor
+        maven { url 'https://developer.hihonor.com/repo' }
+
+        //Anythink(Core)
+        maven {
+            url "https://jfrog.anythinktech.com/artifactory/overseas_sdk"
+        }
+        maven {
+            url 'https://maven.aliyun.com/nexus/content/repositories/releases/'
+        }
+        maven {
+            url "https://gitlab.com/api/v4/projects/50747855/packages/maven"
+            name "GitLabZaloSDK"
+        }
+        maven { url 'https://maven.aliyun.com/repository/google' }
+        google()
+        mavenCentral()
+
+        maven {
+            url 'https://maven.aliyun.com/nexus/content/repositories/releases/'
+        }
+
+        //字节游戏联运
+        maven {
+            url 'https://jitpack.io'
+        }
+        maven { url "https://maven-release.webapp.163.com/repository/maven-releases/" }
+
+        //------以下是 VGamePop (Apkpure) ASDK / VK ID SDK 仓库----------
+        maven { url 'https://artifactory-external.vkpartner.ru/artifactory/maven' }
+        maven { url 'https://artifactory-external.vkpartner.ru/artifactory/vkid-sdk-android/' }
+        maven { url 'https://artifactory-external.vkpartner.ru/artifactory/vk-id-captcha/android/' }
+        //rustore
+        maven { url 'https://artifactory-external.vkpartner.ru/artifactory/maven-rustore-exposed/' }
+       //vgamepop
+        maven {
+            credentials {
+                username '66854827ddd3f6b4eb144cea'
+                password '<REDACTED>'
+            }
+            url 'https://packages.aliyun.com/622db4faa0d337fae279741f/maven/asdk'
+        }
+
+        //------以下是需要配置的 传音 SDK依赖仓库地址----------
+        maven { url 'https://mvn.shalltry.com/repository/maven-public/' }
+        maven { url 'https://mvn.shalltry.com/repository/game-releases/' }
+        maven { url 'https://mvn.shalltry.com/repository/ad-releases/' }
+        maven {
+            url "https://jfrog.anythinktech.com/artifactory/overseas_sdk"
+        }
+
+        //Vungle
+        maven {
+            url "https://s01.oss.sonatype.org/content/groups/staging/"
+        }
+
+        //Ironsource
+        maven {
+            url "https://android-sdk.is.com/"
+        }
+
+        //Pangle
+        maven {
+            url "https://artifact.bytedance.com/repository/pangle"
+        }
+
+        //Mintegral
+        maven {
+            url "https://dl-maven-android.mintegral.com/repository/mbridge_android_sdk_oversea"
+        }
+        //------以上是需要配置的SDK依赖仓库地址----------
+    }
+}
+
+tasks.register('printVersion') {
+    doLast {
+        println versionName
+    }
+}
+tasks.register('clean', Delete) {
+    delete rootProject.buildDir
+}
+
+/**
+ * 在 com.android.library / application 插件应用后立刻写入 android.namespace（与 Manifest 的 package 一致）。
+ * 必须在 AGP 读 Manifest 的「弃用 package」告警之前设置，仅靠 afterEvaluate 往往仍会打日志。
+ * 若 `src/main/AndroidManifest.xml` 未声明 package，则跳过（由模块 build.gradle 显式写 namespace，如 rxsdk_apkpure）。
+ */
+def applyNamespaceFromMainManifest = { Project prj ->
+    def androidExt = prj.extensions.findByName('android')
+    if (androidExt == null) {
+        return
+    }
+    if (androidExt.hasProperty('namespace')) {
+        def cur = androidExt.namespace
+        if (cur != null && cur.toString().trim()) {
+            return
+        }
+    }
+    def manifestFile = prj.file('src/main/AndroidManifest.xml')
+    if (!manifestFile.exists()) {
+        return
+    }
+    def manifestPkg = new XmlSlurper(false, false).parse(manifestFile).'@package'?.text()
+    if (manifestPkg == null || !manifestPkg.toString().trim()) {
+        return
+    }
+    androidExt.namespace = manifestPkg.toString().trim()
+}
+
+// 为 Android 子项目统一配置单元测试：报告与日志
+subprojects { sub ->
+    // Kotlin 1.8 起 jdk7/jdk8 扩展已并入 stdlib。若生命周期/协程等传递依赖仍保留
+    // 1.6.x 的 jdk7/jdk8，而图中同时解析出 1.8.x stdlib，会在 D8 阶段产生重复类。
+    // 与 buildscript.kotlin_version 对齐，确保所有 Android 宿主使用同一套 Kotlin 标准库。
+    sub.configurations.configureEach {
+        resolutionStrategy.force(
+                "org.jetbrains.kotlin:kotlin-stdlib:${rootProject.ext.kotlin_version}",
+                "org.jetbrains.kotlin:kotlin-stdlib-common:${rootProject.ext.kotlin_version}",
+                "org.jetbrains.kotlin:kotlin-stdlib-jdk7:${rootProject.ext.kotlin_version}",
+                "org.jetbrains.kotlin:kotlin-stdlib-jdk8:${rootProject.ext.kotlin_version}"
+        )
+    }
+    sub.plugins.withId('com.android.library') {
+        applyNamespaceFromMainManifest(sub)
+    }
+    sub.plugins.withId('com.android.application') {
+        applyNamespaceFromMainManifest(sub)
+    }
+    sub.afterEvaluate {
+        if (sub.plugins.hasPlugin('com.android.library') || sub.plugins.hasPlugin('com.android.application')) {
+            if (sub.android != null) {
+                sub.android {
+                    compileOptions {
+                        // RuStore SDK（BOM 2026.x / pay 10.x）为 Java 17 字节码，须 javac17+ 才可编译该模块；
+                        // 其余模块仍为 11（避免此前 R8/字节码形态问题）。
+                        if (sub.path == ':overseas:rxsdk_rustore' || sub.path == ':overseas:rxsdk_vk') {
+                            sourceCompatibility JavaVersion.VERSION_17
+                            targetCompatibility JavaVersion.VERSION_17
+                        } else {
+                            sourceCompatibility JavaVersion.VERSION_11
+                            targetCompatibility JavaVersion.VERSION_11
+                        }
+                    }
+                    if (hasProperty('kotlinOptions')) {
+                        kotlinOptions {
+                            jvmTarget = (sub.path == ':overseas:rxsdk_rustore' || sub.path == ':overseas:rxsdk_vk') ? "17" : "11"
+                        }
+                    }
+                    buildFeatures {
+                        buildConfig = true
+                    }
+                    testOptions {
+                        unitTests {
+                            includeAndroidResources = false
+                            all {
+                                testLogging {
+                                    events "passed", "skipped", "failed"
+                                    exceptionFormat "full"
+                                    showStandardStreams = false
+                                }
+                            }
+                        }
+                    }
+                }
+                sub.tasks.withType(JavaCompile).configureEach { t ->
+                    if (t.options?.compilerArgs != null) {
+                        t.options.compilerArgs.removeAll { it == '-Werror' || it == '-Xlint:all,-options' }
+                    }
+                }
+            }
+        }
+    }
+}
+
+// 一键发布所有 local_repo 下的 AAR（阿里云 / Nexus 二选一或都跑）
+gradle.projectsEvaluated {
+    def localRepos = subprojects.findAll { it.path.startsWith(':local_repo:') }
+    tasks.register('publishAllLocalRepo') {
+        group = 'publishing'
+        description = 'Publish all local_repo AARs to 阿里云 (REPO_URL_RELEASE)'
+        dependsOn localRepos.collect { it.tasks.findByName('publishReleasePublicationToAliRepository') }.findAll { it != null }
+    }
+    tasks.register('publishAllLocalRepoToNexus') {
+        group = 'publishing'
+        description = 'Publish all local_repo AARs to Nexus (NEXUS_RELEASE_URL)'
+        dependsOn localRepos.collect { it.tasks.findByName('publishReleasePublicationToNexusRepository') }.findAll { it != null }
+    }
+    tasks.register('publishAllLocalRepoBoth') {
+        group = 'publishing'
+        description = 'Publish all local_repo AARs to 阿里云 + Nexus'
+        dependsOn tasks.named('publishAllLocalRepo'), tasks.named('publishAllLocalRepoToNexus')
+    }
+}
+

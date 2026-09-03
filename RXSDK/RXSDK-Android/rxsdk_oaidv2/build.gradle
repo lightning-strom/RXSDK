@@ -1,0 +1,44 @@
+plugins {
+    id 'com.android.library'
+}
+project.group 'com.ruixue'
+apply from: "${rootDir}/maven.gradle"
+
+android {
+    compileSdkVersion rootProject.ext.compileSdkVersion
+    buildToolsVersion rootProject.ext.buildToolsVersion
+
+    defaultConfig {
+        minSdkVersion rootProject.ext.minSdkVersion
+        targetSdkVersion rootProject.ext.targetSdkVersion
+        versionCode rootProject.ext.versionCode
+        versionName rootProject.ext.versionName
+        consumerProguardFiles "consumer-rules.pro"
+        buildConfigField("String", "BUILD_TIME", "\"${getTimestamp()}\"")
+        buildConfigField("String", "COMMIT_ID", "\"${getGitCommit()}\"")
+    }
+
+    buildTypes {
+        release {
+//            aaptOptions {
+//                ignoreAssetsPattern '!zlsioh.dat:'
+//            }
+            minifyEnabled false
+            zipAlignEnabled true    // 开启Zip压缩优化
+            shrinkResources false    // 移除未被使用的资源
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+        }
+        packagingAAR(project, android)
+    }
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
+}
+
+dependencies {
+    api libs.oaid.sdk.v2
+    compileOnly project(':rxsdk_base')
+//    api 'com.bun.miitmdid:oaid_sdk:1.1.0'
+//    implementation 'com.bun.miitmdid:oaid_sdk:1.0.13'
+}

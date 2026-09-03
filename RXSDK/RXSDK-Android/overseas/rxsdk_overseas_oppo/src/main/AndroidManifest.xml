@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    package="com.ruixue.sdk.overseas.oppo">
+
+    <!--管理软件包可见性：https://developer.android.com/training/basics/intents/package-visibility?hl=zh-cn-->
+    <!--解决当应用targetSdkVersion设置为30及以上，登录和支付出现异常的问题-->
+    <!--解决方式一：查询所有应用及与之交互【推荐】-->
+    <uses-permission android:name="android.permission.QUERY_ALL_PACKAGES"
+        tools:ignore="QueryAllPackagesPermission" />
+    <!--解决方式二：查询特点应用及与之交互-->
+    <!--    <queries>-->
+    <!--        <package android:name="com.oplus.pay" />&lt;!&ndash;支付功能使用到的包名&ndash;&gt;-->
+    <!--        <package android:name="com.nearme.atlas" />&lt;!&ndash;支付功能使用到的包名&ndash;&gt;-->
+    <!--        <package android:name="com.finshell.atlas" />&lt;!&ndash;支付功能使用到的包名&ndash;&gt;-->
+    <!--        <package android:name="com.oppo.usercenter" />&lt;!&ndash;登录功能使用到的包名&ndash;&gt;-->
+    <!--        <package android:name="com.heytap.usercenter" />&lt;!&ndash;登录功能使用到的包名&ndash;&gt;-->
+    <!--        <package android:name="com.heytap.vip" />&lt;!&ndash;登录功能使用到的包名&ndash;&gt;-->
+    <!--        <package android:name="com.oplus.vip" />&lt;!&ndash;登录功能使用到的包名&ndash;&gt;-->
+    <!--    </queries>-->
+
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
+    <uses-permission android:name="android.permission.MOUNT_UNMOUNT_FILESYSTEMS" />
+    <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW" />
+    <uses-permission android:name="android.permission.GET_TASKS" />
+    <uses-permission android:name="android.permission.USE_CREDENTIALS" />
+    <uses-permission android:name="android.permission.REQUEST_INSTALL_PACKAGES" />
+
+    <application>
+
+        <!--安装支付apk使用-->
+        <provider android:name="androidx.core.content.FileProvider"   android:authorities="${applicationId}.fileProvider" android:exported="false" android:grantUriPermissions="true" >
+            <meta-data android:name="android.support.FILE_PROVIDER_PATHS" android:resource="@xml/atlas_pay_file_paths" />
+        </provider>
+
+        <activity
+            android:name="com.nearme.game.sdk.component.proxy.ProxyActivity"
+            android:configChanges="keyboardHidden|orientation|screenSize"
+            android:process=":gcsdk"
+            android:theme="@style/Theme_Dialog_Custom" />
+
+        <activity
+            android:name="com.nearme.game.sdk.component.proxy.ExitActivity"
+            android:configChanges="keyboardHidden|orientation|screenSize"
+            android:launchMode="singleTask"
+            android:process=":gcsdk"
+            android:theme="@style/Theme_Dialog_Custom" />
+
+        <service
+            android:name="com.nearme.game.sdk.component.proxy.ProxyApiService"
+            android:priority="1000"
+            android:process=":gcsdk" />
+
+        <receiver
+            android:name="com.nearme.game.sdk.component.proxy.ProxyUserCenterOperateReceiver"
+            android:exported="true"
+            android:process=":gcsdk">
+            <intent-filter>
+                <action android:name="com.oppo.usercenter.account_login" />
+                <action android:name="com.oppo.usercenter.account_logout" />
+                <action android:name="com.oppo.usercenter.modify_name" />
+                <action android:name="com.usercenter.action.receiver.account_login" />
+                <action android:name="com.heytap.usercenter.account_logout" />
+            </intent-filter>
+        </receiver>
+    </application>
+
+</manifest>

@@ -1,0 +1,58 @@
+plugins {
+    id 'com.android.library'
+}
+project.group 'com.ruixue'
+apply from: "${rootDir}/maven.gradle"
+
+android {
+    compileSdkVersion rootProject.ext.compileSdkVersion
+    buildToolsVersion rootProject.ext.buildToolsVersion
+
+    defaultConfig {
+        minSdkVersion rootProject.ext.minSdkVersion
+        targetSdkVersion rootProject.ext.targetSdkVersion
+        versionCode rootProject.ext.versionCode
+        versionName rootProject.ext.versionName
+
+        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+        consumerProguardFiles "consumer-rules.pro"
+        buildConfigField("String", "BUILD_TIME", "\"${getTimestamp()}\"")
+        buildConfigField("String", "COMMIT_ID", "\"${getGitCommit()}\"")
+    }
+
+    buildTypes {
+        release {
+            aaptOptions {
+                ignoreAssetsPattern '!supplierconfig.json:'
+            }
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+        }
+        packagingAAR(project, android)
+    }
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
+    sourceSets {
+        main {
+            jniLibs.srcDirs = ['libs']
+        }
+    }
+
+}
+
+dependencies {
+    api(project(path: ':rxsdk_base')) {
+        exclude group: 'com.google.code.gson'
+        exclude group: 'com.squareup.okhttp3'
+        exclude group: 'com.squareup.okio'
+    }
+
+    // 官方 v2.5.34 原版 AAR（未做任何剥离，gson/okhttp/okio 等以 libs/*.jar 内嵌）
+    // AAR 内已去掉支付宝，需单独引入
+    // 文档：https://docs.ldmnq.com/docs/3iyTEo
+    compileOnly 'com.google.code.gson:gson:2.8.8'
+    api 'com.ld.sdk.library:ldmnq:2.5.34'
+    api 'com.alipay.sdk:alipaysdk-android:15.8.37@aar'
+}

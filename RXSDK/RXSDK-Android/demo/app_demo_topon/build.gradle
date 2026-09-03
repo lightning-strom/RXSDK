@@ -1,0 +1,52 @@
+plugins {
+    id 'com.android.library'
+}
+//apply from :'ysdk_self_check.gradle'
+project.group 'com.ruixue'
+
+
+android {
+    compileSdkVersion rootProject.ext.compileSdkVersion
+    buildToolsVersion rootProject.ext.buildToolsVersion
+
+    defaultConfig {
+        minSdkVersion rootProject.ext.minSdkVersion
+        targetSdkVersion rootProject.ext.targetSdkVersion
+        versionCode rootProject.ext.versionCode
+        versionName rootProject.ext.versionName
+
+        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+    }
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+            manifestPlaceholders = [
+                    "app_id": "aebgmeswdyaaaa3t"
+            ]
+        }
+        debug {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+            manifestPlaceholders = [
+                    "app_id": "aebgmeswdyaaaa3t"
+            ]
+        }
+    }
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
+}
+
+dependencies {
+
+    implementation libs.appcompat
+    implementation libs.constraintlayout
+
+    api(project(':rxsdk_topon'))
+
+    //Admob
+    api "com.anythink.sdk:adapter-tpn-admob:6.3.50"
+    api "com.google.android.gms:play-services-ads:23.0.0"
+}

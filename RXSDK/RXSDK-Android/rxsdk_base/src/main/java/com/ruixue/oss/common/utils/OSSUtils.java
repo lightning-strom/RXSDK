@@ -1,0 +1,888 @@
+package com.ruixue.oss.common.utils;
+
+import android.content.Context;
+import android.net.InetAddresses;
+import android.os.Build;
+import android.text.TextUtils;
+import android.util.Base64;
+import android.webkit.MimeTypeMap;
+
+import com.ruixue.oss.common.OSSConstants;
+import com.ruixue.oss.common.OSSHeaders;
+import com.ruixue.oss.common.OSSLog;
+import com.ruixue.oss.common.auth.HmacSHA1Signature;
+import com.ruixue.oss.common.auth.OSSCredentialProvider;
+import com.ruixue.oss.common.auth.OSSCustomSignerCredentialProvider;
+import com.ruixue.oss.common.auth.OSSFederationCredentialProvider;
+import com.ruixue.oss.common.auth.OSSFederationToken;
+import com.ruixue.oss.common.auth.OSSPlainTextAKSKCredentialProvider;
+import com.ruixue.oss.common.auth.OSSStsTokenCredentialProvider;
+import com.ruixue.oss.exception.InconsistentException;
+import com.ruixue.oss.internal.RequestMessage;
+import com.ruixue.oss.model.CopyObjectRequest;
+import com.ruixue.oss.model.CreateBucketRequest;
+import com.ruixue.oss.model.DeleteBucketLifecycleRequest;
+import com.ruixue.oss.model.DeleteBucketLoggingRequest;
+import com.ruixue.oss.model.DeleteBucketRequest;
+import com.ruixue.oss.model.GetBucketInfoRequest;
+import com.ruixue.oss.model.DeleteMultipleObjectRequest;
+import com.ruixue.oss.model.GetBucketACLRequest;
+import com.ruixue.oss.model.GetBucketLifecycleRequest;
+import com.ruixue.oss.model.GetBucketLoggingRequest;
+import com.ruixue.oss.model.GetBucketRefererRequest;
+import com.ruixue.oss.model.ListBucketsRequest;
+import com.ruixue.oss.model.ListMultipartUploadsRequest;
+import com.ruixue.oss.model.ListObjectsRequest;
+import com.ruixue.oss.model.OSSRequest;
+import com.ruixue.oss.model.ObjectMetadata;
+import com.ruixue.oss.model.PartETag;
+import com.ruixue.oss.model.PutBucketLifecycleRequest;
+import com.ruixue.oss.model.PutBucketLoggingRequest;
+import com.ruixue.oss.model.PutBucketRefererRequest;
+import com.ruixue.oss.common.RequestParameters;
+
+import org.json.JSONObject;
+
+import java.io.IOException;
+import java.io.UnsupportedEncodingException;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+import java.util.Arrays;
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
+import java.util.TreeMap;
+
+/**
+ * Created by zhouzhuo on 11/22/15.
+ */
+public class OSSUtils {
+
+    private static final String NEW_LINE = "\n";
+
+    private static final List<String> SIGNED_PARAMTERS = Arrays.asList(new String[]{
+            RequestParameters.SUBRESOURCE_BUCKETINFO, RequestParameters.SUBRESOURCE_ACL, RequestParameters.SUBRESOURCE_UPLOADS, RequestParameters.SUBRESOURCE_LOCATION,
+            RequestParameters.SUBRESOURCE_CORS, RequestParameters.SUBRESOURCE_LOGGING, RequestParameters.SUBRESOURCE_WEBSITE,
+            RequestParameters.SUBRESOURCE_REFERER, RequestParameters.SUBRESOURCE_LIFECYCLE, RequestParameters.SUBRESOURCE_DELETE,
+            RequestParameters.SUBRESOURCE_APPEND, RequestParameters.UPLOAD_ID, RequestParameters.PART_NUMBER, RequestParameters.SECURITY_TOKEN, RequestParameters.POSITION,
+            RequestParameters.RESPONSE_HEADER_CACHE_CONTROL, RequestParameters.RESPONSE_HEADER_CONTENT_DISPOSITION,
+            RequestParameters.RESPONSE_HEADER_CONTENT_ENCODING, RequestParameters.RESPONSE_HEADER_CONTENT_LANGUAGE,
+            RequestParameters.RESPONSE_HEADER_CONTENT_TYPE, RequestParameters.RESPONSE_HEADER_EXPIRES, RequestParameters.X_OSS_PROCESS,
+            RequestParameters.SUBRESOURCE_SEQUENTIAL, RequestParameters.X_OSS_SYMLINK, RequestParameters.X_OSS_RESTORE, RequestParameters.X_OSS_TAGGING, RequestParameters.SUBRESOURCE_OBJECT_META
+    });
+
+    /**
+     * Populate metadata to headers.
+     */
+    public static void populateRequestMetadata(Map<String, String> headers, ObjectMetadata metadata) {
+        if (metadata == null) {
+            return;
+        }
+
+        Map<String, Object> rawMetadata = metadata.getRawMetadata();
+        if (rawMetadata != null) {
+            for (Map.Entry<String, Object> entry : rawMetadata.entrySet()) {
+                headers.put(entry.getKey(), entry.getValue().toString());
+            }
+        }
+
+        Map<String, String> userMetadata = metadata.getUserMetadata();
+        if (userMetadata != null) {
+            for (Map.Entry<String, String> entry : userMetadata.entrySet()) {
+                String key = entry.getKey();
+                String value = entry.getValue();
+                if (key != null) key = key.trim();
+                if (value != null) value = value.trim();
+                headers.put(key, value);
+            }
+        }
+    }
+
+    public static void populateListBucketRequestParameters(ListBucketsRequest listBucketsRequest,
+                                                           Map<String, String> params) {
+        if (listBucketsRequest.getPrefix() != null) {
+            params.put(RequestParameters.PREFIX, listBucketsRequest.getPrefix());
+        }
+
+        if (listBucketsRequest.getMarker() != null) {
+            params.put(RequestParameters.MARKER, listBucketsRequest.getMarker());
+        }
+
+        if (listBucketsRequest.getMaxKeys() != null) {
+            params.put(RequestParameters.MAX_KEYS, Integer.toString(listBucketsRequest.getMaxKeys()));
+        }
+    }
+
+    public static void populateListObjectsRequestParameters(ListObjectsRequest listObjectsRequest,
+                                                            Map<String, String> params) {
+
+        if (listObjectsRequest.getPrefix() != null) {
+            params.put(RequestParameters.PREFIX, listObjectsRequest.getPrefix());
+        }
+
+        if (listObjectsRequest.getMarker() != null) {
+            params.put(RequestParameters.MARKER, listObjectsRequest.getMarker());
+        }
+
+        if (listObjectsRequest.getDelimiter() != null) {
+            params.put(RequestParameters.DELIMITER, listObjectsRequest.getDelimiter());
+        }
+
+        if (listObjectsRequest.getMaxKeys() != null) {
+            params.put(RequestParameters.MAX_KEYS, Integer.toString(listObjectsRequest.getMaxKeys()));
+        }
+
+        if (listObjectsRequest.getEncodingType() != null) {
+            params.put(RequestParameters.ENCODING_TYPE, listObjectsRequest.getEncodingType());
+        }
+    }
+
+    public static void populateListMultipartUploadsRequestParameters(ListMultipartUploadsRequest request,
+                                                                     Map<String, String> params) {
+
+        if (request.getDelimiter() != null) {
+            params.put(RequestParameters.DELIMITER, request.getDelimiter());
+        }
+
+        if (request.getMaxUploads() != null) {
+            params.put(RequestParameters.MAX_UPLOADS, Integer.toString(request.getMaxUploads()));
+        }
+
+        if (request.getKeyMarker() != null) {
+            params.put(RequestParameters.KEY_MARKER, request.getKeyMarker());
+        }
+
+        if (request.getPrefix() != null) {
+            params.put(RequestParameters.PREFIX, request.getPrefix());
+        }
+
+        if (request.getUploadIdMarker() != null) {
+            params.put(RequestParameters.UPLOAD_ID_MARKER, request.getUploadIdMarker());
+        }
+
+        if (request.getEncodingType() != null) {
+            params.put(RequestParameters.ENCODING_TYPE, request.getEncodingType());
+        }
+    }
+
+    public static boolean checkParamRange(long param, long from, boolean leftInclusive,
+                                          long to, boolean rightInclusive) {
+        if (leftInclusive && rightInclusive) {    // [from, to]
+            if (from <= param && param <= to) {
+                return true;
+            } else {
+                return false;
+            }
+        } else if (leftInclusive && !rightInclusive) {  // [from, to)
+            if (from <= param && param < to) {
+                return true;
+            } else {
+                return false;
+            }
+        } else if (!leftInclusive && !rightInclusive) {    // (from, to)
+            if (from < param && param < to) {
+                return true;
+            } else {
+                return false;
+            }
+        } else {     // (from, to]
+            if (from < param && param <= to) {
+                return true;
+            } else {
+                return false;
+            }
+        }
+    }
+
+    public static void populateCopyObjectHeaders(CopyObjectRequest copyObjectRequest,
+                                                 Map<String, String> headers) {
+        String copySourceHeader = "/" + copyObjectRequest.getSourceBucketName() + "/"
+                + HttpUtil.urlEncode(copyObjectRequest.getSourceKey(), OSSConstants.DEFAULT_CHARSET_NAME);
+        headers.put(OSSHeaders.COPY_OBJECT_SOURCE, copySourceHeader);
+
+        addDateHeader(headers,
+                OSSHeaders.COPY_OBJECT_SOURCE_IF_MODIFIED_SINCE,
+                copyObjectRequest.getModifiedSinceConstraint());
+        addDateHeader(headers,
+                OSSHeaders.COPY_OBJECT_SOURCE_IF_UNMODIFIED_SINCE,
+                copyObjectRequest.getUnmodifiedSinceConstraint());
+
+        addStringListHeader(headers,
+                OSSHeaders.COPY_OBJECT_SOURCE_IF_MATCH,
+                copyObjectRequest.getMatchingETagConstraints());
+        addStringListHeader(headers,
+                OSSHeaders.COPY_OBJECT_SOURCE_IF_NONE_MATCH,
+                copyObjectRequest.getNonmatchingEtagConstraints());
+
+        addHeader(headers,
+                OSSHeaders.OSS_SERVER_SIDE_ENCRYPTION,
+                copyObjectRequest.getServerSideEncryption());
+
+        ObjectMetadata newObjectMetadata = copyObjectRequest.getNewObjectMetadata();
+        if (newObjectMetadata != null) {
+            headers.put(OSSHeaders.COPY_OBJECT_METADATA_DIRECTIVE, MetadataDirective.REPLACE.toString());
+            populateRequestMetadata(headers, newObjectMetadata);
+        }
+
+        // The header of Content-Length should not be specified on copying an object.
+        removeHeader(headers, HttpHeaders.CONTENT_LENGTH);
+    }
+
+    public static String buildXMLFromPartEtagList(List<PartETag> partETagList) {
+        StringBuilder builder = new StringBuilder();
+        builder.append("<CompleteMultipartUpload>\n");
+        for (PartETag partETag : partETagList) {
+            builder.append("<Part>\n");
+            builder.append("<PartNumber>" + partETag.getPartNumber() + "</PartNumber>\n");
+            builder.append("<ETag>" + partETag.getETag() + "</ETag>\n");
+            builder.append("</Part>\n");
+        }
+        builder.append("</CompleteMultipartUpload>\n");
+        return builder.toString();
+    }
+
+    public static void addHeader(Map<String, String> headers, String header, String value) {
+        if (value != null) {
+            headers.put(header, value);
+        }
+    }
+
+    public static void addDateHeader(Map<String, String> headers, String header, Date value) {
+        if (value != null) {
+            headers.put(header, DateUtil.formatRfc822Date(value));
+        }
+    }
+
+    public static void addStringListHeader(Map<String, String> headers, String header,
+                                           List<String> values) {
+        if (values != null && !values.isEmpty()) {
+            headers.put(header, join(values));
+        }
+    }
+
+    public static void removeHeader(Map<String, String> headers, String header) {
+        if (header != null && headers.containsKey(header)) {
+            headers.remove(header);
+        }
+    }
+
+    public static String join(List<String> strings) {
+        StringBuilder result = new StringBuilder();
+
+        boolean first = true;
+        for (String s : strings) {
+            if (!first) result.append(", ");
+
+            result.append(s);
+            first = false;
+        }
+
+        return result.toString();
+    }
+
+    /**
+     * 判断一个字符串是否为空
+     *
+     * @param str
+     * @return
+     */
+    public static boolean isEmptyString(String str) {
+        return TextUtils.isEmpty(str);
+
+    }
+
+    public static String buildCanonicalString(RequestMessage request) {
+
+        StringBuilder canonicalString = new StringBuilder();
+        canonicalString.append(request.getMethod().toString() + NEW_LINE);
+
+        Map<String, String> headers = request.getHeaders();
+        TreeMap<String, String> headersToSign = new TreeMap<String, String>();
+
+        if (headers != null) {
+            for (Map.Entry<String, String> header : headers.entrySet()) {
+                if (header.getKey() == null) {
+                    continue;
+                }
+
+                String lowerKey = header.getKey().toLowerCase();
+                if (lowerKey.equals(HttpHeaders.CONTENT_TYPE.toLowerCase()) ||
+                        lowerKey.equals(HttpHeaders.CONTENT_MD5.toLowerCase()) ||
+                        lowerKey.equals(HttpHeaders.DATE.toLowerCase()) ||
+                        lowerKey.startsWith(OSSHeaders.OSS_PREFIX)) {
+                    headersToSign.put(lowerKey, header.getValue().trim());
+                }
+            }
+        }
+
+        if (!headersToSign.containsKey(HttpHeaders.CONTENT_TYPE.toLowerCase())) {
+            headersToSign.put(HttpHeaders.CONTENT_TYPE.toLowerCase(), "");
+        }
+        if (!headersToSign.containsKey(HttpHeaders.CONTENT_MD5.toLowerCase())) {
+            headersToSign.put(HttpHeaders.CONTENT_MD5.toLowerCase(), "");
+        }
+
+        // Append all headers to sign to canonical string
+        for (Map.Entry<String, String> entry : headersToSign.entrySet()) {
+            String key = entry.getKey();
+            Object value = entry.getValue();
+
+            if (key.startsWith(OSSHeaders.OSS_PREFIX)) {
+                canonicalString.append(key).append(':').append(value);
+            } else {
+                canonicalString.append(value);
+            }
+
+            canonicalString.append(NEW_LINE);
+        }
+
+        // Append canonical resource to canonical string
+        canonicalString.append(buildCanonicalizedResource(request.getBucketName(), request.getObjectKey(), request.getParameters()));
+
+        return canonicalString.toString();
+    }
+
+    public static String buildCanonicalizedResource(String bucketName, String objectKey, Map<String, String> parameters) {
+        String resourcePath;
+        if (bucketName == null && objectKey == null) {
+            resourcePath = "/";
+        } else if (objectKey == null) {
+            resourcePath = "/" + bucketName + "/";
+        } else {
+            resourcePath = "/" + bucketName + "/" + objectKey;
+        }
+
+        return buildCanonicalizedResource(resourcePath, parameters);
+    }
+
+    public static String buildCanonicalizedResource(String resourcePath, Map<String, String> parameters) {
+
+        StringBuilder builder = new StringBuilder();
+        builder.append(resourcePath);
+
+        if (parameters != null) {
+            String[] parameterNames = parameters.keySet().toArray(
+                    new String[parameters.size()]);
+            Arrays.sort(parameterNames);
+
+            char separater = '?';
+            for (String paramName : parameterNames) {
+                if (!SIGNED_PARAMTERS.contains(paramName)) {
+                    continue;
+                }
+
+                builder.append(separater);
+                builder.append(paramName);
+                String paramValue = parameters.get(paramName);
+                if (!isEmptyString(paramValue)) {
+                    builder.append("=").append(paramValue);
+                }
+
+                separater = '&';
+            }
+        }
+
+        return builder.toString();
+    }
+
+    /**
+     * Encode request parameters to URL segment.
+     */
+    public static String paramToQueryString(Map<String, String> params, String charset) {
+
+        if (params == null || params.isEmpty()) {
+            return null;
+        }
+
+        StringBuilder paramString = new StringBuilder();
+        boolean first = true;
+        for (Map.Entry<String, String> p : params.entrySet()) {
+            String key = p.getKey();
+            String value = p.getValue();
+
+            if (!first) {
+                paramString.append("&");
+            }
+
+            // Urlencode each request parameter
+            paramString.append(HttpUtil.urlEncode(key, charset));
+            if (!isEmptyString(value)) {
+                paramString.append("=").append(HttpUtil.urlEncode(value, charset));
+            }
+
+            first = false;
+        }
+
+        return paramString.toString();
+    }
+
+    public static String populateMapToBase64JsonString(Map<String, String> map) {
+        JSONObject jsonObj = new JSONObject(map);
+        return Base64.encodeToString(jsonObj.toString().getBytes(), Base64.NO_WRAP);
+    }
+
+    /**
+     * 根据ak/sk、content生成token
+     *
+     * @param accessKey
+     * @param screctKey
+     * @param content
+     * @return
+     */
+    public static String sign(String accessKey, String screctKey, String content) {
+
+        String signature;
+
+        try {
+            signature = new HmacSHA1Signature().computeSignature(screctKey, content);
+            signature = signature.trim();
+        } catch (Exception e) {
+            throw new IllegalStateException("Compute signature failed!", e);
+        }
+
+        return "OSS " + accessKey + ":" + signature;
+    }
+
+    /**
+     *
+     */
+    public static boolean isOssOriginHost(String host){
+        if (TextUtils.isEmpty(host)){
+            return false;
+        }
+        for (String suffix : OSSConstants.OSS_ORIGN_HOST) {
+            if (host.toLowerCase().endsWith(suffix)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
+     * 判断一个域名是否是cname
+     */
+    public static boolean isCname(String host) {
+        for (String suffix : OSSConstants.DEFAULT_CNAME_EXCLUDE_LIST) {
+            if (host.toLowerCase().endsWith(suffix)) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    /**
+     * 判断一个域名是否在自定义Cname排除列表之中
+     */
+    public static boolean isInCustomCnameExcludeList(String endpoint, List<String> customCnameExludeList) {
+        for (String host : customCnameExludeList) {
+            if (endpoint.endsWith(host.toLowerCase())) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public static void assertTrue(boolean condition, String message) {
+        if (!condition) {
+            throw new IllegalArgumentException(message);
+        }
+    }
+
+    /**
+     * 校验bucketName的合法性
+     *
+     * @param bucketName
+     * @return
+     */
+    public static boolean validateBucketName(String bucketName) {
+        if (bucketName == null) {
+            return false;
+        }
+        final String BUCKETNAME_REGX = "^[a-z0-9][a-z0-9\\-]{1,61}[a-z0-9]$";
+        return bucketName.matches(BUCKETNAME_REGX);
+    }
+
+    public static void ensureBucketNameValid(String bucketName) {
+        if (!validateBucketName(bucketName)) {
+            throw new IllegalArgumentException("The bucket name is invalid. \n" +
+                    "A bucket name must: \n" +
+                    "1) be comprised of lower-case characters, numbers or dash(-); \n" +
+                    "2) start with lower case or numbers; \n" +
+                    "3) be between 3-63 characters long. ");
+        }
+    }
+
+    /**
+     * 校验objectKey的合法性
+     *
+     * @param objectKey
+     * @return
+     */
+    public static boolean validateObjectKey(String objectKey) {
+        if (objectKey == null) {
+            return false;
+        }
+        if (objectKey.length() <= 0 || objectKey.length() > 1023) {
+            return false;
+        }
+        byte[] keyBytes;
+        try {
+            keyBytes = objectKey.getBytes(OSSConstants.DEFAULT_CHARSET_NAME);
+        } catch (UnsupportedEncodingException e) {
+            return false;
+        }
+        char[] keyChars = objectKey.toCharArray();
+        char beginKeyChar = keyChars[0];
+        if (beginKeyChar == '/' || beginKeyChar == '\\') {
+            return false;
+        }
+        for (char keyChar : keyChars) {
+            if (keyChar != 0x09 && keyChar < 0x20) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    public static void ensureObjectKeyValid(String objectKey) {
+
+        if (!validateObjectKey(objectKey)) {
+            throw new IllegalArgumentException("The object key is invalid. \n" +
+                    "An object name should be: \n" +
+                    "1) between 1 - 1023 bytes long when encoded as UTF-8 \n" +
+                    "2) cannot contain LF or CR or unsupported chars in XML1.0, \n" +
+                    "3) cannot begin with \"/\" or \"\\\".");
+        }
+    }
+
+    public static boolean doesRequestNeedObjectKey(OSSRequest request) {
+        if (request instanceof ListObjectsRequest
+                || request instanceof ListBucketsRequest
+                || request instanceof CreateBucketRequest
+                || request instanceof DeleteBucketRequest
+                || request instanceof GetBucketInfoRequest
+                || request instanceof GetBucketACLRequest
+                || request instanceof DeleteMultipleObjectRequest
+                || request instanceof ListMultipartUploadsRequest
+                || request instanceof GetBucketRefererRequest
+                || request instanceof PutBucketRefererRequest
+                || request instanceof PutBucketLoggingRequest
+                || request instanceof GetBucketLoggingRequest
+                || request instanceof PutBucketLoggingRequest
+                || request instanceof GetBucketLoggingRequest
+                || request instanceof DeleteBucketLoggingRequest
+                || request instanceof PutBucketLifecycleRequest
+                || request instanceof GetBucketLifecycleRequest
+                || request instanceof DeleteBucketLifecycleRequest) {
+            return false;
+        } else {
+            return true;
+        }
+    }
+
+    public static boolean doesBucketNameValid(OSSRequest request) {
+        if (request instanceof ListBucketsRequest) {
+            return false;
+        } else {
+            return true;
+        }
+    }
+
+    public static void ensureRequestValid(OSSRequest request, RequestMessage message) {
+        if (doesBucketNameValid(request)) {
+            ensureBucketNameValid(message.getBucketName());
+        }
+        if (doesRequestNeedObjectKey(request)) {
+            ensureObjectKeyValid(message.getObjectKey());
+        }
+
+        if (request instanceof CopyObjectRequest) {
+            ensureObjectKeyValid(((CopyObjectRequest) request).getDestinationKey());
+        }
+    }
+
+    public static String determineContentType(String initValue, String srcPath, String toObjectKey) {
+        if (initValue != null) {
+            return initValue;
+        }
+
+        MimeTypeMap typeMap = MimeTypeMap.getSingleton();
+        if (srcPath != null) {
+            String extension = srcPath.substring(srcPath.lastIndexOf('.') + 1);
+            String contentType = typeMap.getMimeTypeFromExtension(extension);
+            if (contentType != null) {
+                return contentType;
+            }
+        }
+
+        if (toObjectKey != null) {
+            String extension = toObjectKey.substring(toObjectKey.lastIndexOf('.') + 1);
+            String contentType = typeMap.getMimeTypeFromExtension(extension);
+            if (contentType != null) {
+                return contentType;
+            }
+        }
+
+        return "application/octet-stream";
+    }
+
+    public static void signRequest(RequestMessage message) throws Exception {
+        OSSLog.logDebug("signRequest start");
+        if (!message.isAuthorizationRequired()) {
+            return;
+        } else {
+            if (message.getCredentialProvider() == null) {
+                throw new IllegalStateException("当前CredentialProvider为空！！！"
+                        + "\n1. 请检查您是否在初始化OSSService时设置CredentialProvider;"
+                        + "\n2. 如果您bucket为公共权限，请确认获取到Bucket后已经调用Bucket中接口声明ACL;");
+            }
+        }
+
+        OSSCredentialProvider credentialProvider = message.getCredentialProvider();
+        OSSFederationToken federationToken = null;
+        if (credentialProvider instanceof OSSFederationCredentialProvider) {
+            federationToken = ((OSSFederationCredentialProvider) credentialProvider).getValidFederationToken();
+            if (federationToken == null) {
+                OSSLog.logError("Can't get a federation token");
+                throw new IOException("Can't get a federation token");
+            }
+            message.getHeaders().put(OSSHeaders.OSS_SECURITY_TOKEN, federationToken.getSecurityToken());
+        } else if (credentialProvider instanceof OSSStsTokenCredentialProvider) {
+            federationToken = credentialProvider.getFederationToken();
+            message.getHeaders().put(OSSHeaders.OSS_SECURITY_TOKEN, federationToken.getSecurityToken());
+        }
+
+        String contentToSign = OSSUtils.buildCanonicalString(message);
+        String signature = "---initValue---";
+        OSSLog.logDebug("get contentToSign");
+        if (credentialProvider instanceof OSSFederationCredentialProvider ||
+                credentialProvider instanceof OSSStsTokenCredentialProvider) {
+            signature = OSSUtils.sign(federationToken.getTempAK(), federationToken.getTempSK(), contentToSign);
+        } else if (credentialProvider instanceof OSSPlainTextAKSKCredentialProvider) {
+            signature = OSSUtils.sign(((OSSPlainTextAKSKCredentialProvider) credentialProvider).getAccessKeyId(),
+                    ((OSSPlainTextAKSKCredentialProvider) credentialProvider).getAccessKeySecret(), contentToSign);
+        } else if (credentialProvider instanceof OSSCustomSignerCredentialProvider) {
+            signature = ((OSSCustomSignerCredentialProvider) credentialProvider).signContent(contentToSign);
+        }
+
+//        OSSLog.logDebug("signed content: " + contentToSign.replaceAll("\n", "@") + "   ---------   signature: " + signature);
+        OSSLog.logDebug("signed content: " + contentToSign + "   \n ---------   signature: " + signature, false);
+
+        OSSLog.logDebug("get signature");
+        message.getHeaders().put(OSSHeaders.AUTHORIZATION, signature);
+    }
+
+    public static String buildBaseLogInfo(Context context) {
+        StringBuilder sb = new StringBuilder();
+        sb.append("=====[device info]=====\n");
+        sb.append("[INFO]: android_version：" + Build.VERSION.RELEASE + "\n");
+        sb.append("[INFO]: mobile_model：" + Build.MODEL + "\n");
+        return sb.toString();
+    }
+
+    /**
+     * Checks if OSS and SDK's checksum is same. If not, throws InconsistentException.
+     */
+    public static void checkChecksum(Long clientChecksum, Long serverChecksum, String requestId) throws InconsistentException {
+        if (clientChecksum != null && serverChecksum != null &&
+                !clientChecksum.equals(serverChecksum)) {
+            throw new InconsistentException(clientChecksum, serverChecksum, requestId);
+        }
+    }
+
+    /*
+     * check is standard ip
+
+    public static boolean isValidateIP(String addr) {
+        if (addr.length() < 7 || addr.length() > 15 || "".equals(addr)) {
+            return false;
+        }
+
+        //判断IP格式和范围
+        String rexp = "([1-9]|[1-9]\\d|1\\d{2}|2[0-4]\\d|25[0-5])(\\.(\\d|[1-9]\\d|1\\d{2}|2[0-4]\\d|25[0-5])){3}";
+
+        Pattern pat = Pattern.compile(rexp);
+
+        Matcher mat = pat.matcher(addr);
+
+        boolean ipAddress = mat.find();
+
+        return ipAddress;
+    }
+    */
+
+    /***
+     * @param host
+     * @return
+     */
+    public static boolean isValidateIP(String host) throws Exception {
+        if (host == null) {
+            throw new Exception("host is null");
+        }
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+            return InetAddresses.isNumericAddress(host);
+        } else {
+            try {
+                Class<?> aClass = Class.forName("java.net.InetAddress");
+                Method isNumeric = aClass.getMethod("isNumeric", String.class);
+                Boolean isIp = (Boolean) isNumeric.invoke(null, host);
+                return isIp.booleanValue();
+            } catch (ClassNotFoundException e) {
+                return false;
+            } catch (NoSuchMethodException e) {
+                return false;
+            } catch (IllegalAccessException e) {
+                return false;
+            } catch (IllegalArgumentException e) {
+                return false;
+            } catch (InvocationTargetException e) {
+                return false;
+            }
+        }
+    }
+
+    public static String buildTriggerCallbackBody(Map<String, String> callbackParams, Map<String, String> callbackVars) {
+        StringBuilder builder = new StringBuilder();
+        builder.append("x-oss-process=trigger/callback,callback_");
+
+        if (callbackParams != null && callbackParams.size() > 0) {
+            JSONObject jsonObj = new JSONObject(callbackParams);
+            String paramsJsonString = Base64.encodeToString(jsonObj.toString().getBytes(), Base64.NO_WRAP);
+            builder.append(paramsJsonString);
+        }
+        builder.append("," + "callback-var_");
+
+        if (callbackVars != null && callbackVars.size() > 0) {
+            JSONObject jsonObj = new JSONObject(callbackVars);
+            String varsJsonString = Base64.encodeToString(jsonObj.toString().getBytes(), Base64.NO_WRAP);
+            builder.append(varsJsonString);
+        }
+
+        return builder.toString();
+    }
+
+    public static String buildImagePersistentBody(String toBucketName, String toObjectKey, String action) {
+        StringBuilder builder = new StringBuilder();
+        builder.append("x-oss-process=");
+        if (action.startsWith("image/")) {
+            builder.append(action);
+        } else {
+            builder.append("image/");
+            builder.append(action);
+        }
+        builder.append("|sys/");
+        if (!TextUtils.isEmpty(toBucketName) && !TextUtils.isEmpty(toObjectKey)) {
+            String bucketName_base64 = Base64.encodeToString(toBucketName.getBytes(), Base64.NO_WRAP);
+            String objectkey_base64 = Base64.encodeToString(toObjectKey.getBytes(), Base64.NO_WRAP);
+            builder.append("saveas,o_");
+            builder.append(objectkey_base64);
+            builder.append(",b_");
+            builder.append(bucketName_base64);
+        }
+        String body = builder.toString();
+        OSSLog.logDebug("ImagePersistent body : " + body);
+        return body;
+    }
+
+    private enum MetadataDirective {
+
+        /* Copy metadata from source object */
+        COPY("COPY"),
+
+        /* Replace metadata with newly metadata */
+        REPLACE("REPLACE");
+
+        private final String directiveAsString;
+
+        MetadataDirective(String directiveAsString) {
+            this.directiveAsString = directiveAsString;
+        }
+
+        @Override
+        public String toString() {
+            return this.directiveAsString;
+        }
+    }
+
+    private static enum EscapedChar {
+        // "\r"
+        RETURN("&#x000D;"),
+
+        // "\n"
+        NEWLINE("&#x000A;"),
+
+        // "\t"
+        TAB("&#x0009;"),
+
+        // """
+        QUOT("&quot;"),
+
+        // "&"
+        AMP("&amp;"),
+
+        // "<"
+        LT("&lt;"),
+
+        // ">"
+        GT("&gt;");
+
+        private final String escapedChar;
+
+        private EscapedChar(String escapedChar) {
+            this.escapedChar = escapedChar;
+        }
+
+        @Override
+        public String toString() {
+            return this.escapedChar;
+        }
+    }
+    public static String escapeKey(String key) {
+        if (key == null) {
+            return "";
+        }
+
+        int pos;
+        int len = key.length();
+        StringBuilder builder = new StringBuilder();
+        for (pos = 0; pos < len; pos++) {
+            char ch = key.charAt(pos);
+            EscapedChar escapedChar;
+            switch (ch) {
+                case '\t':
+                    escapedChar = EscapedChar.TAB;
+                    break;
+                case '\n':
+                    escapedChar = EscapedChar.NEWLINE;
+                    break;
+                case '\r':
+                    escapedChar = EscapedChar.RETURN;
+                    break;
+                case '&':
+                    escapedChar = EscapedChar.AMP;
+                    break;
+                case '"':
+                    escapedChar = EscapedChar.QUOT;
+                    break;
+                case '<':
+                    escapedChar = EscapedChar.LT;
+                    break;
+                case '>':
+                    escapedChar = EscapedChar.GT;
+                    break;
+                default:
+                    escapedChar = null;
+                    break;
+            }
+
+            if (escapedChar != null) {
+                builder.append(escapedChar.toString());
+            } else {
+                builder.append(ch);
+            }
+        }
+
+        return builder.toString();
+    }
+}

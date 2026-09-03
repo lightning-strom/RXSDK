@@ -1,0 +1,58 @@
+plugins {
+    id 'com.android.library'
+}
+project.group 'com.ruixue'
+apply from: "${rootDir}/maven.gradle"
+
+android {
+    compileSdkVersion rootProject.ext.compileSdkVersion
+
+
+    defaultConfig {
+        minSdkVersion rootProject.ext.minSdkVersion
+        targetSdkVersion rootProject.ext.targetSdkVersion
+        versionCode rootProject.ext.versionCode
+        versionName rootProject.ext.versionName
+
+        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+        consumerProguardFiles "consumer-rules.pro"
+        buildConfigField("String", "BUILD_TIME", "\"${getTimestamp()}\"")
+        buildConfigField("String", "COMMIT_ID", "\"${getGitCommit()}\"")
+    }
+
+    buildTypes {
+        release {
+            aaptOptions {
+                ignoreAssetsPattern '!supplierconfig.json:'
+            }
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+        }
+        packagingAAR(project, android)
+    }
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
+    sourceSets {
+        main {
+            jniLibs.srcDirs = ['libs']
+        }
+    }
+
+}
+
+dependencies {
+    implementation libs.appcompat
+
+    api 'com.hihonor.mcs:ads-identifier:1.0.3.300'
+
+
+//https://developer.honor.com/cn/docs/game_center/guides/jieruzhinan/sdkbanben
+    api 'com.hihonor.mcs:game:2.0.14.301'
+//    implementation 'com.honor.iap-core:iap-sdk:7.0.6.302'
+//    implementation 'com.hihonor.mcs:iap-sdk:8.0.5.300'
+
+    api project(path: ':rxsdk_base')
+    compileOnly project(path: ':rxsdk_weixin')
+}

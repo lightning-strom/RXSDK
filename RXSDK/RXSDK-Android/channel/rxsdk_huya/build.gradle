@@ -1,0 +1,55 @@
+plugins {
+    id 'com.android.library'
+}
+project.group 'com.ruixue'
+apply from: "${rootDir}/maven.gradle"
+
+android {
+    compileSdkVersion rootProject.ext.compileSdkVersion
+    buildToolsVersion rootProject.ext.buildToolsVersion
+
+    defaultConfig {
+        minSdkVersion rootProject.ext.minSdkVersion
+        targetSdkVersion rootProject.ext.targetSdkVersion
+        versionCode rootProject.ext.versionCode
+        versionName rootProject.ext.versionName
+
+        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+        consumerProguardFiles "consumer-rules.pro"
+        buildConfigField("String", "BUILD_TIME", "\"${getTimestamp()}\"")
+        buildConfigField("String", "COMMIT_ID", "\"${getGitCommit()}\"")
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+        }
+        packagingAAR(project, android)
+    }
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
+}
+
+dependencies {
+    api project(path: ':rxsdk_base')
+    // 虎牙联运 Berry SDK（local_repo/berry → 发布后坐标）
+    api 'com.huya.sdk:berry:1.4.5-698'
+
+    // 虎牙联运文档要求的必须依赖（透传给宿主，避免运行时 NoClassDefFoundError）
+    api 'com.github.bumptech.glide:glide:4.8.0'
+    api 'com.nostra13.universalimageloader:universal-image-loader:1.9.5'
+    api 'com.jakewharton:disklrucache:2.0.2'
+    api 'androidx.lifecycle:lifecycle-extensions:2.2.0'
+    api 'com.google.code.gson:gson:2.8.5'
+    api 'com.alibaba:fastjson:1.1.34.android'
+    api 'com.squareup.okhttp3:okhttp:3.10.0'
+    api 'com.squareup.okio:okio:1.14.0'
+    api 'org.jetbrains.kotlin:kotlin-android-extensions-runtime:1.3.72'
+    api 'org.jetbrains.kotlin:kotlin-stdlib-jdk7:1.3.50'
+    api 'org.jetbrains:annotations:13.0'
+    api 'com.bytedance.applog:RangersAppLog-Lite-cn:6.16.9'
+    api 'com.bytedance.ads:AppConvert:1.3.2.1'
+}

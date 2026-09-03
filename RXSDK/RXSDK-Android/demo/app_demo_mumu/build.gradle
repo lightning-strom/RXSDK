@@ -1,0 +1,58 @@
+plugins {
+    id 'com.android.application'
+}
+//apply from :'ysdk_self_check.gradle'
+project.group 'com.ruixue'
+
+
+android {
+    compileSdkVersion rootProject.ext.compileSdkVersion
+    buildToolsVersion rootProject.ext.buildToolsVersion
+
+    defaultConfig {
+        applicationId "com.ruixue.demo.yofun"
+        minSdkVersion rootProject.ext.minSdkVersion
+        targetSdkVersion rootProject.ext.targetSdkVersion
+        versionCode rootProject.ext.versionCode
+        versionName rootProject.ext.versionName
+
+        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+    }
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+            manifestPlaceholders = [
+                    "app_id": "aebgmeswdyaaaa3t"
+            ]
+        }
+        debug {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+            manifestPlaceholders = [
+                    "app_id": "aebgmeswdyaaaa3t"
+            ]
+        }
+    }
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
+}
+
+dependencies {
+
+    implementation libs.appcompat
+//    implementation libs.material
+    implementation libs.constraintlayout
+//    implementation 'com.google.android.material:material:1.10.0'
+//    implementation 'androidx.activity:activity:1.8.0'
+
+//    compileOnly(project(path: ":rxsdk_weixin")) {
+//        exclude group: 'com.tencent.mm.opensdk', module: 'wechat-sdk-android'
+//    }
+
+    api(project(':channel:rxsdk_yofun'))
+
+
+}

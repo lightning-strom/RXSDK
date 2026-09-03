@@ -1,0 +1,67 @@
+plugins {
+    id 'com.android.library'
+}
+project.group 'com.ruixue'
+apply from: "${rootDir}/maven.gradle"
+
+android {
+    compileSdkVersion rootProject.ext.compileSdkVersion
+    buildToolsVersion rootProject.ext.buildToolsVersion
+
+    defaultConfig {
+        minSdkVersion rootProject.ext.minSdkVersion
+        targetSdkVersion rootProject.ext.targetSdkVersion
+        versionCode rootProject.ext.versionCode
+        versionName rootProject.ext.versionName
+
+        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+        consumerProguardFiles "consumer-rules.pro"
+        buildConfigField("String", "BUILD_TIME", "\"${getTimestamp()}\"")
+        buildConfigField("String", "COMMIT_ID", "\"${getGitCommit()}\"")
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+        }
+        packagingAAR(project, android)
+    }
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
+    sourceSets {
+        main {
+            jniLibs.srcDirs = ['libs']
+        }
+    }
+
+}
+
+dependencies {
+//    implementation 'com.google.android.gms:play-services-ads-identifier:18.0.1'
+//    api project(path: ':rxsdk_base')
+//
+//    implementation(platform("com.google.firebase:firebase-bom:32.8.0"))
+////    implementation platform('com.google.firebase:firebase-bom:32.1.0')
+//    api 'com.google.firebase:firebase-messaging'
+//    api 'com.google.firebase:firebase-messaging-directboot:23.4.1'
+//    implementation("com.google.firebase:firebase-analytics")
+//    implementation 'com.google.firebase:firebase-crashlytics'
+//    implementation 'com.google.firebase:firebase-crashlytics-ndk'
+
+    api project(path: ':rxsdk_base')
+
+
+    //Anythink (Necessary)
+    api "com.anythink.sdk:core-tpn:6.3.50"
+    api "com.anythink.sdk:nativead-tpn:6.3.50"
+    api "com.anythink.sdk:banner-tpn:6.3.50"
+    api "com.anythink.sdk:interstitial-tpn:6.3.50"
+    api "com.anythink.sdk:rewardedvideo-tpn:6.3.50"
+    api "com.anythink.sdk:splash-tpn:6.3.50"
+    api "com.anythink.sdk:tramini-plugin-tpn:6.3.50"
+    api "com.anythink.sdk:mediavideo-tpn:6.3.50"
+
+}

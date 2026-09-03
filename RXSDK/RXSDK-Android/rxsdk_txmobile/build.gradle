@@ -1,0 +1,58 @@
+plugins {
+    id 'com.android.library'
+}
+project.group 'com.ruixue'
+apply from: "${rootDir}/maven.gradle"
+
+android {
+    compileSdkVersion rootProject.ext.compileSdkVersion
+    buildToolsVersion rootProject.ext.buildToolsVersion
+
+    defaultConfig {
+        minSdkVersion rootProject.ext.minSdkVersion
+        targetSdkVersion rootProject.ext.targetSdkVersion
+        versionCode rootProject.ext.versionCode
+        versionName rootProject.ext.versionName
+
+        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+        consumerProguardFiles "consumer-rules.pro"
+        buildConfigField("String", "BUILD_TIME", "\"${getTimestamp()}\"")
+        buildConfigField("String", "COMMIT_ID", "\"${getGitCommit()}\"")
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+        }
+        packagingAAR(project, android)
+    }
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
+    sourceSets {
+        main {
+            jniLibs.srcDirs = ['libs']
+        }
+    }
+
+}
+
+dependencies {
+
+    //noinspection GradleDependency
+    implementation libs.appcompat
+    implementation project(path: ':rxsdk_base_ui')
+
+    implementation fileTree(dir: 'libs', include: ['*.jar'])
+    implementation 'com.shlogin.sdk:shlogin:2.3.6.7'
+
+//    //Retrofit demo用于网络请求
+//    implementation 'com.squareup.retrofit2:retrofit:2.3.0'
+//    implementation 'com.squareup.okhttp3:okhttp:3.9.1'
+//    implementation 'com.squareup.retrofit2:converter-gson:2.0.0'
+//    compile 'com.squareup.okhttp3:logging-interceptor:3.4.1'
+
+//    implementation 'com.android.support.constraint:constraint-layout:1.1.3'
+}

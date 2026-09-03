@@ -1,0 +1,11 @@
+-keep class com.ld.sdk.** { *; }
+-keep class okhttp3.** { *; }
+-keep class com.google.gson.** { *; }
+-keep class okio.** { *; }
+-keep class com.squareup.picasso.** { *; }
+-keep class com.changzhi.net.** { *; }
+-keep class io.netty.** { *; }
+-dontwarn retrofit2.**
+-keep class retrofit2.** { *; }
+-keepattributes Signature
+-keepattributes Exceptions

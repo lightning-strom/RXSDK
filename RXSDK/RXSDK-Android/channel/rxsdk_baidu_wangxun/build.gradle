@@ -1,0 +1,67 @@
+plugins {
+    id 'com.android.library'
+}
+project.group 'com.ruixue'
+apply from: "${rootDir}/maven.gradle"
+
+android {
+    compileSdkVersion rootProject.ext.compileSdkVersion
+
+
+    defaultConfig {
+        minSdkVersion 22
+        targetSdkVersion rootProject.ext.targetSdkVersion
+        versionCode rootProject.ext.versionCode
+        versionName rootProject.ext.versionName
+
+        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+        consumerProguardFiles "consumer-rules.pro"
+        buildConfigField("String", "BUILD_TIME", "\"${getTimestamp()}\"")
+        buildConfigField("String", "COMMIT_ID", "\"${getGitCommit()}\"")
+    }
+
+    buildTypes {
+        release {
+            aaptOptions {
+                ignoreAssetsPattern '!supplierconfig.json:'
+            }
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+        }
+        packagingAAR(project, android)
+    }
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
+    sourceSets {
+        main {
+            jniLibs.srcDirs = ['libs']
+        }
+    }
+
+}
+
+dependencies {
+
+    api 'com.baidu.gamesdk.lib:BaiduGameSDK:1.9.0.6'
+    api 'com.baidu:poly3-default-pay:1.0.1'
+    api 'com.baidu:poly3-core:3.0.33'
+    api 'com.baidu.sofire:sofire-sdk:9.5.3.7'
+    api 'com.baidu.sapi2.enhanced:pass-module-enhanced:9.6.4.11'
+    api 'com.baidu.passport.sapi2:pass-sdk-core:9.6.4.12'
+    api 'com.baidu.pass:pass-httpclient:1.6.0'
+    api 'com.baidu.sso:onekey_login_ssolibrary:1.2.7'
+    api 'com.baidu.pass_img_loader:img-loader:1.2.7'
+    api 'com.alipay.sdk:alipaysdk-android:15.8.37@aar'
+//    api 'com.bun.miitmdid:msa_mdid:1.0.13'
+
+//    implementation fileTree(include: ['*.jar'], dir: 'libs')
+    implementation libs.appcompat
+//    implementation libs.material
+    testImplementation libs.junit
+    androidTestImplementation libs.test.ext.junit
+    androidTestImplementation libs.espresso.core
+    api project(path: ':rxsdk_base')
+//    compileOnly project(path: ':rxsdk_weixin')
+}

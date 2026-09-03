@@ -1,0 +1,67 @@
+plugins {
+    id 'com.android.application'
+}
+
+project.group 'com.ruixue'
+
+
+android {
+    signingConfigs {
+        byweilegame {
+            keyAlias "weilegame"
+            keyPassword "577588599"
+            storeFile file("../app/keystore/weileGlobal.keystore")
+            storePassword "577588599"
+        }
+    }
+
+    compileSdkVersion rootProject.ext.compileSdkVersion
+    buildToolsVersion rootProject.ext.buildToolsVersion
+    defaultConfig {
+        applicationId "com.ruixue.demo.infinix"
+        // 依赖 :overseas:rxsdk_google（Billing 8.x），库 minSdk=23
+        minSdkVersion 23
+        targetSdkVersion rootProject.ext.targetSdkVersion
+        versionCode rootProject.ext.versionCode
+        versionName rootProject.ext.versionName
+
+        signingConfig signingConfigs.byweilegame
+
+
+        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+        }
+        debug {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+        }
+    }
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
+    sourceSets {
+        main {
+            jniLibs.srcDirs = ['libs']
+        }
+    }
+}
+
+dependencies {
+    implementation fileTree(dir: 'libs', include: ['*.jar'])
+
+    implementation 'androidx.multidex:multidex:2.0.1'
+    implementation libs.appcompat
+    implementation libs.constraintlayout
+
+    implementation 'com.nex3z:flow-layout:1.3.3'
+
+    api project(path: ':overseas:rxsdk_infinix')
+    api project(path: ':overseas:rxsdk_google')
+}

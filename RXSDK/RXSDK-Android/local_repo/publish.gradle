@@ -1,0 +1,55 @@
+long startTime = System.currentTimeMillis()
+def pomDescription = "upload ${pomArtifactId} ${pomVersion} aar by script time ${startTime}"
+println "$pomDescription"
+
+File dir = new File("$projectDir")
+apply plugin: 'maven-publish'
+def aarFile = null
+
+if (dir.exists() && dir.isDirectory()) {
+    aarFile = dir.listFiles().find { it.name.endsWith('.aar') }
+    if (aarFile) {
+        println("upload aar file ${aarFile.name}")
+    } else {
+        println("not find aar file")
+    }
+} else {
+    println("aar dir not exists: ${dir.path}")
+}
+
+
+publishing {
+    repositories { RepositoryHandler handler ->
+        // 阿里云（gradle.properties: REPO_*）
+        handler.maven { MavenArtifactRepository maven ->
+            name = 'ali'
+            url = REPO_URL_RELEASE
+            credentials {
+                username = REPO_USERNAME
+                password = REPO_PASSWORD
+            }
+        }
+        // Nexus 内网（gradle.properties: NEXUS_*）
+        handler.maven { MavenArtifactRepository maven ->
+            name = 'nexus'
+            url = NEXUS_RELEASE_URL
+            allowInsecureProtocol = (url?.toString()?.startsWith('http:'))
+            credentials {
+                username = NEXUS_USERNAME
+                password = NEXUS_PASSWORD
+            }
+        }
+    }
+    publications { PublicationContainer publicationContainer ->
+        release(MavenPublication) {
+            groupId = pomGroupId
+            artifactId = pomArtifactId
+            version = pomVersion
+            if (aarFile) {
+                artifact(aarFile)
+            } else {
+                println("发布错误！！！  AAR 文件不存在，无法发布")
+            }
+        }
+    }
+}

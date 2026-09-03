@@ -1,0 +1,60 @@
+plugins {
+    id 'com.android.library'
+}
+project.group 'com.ruixue'
+apply from: "${rootDir}/maven.gradle"
+
+android {
+    compileSdkVersion rootProject.ext.compileSdkVersion
+    buildToolsVersion rootProject.ext.buildToolsVersion
+
+    defaultConfig {
+        minSdkVersion rootProject.ext.minSdkVersion
+        targetSdkVersion rootProject.ext.targetSdkVersion
+        versionCode rootProject.ext.versionCode
+        versionName rootProject.ext.versionName
+
+        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+        consumerProguardFiles "consumer-rules.pro"
+        buildConfigField("String", "BUILD_TIME", "\"${getTimestamp()}\"")
+        buildConfigField("String", "COMMIT_ID", "\"${getGitCommit()}\"")
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+        }
+        packagingAAR(project, android)
+    }
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
+    sourceSets {
+        main {
+            jniLibs.srcDirs = ['libs']
+        }
+    }
+
+}
+
+dependencies {
+
+    //noinspection GradleDependency
+    implementation libs.appcompat
+    implementation project(path: ':rxsdk_base_ui')
+
+    implementation fileTree(dir: 'libs', include: ['*.jar'])
+//  compile 'com.mobile.auth:auth_number_product:2.14.2'
+
+//    implementation 'com.mobile.auth:auth_number_product:2.13.10' //2024年06月11日
+    implementation 'com.mobile.auth:auth_number_product:2.14.14'
+    implementation 'com.nirvana.tools.base:main:2.2.3'
+    implementation 'com.nirvana.tools.logger:logger:2.2.2'
+
+//    implementation 'com.nirvana.tools.crash:crashshield:2.1.4'
+    //uc的crash收集库，客户可自行选择是否需要集成
+//    implementation 'com.ucweb.wpk:crashsdk:3.2.2.2'
+//    implementation libs.constraintlayout
+}

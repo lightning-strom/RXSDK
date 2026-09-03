@@ -1,0 +1,69 @@
+plugins {
+    id 'com.android.library'
+}
+project.group 'com.ruixue'
+apply from: "${rootDir}/maven.gradle"
+
+android {
+    compileSdkVersion rootProject.ext.compileSdkVersion
+    buildToolsVersion rootProject.ext.buildToolsVersion
+
+    defaultConfig {
+        minSdkVersion rootProject.ext.minSdkVersion
+        targetSdkVersion rootProject.ext.targetSdkVersion
+        versionCode rootProject.ext.versionCode
+        versionName rootProject.ext.versionName
+
+        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+        consumerProguardFiles "consumer-rules.pro"
+        buildConfigField("String", "BUILD_TIME", "\"${getTimestamp()}\"")
+        buildConfigField("String", "COMMIT_ID", "\"${getGitCommit()}\"")
+    }
+
+    buildTypes {
+        release {
+            aaptOptions {
+                //排除
+//                ignoreAssetsPattern '!ysdkconf.ini:'
+            }
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+        }
+        packagingAAR(project, android)
+    }
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
+//    sourceSets {
+//        main {
+//            jniLibs.srcDirs = ['libs']
+//        }
+//    }
+
+}
+
+dependencies {
+
+    implementation libs.appcompat
+    implementation fileTree(include: ['*.jar'], dir: 'libs')
+
+    testImplementation libs.junit
+    androidTestImplementation libs.test.ext.junit
+    androidTestImplementation libs.espresso.core
+    api project(path: ':rxsdk_base')
+
+    implementation 'androidx.legacy:legacy-support-v4:1.0.0'
+
+    //noinspection GradleDependency
+
+
+    api 'com.tencent.ysdkshell:ysdkshell:2.2.4'
+    //noinspection Aligned16KB
+    api 'com.tencent.ysdk:YSDK_Android:2.2.4'
+    //noinspection GradleDependency
+    implementation 'com.squareup.okhttp3:okhttp:3.12.1'
+    compileOnly(project(path: ":rxsdk_weixin")) {
+        exclude group: 'com.tencent.mm.opensdk', module: 'wechat-sdk-android'
+    }
+}

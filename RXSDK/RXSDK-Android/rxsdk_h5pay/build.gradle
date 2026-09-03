@@ -1,0 +1,43 @@
+plugins {
+    id 'com.android.library'
+}
+project.group 'com.ruixue'
+apply from: "${rootDir}/maven.gradle"
+
+android {
+    compileSdkVersion rootProject.ext.compileSdkVersion
+    buildToolsVersion rootProject.ext.buildToolsVersion
+
+    defaultConfig {
+        minSdkVersion rootProject.ext.minSdkVersion
+        targetSdkVersion rootProject.ext.targetSdkVersion
+        versionCode rootProject.ext.versionCode
+        versionName rootProject.ext.versionName
+        consumerProguardFiles "proguard-rules.pro"
+        buildConfigField("String", "BUILD_TIME", "\"${getTimestamp()}\"")
+        buildConfigField("String", "COMMIT_ID", "\"${getGitCommit()}\"")
+    }
+
+    buildTypes {
+        release {
+            //是否启用混淆
+            minifyEnabled true
+            zipAlignEnabled true    // 开启Zip压缩优化
+            shrinkResources false    // 移除未被使用的资源
+            //proguard 规则文件;
+            //getDefaultProguardFile 是 Android 扩展的一个方法，可以获取你的 Android SDK 目录下默认的 proguard 配置文件。
+            //在 android-sdk/tools/proguard/目录下，文件名就是传入的 proguard-android-optimize.txt
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro', 'consumer-rules.pro'
+        }
+        packagingAAR(project, android)
+    }
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
+}
+
+dependencies {
+    api project(path: ':rxsdk_base')
+    api project(path: ':rxsdk_base_ui')
+}

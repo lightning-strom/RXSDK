@@ -1,0 +1,67 @@
+plugins {
+    id 'com.android.library'
+}
+project.group 'com.ruixue'
+apply from: "${rootDir}/maven.gradle"
+
+android {
+    compileSdkVersion rootProject.ext.compileSdkVersion
+    buildToolsVersion rootProject.ext.buildToolsVersion
+
+    defaultConfig {
+        minSdkVersion rootProject.ext.minSdkVersion
+        targetSdkVersion rootProject.ext.targetSdkVersion
+        versionCode rootProject.ext.versionCode
+        versionName rootProject.ext.versionName
+
+        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+        consumerProguardFiles "consumer-rules.pro"
+        buildConfigField("String", "BUILD_TIME", "\"${getTimestamp()}\"")
+        buildConfigField("String", "COMMIT_ID", "\"${getGitCommit()}\"")
+    }
+
+    buildTypes {
+        release {
+            aaptOptions {
+                ignoreAssetsPattern '!supplierconfig.json:'
+            }
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+        }
+        packagingAAR(project, android)
+    }
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
+    sourceSets {
+        main {
+            jniLibs.srcDirs = ['libs']
+        }
+    }
+
+}
+
+dependencies {
+    testImplementation libs.junit
+    //noinspection GradleDependency
+    androidTestImplementation libs.test.ext.junit
+    //noinspection GradleDependency
+    androidTestImplementation libs.espresso.core
+
+//    implementation libs.appcompat
+//    implementation libs.material
+//    implementation files('libs/vivounionsdk_v4.6.7.0.jar')
+//    implementation(name: 'msa_mdid_1.0.13', ext: 'aar')
+//    implementation 'com.bun.miitmdid:msa_mdid:1.0.13'
+
+    //noinspection GradleDependency
+    implementation 'com.bun.miitmdid:oaid_sdk:1.0.25'
+    implementation 'com.vivo.sdkplugin:vivounionsdk:4.8.7.0'
+
+
+    api project(path: ':rxsdk_base')
+//    compileOnly project(path: ':rxsdk_weixin')
+
+//    implementation fileTree(include: ['*.jar'], dir: 'libs')
+}

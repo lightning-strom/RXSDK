@@ -1,0 +1,158 @@
+plugins {
+    id 'com.android.application'
+}
+
+
+android {
+    compileSdkVersion rootProject.ext.compileSdkVersion
+    buildToolsVersion rootProject.ext.buildToolsVersion
+    defaultConfig {
+        applicationId "com.ruixue.channelapk"
+        minSdkVersion rootProject.ext.minSdkVersion
+        targetSdkVersion rootProject.ext.targetSdkVersion
+        versionCode rootProject.ext.versionCode
+        versionName rootProject.ext.versionName
+        multiDexEnabled false
+
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+        }
+        debug {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+        }
+    }
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
+    sourceSets {
+        main {
+            jniLibs.srcDirs = ['libs']
+        }
+    }
+    flavorDimensions "channel"
+    productFlavors {
+        base {
+            applicationId "com.ruixue.c.base"
+            dimension "channel"
+            manifestPlaceholders.put("RX_CHANNEL", "base")
+            dependencies {
+                baseImplementation(project(':rxsdk_base'))
+                baseImplementation(project(':rxsdk_base_ui'))
+            }
+
+        }
+        own {
+            applicationId "com.ruixue.c.own"
+            dimension "channel"
+
+            manifestPlaceholders.put("RX_CHANNEL", "own")
+            dependencies {
+                ownImplementation(project(':channel:rxsdk_weile')) {
+                    exclude module: 'rxsdk_base'
+                    exclude module: 'rxsdk_base_ui'
+                }
+            }
+
+        }
+        vivo {
+            applicationId "com.ruixue.c.vivo"
+            dimension "channel"
+
+            manifestPlaceholders.put("RX_CHANNEL", "vivo")
+            dependencies {
+                vivoImplementation(project(':channel:rxsdk_vivo')) {
+                    exclude module: 'rxsdk_base'
+                    exclude module: 'rxsdk_base_ui'
+                }
+            }
+
+        }
+        xiaomi {
+            applicationId "com.ruixue.c.xiaomi"
+            dimension "channel"
+
+            manifestPlaceholders.put("RX_CHANNEL", "xiaomi")
+            dependencies {
+                xiaomiImplementation(project(':channel:rxsdk_xiaomi')) {
+                    exclude module: 'rxsdk_base'
+                    exclude module: 'rxsdk_base_ui'
+                }
+            }
+
+        }
+        huawei {
+            applicationId "com.ruixue.c.huawei"
+            dimension "channel"
+
+            manifestPlaceholders.put("RX_CHANNEL", "huawei")
+            dependencies {
+                huaweiImplementation(project(':channel:rxsdk_huawei')) {
+                    exclude module: 'rxsdk_base'
+                    exclude module: 'rxsdk_base_ui'
+                }
+            }
+        }
+        oppo {
+            applicationId "com.ruixue.c.oppo"
+            dimension "channel"
+
+            manifestPlaceholders.put("RX_CHANNEL", "oppo")
+            manifestPlaceholders.put("OPPO_APP_SECRET", "");
+            manifestPlaceholders.put("OPPO_APP_KEY", "");
+            dependencies {
+                oppoImplementation(project(':channel:rxsdk_oppo')) {
+                    exclude module: 'rxsdk_base'
+                    exclude module: 'rxsdk_base_ui'
+                }
+            }
+        }
+        honor {
+            applicationId "com.ruixue.c.honor"
+            dimension "channel"
+
+            manifestPlaceholders.put("RX_CHANNEL", "honor")
+            dependencies {
+                honorImplementation(project(':channel:rxsdk_honor')) {
+                    exclude module: 'rxsdk_base'
+                    exclude module: 'rxsdk_base_ui'
+                }
+            }
+        }
+        huya {
+            applicationId "com.ruixue.c.huya"
+            dimension "channel"
+
+            manifestPlaceholders.put("RX_CHANNEL", "huya")
+            dependencies {
+                huyaImplementation(project(':channel:rxsdk_huya')) {
+                    exclude module: 'rxsdk_base'
+                    exclude module: 'rxsdk_base_ui'
+                }
+            }
+        }
+    }
+    applicationVariants.all { variant ->
+        variant.outputs.all { output ->
+            def apkName = "${variant.name}-${variant.versionName}.apk"
+            output.outputFileName = apkName
+
+            def copyTaskName = "copy${variant.name.capitalize()}Apk"
+            tasks.register(copyTaskName, Copy) {
+                from(output.outputFile)
+                into("$rootDir/build/apk")
+                rename { apkName }
+            }
+            tasks.named("assemble${variant.name.capitalize()}").configure {
+                finalizedBy(copyTaskName)
+            }
+        }
+    }
+}
+

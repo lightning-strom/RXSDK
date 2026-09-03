@@ -1,0 +1,65 @@
+plugins {
+    id 'com.android.library'
+}
+project.group 'com.ruixue'
+apply from: "${rootDir}/maven.gradle"
+
+android {
+    compileSdkVersion rootProject.ext.compileSdkVersion
+    buildToolsVersion rootProject.ext.buildToolsVersion
+
+    defaultConfig {
+        minSdkVersion rootProject.ext.minSdkVersion
+        targetSdkVersion rootProject.ext.targetSdkVersion
+        versionCode rootProject.ext.versionCode
+        versionName rootProject.ext.versionName
+
+        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+        consumerProguardFiles "consumer-rules.pro"
+        buildConfigField("String", "BUILD_TIME", "\"${getTimestamp()}\"")
+        buildConfigField("String", "COMMIT_ID", "\"${getGitCommit()}\"")
+    }
+
+    buildTypes {
+        release {
+            aaptOptions {
+                ignoreAssetsPattern '!supplierconfig.json:'
+            }
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+        }
+        packagingAAR(project, android)
+    }
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
+    sourceSets {
+        main {
+            jniLibs.srcDirs = ['libs']
+        }
+    }
+
+}
+
+dependencies {
+    implementation libs.appcompat
+
+    implementation 'com.huawei.hms:hwid:6.12.0.300'
+    implementation 'com.huawei.hms:iap:6.13.0.300'
+    implementation 'com.huawei.hms:game:6.14.0.300'
+    implementation 'com.huawei.hms:hianalytics:6.12.0.300'
+
+    implementation 'com.huawei.agconnect:agconnect-core:1.9.1.301'
+    implementation 'com.huawei.agconnect:agconnect-auth:1.9.1.301'
+
+    implementation "com.huawei.agconnect:agconnect-auth-google:1.9.1.301"
+    api 'com.google.android.gms:play-services-auth:21.2.0'
+
+    implementation "com.huawei.agconnect:agconnect-auth-facebook:1.9.1.301"
+    api "com.facebook.android:facebook-login:17.0.2"
+
+
+    api project(path: ':rxsdk_base')
+    api project(path: ':rxsdk_base_ui')
+}

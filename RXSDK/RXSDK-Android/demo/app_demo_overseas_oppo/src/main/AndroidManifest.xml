@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    package="com.ruixue.sdkdemo">
+
+
+    <application
+        android:name="com.ruixue.demo.oppo.MyApplication"
+        android:allowBackup="true"
+        android:icon="@mipmap/ic_launcher"
+        android:label="@string/app_name"
+        android:networkSecurityConfig="@xml/network_security_config"
+        android:roundIcon="@mipmap/ic_launcher_round"
+        android:supportsRtl="true"
+        android:theme="@style/ThemeTranslucent"
+        tools:targetApi="n">
+
+        <activity
+            android:exported="true"
+            android:name="com.ruixue.demo.oppo.DemoActivity"
+            android:configChanges="keyboardHidden|orientation|screenSize"
+            android:screenOrientation="portrait">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+        <!--允许oppo手机绘制到耳朵区-->
+        <meta-data
+            android:name="android.max_aspect"
+            android:value="2.4" />
+
+        <!-- nearme game sdk config goes here -->
+        <!--9.0及以上设备需要-->
+        <uses-library
+            android:name="org.apache.http.legacy"
+            android:required="false" />
+        <!-- 日志开关，发布时候设置为false -->
+        <meta-data
+            android:name="debug_mode"
+            android:value="true" />
+        <!-- true:单机游戏   false:网游 -->
+        <meta-data
+            android:name="is_offline_game"
+            android:value="false" />
+        <!--appKey，游戏上线时请务必替换成游戏自身的appkey-->
+        <meta-data
+            android:name="app_key"
+            android:value="608cd6583104442ba17e208a3263828b" />
+    </application>
+
+</manifest>

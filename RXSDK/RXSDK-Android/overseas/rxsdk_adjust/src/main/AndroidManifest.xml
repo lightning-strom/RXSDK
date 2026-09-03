@@ -1,0 +1,41 @@
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="com.ruixue.sdk.adjust">
+
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.WAKE_LOCK" />
+    <uses-permission android:name="com.farsitel.bazaar.permission.PAY_THROUGH_BAZAAR" />
+    <uses-permission android:name="com.android.vending.CHECK_LICENSE permission" />
+    <uses-permission android:name="com.adjust.preinstall.READ_PERMISSION" />
+    <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
+
+    <queries>
+        <intent>
+            <action android:name="com.attribution.REFERRAL_PROVIDER" />
+        </intent>
+    </queries>
+
+    <application>
+        <meta-data
+            android:name="RX_PLUGIN_ADJUST"
+            android:value="com.ruixue.sdk.adjust.AdjustSdkWrapper" />
+
+        <!-- INSTALL_REFERRER intent -->
+        <receiver
+            android:name="com.adjust.sdk.AdjustReferrerReceiver"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="com.android.vending.INSTALL_REFERRER" />
+            </intent-filter>
+        </receiver>
+
+        <receiver
+            android:name="com.adjust.sdk.AdjustPreinstallReferrerReceiver"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="com.attribution.SYSTEM_INSTALLER_REFERRER" />
+            </intent-filter>
+        </receiver>
+    </application>
+
+</manifest>

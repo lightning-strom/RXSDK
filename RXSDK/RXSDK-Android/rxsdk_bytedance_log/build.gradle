@@ -1,0 +1,55 @@
+plugins {
+    id 'com.android.library'
+}
+project.group 'com.ruixue'
+apply from: "${rootDir}/maven.gradle"
+
+android {
+
+
+    compileSdkVersion rootProject.ext.compileSdkVersion
+    buildToolsVersion rootProject.ext.buildToolsVersion
+
+    defaultConfig {
+        minSdkVersion rootProject.ext.minSdkVersion
+        targetSdkVersion rootProject.ext.targetSdkVersion
+        versionCode rootProject.ext.versionCode
+        versionName rootProject.ext.versionName
+        testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
+        buildConfigField("String", "BUILD_TIME", "\"${getTimestamp()}\"")
+        buildConfigField("String", "COMMIT_ID", "\"${getGitCommit()}\"")
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+        }
+        packagingAAR(project, android)
+    }
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
+}
+
+dependencies {
+
+    api project(path: ':rxsdk_base')
+    api project(path: ':rxsdk_websocket')
+
+
+    // Applog 上报组件（必须）
+//    api 'com.bytedance.applog:RangersAppLog-Lite-cn:6.16.9'
+    // 商业化转化组件（必须）
+    //noinspection Aligned16KB
+    api 'com.bytedance.ads:AppConvert:2.0.0'
+
+
+    // 如果开发者项目本身未使用kotlin部分，则必须通过implementation远程
+    // 依赖的形式进行kotlin的依赖（如果跳过此步只添加aar会造成闪退）
+//    implementation 'org.jetbrains.kotlin:kotlin-stdlib-jdk7:1.3.61'
+    api 'com.bytedance.hume:HumeSDK:1.1.1'
+
+
+}

@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="com.ruixue.wechat">
+
+    <uses-permission android:name="android.permission.INTERNET" />
+
+    <application>
+        <meta-data
+            android:name="RX_PLUGIN_WECHAT"
+            android:value="com.ruixue.wechat.WXSdkWrapper" />
+        <!--    微信回调activity     -->
+        <!--        <activity-->
+        <!--            android:name="com.ruixue.wechat.WXEntryActivity"-->
+        <!--            android:enabled="true"-->
+        <!--            android:exported="true"-->
+        <!--            android:launchMode="singleTask"-->
+        <!--            android:theme="@style/AppTheme_Transparent" />-->
+
+        <!--    微信回调activity别名类，因为微信需要回调到指定包名指定类名，所以设置别名     -->
+        <!--        <activity-alias-->
+        <!--            android:name="${applicationId}.wxapi.WXEntryActivity"-->
+        <!--            android:enabled="true"-->
+        <!--            android:exported="true"-->
+        <!--            android:targetActivity=".WXEntryActivity" />-->
+
+        <!--            微信支付回调activity别名类，和微信登录，微信分享的类名不一样    -->
+        <!--        <activity-alias-->
+        <!--            android:name="${applicationId}.wxapi.WXPayEntryActivity"-->
+        <!--            android:enabled="true"-->
+        <!--            android:exported="true"-->
+        <!--            android:targetActivity=".WXEntryActivity" />-->
+
+
+    </application>
+    <queries>
+        <!--   Android 11 微信分享无法拉起问题     -->
+        <package android:name="com.tencent.mm" />
+    </queries>
+</manifest>

@@ -1,0 +1,62 @@
+plugins {
+    id 'com.android.library'
+}
+project.group 'com.ruixue'
+apply from: "${rootDir}/maven.gradle"
+
+android {
+    compileSdkVersion rootProject.ext.compileSdkVersion
+    buildToolsVersion rootProject.ext.buildToolsVersion
+
+    defaultConfig {
+        minSdkVersion rootProject.ext.minSdkVersion
+        targetSdkVersion rootProject.ext.targetSdkVersion
+        versionCode rootProject.ext.versionCode
+        versionName rootProject.ext.versionName
+
+        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+        consumerProguardFiles "consumer-rules.pro"
+        buildConfigField("String", "BUILD_TIME", "\"${getTimestamp()}\"")
+        buildConfigField("String", "COMMIT_ID", "\"${getGitCommit()}\"")
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+        }
+        packagingAAR(project, android)
+    }
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
+
+}
+
+dependencies {
+
+    testImplementation libs.junit
+    //noinspection GradleDependency
+    androidTestImplementation libs.test.ext.junit
+    //noinspection GradleDependency
+    androidTestImplementation libs.espresso.core
+
+
+//    implementation fileTree(include: ['*.aar','*.jar'], dir: 'libs')
+    //noinspection GradleDependency
+    api libs.appcompat
+//    api 'com.nearme.game.sdk:gamesdk-common:20220915'
+//    api 'com.nearme.game.sdk:gamesdk:20220915'
+    api 'com.nearme.game.sdk:gamesdk-common:20250722'
+    //noinspection Aligned16KB
+    api 'com.nearme.game.sdk:gamesdk:20250722'
+    api 'com.nearme.game.sdk:signal-sdk:1.0.1'
+    api 'com.nearme.game.sdk:signal-log:1.0.1'
+    implementation 'com.jakewharton.timber:timber:5.0.1'
+    //noinspection GradleDependency
+    implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-core:1.6.0'
+    api 'androidx.legacy:legacy-support-v4:1.0.0'
+    api project(path: ':rxsdk_base')
+    compileOnly project(path: ':rxsdk_weixin')
+}

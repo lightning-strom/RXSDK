@@ -1,0 +1,106 @@
+plugins {
+    id 'com.android.library'
+}
+project.group 'com.ruixue'
+
+apply from: "${rootDir}/maven.gradle"
+
+android {
+    compileSdkVersion rootProject.ext.compileSdkVersion
+    buildToolsVersion rootProject.ext.buildToolsVersion
+
+    defaultConfig {
+        minSdkVersion rootProject.ext.minSdkVersion
+        targetSdkVersion rootProject.ext.targetSdkVersion
+        versionCode rootProject.ext.versionCode
+        versionName rootProject.ext.versionName
+
+        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+//        //配置库自己的 混淆规则，打包时会被打包进 AAR 包里，在 使用这个库的项目里会自动应用库里的混淆规则。
+        consumerProguardFiles "proguard-rules.pro"
+        buildConfigField("String", "BUILD_TIME", "\"${getTimestamp()}\"")
+        buildConfigField("String", "COMMIT_ID", "\"${getGitCommit()}\"")
+        buildConfigField("String", "BUILD", "\"${versionName}\"")
+        buildConfigField("String", "BUILD_CODE", "\"${versionCode}\"")
+    }
+    //配置这个并不是让你隐藏过时api，而是让过时api或者不合规矩的语法展现出来
+    allprojects {
+        gradle.projectsEvaluated {
+            tasks.withType(JavaCompile) {
+//                options.compilerArgs << "-Xlint:unchecked" << "-Xlint:deprecation"
+                options.compilerArgs << "-Xlint:unchecked"
+            }
+        }
+    }
+    buildTypes {
+        release {
+            //是否启用混淆
+            minifyEnabled true
+            zipAlignEnabled true    // 开启Zip压缩优化
+            shrinkResources false    // 移除未被使用的资源
+            //proguard 规则文件;
+            //getDefaultProguardFile 是 Android 扩展的一个方法，可以获取你的 Android SDK 目录下默认的 proguard 配置文件。
+            //在 android-sdk/tools/proguard/目录下，文件名就是传入的 proguard-android-optimize.txt
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro', 'consumer-rules.pro'
+        }
+//        debug {
+//            //是否启用混淆
+//            minifyEnabled false
+//            zipAlignEnabled true    // 开启Zip压缩优化
+//            shrinkResources false    // 移除未被使用的资源
+//            //proguard 规则文件;
+//            //getDefaultProguardFile 是 Android 扩展的一个方法，可以获取你的 Android SDK 目录下默认的 proguard 配置文件。
+//            //在 android-sdk/tools/proguard/目录下，文件名就是传入的 proguard-android-optimize.txt
+//            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+//        }
+        packagingAAR(project, android)
+    }
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
+}
+
+dependencies {
+    androidTestImplementation libs.test.ext.junit
+    androidTestImplementation libs.espresso.core
+    testImplementation libs.junit
+    testImplementation libs.json.test
+    testImplementation libs.mockito.core
+    testImplementation libs.truth
+
+//    testImplementation 'org.robolectric:robolectric:4.4'
+//    testImplementation 'androidx.test:core:1.0.0'
+//
+//    testImplementation "org.mockito:mockito-inline:2.26.0"
+//    testImplementation "com.nhaarman.mockitokotlin2:mockito-kotlin:2.2.0"
+//
+//    def powerMockVersion = '2.0.2'
+//    testImplementation "org.powermock:powermock-core:$powerMockVersion"
+//    testImplementation "org.powermock:powermock-api-mockito2:$powerMockVersion"
+//    testImplementation "org.powermock:powermock-module-junit4:$powerMockVersion"
+//    testImplementation "org.powermock:powermock-module-junit4-rule:$powerMockVersion"
+//    testImplementation "org.powermock:powermock-classloading-xstream:$powerMockVersion"
+//    testImplementation 'org.assertj:assertj-core:3.15.0'
+//    testImplementation "com.android.installreferrer:installreferrer:1.0"
+
+    api fileTree(include: ['*.?ar'], dir: 'libs')
+//    implementation fileTree(include: ['*.jar'], dir: 'libs')
+
+    api libs.gson
+    api libs.glide
+    annotationProcessor libs.glide.compiler
+    implementation libs.okhttp
+    implementation libs.zxing
+    // LifecycleOwner / Lifecycle 等出现在 rxsdk_base 的 public API（RXSdkApi、IPluginSdk、
+    // ILifecycle、PluginSdk），需要以 api 方式暴露给下游集成方，避免其 classpath 里没有 androidx
+    // 传递依赖时编译失败。lifecycle-runtime 会传递带入 lifecycle-common。
+    //
+    // 版本：项目 kotlin-gradle-plugin 已升级到 1.8.22，可读取 metadata 1.8.0，因此能使用
+    // lifecycle 2.6.x + savedstate 1.2.1（Kotlin 1.8 编译）。继续上推到 2.7+ 会拉入
+    // savedstate 1.2.1+ 及更高 Kotlin 版本要求，在升 Kotlin / AGP 前暂不跟进。
+    api 'androidx.lifecycle:lifecycle-runtime:2.6.2'
+    // lifecycle-process 仅在 rxsdk_base 内部用于监听进程级前后台切换，合并 Activity 抖动。
+    // 2.4.0 起已迁移到 androidx.startup.InitializationProvider 机制。
+    implementation 'androidx.lifecycle:lifecycle-process:2.6.2'
+}

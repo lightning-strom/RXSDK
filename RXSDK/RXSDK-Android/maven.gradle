@@ -1,0 +1,262 @@
+/**
+ * 获取时间 yyyyMMdd
+ * @return 时间字符串
+ */
+static String releaseTime() {
+    return new Date().format("yyMMddHHmm", TimeZone.getDefault())
+}
+
+android.lintOptions {
+    // Or, if you prefer, you can continue to check for errors in release builds,
+    // but continue the build even when errors are found:
+    abortOnError false
+}
+
+// 打包aar
+void packagingAAR(project, android) {
+
+    android.libraryVariants.all { variant ->
+        def outputPath = [project.rootDir.absolutePath, "build", rootProject.ext.versionName].join(File.separator)
+        if (variant.getBuildType().isMinifyEnabled()) {
+            variant.getAssembleProvider().get().doLast {
+                println "mappingFile-> " + "${variant.mappingFileProvider.get().files}"
+                copy {
+                    from variant.getMappingFileProvider().get()
+                    into "${outputPath}/mappings"
+                    rename { String fileName -> "mapping-${project.name}-${variant.name}.txt"
+                    }
+                }
+            }
+        }
+        if (variant.buildType.name == "release") {
+            // 修改aar名称
+            variant.outputs.all { output ->
+                outputFileName = "${project.name}-${android.defaultConfig.versionName}.aar"
+                // 输出目录在：项目目录/build/outputs/aar/日期-gitCommit/
+//                variant.getPackageLibrary().destinationDirectory = new File("${outputPath}")
+                variant.getPackageLibraryProvider().get().destinationDirectory = new File("${outputPath}")
+
+                // 复制output到指定目录  variant.getAssembleProvider()
+                variant.getAssembleProvider().configure() {
+                    it.doLast {
+                        copy {
+                            from "${project.rootDir.absolutePath}/${project.name}/libs"
+                            from "${project.rootDir.absolutePath}/${project.name}/src/main/assets"
+//                            from output.outputFile
+                            into outputPath
+                            include '*.aar'
+                            include '*.ini'
+                            include 'supplierconfig.json'
+                            include 'config.json'
+                        }
+//                        println "输出路径 -> " + outputPath
+                    }
+                }
+            }
+
+        }
+    }
+}
+
+ext {
+    // yyyyMMdd 时间
+    releaseTime = this.&releaseTime
+    // 打包AAR
+    packagingAAR = this.&packagingAAR
+    getTimestamp = this.&getTimestamp
+    getGitCommit = this.&getGitCommit
+    getCurrentFlavor = this.&getCurrentFlavor
+    getCurrentBuildType = this.&getCurrentBuildType
+}
+
+/**
+ * 获取时间戳 秒*/
+String getTimestamp() {
+    return new Date().getTime() / 1000 as int
+}
+
+import java.util.regex.Matcher
+import java.util.regex.Pattern
+
+def getCurrentFlavor() {
+    Gradle gradle = getGradle()
+    String tskReqStr = gradle.getStartParameter().getTaskRequests().toString()
+
+    Pattern pattern;
+
+    if (tskReqStr.contains("assemble")) pattern = Pattern.compile("assemble(\\w+)(Release|Debug)") else pattern = Pattern.compile("generate(\\w+)(Release|Debug)")
+
+    Matcher matcher = pattern.matcher(tskReqStr)
+
+    if (matcher.find()) {
+        println matcher.group(1).toLowerCase()
+        return matcher.group(1).toLowerCase()
+    } else {
+        println "NO MATCH FOUND"
+        return "";
+    }
+}
+
+def getCurrentBuildType() {
+    Gradle gradle = getGradle()
+    String tskReqStr = gradle.getStartParameter().getTaskRequests().toString()
+
+    if (tskReqStr.contains("Release")) {
+        println "getCurrentBuildType release"
+        return "release"
+    } else if (tskReqStr.contains("Debug")) {
+        println "getCurrentBuildType debug"
+        return "debug"
+    }
+
+    println "NO MATCH FOUND"
+    return "";
+}
+
+def getGitCommit() {
+//    def cmd = 'git log --pretty=format:%h -1'
+    def cmd = "git --git-dir=${rootDir}/.git --work-tree=${rootDir}  rev-parse --short HEAD"
+    def gitCommit = cmd.execute().text.trim()
+    if (gitCommit.isEmpty()) {
+        def gitDir = new File("${rootDir}/.git")
+        println("gitdir is ${gitDir}")
+        if (!gitDir.isDirectory()) {
+            return 'non-git-build'
+        }
+        try {
+            // .git/HEAD描述当前目录所指向的分支信息，内容示例："ref: refs/heads/master\n"
+            def headFile = new File("${gitDir}/HEAD")
+            if (headFile.exists()) {
+                String[] strings = headFile.getText('UTF-8').split(" ");
+                if (strings.size() > 1) {
+                    String refFilePath = "${gitDir}/" + strings[1];
+                    // 根据HEAD读取当前指向的hash值，路径示例为：".git/refs/heads/master"
+                    def refFile = new File(refFilePath.replace("\n", ""));
+                    // 索引文件内容为hash值+"\n"，
+                    // 示例："90312cd9157587d11779ed7be776e3220050b308\n"
+                    gitCommit = refFile.getText('UTF-8').substring(0, 8)
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace()
+        }
+    }
+//    println "gitcommit -> " + "${gitCommit}"
+    assert !gitCommit.isEmpty()
+    gitCommit
+}
+
+tasks.withType(JavaCompile) {
+    options.compilerArgs << "-Xlint:unchecked" << "-Xlint:-options"
+}
+////生成源码jar包task，type表示继承Jar打包任务。
+//task sourcesJar(type: Jar) {
+//    from android.sourceSets.main.java.srcDirs
+//    archiveClassifier.set("sources")
+//}
+
+// 生产库-release 去掉 -SNAPSHOT 即可
+def group = 'com.ruixue'
+def artifact = project.name
+
+apply plugin: 'maven-publish'
+android.publishing {
+    singleVariant("release") {
+    }
+}
+subprojects {
+    tasks.withType(org.jetbrains.dokka.gradle.DokkaTask).configureEach {
+        enabled = false
+    }
+}
+afterEvaluate {
+    publishing {
+        repositories {
+            maven {
+                name = "ali"
+                url = rootProject.ext.versionName.endsWith("SNAPSHOT") ? REPO_URL_SNAPSHOT : REPO_URL_RELEASE
+                credentials {
+                    username = REPO_USERNAME
+                    password = REPO_PASSWORD
+                }
+            }
+            maven {
+                name = "ruixue"
+                url = rootProject.ext.versionName.endsWith("SNAPSHOT") ? NEXUS_SNAPSHOT_URL : NEXUS_RELEASE_URL
+                allowInsecureProtocol = true
+                credentials {
+                    username = NEXUS_USERNAME
+                    password = NEXUS_PASSWORD
+                }
+            }
+
+        }
+
+        publications {
+            release(MavenPublication) {
+                from components.release
+                groupId = group
+                artifactId = artifact
+                version = rootProject.ext.versionName
+            }
+        }
+    }
+
+//        // 配置maven 仓库
+//        repositories { RepositoryHandler handler ->
+////            handler.mavenLocal() //~/.m2/repository/下
+//            handler.maven {
+//                name = "root"
+//                url "${rootDir}/build/repo"
+//            }
+//            // 仓库用户名密码
+//            handler.maven { MavenArtifactRepository mavenArtifactRepository ->
+//                // maven 仓库地址
+//                url rootProject.ext.versionName.endsWith("SNAPSHOT") ? REPO_URL_SNAPSHOT : REPO_URL_RELEASE
+//                // 访问仓库的 账号和密码
+//                credentials {
+//                    username = REPO_USERNAME
+//                    password = REPO_PASSWORD
+//                }
+//            }
+//            maven {
+//                name = "snapshot"
+//                url = REPO_URL_SNAPSHOT
+//                credentials {
+//                    username = REPO_USERNAME
+//                    password = REPO_PASSWORD
+//                }
+//            }
+//
+//        }
+//        publications { PublicationContainer publicationContainer ->
+//            release(MavenPublication) {
+//                from components.release // 注释1:使用 Android Gradle 插件生成的组件，作为发布的内容
+////                artifact sourceJar // 上传源码
+//                groupId = group
+//                artifactId = artifact
+//                version = rootProject.ext.versionName
+//            }
+//        }
+//    }
+}
+
+//apply plugin: 'maven'
+
+//uploadArchives {
+//    repositories {
+//        mavenDeployer {
+////            repository(url: uri("${rootDir}/build/repo"))
+//
+//            repository(url: REPO_URL_RELEASE) {
+//                authentication(userName: REPO_USERNAME, password: REPO_PASSWORD)
+//            }
+//            snapshotRepository(url: REPO_URL_SNAPSHOT) {
+//                authentication(userName: REPO_USERNAME, password: REPO_PASSWORD)
+//            }
+//            pom.version = version
+//            pom.artifactId = artifact
+//            pom.groupId = group
+//        }
+//    }
+//}

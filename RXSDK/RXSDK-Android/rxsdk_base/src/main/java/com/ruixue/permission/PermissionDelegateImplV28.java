@@ -1,0 +1,31 @@
+package com.ruixue.permission;
+
+import android.app.Activity;
+import android.content.Context;
+import androidx.annotation.RequiresApi;
+
+/**
+ *    author : lee
+ *    time   : 2022/07/03
+ *    desc   : Android 9.0 权限委托实现
+ */
+@RequiresApi(api = AndroidVersion.ANDROID_9)
+class PermissionDelegateImplV28 extends PermissionDelegateImplV26 {
+
+   @Override
+   public boolean isGrantedPermission(Context context, String permission) {
+      if (PermissionUtils.equalsPermission(permission, Permission.ACCEPT_HANDOVER)) {
+         return PermissionUtils.checkSelfPermission(context, permission);
+      }
+      return super.isGrantedPermission(context, permission);
+   }
+
+   @Override
+   public boolean isPermissionPermanentDenied(Activity activity, String permission) {
+      if (PermissionUtils.equalsPermission(permission, Permission.ACCEPT_HANDOVER)) {
+         return !PermissionUtils.checkSelfPermission(activity, permission) &&
+                 !PermissionUtils.shouldShowRequestPermissionRationale(activity, permission);
+      }
+      return super.isPermissionPermanentDenied(activity, permission);
+   }
+}

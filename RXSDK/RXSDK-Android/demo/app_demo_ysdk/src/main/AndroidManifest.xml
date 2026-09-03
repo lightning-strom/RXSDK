@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="com.ruixue.demo.ysdk">
+
+    <application>
+        <activity
+            android:name="com.ruixue.demo.ChannelDemoActivity"
+            android:configChanges="orientation|keyboardHidden|screenSize"
+            android:exported="false"
+            android:screenOrientation="sensor"
+            android:theme="@style/Theme.AppCompat.Light.NoActionBar"/>
+
+        <activity
+            android:name="com.ruixue.demo.wechat.ShareDemoActivity"
+            android:configChanges="orientation|keyboardHidden|screenSize"
+            android:screenOrientation="sensor"
+            android:theme="@style/Theme.AppCompat.Light.NoActionBar" />
+
+
+        <!-- ysdk 配置 -->
+
+        <!-- ysdk渠道  android:value要修改为游戏自身的MainActivity的完整路径，
+       			如YSDKDEMO的MainAcitiviy路径为com.tencent.tmgp.yybtestsdk.MainActivity />-->
+        <meta-data
+            android:name="MAIN_ACTIVITY"
+            android:value="com.ruixue.demo.WelcomeActivity" />
+
+        <!-- 微信回调activity -->
+        <activity
+            android:name="com.ruixue.sdk.YSDKWXCallbackActivity"
+            android:configChanges="orientation|screenSize|keyboardHidden"
+            android:excludeFromRecents="true"
+            android:exported="true"
+            android:label="WXEntryActivity"
+            android:launchMode="singleTask"
+            android:taskAffinity="${applicationId}.diff"
+            android:theme="@android:style/Theme.Translucent.NoTitleBar">
+
+            <!-- GAME android:taskAffinity这里为游戏微信登录的配置，游戏需要修改为自己的包名加.diff -->
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+
+                <category android:name="android.intent.category.DEFAULT" />
+                <!-- GAME android:scheme这里为游戏微信登录的配置，游戏需要修改为自己的微信appid -->
+                <data android:scheme="${WX_APP_ID}" />
+            </intent-filter>
+        </activity>
+        <!-- GAME "${applicationId}.wxapi.WXEntryActivity，此处的${applicationId}需要修改为游戏自己的包名 -->
+        <activity-alias
+            android:name="${applicationId}.wxapi.WXEntryActivity"
+            android:exported="true"
+            android:targetActivity="com.ruixue.sdk.YSDKWXCallbackActivity" />
+
+    </application>
+
+</manifest>

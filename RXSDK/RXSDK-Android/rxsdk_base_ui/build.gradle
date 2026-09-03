@@ -1,0 +1,64 @@
+plugins {
+    id 'com.android.library'
+    id 'org.jetbrains.kotlin.android'
+}
+project.group 'com.ruixue'
+apply from: "${rootDir}/maven.gradle"
+
+android {
+    compileSdkVersion rootProject.ext.compileSdkVersion
+
+
+    defaultConfig {
+        minSdkVersion rootProject.ext.minSdkVersion
+        targetSdkVersion rootProject.ext.targetSdkVersion
+        versionCode rootProject.ext.versionCode
+        versionName rootProject.ext.versionName
+
+        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+        consumerProguardFiles "consumer-rules.pro"
+        buildConfigField("String", "BUILD_TIME", "\"${getTimestamp()}\"")
+        buildConfigField("String", "COMMIT_ID", "\"${getGitCommit()}\"")
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+        }
+        packagingAAR(project, android)
+    }
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
+    sourceSets {
+        main {
+            jniLibs.srcDirs = ['libs']
+        }
+    }
+
+}
+
+dependencies {
+    implementation 'androidx.core:core-ktx:1.7.0'
+    testImplementation libs.junit
+    //noinspection GradleDependency
+    androidTestImplementation libs.test.ext.junit
+    //noinspection GradleDependency
+    androidTestImplementation libs.espresso.core
+
+    implementation fileTree(include: ['*.?ar'], dir: 'libs')
+    //noinspection GradleDependency
+    implementation libs.appcompat
+    implementation 'androidx.recyclerview:recyclerview:1.2.1'
+    implementation 'androidx.cardview:cardview:1.0.0'
+    //富文本RichText框架使用
+    implementation 'com.zzhoujay.richtext:richtext:3.0.8'
+    implementation 'com.zzhoujay:html:1.0.2'
+//    implementation 'me.jessyan:autosize:1.2.1'
+    // implementation 'com.github.jenly1314:kingkeyboard:1.0.4'
+//    implementation 'com.github.jenly1314:splitedittext:1.1.0'
+    api project(path: ':rxsdk_base')
+
+}

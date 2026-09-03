@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    package="com.ruixue.plugin.unifypay">
+
+    <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <uses-permission android:name="android.permission.CHANGE_WIFI_STATE" />
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.WAKE_LOCK" /> <!-- 在SDCard中创建与删除文件权限 -->
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" /> <!-- Optional for location -->
+    <uses-permission android:name="android.permission.CHANGE_NETWORK_STATE" />
+    <uses-permission android:name="android.permission.READ_PHONE_STATE" />
+    <uses-permission android:name="android.permission.NFC" />
+    <uses-permission android:name="org.simalliance.openmobileapi.SMARTCARD" />
+
+    <queries>
+        <package android:name="com.eg.android.AlipayGphone" />
+        <package android:name="com.eg.android.AlipayGphoneRC" />
+        <package android:name="hk.alipay.wallet" />
+        <!-- Android 11 微信分享无法拉起问题 -->
+        <package android:name="com.tencent.mm" />
+        <package android:name="com.unionpay" />
+    </queries>
+
+    <application
+        android:icon="@mipmap/ic_launcher"
+        android:label="@string/app_name"
+        android:supportsRtl="true">
+        <activity
+            android:name=".MainActivity"
+            android:exported="true"
+            android:launchMode="singleTask"
+            android:theme="@android:style/Theme.Translucent.NoTitleBar">
+
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+                <action android:name="android.intent.action.VIEW" />
+
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <!-- 模拟配置通知栏点击事件的跳转地址 -->
+                <data android:scheme="${APP_SCHEME}" />
+            </intent-filter>
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+
+                <data
+                    android:host="MainActivity"
+                    android:scheme="${applicationId}"
+                    tools:ignore="AppLinkUrlError" />
+            </intent-filter>
+
+        </activity>
+
+        <meta-data
+            android:name="CurrentEnvironment"
+            android:value="PROD" /> <!-- PROD or TEST -->
+        <meta-data
+            android:name="PPPaySDK"
+            android:value="true" />
+
+        <uses-library
+            android:name="org.simalliance.openmobileapi"
+            android:required="false" />
+
+        <activity
+            android:name="com.unionpay.uppay.PayActivity"
+            android:configChanges="orientation|keyboardHidden"
+            android:excludeFromRecents="true"
+            android:screenOrientation="portrait"
+            android:theme="@android:style/Theme.Dialog"
+            android:windowSoftInputMode="adjustResize" />
+        <activity
+            android:name="com.unionpay.UPPayWapActivity"
+            android:configChanges="orientation|keyboardHidden"
+            android:screenOrientation="portrait"
+            android:theme="@android:style/Theme.Dialog"
+            android:windowSoftInputMode="adjustResize" />
+        <!-- 微信回调activity -->
+        <activity
+            android:name="com.ruixue.plugin.unifypay.WXEntryActivity"
+            android:enabled="true"
+            android:exported="true"
+            android:launchMode="singleTask"
+            android:theme="@android:style/Theme.Translucent.NoTitleBar" />
+        <!--    微信回调activity别名类，因为微信需要回调到指定包名指定类名，所以设置别名     -->
+        <activity-alias
+            android:name="${applicationId}.wxapi.WXEntryActivity"
+            android:enabled="true"
+            android:exported="true"
+            android:targetActivity="com.ruixue.plugin.unifypay.WXEntryActivity" />
+    </application>
+
+</manifest>
