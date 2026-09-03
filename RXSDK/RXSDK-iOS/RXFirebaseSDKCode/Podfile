@@ -1,0 +1,31 @@
+platform :ios, '12.0'
+source 'https://github.com/CocoaPods/Specs.git'
+
+workspace 'RXFirebaseSDK.xcworkspace'
+
+def commonPods
+    ##公共Pod项目
+    use_frameworks!
+#    pod 'FirebaseAnalytics', '10.29.0'
+#    pod 'FirebaseMessaging', '10.29.0'
+#    pod 'FirebaseAnalyticsOnDeviceConversion', '10.29.0'
+    pod 'FirebaseAnalytics'
+    pod 'FirebaseMessaging'
+    pod 'FirebaseAnalyticsOnDeviceConversion'
+#    pod 'FirebaseAuth'
+end
+
+target 'RXFirebaseSDKDemo' do
+  project 'RXFirebaseSDKDemo/RXFirebaseSDKDemo.xcodeproj'
+  commonPods
+end
+
+
+
+target 'RXFirebaseSDK' do
+  # Comment the next line if you don't want to use dynamic frameworks
+  project 'RXFirebaseSDK.xcodeproj'
+
+  commonPods
+
+end
