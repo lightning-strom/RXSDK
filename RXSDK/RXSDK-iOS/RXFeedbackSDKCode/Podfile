@@ -1,0 +1,29 @@
+platform :ios, '12.0'
+source 'https://github.com/CocoaPods/Specs.git'
+
+workspace 'RXFeedbackSDK.xcworkspace'
+
+def commonPods
+    ##公共Pod项目
+    use_frameworks!
+#    依赖RXSDK_Pure和RXLanguageKit
+    pod 'RXSDK_Pure'
+    pod "RXLanguageKit"
+end
+
+target 'RXFeedbackSDKDemo' do
+  project 'RXFeedbackSDKDemo/RXFeedbackSDKDemo.xcodeproj'
+  commonPods
+  #    文档中需要写明必须与RXOSUIKit或RXUIKit同时使用
+  #    pod 'RXOSUIKit'
+      pod 'RXUIKit'
+end
+
+target 'RXFeedbackSDK' do
+  # Comment the next line if you don't want to use dynamic frameworks
+  project 'RXFeedbackSDK.xcodeproj'
+
+  commonPods
+
+end
+

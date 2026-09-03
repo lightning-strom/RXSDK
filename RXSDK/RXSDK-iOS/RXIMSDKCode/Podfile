@@ -1,0 +1,55 @@
+platform :ios, '11.0'
+#source 'https://github.com/CocoaPods/Specs.git'
+source 'https://mirrors.tuna.tsinghua.edu.cn/git/CocoaPods/Specs.git'
+
+
+##工作台名称
+workspace 'RXIMSdk.xcworkspace'
+
+def commonPods
+    ##公共Pod项目
+    use_frameworks!
+    pod 'RXNetworkingKit'
+    pod 'YYModel'
+    pod 'AliyunOSSiOS','2.10.16'
+    pod 'WCDB','1.1.0'
+    pod 'SVProgressHUD'
+end
+
+##项目1
+#targetsArray = ['RXIMSdk','RXIMSdk-business']
+#targetsArray.each do |t|
+#    target t do
+#    #项目在工作台下的目录名称
+#      project 'RXIMSdk.xcodeproj'
+#      commonPods
+#    end
+#end
+
+target 'RXIMSDKDemo' do
+  project 'RXIMSDKDemo/RXIMSDKDemo.xcodeproj'
+  commonPods
+end
+
+target 'RXIMSdk' do
+  commonPods
+end
+
+target 'RXIMSdk_business' do
+  commonPods
+end
+
+target 'Business' do
+  project 'Business/Business.xcodeproj'
+  commonPods
+end
+
+
+post_install do |installer|
+  installer.pods_project.targets.each do |target|
+    target.build_configurations.each do |config|
+      config.build_settings["IPHONEOS_DEPLOYMENT_TARGET"] = "11.0"
+    end
+  end
+end
+
