@@ -1,0 +1,50 @@
+platform :ios, '12.0'
+source 'https://github.com/CocoaPods/Specs.git'
+
+
+workspace 'RXUIKit.xcworkspace'
+
+def commonPods
+  
+  use_frameworks!
+#  pod 'SDAutoLayout'
+  pod 'WechatOpenSDK'
+#  pod 'AFNetworking'
+#  pod 'YYCache'
+#  pod 'YYModel'
+#  pod 'MJExtension'
+#  pod 'TYAttributedLabel'
+#  pod 'YYWebImage'
+#  pod 'SVProgressHUD'
+#  pod 'MBProgressHUD'
+#  pod 'RXSDK_Pure'
+#  pod 'RXWXSDK'
+  pod 'RXLanguageKit'
+  pod 'RXAuthSDK_official'
+#  pod 'RXPublicToolKit'
+#  pod 'SocketRocket'
+#  pod 'RXAdjustSDK'
+#  pod 'WebViewJavascriptBridge'
+end
+
+target 'RXUIKit' do
+  # Comment the next line if you don't want to use dynamic frameworks
+
+  commonPods
+
+end
+
+target 'RXUIKitDemo' do
+    ##项目在工作台下的目录名称
+    project 'RXUIKitDemo/RXUIKitDemo.xcodeproj'
+    commonPods
+
+end
+
+post_install do |installer|
+  installer.pods_project.targets.each do |target|
+    target.build_configurations.each do |config|
+      config.build_settings['IPHONEOS_DEPLOYMENT_TARGET'] = '13.0'
+    end
+  end
+end

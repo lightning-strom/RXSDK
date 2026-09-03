@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html>
+<head lang="zh-cmn-Hans">
+<meta charset="UTF-8">
+<title>DWebviewJavaScriptdsBridge Test</title>
+<meta name="renderer" content="webkit">
+<meta http-equiv="X-UA-Compatible" content="IE=Edge,chrome=1">
+<meta name="viewport" content="width=device-width,initial-scale=0.5,user-scalable=no"/>
+</head>
+<style>
+    .btn {
+        text-align: center;
+        background: dodgerblue;
+        color: white;
+        padding: 20px;
+        margin: 30px;
+        font-size: 24px;
+        border-radius: 4px;
+        box-shadow: 4px 2px 10px #999;
+    }
+    .btn:active {
+        opacity: .7;
+        box-shadow: 4px 2px 10px #555;
+    }
+</style>
+<body>
+
+<div class="btn" onclick="callYLWShare()">邮乐网分享</div>
+<div class="btn" onclick="callYLXDShare()">邮乐小店分享</div>
+<div class="btn" onclick="callDrwaLattory()">小店抽奖</div>
+<div class="btn" onclick="callAddOwnGoods()">添加自提商品</div>
+<div class="btn" onclick="callJumpToShopkeeper()">跳转到邮掌柜</div>
+<div class="btn" onclick="callJumpToLocate()">获取经纬度</div>
+<div class="btn" onclick="callInviteOpen()">小店邀请好友开店</div>
+<div class="btn" onclick="callActivityPosterShare()">小店活动海报分享</div>
+<div class="btn" onclick="callChatSound()">测试聊天声音</div>
+<div class="btn" onclick="callCloseH5()">关闭</div>
+
+</body>
+<script>
+    
+    var JSBridge = window.JSBridge || (window.JSBridge = {});
+    JSBridge.registerHandler('openWebView',function(data,callback){
+
+        alert('测试函数接收到数据:'+JSON.stringify(data));
+
+        callback&&callback('测试回传数据…');
+
+    }
+
+    
+    console.log("test.html dsBridge is " + dsBridge);
+    
+    // 分享
+    var shareObj = {"title":"四川3.8女神节 - 秒杀尖货的你来！","imageUrl":"http://pic.ule.com/item/user_0102/desc20160307/8344cfbec6f8d8dd_-1x-1.jpg","linkUrl":"https://www.beta.ule.com/event/2017/0304/womenDay.html?adid=event_uleapp_womenDay","content":"四川3.8女神节，天天秒杀不断，9.9元尖货立即购买！","shareType":"110","logTitle":"四川三八活动0306-0308","jsFunction":""}
+
+    function callYLWShare() {
+        console.log("callYLWShare");
+        dsBridge.call("generalAction", {"type":"2","ios_action":JSON.stringify(shareObj),"android_action":JSON.stringify(shareObj)})
+    }
+
+var YLXDShareObj = {"shareTitle":"偷偷告诉你，不买你就亏大了","shareContent":"三水农耕 【邮政助农 香菇精准扶贫】金寨县铁冲乡有机花菇 70g  包邮，仅售14.9元","shareUrl":"http://ule.cn/mfccwa","listId":"3617560","listName":"三水农耕 【邮政助农 香菇精准扶贫】金寨县铁冲乡有机花菇 70g  包邮","shareFrom":"0","listImage":["//pic.ule.com/m/pic/user_800109903/product/prd20181029/b3ece5f47778e510_p800x800_xl.jpg"],"sharePrice":14.9,"marketPrice":"0.00","jsFunction":"shareSuc","shareCommission":"0.00","canShareOkCallBack":true}
+
+    function callYLXDShare(){
+        console.log("callYLXDShare");
+        dsBridge.call("generalAction",{"type":"2","ios_action":JSON.stringify(YLXDShareObj),"android_action":JSON.stringify(YLXDShareObj)})
+        
+            
+    }
+
+    function callCloseH5(){
+        console.log("callCloseH5");
+        dsBridge.call("generalAction",{"type":"0","ios_action":"ulemobile://ulePopView","android_action":"ulePopView"})
+    }
+    function callDrwaLattory(){
+        console.log("callDrwaLattory");
+        dsBridge.call("generalAction",{"type":"0","ios_action":"ulemobile://newDrawCashLottery_activityCode::MA_U_155107862700939##fieldId::##type::2","android_action":"ulemobile://newDrawCashLottery_activityCode::MA_U_155107862700939##fieldId::FC_20190225_16513##type::1"})
+    }
+
+function callAddOwnGoods(){
+    dsBridge.call("textOCfunction")
+}
+function callJumpToShopkeeper(){
+    dsBridge.call("generalAction",{"type":"8","ios_action":"{\"urlScheme\":\"tel:18516548318\"}"})
+}
+
+function callJumpToLocate(){
+    dsBridge.call("getCurrentCoordinate", {"ios_action":"checkPhoneBookCallback",
+                  "android_action":"checkPhoneBookCallback",
+                  "minversion":"184",
+                  "maxversion":"999"
+                  })
+<!--                  window.checkPhoneBookCallback = function(e) {-->
+<!--        alert(e)-->
+<!--    },-->
+<!--                  window._handleMessageFromNative = function(e) {-->
+<!--        "checkPhoneBookCallback" === e.method ? window.checkPhoneBookCallback(e.data) : t.$dialog.toast({-->
+<!--                                                                                                        mes: "function of `checkPhoneBookCallback` is not found."-->
+<!--                                                                                                        })-->
+<!--    }-->
+}
+
+<!--dsBridge.register('checkPhoneBookCallback', function(e){-->
+<!--                   alert(e);-->
+<!--                   })-->
+
+window.shareSuc = function(){
+    alert("SHARESUC");
+}
+
+<!--dsBridge.register('shareSuc()', function () {-->
+<!--                  alert("shareSuc");-->
+<!--                  })-->
+
+
+
+<!--dsBridge.registerAsyn('shareCall2',function(responseCallback){-->
+<!--                      responseCallback("有回调了");-->
+<!--                      })-->
+                      
+function callInviteOpen(){
+    dsBridge.call("generalAction",{"type":"0","ios_action":"ulemobile://action&&invitefriends","android_action":""})
+}
+
+var activityPosterShareObj = {"shareTitle":"活动分享标题","shareContent":"活动分享内容","shareUrl":"http://ule.cn/mfccwa","shareImageUrl":"https://pic.ule.com/m/pic/user_800109903/product/prd20181029/b3ece5f47778e510_p800x800_xl.jpg","posterImageUrl":"https://timgsa.baidu.com/timg?image&quality=80&size=b9999_10000&sec=1581587961125&di=50225a69bee78164d89dff63849b1653&imgtype=0&src=http%3A%2F%2Fqmhkids.com%2Fueditor%2Fphp%2Fupload%2Fimage%2F20171102%2F1509622759710857.jpg","posterTips":"活动海报提示语","shareOptions":"0##1##7"}
+
+function callActivityPosterShare() {
+    console.log("callActivityPosterShare");
+    dsBridge.call("generalAction", {"type":"2","ios_action":JSON.stringify(activityPosterShareObj),"android_action":JSON.stringify(activityPosterShareObj)})
+}
+
+function callChatSound() {
+    dsBridge.call("callChatVoice",{})
+}
+
+</script>
+</html>
