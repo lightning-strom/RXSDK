@@ -1,0 +1,304 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:gravity="center">
+
+    <androidx.cardview.widget.CardView
+        android:layout_width="@dimen/dialog_width"
+        android:layout_height="wrap_content"
+        android:layout_marginHorizontal="@dimen/card_common_margin_hor"
+        android:layout_marginVertical="@dimen/dp_30"
+        app:cardBackgroundColor="@color/white"
+        app:cardCornerRadius="@dimen/corner_radius">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="@dimen/dp_38"
+                android:layout_marginTop="@dimen/dp_4">
+
+                <ImageView
+                    android:id="@+id/btn_back"
+                    android:layout_width="@dimen/dp_50"
+                    android:layout_height="match_parent"
+                    android:layout_marginStart="10dp"
+                    android:rotationY="@integer/rotation"
+                    android:scaleType="centerInside"
+                    android:src="@drawable/ruixue_arrow_left" />
+
+                <LinearLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_centerHorizontal="true"
+                    android:layout_centerVertical="true"
+                    android:orientation="horizontal">
+
+                    <ImageView
+                        android:id="@+id/iv_title"
+                        android:layout_width="100dp"
+                        android:layout_height="22dp"
+                        android:scaleType="fitCenter"
+                        android:visibility="gone" />
+
+                    <TextView
+                        android:id="@+id/tv_title"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center_vertical"
+                        android:maxWidth="@dimen/dp_200"
+                        android:maxLines="1"
+                        android:text="@string/txt_login"
+                        android:textColor="@color/black"
+                        android:textSize="@dimen/sp_18"
+                        android:textStyle="bold" />
+
+                </LinearLayout>
+
+                <ImageView
+                    android:id="@+id/close"
+                    android:layout_width="@dimen/dp_50"
+                    android:layout_height="match_parent"
+                    android:layout_alignParentEnd="true"
+                    android:layout_marginEnd="@dimen/dp_2"
+                    android:layout_marginBottom="@dimen/dp_2"
+                    android:scaleType="centerInside"
+                    android:src="@drawable/ruixue_close_dialog" />
+            </RelativeLayout>
+
+            <LinearLayout
+                android:id="@+id/ly_content"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginHorizontal="@dimen/dp_21"
+                android:layout_marginTop="@dimen/dp_6"
+                android:orientation="vertical">
+
+                <EditText
+                    android:id="@+id/username"
+                    style="@style/EditTextStyle.Alignment"
+                    android:layout_width="match_parent"
+                    android:layout_height="@dimen/edit_height"
+                    android:layout_marginBottom="@dimen/dp_8"
+                    android:autofillHints=""
+                    android:background="@drawable/bg_edittext"
+                    android:hint="@string/txt_enter_phone"
+                    android:imeOptions="actionDone"
+                    android:inputType="phone"
+                    android:paddingHorizontal="@dimen/dp_14"
+                    android:singleLine="true"
+                    android:textColor="@color/black"
+                    android:textColorHint="@color/color_a5caca"
+                    android:textSize="@dimen/sp_14" />
+
+                <FrameLayout
+                    android:id="@+id/fl_input"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content">
+
+                    <RelativeLayout
+                        android:id="@+id/rl_password"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+
+                        android:visibility="visible">
+
+                        <com.ruixue.widget.PwdEditText
+                            android:id="@+id/password"
+                            android:layout_width="wrap_content"
+                            android:layout_height="@dimen/edit_height"
+                            app:eyeMarginEnd="@dimen/dp_83"
+                            app:hint="@string/txt_enter_pwd"
+                            app:imeOptions="actionDone" />
+
+                        <View
+                            android:id="@+id/spacer"
+                            android:layout_width="1dp"
+                            android:layout_height="@dimen/dp_14"
+                            android:layout_alignParentEnd="true"
+                            android:layout_centerVertical="true"
+                            android:layout_marginEnd="@dimen/dp_80"
+                            android:background="#ffe2f2f1" />
+
+                        <TextView
+                            android:id="@+id/findpass"
+                            android:layout_width="wrap_content"
+                            android:layout_height="@dimen/edit_height"
+                            android:layout_alignParentEnd="true"
+                            android:layout_centerVertical="true"
+                            android:layout_marginEnd="14dp"
+                            android:gravity="center"
+                            android:text="@string/txt_retrieve_password"
+                            android:textColor="@color/color_74d2cb"
+                            android:textSize="@dimen/sp_14" />
+
+                        <!--                        <TextView-->
+                        <!--                            android:id="@+id/tv_get_captcha"-->
+                        <!--                            android:layout_width="@dimen/dp_95"-->
+                        <!--                            android:layout_height="@dimen/edit_height"-->
+                        <!--                            android:layout_alignParentEnd="true"-->
+                        <!--                            android:layout_centerVertical="true"-->
+                        <!--                            android:gravity="center"-->
+                        <!--                            android:text="@string/rx_txt_get_captcha"-->
+                        <!--                            android:textColor="@color/color_74d2cb"-->
+                        <!--                            android:textSize="@dimen/sp_14" />-->
+                    </RelativeLayout>
+
+                    <RelativeLayout
+                        android:id="@+id/rl_captcha"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+
+                        android:visibility="invisible">
+
+                        <EditText
+                            android:id="@+id/et_captcha"
+                            style="@style/EditTextStyle.Alignment"
+                            android:layout_width="match_parent"
+                            android:layout_height="@dimen/edit_height"
+                            android:autofillHints=""
+                            android:background="@drawable/bg_edittext"
+                            android:hint="@string/rx_txt_input_captcha"
+                            android:inputType="number"
+                            android:maxLength="6"
+                            android:paddingHorizontal="@dimen/dp_15"
+                            android:singleLine="true"
+                            android:textColor="@color/black"
+                            android:textColorHint="@color/color_a5caca"
+                            android:textSize="@dimen/sp_14"
+                            app:imeOptions="actionDone" />
+
+                        <View
+                            android:layout_width="1dp"
+                            android:layout_height="@dimen/dp_14"
+                            android:layout_alignParentEnd="true"
+                            android:layout_centerVertical="true"
+                            android:layout_marginEnd="@dimen/dp_96"
+                            android:background="#ffe2f2f1" />
+
+                        <TextView
+                            android:id="@+id/tv_get_captcha"
+                            android:layout_width="@dimen/dp_95"
+                            android:layout_height="@dimen/edit_height"
+                            android:layout_alignParentEnd="true"
+                            android:layout_centerVertical="true"
+                            android:gravity="center"
+                            android:text="@string/rx_txt_get_captcha"
+                            android:textColor="@color/color_74d2cb"
+                            android:textSize="@dimen/sp_14" />
+
+                    </RelativeLayout>
+                </FrameLayout>
+
+                <Button
+                    android:id="@+id/login_default"
+                    android:layout_width="match_parent"
+                    android:layout_height="@dimen/button_height"
+                    android:layout_marginTop="@dimen/dp_9"
+                    android:background="@drawable/selec_btn_bg"
+                    android:enabled="false"
+                    android:gravity="center"
+                    android:stateListAnimator="@null"
+                    android:text="@string/txt_login"
+                    android:textColor="@color/white"
+                    android:textSize="@dimen/sp_16"
+                    tools:ignore="TouchTargetSizeCheck" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/otherBottomLayout"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:clipChildren="false"
+                android:clipToPadding="false"
+                android:orientation="vertical"
+                android:paddingTop="@dimen/dp_7">
+
+
+                <com.ruixue.view.LoginPrivacyLayout
+                    android:id="@+id/ll_privacy"
+                    android:layout_width="match_parent"
+                    android:layout_height="@dimen/dp_37"
+                    android:gravity="center_vertical"
+                    android:paddingStart="@dimen/dp_21"
+                    android:paddingEnd="@dimen/dp_21">
+
+                    <CheckBox
+                        android:id="@+id/ischeck"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:background="@android:color/transparent"
+                        android:button="@null"
+                        android:drawableLeft="@drawable/selec_login_checkbox"
+                        android:includeFontPadding="false"
+                        android:paddingEnd="@dimen/dp_3"
+                        android:singleLine="true"
+                        android:textColor="@color/black"
+                        android:textSize="12sp" />
+
+                    <com.ruixue.view.LoginPrivacyTextView
+                        android:id="@+id/xieyi"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_toEndOf="@+id/ischeck"
+                        android:gravity="center_vertical"
+                        android:linksClickable="true"
+                        android:maxLines="2"
+                        android:text="我已阅读并同意 用户协议、隐私政策、儿童隐私"
+                        android:textColor="@color/black"
+                        android:textColorLink="#20C0B3"
+                        android:textSize="12sp" />
+                </com.ruixue.view.LoginPrivacyLayout>
+
+                <LinearLayout
+                    android:id="@+id/ll_other_method"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginHorizontal="@dimen/dp_21"
+                    android:layout_marginTop="@dimen/dp_7"
+                    android:orientation="horizontal">
+
+                    <View
+                        android:layout_width="wrap_content"
+                        android:layout_height="1dp"
+                        android:layout_gravity="center_vertical"
+                        android:layout_weight="1"
+                        android:background="#D8D8D8" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center_vertical"
+                        android:layout_marginHorizontal="@dimen/dp_15"
+                        android:text="其他登录方式"
+                        android:textColor="#A3A3A3"
+                        android:textSize="@dimen/sp_11" />
+
+                    <View
+                        android:layout_width="wrap_content"
+                        android:layout_height="1dp"
+                        android:layout_gravity="center_vertical"
+                        android:layout_weight="1"
+                        android:background="#D8D8D8" />
+
+                </LinearLayout>
+
+                <com.ruixue.widget.LoginButtonGroup
+                    android:id="@+id/login_btn_group"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center_horizontal"
+                    android:layout_marginHorizontal="@dimen/dp_15"
+                    android:layout_marginTop="8dp"
+                    android:layout_marginBottom="@dimen/dp_12"
+                    android:clipChildren="false"
+                    android:clipToPadding="false" />
+            </LinearLayout>
+        </LinearLayout>
+    </androidx.cardview.widget.CardView>
+</RelativeLayout>

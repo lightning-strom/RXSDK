@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="com.ruixue.demo.wechat" >
+
+    <uses-sdk android:minSdkVersion="21" />
+
+    <application>
+        <activity
+            android:name="com.ruixue.demo.wechat.ShareDemoActivity"
+            android:configChanges="orientation|keyboardHidden|screenSize"
+            android:enabled="true"
+            android:screenOrientation="sensor"
+            android:theme="@style/Theme.AppCompat.Light.NoActionBar" >
+        </activity>
+
+        <!-- 微信回调activity -->
+        <activity
+            android:name="com.ruixue.wechat.WXEntryActivity"
+            android:enabled="true"
+            android:exported="true"
+            android:launchMode="singleTask"
+            android:theme="@android:style/Theme.Translucent.NoTitleBar" /> <!-- 微信支付回调activity别名类，和微信登录，微信分享的类名不一样 -->
+        <activity-alias
+            android:name="${applicationId}.wxapi.WXPayEntryActivity"
+            android:enabled="true"
+            android:exported="true"
+            android:targetActivity="com.ruixue.wechat.WXEntryActivity" /> <!-- 微信回调activity别名类，因为微信需要回调到指定包名指定类名，所以设置别名 -->
+        <activity-alias
+            android:name="${applicationId}.wxapi.WXEntryActivity"
+            android:enabled="true"
+            android:exported="true"
+            android:targetActivity="com.ruixue.wechat.WXEntryActivity" />
+    </application>
+
+</manifest>

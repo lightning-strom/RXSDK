@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="com.ruixue.push.meizu" >
+
+    <uses-sdk android:minSdkVersion="21" />
+
+    <!-- 兼容 Flyme5 的权限配置 -->
+    <uses-permission android:name="com.meizu.flyme.push.permission.RECEIVE" />
+
+    <permission
+        android:name="dollar_openBracket_applicationId_closeBracket.push.permission.MESSAGE"
+        android:protectionLevel="signature" />
+
+    <uses-permission android:name="dollar_openBracket_applicationId_closeBracket.push.permission.MESSAGE" />
+    <!-- 兼容 Flyme3 的权限配置 -->
+    <uses-permission android:name="com.meizu.c2dm.permission.RECEIVE" />
+
+    <permission
+        android:name="dollar_openBracket_applicationId_closeBracket.permission.C2D_MESSAGE"
+        android:protectionLevel="signature" />
+
+    <uses-permission android:name="dollar_openBracket_applicationId_closeBracket.permission.C2D_MESSAGE" />
+
+    <application>
+        <meta-data
+            android:name="RX_PUSH_MZ"
+            android:value="com.ruixue.push.meizu.MzPushProvider" />
+        <meta-data
+            android:name="RX_MZ_APP_ID"
+            android:value="RX_dollar_openBracket_MZ_APP_ID_closeBracket" />
+        <meta-data
+            android:name="RX_MZ_APP_KEY"
+            android:value="RX_dollar_openBracket_MZ_APP_KEY_closeBracket" />
+
+        <!-- Push 应用定义消息 receiver 声明 -->
+        <receiver
+            android:name="com.ruixue.push.meizu.MzPushReceiver"
+            android:exported="false" >
+            <intent-filter>
+
+                <!-- 接收 push 消息 -->
+                <action android:name="com.meizu.flyme.push.intent.MESSAGE" />
+                <!-- 接收 register 消息 -->
+                <action android:name="com.meizu.flyme.push.intent.REGISTER.FEEDBACK" />
+                <!-- 接收 unregister 消息 -->
+                <action android:name="com.meizu.flyme.push.intent.UNREGISTER.FEEDBACK" />
+                <!-- 兼容低版本 Flyme3 推送服务配置 -->
+                <action android:name="com.meizu.c2dm.intent.REGISTRATION" />
+                <action android:name="com.meizu.c2dm.intent.RECEIVE" />
+
+                <category android:name="dollar_openBracket_applicationId_closeBracket" />
+            </intent-filter>
+        </receiver>
+    </application>
+
+</manifest>

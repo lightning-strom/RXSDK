@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    package="com.ruixue.base" >
+
+    <uses-sdk android:minSdkVersion="21" />
+
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+    <uses-permission android:name="com.asus.msa.SupplementaryDID.ACCESS" />
+    <uses-permission android:name="freemme.permission.msa" />
+    <!-- Android 11+：https://developer.android.google.cn/about/versions/11/privacy/package-visibility?hl=zh-cn -->
+    <queries>
+
+        <!-- google -->
+        <package android:name="com.google.android.gms" />
+        <package android:name="com.android.vending" />
+        <!-- freeme -->
+        <package android:name="com.android.creator" />
+        <!-- zte -->
+        <package android:name="com.mdid.msa" />
+        <!-- samsung -->
+        <package android:name="com.samsung.android.deviceidservice" />
+        <!-- coolpad -->
+        <package android:name="com.coolpad.deviceidsupport" />
+        <!-- oppo -->
+        <package android:name="com.heytap.openid" />
+        <!-- huawei -->
+        <package android:name="com.huawei.hwid" />
+        <package android:name="com.huawei.hwid.tv" />
+        <package android:name="com.huawei.hms" />
+        <!-- asus -->
+        <package android:name="com.asus.msa.SupplementaryDID" />
+        <!-- lenovo -->
+        <package android:name="com.zui.deviceidservice" />
+    </queries>
+
+    <application
+        android:requestLegacyExternalStorage="true"
+        android:usesCleartextTraffic="true"
+        tools:targetApi="m" >
+
+        <!-- 表示当前项目已经适配了分区存储特性 -->
+        <meta-data
+            android:name="ScopedStorage"
+            android:value="true" />
+
+        <activity
+            android:name="com.ruixue.callback.RXEntryActivity"
+            android:enabled="true"
+            android:exported="true"
+            android:launchMode="singleTask"
+            android:theme="@android:style/Theme.Translucent.NoTitleBar" />
+
+        <provider
+            android:name="com.ruixue.internal.RXFileProvider"
+            android:authorities="${applicationId}.rxfileprovider"
+            android:exported="false"
+            android:grantUriPermissions="true" >
+            <meta-data
+                android:name="android.support.FILE_PROVIDER_PATHS"
+                android:resource="@xml/rx_file_provider_paths" />
+        </provider>
+    </application>
+
+</manifest>

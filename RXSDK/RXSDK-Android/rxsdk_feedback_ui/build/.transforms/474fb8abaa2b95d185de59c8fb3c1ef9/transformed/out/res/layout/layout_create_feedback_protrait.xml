@@ -1,0 +1,174 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <LinearLayout
+        android:layout_width="@dimen/dp_303"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:background="@drawable/bg_mail_border_common"
+        android:layout_gravity="center">
+
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/dp_10">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerHorizontal="true"
+                android:textColor="#ff3D3D3D"
+                android:textSize="@dimen/sp_16"
+                android:text="@string/feedback_view_title"
+                android:textStyle="bold"
+                android:layout_centerInParent="true"/>
+
+            <FrameLayout
+                android:id="@+id/close"
+                android:layout_width="@dimen/dp_40"
+                android:layout_height="@dimen/dp_20"
+                android:layout_centerVertical="true"
+                android:layout_alignParentEnd="true">
+                <ImageView
+                    android:layout_width="@dimen/dp_16"
+                    android:layout_height="@dimen/dp_16"
+                    android:src="@drawable/ruixue_close_dialog"
+                    android:layout_marginEnd="@dimen/dp_17"
+                    android:rotationY="@integer/rotation"/>
+            </FrameLayout>
+
+        </RelativeLayout>
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/dp_76"
+            android:layout_marginStart="@dimen/dp_10"
+            android:layout_marginEnd="@dimen/dp_10"
+            android:layout_marginTop="@dimen/dp_10">
+
+            <EditText
+                android:id="@+id/content_edittext"
+                android:layout_width="match_parent"
+                android:layout_height="@dimen/dp_76"
+                android:background="@drawable/bg_feedback_edittext"
+                android:hint="@string/feedback_content_null"
+                android:textColorHint="#767676"
+                android:layout_gravity="top"
+                android:textSize="@dimen/sp_11"
+                android:gravity="top"
+                android:padding="@dimen/dp_7"
+                android:maxLength="200"/>
+
+            <TextView
+                android:id="@+id/text_limit"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="0/200"
+                android:textColor="#ff767676"
+                android:textSize="11sp"
+                android:layout_alignParentEnd="true"
+                android:layout_alignParentBottom="true"
+                android:layout_marginEnd="@dimen/dp_8"
+                android:layout_marginBottom="@dimen/dp_3"/>
+
+        </RelativeLayout>
+
+        <TextView
+            android:id="@+id/preview_title"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/feedback_add_attach_title"
+            android:textColor="#ff323232"
+            android:layout_marginStart="@dimen/dp_10"
+            android:layout_marginTop="@dimen/dp_11"
+            android:textSize="14sp"
+            android:textStyle="bold"/>
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_marginStart="@dimen/dp_10"
+            android:layout_marginEnd="@dimen/dp_10"
+            android:layout_marginTop="@dimen/dp_3">
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/recycler_view"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" />
+
+            <RelativeLayout
+                android:id="@+id/add_file"
+                android:layout_width="@dimen/dp_50"
+                android:layout_height="@dimen/dp_50"
+                android:layout_toEndOf="@id/recycler_view"
+                android:background="@drawable/bg_feedback_edittext">
+
+                <ImageView
+                    android:layout_width="wrap_content"
+                    android:layout_height="33dp"
+                    android:layout_centerInParent="true"
+                    android:rotationY="@integer/rotation"
+                    android:src="@drawable/ic_preview_add" />
+
+            </RelativeLayout>
+
+        </RelativeLayout>
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:layout_gravity="center_vertical"
+            android:layout_marginTop="@dimen/dp_26"
+            android:layout_marginStart="@dimen/dp_10"
+            android:layout_marginEnd="@dimen/dp_10">
+
+            <TextView
+                android:id="@+id/phone_title"
+                android:layout_width="@dimen/dp_70"
+                android:layout_height="wrap_content"
+                android:textColor="#ff323232"
+                android:text="@string/feedback_phone_title"
+                android:textSize="14sp"
+                android:textStyle="bold"
+                android:layout_gravity="center_vertical"
+                android:layout_centerVertical="true"/>
+
+            <EditText
+                android:id="@+id/phone_number"
+                android:layout_width="@dimen/dp_213"
+                android:layout_height="@dimen/dp_26"
+                android:background="@drawable/bg_feedback_edittext"
+                android:hint="@string/feedback_input_phone_hint"
+                android:textColorHint="#767676"
+                android:textSize="@dimen/sp_11"
+                android:gravity="start|center"
+                android:paddingStart="@dimen/dp_9"
+                android:layout_toEndOf="@id/phone_title"
+                android:layout_centerVertical="true"/>
+
+        </RelativeLayout>
+
+        <Button
+            android:id="@+id/sure_btn"
+            android:layout_width="@dimen/dp_132"
+            android:layout_height="@dimen/dp_38"
+            android:layout_weight="1"
+            android:background="@drawable/shape_btn_1_normal"
+            android:stateListAnimator="@null"
+            android:textAllCaps="false"
+            android:text="@string/feedback_submit"
+            android:textColor="@color/white"
+            android:textSize="@dimen/sp_16"
+            android:textStyle="bold"
+            android:layout_gravity="center"
+            android:layout_marginTop="@dimen/dp_38"
+            android:layout_marginBottom="@dimen/dp_13"/>
+
+
+    </LinearLayout>
+</FrameLayout>

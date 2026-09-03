@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/nav_graph"
+    app:startDestination="@id/configFragment">
+
+    <fragment
+        android:id="@+id/configFragment"
+        android:name="com.ruixue.demo.activity.ConfigFragment"
+        android:label="ConfigFragment"
+        app:defaultNavHost="false">
+        <action
+            android:id="@+id/action_configFragment_to_loginFragment"
+            app:destination="@id/loginFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/mainFragment"
+        android:name="com.ruixue.demo.activity.MainFragment"
+        android:label="MainFragment"
+        app:defaultNavHost="false">
+        <action
+            android:id="@+id/action_mainFragment_to_loginFragment"
+            app:destination="@id/loginFragment" />
+        <action
+            android:id="@+id/action_mainFragment_to_configFragment"
+            app:destination="@id/configFragment" />
+        <argument
+            android:name="switch_user"
+            app:argType="boolean" />
+    </fragment>
+    <fragment
+        android:id="@+id/loginFragment"
+        android:name="com.ruixue.demo.activity.LoginFragment"
+        android:label="LoginFragment"
+        app:defaultNavHost="false">
+        <action
+            android:id="@+id/action_loginFragment_to_mainFragment"
+            app:destination="@id/mainFragment" />
+        <action
+            android:id="@+id/action_loginFragment_to_configFragment"
+            app:destination="@id/configFragment" />
+    </fragment>
+</navigation>

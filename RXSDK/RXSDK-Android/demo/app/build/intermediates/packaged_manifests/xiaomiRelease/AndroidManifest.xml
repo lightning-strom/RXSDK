@@ -1,0 +1,659 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="com.weile.jxmj"
+    android:versionCode="1004"
+    android:versionName="1000.0.4" >
+
+    <uses-sdk
+        android:minSdkVersion="23"
+        android:targetSdkVersion="30" />
+
+    <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <uses-permission android:name="com.android.launcher.permission.INSTALL_SHORTCUT" />
+    <uses-permission android:name="com.ruixue.clipper.CLIPPER" />
+    <uses-permission android:name="android.permission.WRITE_SECURE_SETTINGS" /> <!-- 权限测试 -->
+    <uses-permission android:name="android.permission.CAMERA" />
+    <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW" />
+    <uses-permission android:name="android.permission.READ_CALENDAR" />
+    <uses-permission android:name="android.permission.WRITE_CALENDAR" />
+    <uses-permission android:name="android.permission.ANSWER_PHONE_CALLS" />
+    <uses-permission android:name="android.permission.READ_PHONE_NUMBERS" />
+    <uses-permission android:name="android.permission.READ_MEDIA_IMAGES" />
+    <uses-permission android:name="android.permission.READ_MEDIA_VIDEO" />
+    <uses-permission android:name="android.permission.PACKAGE_USAGE_STATS" />
+    <uses-permission android:name="android.permission.WRITE_SETTINGS" />
+    <uses-permission android:name="android.permission.ACCESS_MEDIA_LOCATION" />
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" /> <!-- <uses-permission android:name="android.permission.RECORD_AUDIO" /> -->
+    <uses-permission android:name="android.permission.QUERY_ALL_PACKAGES" /> <!-- <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" /> -->
+    <!-- <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" /> -->
+    <!-- <uses-permission android:name="android.permission.ACCESS_BACKGROUND_LOCATION" /> -->
+    <uses-permission android:name="android.permission.SEND_SMS" />
+    <uses-permission android:name="android.permission.RECEIVE_SMS" />
+    <uses-permission android:name="android.permission.READ_PHONE_STATE" />
+    <uses-permission android:name="android.permission.BODY_SENSORS" />
+    <uses-permission android:name="android.permission.ACTIVITY_RECOGNITION" />
+    <uses-permission
+        android:name="android.permission.BLUETOOTH"
+        android:maxSdkVersion="30" />
+    <uses-permission
+        android:name="android.permission.BLUETOOTH_ADMIN"
+        android:maxSdkVersion="30" />
+    <uses-permission
+        android:name="android.permission.BLUETOOTH_SCAN"
+        android:usesPermissionFlags="neverForLocation" />
+    <uses-permission android:name="android.permission.BLUETOOTH_ADVERTISE" />
+    <uses-permission android:name="android.permission.BLUETOOTH_CONNECT" />
+    <uses-permission android:name="android.permission.SCHEDULE_EXACT_ALARM" />
+    <uses-permission android:name="android.permission.ACCESS_NOTIFICATION_POLICY" />
+    <uses-permission android:name="android.permission.REQUEST_IGNORE_BATTERY_OPTIMIZATIONS" />
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.READ_MEDIA_VISUAL_USER_SELECTED" />
+    <uses-permission android:name="com.xiaomi.sdk.permission.PAYMENT" />
+    <uses-permission android:name="com.xiaomi.permission.AUTH_SERVICE" />
+    <uses-permission android:name="android.permission.REQUEST_INSTALL_PACKAGES" /> <!-- Xiaomi SDK Need -->
+    <queries>
+        <package android:name="com.xiaomi.gamecenter" />
+        <package android:name="com.xiaomi.gamecenter.sdk.service" />
+        <package android:name="com.eg.android.AlipayGphone" />
+        <package android:name="com.tencent.mm" />
+        <package android:name="com.tencent.mobileqq" />
+        <package android:name="com.sina.weibo" />
+        <package android:name="com.miui.cloudservice" />
+        <package android:name="com.xiaomi.xmsf" />
+        <package android:name="com.miui.securitycenter" />
+        <!-- google -->
+        <package android:name="com.google.android.gms" />
+        <package android:name="com.android.vending" /> <!-- freeme -->
+        <package android:name="com.android.creator" /> <!-- zte -->
+        <package android:name="com.mdid.msa" /> <!-- samsung -->
+        <package android:name="com.samsung.android.deviceidservice" /> <!-- coolpad -->
+        <package android:name="com.coolpad.deviceidsupport" /> <!-- oppo -->
+        <package android:name="com.heytap.openid" /> <!-- huawei -->
+        <package android:name="com.huawei.hwid" />
+        <package android:name="com.huawei.hwid.tv" />
+        <package android:name="com.huawei.hms" /> <!-- asus -->
+        <package android:name="com.asus.msa.SupplementaryDID" /> <!-- lenovo -->
+        <package android:name="com.zui.deviceidservice" /> <!-- 游戏中心 -->
+        <package android:name="com.xiaomi.market" />
+
+        <intent> <!-- H5 支持手淘登录 -->
+            <action android:name="*" />
+
+            <data android:scheme="tbopen" />
+        </intent> <!-- 支付宝 app -->
+        <package android:name="com.eg.android.AlipayGphoneRC" /> <!-- 沙箱支付宝 app -->
+        <package android:name="hk.alipay.wallet" /> <!-- 香港版支付宝 app -->
+        <package android:name="hk.alipay.walletRC" />
+    </queries>
+
+    <uses-permission android:name="com.asus.msa.SupplementaryDID.ACCESS" />
+    <uses-permission android:name="freemme.permission.msa" /> <!-- Don't require camera, as this requires a rear camera. This allows it to work on the Nexus 7 -->
+    <uses-feature
+        android:name="android.hardware.camera"
+        android:required="false" />
+    <uses-feature
+        android:name="android.hardware.camera.front"
+        android:required="false" /> <!-- TODO replace above two with next line after Android 4.2 -->
+    <!-- <uses-feature android:name="android.hardware.camera.any"/> -->
+    <uses-feature
+        android:name="android.hardware.camera.autofocus"
+        android:required="false" />
+    <uses-feature
+        android:name="android.hardware.camera.flash"
+        android:required="false" />
+    <uses-feature
+        android:name="android.hardware.screen.landscape"
+        android:required="false" />
+    <uses-feature
+        android:name="android.hardware.wifi"
+        android:required="false" />
+
+    <supports-screens
+        android:anyDensity="true"
+        android:largeScreens="true"
+        android:normalScreens="true"
+        android:resizeable="true"
+        android:smallScreens="true" />
+
+    <permission
+        android:name="com.weile.jxmj.gdt.qq.SEND_PERMISSION"
+        android:protectionLevel="signature" />
+    <permission
+        android:name="com.weile.jxmj.gdt.qq.RECEIVE_PERMISSION"
+        android:protectionLevel="signature" /> <!-- 文件读取权限 -->
+    <uses-permission android:name="com.weile.jxmj.gdt.qq.SEND_PERMISSION" />
+    <uses-permission android:name="com.weile.jxmj.gdt.qq.RECEIVE_PERMISSION" />
+
+    <application
+        android:name="com.ruixue.demo.MyApplication"
+        android:allowBackup="true"
+        android:appComponentFactory="androidx.core.app.CoreComponentFactory"
+        android:extractNativeLibs="false"
+        android:icon="@mipmap/ic_launcher"
+        android:label="@string/app_qipai_name"
+        android:networkSecurityConfig="@xml/network_security_config"
+        android:requestLegacyExternalStorage="true"
+        android:supportsRtl="true"
+        android:usesCleartextTraffic="true" >
+        <activity
+            android:name="com.ruixue.demo.activity.LdActivity"
+            android:exported="false" />
+        <activity
+            android:name="com.ruixue.demo.activity.ApiDemoV2Activity"
+            android:configChanges="orientation|screenSize|keyboardHidden"
+            android:exported="false"
+            android:screenOrientation="sensor"
+            android:theme="@style/ThemeTranslucent" />
+        <activity
+            android:name="com.ruixue.demo.activity.GameAreaActivity"
+            android:configChanges="orientation|screenSize|keyboardHidden"
+            android:exported="false"
+            android:screenOrientation="sensor"
+            android:theme="@style/ThemeTranslucent" />
+        <activity
+            android:name="com.ruixue.demo.activity.ShareTestActivity"
+            android:configChanges="orientation|screenSize|keyboardHidden"
+            android:exported="false"
+            android:screenOrientation="sensor"
+            android:theme="@style/ThemeTranslucent" /> <!-- &lt;!&ndash; 填写APPID &ndash;&gt; -->
+        <!-- &lt;!&ndash; 需要将xxid的值定义到string.xml里，否则可能被当成number处理而出错，若您的项目不支持从string.xml中获取，可尝试在数值前添加反斜杠和空格，如：android:value="\ 123456789"。 &ndash;&gt; -->
+        <!-- <meta-data -->
+        <!-- android:name="com.hihonor.iap.sdk.appid" -->
+        <!-- android:value="@string/honor_appid" /> -->
+        <!-- &lt;!&ndash; 填写CPID &ndash;&gt; -->
+        <!-- &lt;!&ndash; 需要将xxid的值定义到string.xml里，否则可能被当成number处理而出错，若您的项目不支持从string.xml中获取，可尝试在数值前添加反斜杠和空格，如：android:value="\ 123456789"。&ndash;&gt; -->
+        <!-- <meta-data -->
+        <!-- android:name="com.hihonor.iap.sdk.cpid" -->
+        <!-- android:value="@string/honor_cpid" /> -->
+        <!-- bilibili -->
+        <!-- &lt;!&ndash; 填写APPID &ndash;&gt; -->
+        <!-- &lt;!&ndash; 需要将xxid的值定义到string.xml里，否则可能被当成number处理而出错，若您的项目不支持从string.xml中获取，可尝试在数值前添加反斜杠和空格，如：android:value="\ 123456789"。 &ndash;&gt; -->
+        <!-- <meta-data -->
+        <!-- android:name="com.hihonor.iap.sdk.appid" -->
+        <!-- android:value="@string/honor_appid" /> -->
+        <!-- &lt;!&ndash; 填写CPID &ndash;&gt; -->
+        <!-- &lt;!&ndash; 需要将xxid的值定义到string.xml里，否则可能被当成number处理而出错，若您的项目不支持从string.xml中获取，可尝试在数值前添加反斜杠和空格，如：android:value="\ 123456789"。&ndash;&gt; -->
+        <!-- <meta-data -->
+        <!-- android:name="com.hihonor.iap.sdk.cpid" -->
+        <!-- android:value="@string/honor_cpid" /> -->
+        <!-- bilibili -->
+        <meta-data
+            android:name="BSGameSdk_PaidGame"
+            android:value="false" />
+        <meta-data
+            android:name="android.max_aspect"
+            android:value="2.4" />
+        <meta-data
+            android:name="com.huawei.agconnect.AccessNetwork"
+            android:value="false" /> <!-- <meta-data -->
+        <!-- android:name="vivoUnionAppId" -->
+        <!-- android:value="104260523" /> -->
+        <meta-data
+            android:name="vivoUnionAppId"
+            android:value="ab1f25ff8a0148a15227180692bd3314" /> <!-- ld -->
+        <meta-data
+            android:name="LD_GAME_ID"
+            android:value="2227" />
+        <meta-data
+            android:name="CHANNEL_ID"
+            android:value="100000" />
+        <meta-data
+            android:name="SUN_CHANNEL_ID"
+            android:value="100714" />
+        <meta-data
+            android:name="rx_vivo_appid"
+            android:value="100714" />
+        <meta-data
+            android:name="rx_oppo_app_secret"
+            android:value="07447c0EC7E3A407FD0c91fe859bcC79" />
+        <meta-data
+            android:name="JF_APPID"
+            android:value="81630" /> <!-- 此处替换为 -->
+        <meta-data
+            android:name="JF_APPKEY"
+            android:value="6F92ED477A9A6BDD8D7895BF698073E5" />
+        <meta-data
+            android:name="uc_game_id"
+            android:value="@string/uc_game_id" />
+        <meta-data
+            android:name="adjust_app_token"
+            android:value="a7tay9toq29s" />
+
+        <activity
+            android:name="com.ruixue.demo.activity.LoginActivity"
+            android:exported="false"
+            android:launchMode="singleTask"
+            android:theme="@style/ThemeTranslucent" />
+        <activity
+            android:name="com.ruixue.demo.activity.NavActivity"
+            android:configChanges="orientation|screenSize|keyboardHidden|screenLayout|navigation|smallestScreenSize|fontScale"
+            android:exported="false"
+            android:launchMode="singleTask"
+            android:theme="@style/ThemeTranslucent" />
+        <activity
+            android:name="com.ruixue.demo.activity.CustomCaptureActivity"
+            android:configChanges="orientation|screenSize|keyboardHidden|screenLayout|navigation|smallestScreenSize|fontScale"
+            android:screenOrientation="sensor"
+            android:theme="@style/ThemeTranslucent" />
+        <activity
+            android:name="com.ruixue.demo.activity.PromoTestActivity"
+            android:exported="false"
+            android:screenOrientation="sensor"
+            android:theme="@style/ThemeTranslucent" />
+        <activity
+            android:name="com.ruixue.demo.activity.SocialTestActivity"
+            android:exported="false"
+            android:launchMode="singleTask"
+            android:screenOrientation="sensor"
+            android:theme="@style/ThemeTranslucent" />
+        <activity
+            android:name="com.ruixue.demo.activity.LineActivity"
+            android:exported="false"
+            android:launchMode="singleTask"
+            android:theme="@style/ThemeTranslucent" />
+        <activity
+            android:name="com.ruixue.demo.activity.ServicesActivity"
+            android:exported="false"
+            android:launchMode="singleTask"
+            android:theme="@style/ThemeTranslucent"
+            android:windowSoftInputMode="stateVisible|adjustResize" />
+        <activity
+            android:name="com.ruixue.demo.activity.UcGameDemoActivity"
+            android:theme="@style/Theme.AppCompat" />
+        <activity
+            android:name="com.ruixue.demo.activity.IdcardNumberInputDemoActivity"
+            android:screenOrientation="sensor"
+            android:theme="@style/ThemeTranslucent" /> <!-- 增加app拉起相关cn.uc.gamesdk.activity.PullupActivity的声明 -->
+        <activity
+            android:name="cn.uc.gamesdk.activity.PullupActivity"
+            android:excludeFromRecents="true"
+            android:exported="true"
+            android:label="PullupActivity"
+            android:launchMode="singleTop"
+            android:taskAffinity="cn.uc.gamesdk.demo.diff"
+            android:theme="@android:style/Theme.Translucent" >
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+
+                <data android:scheme="ng3098544" />
+            </intent-filter>
+        </activity>
+        <activity
+            android:name="com.ruixue.demo.activity.WelcomeActivity"
+            android:configChanges="orientation|screenSize|keyboardHidden|screenLayout|navigation|smallestScreenSize|fontScale"
+            android:exported="true"
+            android:launchMode="singleTask"
+            android:theme="@style/ThemeTranslucent" >
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+        <activity
+            android:name="com.ruixue.demo.activity.HWOSActivity"
+            android:configChanges="orientation|screenSize|keyboardHidden|screenLayout|navigation|smallestScreenSize|fontScale"
+            android:exported="true"
+            android:launchMode="singleTask"
+            android:screenOrientation="sensor"
+            android:theme="@style/ThemeTranslucent" >
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+
+                <data android:scheme="huawei" />
+            </intent-filter>
+        </activity>
+        <activity
+            android:name="com.ruixue.demo.activity.HWCNActivity"
+            android:configChanges="orientation|screenSize|keyboardHidden|screenLayout|navigation|smallestScreenSize|fontScale"
+            android:exported="true"
+            android:launchMode="singleTask"
+            android:screenOrientation="sensor"
+            android:theme="@style/ThemeTranslucent" >
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+
+                <data android:scheme="huawei" />
+            </intent-filter>
+        </activity>
+        <activity
+            android:name="com.ruixue.demo.activity.FloatingScaleAct"
+            android:exported="true"
+            android:launchMode="singleInstance"
+            android:theme="@style/TranslucentAct" /> <!-- uei5v3uj -->
+        <meta-data
+            android:name="com.ruixue.APP_KEY"
+            android:value="nl7xvby2" />
+
+        <activity
+            android:name="com.ruixue.demo.activity.MainActivity"
+            android:configChanges="orientation|screenSize|smallestScreenSize|density"
+            android:exported="true"
+            android:launchMode="singleTask"
+            android:screenOrientation="sensor"
+            android:theme="@style/ThemeTranslucent" >
+            <intent-filter>
+                <action android:name="android.intent.action.CREATE_SHORTCUT" />
+                <action android:name="android.intent.action.VIEW" />
+
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <!-- 模拟配置通知栏点击事件的跳转地址 -->
+                <data android:scheme="jixiang433" />
+            </intent-filter>
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+
+                <data android:scheme="nl7xvby2" />
+            </intent-filter>
+
+            <!-- 应用自定义 scheme：ruixue:// （H5 支付回跳、deeplink 等场景统一入口） -->
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+
+                <data android:scheme="ruixue" />
+            </intent-filter>
+            <!-- 快手配置 需要把以下代码加入到你们主界面，如果没有特殊需要按下面处理 -->
+            <!-- 注意：默认情况下  游戏使用ks(+游戏缩写小写://home即可  path和参数可以根据自身是否需要 -->
+            <!-- 如下面锁示，需要将此加入游戏主界面的Activity里。 -->
+            <!-- <intent-filter> -->
+            <!-- <action android:name="android.intent.action.VIEW" /> -->
+            <!-- <category android:name="android.intent.category.BROWSABLE" /> -->
+            <!-- <category android:name="android.intent.category.DEFAULT" /> -->
+            <!-- &lt;!&ndash;协议部分&ndash;&gt; -->
+            <!-- <data android:scheme="kshome" /> -->
+            <!-- </intent-filter> -->
+        </activity>
+        <activity
+            android:name="com.ruixue.demo.permission.PermissionActivity"
+            android:exported="true"
+            android:launchMode="singleTask"
+            android:theme="@style/Theme.AppCompat.Light" /> <!-- 通知监听服务 -->
+        <service
+            android:name="com.ruixue.demo.permission.NotificationMonitorService"
+            android:exported="true"
+            android:permission="android.permission.BIND_NOTIFICATION_LISTENER_SERVICE" >
+            <intent-filter>
+                <action android:name="android.service.notification.NotificationListenerService" />
+            </intent-filter>
+        </service>
+
+        <meta-data
+            android:name="kwai_allow_tourist"
+            android:value="true" />
+
+        <activity
+            android:name="com.ruixue.feedbackui.activity.PreviewActivity"
+            android:exported="false"
+            android:screenOrientation="sensor"
+            android:theme="@style/Theme.AppCompat.NoActionBar" />
+        <activity
+            android:name="com.luck.picture.lib.basic.PictureSelectorSupporterActivity"
+            android:configChanges="orientation|keyboardHidden|screenSize"
+            android:screenOrientation="sensor"
+            android:theme="@style/Theme.AppCompat.NoActionBar" />
+        <activity
+            android:name="com.ruixue.realauth.IdCardKeyboardActivity"
+            android:excludeFromRecents="true"
+            android:exported="false"
+            android:launchMode="singleTop"
+            android:taskAffinity=""
+            android:theme="@style/RuiXueIdCardKeyboardActivityTheme" />
+
+        <provider
+            android:name="com.luck.picture.lib.basic.PictureFileProvider"
+            android:authorities="com.weile.jxmj.luckProvider"
+            android:exported="false"
+            android:grantUriPermissions="true" >
+            <meta-data
+                android:name="android.support.FILE_PROVIDER_PATHS"
+                android:resource="@xml/ps_file_paths" />
+        </provider>
+
+        <service
+            android:name="com.luck.picture.lib.service.ForegroundService"
+            android:enabled="true"
+            android:foregroundServiceType="location" />
+
+        <activity
+            android:name="com.luck.picture.lib.basic.PictureSelectorTransparentActivity"
+            android:configChanges="orientation|keyboardHidden|screenSize"
+            android:theme="@style/Picture.Theme.Translucent" >
+        </activity> <!-- 注意前缀mi_必须添加 -->
+        <meta-data
+            android:name="miGameAppId"
+            android:value="mi_2882303761517690901" />
+        <meta-data
+            android:name="miGameAppKey"
+            android:value="mi_5441769030901" />
+
+        <provider
+            android:name="com.xiaomi.gamecenter.sdk.MiOauthProvider"
+            android:authorities="com.weile.jxmj.mi_provider"
+            android:enabled="true"
+            android:exported="false" /> <!-- 表示当前项目已经适配了分区存储特性 -->
+        <meta-data
+            android:name="ScopedStorage"
+            android:value="true" />
+
+        <activity
+            android:name="com.ruixue.callback.RXEntryActivity"
+            android:enabled="true"
+            android:exported="true"
+            android:launchMode="singleTask"
+            android:theme="@android:style/Theme.Translucent.NoTitleBar" />
+
+        <provider
+            android:name="com.ruixue.internal.RXFileProvider"
+            android:authorities="com.weile.jxmj.rxfileprovider"
+            android:exported="false"
+            android:grantUriPermissions="true" >
+            <meta-data
+                android:name="android.support.FILE_PROVIDER_PATHS"
+                android:resource="@xml/rx_file_provider_paths" />
+        </provider>
+
+        <activity
+            android:name="com.journeyapps.barcodescanner.CaptureActivity"
+            android:clearTaskOnLaunch="true"
+            android:screenOrientation="sensorLandscape"
+            android:stateNotNeeded="true"
+            android:theme="@style/zxing_CaptureTheme"
+            android:windowSoftInputMode="stateAlwaysHidden" />
+
+        <provider
+            android:name="androidx.startup.InitializationProvider"
+            android:authorities="com.weile.jxmj.androidx-startup"
+            android:exported="false" >
+            <meta-data
+                android:name="androidx.emoji2.text.EmojiCompatInitializer"
+                android:value="androidx.startup" />
+            <meta-data
+                android:name="androidx.lifecycle.ProcessLifecycleInitializer"
+                android:value="androidx.startup" />
+            <meta-data
+                android:name="androidx.profileinstaller.ProfileInstallerInitializer"
+                android:value="androidx.startup" />
+        </provider>
+
+        <uses-library
+            android:name="androidx.window.extensions"
+            android:required="false" />
+        <uses-library
+            android:name="androidx.window.sidecar"
+            android:required="false" />
+
+        <receiver
+            android:name="androidx.profileinstaller.ProfileInstallReceiver"
+            android:directBootAware="false"
+            android:enabled="true"
+            android:exported="true"
+            android:permission="android.permission.DUMP" >
+            <intent-filter>
+                <action android:name="androidx.profileinstaller.action.INSTALL_PROFILE" />
+            </intent-filter>
+            <intent-filter>
+                <action android:name="androidx.profileinstaller.action.SKIP_FILE" />
+            </intent-filter>
+            <intent-filter>
+                <action android:name="androidx.profileinstaller.action.SAVE_PROFILE" />
+            </intent-filter>
+            <intent-filter>
+                <action android:name="androidx.profileinstaller.action.BENCHMARK_OPERATION" />
+            </intent-filter>
+        </receiver>
+
+        <activity
+            android:name="com.xiaomi.gamecenter.sdk.ui.MiActivity"
+            android:configChanges="orientation|screenSize|uiMode"
+            android:screenOrientation="behind"
+            android:theme="@android:style/Theme.Translucent.NoTitleBar.Fullscreen" />
+        <activity
+            android:name="com.xiaomi.gamecenter.sdk.ui.PayListActivity"
+            android:configChanges="orientation|screenSize|uiMode"
+            android:exported="true"
+            android:screenOrientation="behind"
+            android:theme="@android:style/Theme.Translucent.NoTitleBar.Fullscreen" />
+        <activity
+            android:name="com.xiaomi.gamecenter.sdk.hy.dj.HyDjActivity"
+            android:configChanges="orientation|screenSize"
+            android:exported="true"
+            android:theme="@android:style/Theme.Translucent.NoTitleBar.Fullscreen" />
+        <activity
+            android:name="com.xiaomi.gamecenter.sdk.ui.fault.ViewFaultNoticeActivity"
+            android:configChanges="orientation|screenSize"
+            android:excludeFromRecents="true"
+            android:screenOrientation="behind"
+            android:theme="@android:style/Theme.Translucent.NoTitleBar.Fullscreen" />
+        <activity
+            android:name="com.xiaomi.gamecenter.sdk.ui.notice.NoticeActivity"
+            android:configChanges="orientation|screenSize"
+            android:excludeFromRecents="true"
+            android:screenOrientation="behind"
+            android:theme="@android:style/Theme.Translucent.NoTitleBar.Fullscreen" />
+        <activity
+            android:name="com.xiaomi.gamecenter.sdk.ui.MiPayAntiActivity"
+            android:configChanges="orientation|screenSize"
+            android:screenOrientation="behind"
+            android:theme="@android:style/Theme.Translucent.NoTitleBar" />
+        <activity
+            android:name="com.xiaomi.gamecenter.sdk.ui.MiVerifyActivity"
+            android:configChanges="orientation|screenSize"
+            android:hardwareAccelerated="true"
+            android:screenOrientation="behind"
+            android:theme="@android:style/Theme.Translucent.NoTitleBar" />
+        <activity
+            android:name="com.xiaomi.gamecenter.sdk.ui.ForceInterceptActivity"
+            android:configChanges="orientation|screenSize|keyboard|keyboardHidden"
+            android:excludeFromRecents="true"
+            android:exported="false"
+            android:screenOrientation="behind"
+            android:theme="@android:style/Theme.Translucent.NoTitleBar.Fullscreen" />
+        <activity
+            android:name="com.xiaomi.gamecenter.sdk.ui.LoginRiskVerifyActivity"
+            android:configChanges="orientation|screenSize"
+            android:excludeFromRecents="true"
+            android:screenOrientation="behind" /> <!-- virtual_cid -->
+        <meta-data
+            android:name="mi_game_cid_option"
+            android:value="49A82B6A7C2039D6C82A186CAA2996BB" /> <!-- 联运SDK，都要走渠道包逻辑 -->
+        <meta-data
+            android:name="mi_game_sdk"
+            android:value="true" />
+
+        <activity
+            android:name="com.xiaomi.gamecenter.sdk.anti.ui.MiAntiAlertActivity"
+            android:configChanges="orientation|screenSize"
+            android:excludeFromRecents="true"
+            android:exported="true"
+            android:screenOrientation="behind"
+            android:theme="@android:style/Theme.Translucent.NoTitleBar" >
+            <intent-filter>
+                <data
+                    android:host="open_anti_alert"
+                    android:scheme="mioauthsdk" />
+
+                <category android:name="android.intent.category.DEFAULT" />
+
+                <action android:name="android.intent.action.VIEW" />
+            </intent-filter>
+        </activity>
+
+        <service
+            android:name="com.xiaomi.gamecenter.sdk.MiGameService"
+            android:enabled="true"
+            android:exported="true" >
+            <intent-filter>
+                <action android:name="com.xiaomi.gamecenter.jar.service" />
+            </intent-filter>
+        </service>
+
+        <uses-library
+            android:name="org.apache.http.legacy"
+            android:required="false" />
+
+        <activity
+            android:name="com.alipay.sdk.app.H5PayActivity"
+            android:configChanges="orientation|keyboardHidden|navigation|screenSize|locale|keyboard|screenLayout|density|fontScale|layoutDirection|smallestScreenSize"
+            android:exported="false"
+            android:theme="@android:style/Theme.NoTitleBar" >
+        </activity>
+        <activity
+            android:name="com.alipay.sdk.app.H5AuthActivity"
+            android:configChanges="orientation|keyboardHidden|navigation|screenSize|locale|keyboard|screenLayout|density|fontScale|layoutDirection|smallestScreenSize"
+            android:exported="false"
+            android:theme="@android:style/Theme.NoTitleBar" >
+        </activity>
+        <activity
+            android:name="com.alipay.sdk.app.PayResultActivity"
+            android:configChanges="orientation|keyboardHidden|navigation|screenSize|locale|keyboard|screenLayout|density|fontScale|layoutDirection|smallestScreenSize"
+            android:exported="true"
+            android:launchMode="singleInstance"
+            android:theme="@android:style/Theme.Translucent.NoTitleBar" >
+        </activity>
+        <activity
+            android:name="com.alipay.sdk.app.AlipayResultActivity"
+            android:configChanges="orientation|keyboardHidden|navigation|screenSize|locale|keyboard|screenLayout|density|fontScale|layoutDirection|smallestScreenSize"
+            android:exported="true"
+            android:launchMode="singleTask"
+            android:theme="@android:style/Theme.Translucent.NoTitleBar" >
+        </activity>
+        <activity
+            android:name="com.alipay.sdk.app.H5OpenAuthActivity"
+            android:configChanges="orientation|keyboardHidden|navigation|screenSize|locale|keyboard|screenLayout|density|fontScale|layoutDirection|smallestScreenSize"
+            android:exported="false"
+            android:screenOrientation="behind"
+            android:windowSoftInputMode="adjustResize|stateHidden" >
+        </activity>
+        <activity
+            android:name="com.alipay.sdk.app.APayEntranceActivity"
+            android:configChanges="orientation|keyboardHidden|navigation|screenSize|locale|keyboard|screenLayout|density|fontScale|layoutDirection|smallestScreenSize"
+            android:exported="false"
+            android:theme="@android:style/Theme.Translucent.NoTitleBar" >
+        </activity>
+
+        <provider
+            android:name="com.qq.gdt.action.GDTInitProvider"
+            android:authorities="com.weile.jxmj.GDTInitProvider"
+            android:exported="false" >
+        </provider>
+    </application>
+
+</manifest>

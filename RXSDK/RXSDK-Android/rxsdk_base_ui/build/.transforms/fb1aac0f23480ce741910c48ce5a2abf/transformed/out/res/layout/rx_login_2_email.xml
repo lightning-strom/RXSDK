@@ -1,0 +1,167 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:gravity="center">
+
+    <androidx.cardview.widget.CardView
+        android:layout_width="@dimen/dialog_width"
+        android:layout_height="wrap_content"
+        android:layout_marginHorizontal="@dimen/card_common_margin_hor"
+        android:layout_marginVertical="@dimen/dp_20"
+        app:cardBackgroundColor="@color/white"
+        app:cardCornerRadius="@dimen/corner_radius">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <include layout="@layout/rx_ly_header" />
+
+            <LinearLayout
+                android:id="@+id/ly_content"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginHorizontal="@dimen/dp_25"
+                android:layout_marginTop="@dimen/dp_12"
+                android:orientation="vertical">
+
+                <EditText
+                    android:id="@+id/username"
+                    style="@style/EditTextStyle.Alignment"
+                    android:layout_width="match_parent"
+                    android:layout_height="@dimen/edit_height"
+                    android:autofillHints=""
+                    android:background="@drawable/bg_edittext"
+                    android:hint="@string/txt_enter_email"
+                    android:imeOptions="actionDone"
+                    android:inputType="textEmailAddress"
+                    android:paddingHorizontal="@dimen/dp_14"
+                    android:singleLine="true"
+                    android:textColor="@color/black"
+                    android:textColorHint="@color/color_a5caca"
+                    android:textSize="@dimen/sp_14" />
+
+                <RelativeLayout
+                    android:id="@+id/fl_input"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/dp_12">
+
+                    <LinearLayout
+                        android:id="@+id/rl_password"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:visibility="invisible">
+
+                        <com.ruixue.widget.PwdEditText
+                            android:id="@+id/password"
+                            android:layout_width="0dp"
+                            android:layout_height="@dimen/edit_height"
+                            android:layout_weight="1"
+                            app:hint="@string/txt_enter_pwd"
+                            app:imeOptions="actionDone" />
+
+                        <TextView
+                            android:id="@+id/findpass"
+                            android:layout_width="wrap_content"
+                            android:layout_height="@dimen/edit_height"
+                            android:layout_gravity="center_vertical"
+                            android:layout_marginStart="8dp"
+                            android:gravity="center"
+                            android:maxLines="1"
+                            android:text="@string/txt_retrieve_password"
+                            android:textColor="@color/color_20c0b3"
+                            android:textSize="@dimen/sp_14" />
+
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:id="@+id/rl_captcha"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal">
+
+                        <EditText
+                            android:id="@+id/et_captcha"
+                            style="@style/EditTextStyle.Alignment"
+                            android:layout_width="0dp"
+                            android:layout_height="@dimen/edit_height"
+                            android:layout_weight="1"
+                            android:autofillHints=""
+                            android:background="@drawable/bg_edittext"
+                            android:hint="@string/rx_txt_input_captcha"
+                            android:inputType="number"
+                            android:maxLength="6"
+                            android:paddingHorizontal="@dimen/dp_15"
+                            android:singleLine="true"
+                            android:textColor="@color/black"
+                            android:textColorHint="@color/color_a5caca"
+                            android:textSize="@dimen/sp_14"
+                            app:imeOptions="actionDone" />
+
+                        <TextView
+                            android:id="@+id/tv_get_captcha"
+                            android:layout_width="wrap_content"
+                            android:layout_height="@dimen/edit_height"
+                            android:layout_marginStart="8dp"
+                            android:gravity="center"
+                            android:text="@string/rx_txt_get_captcha"
+                            android:textColor="@color/color_20c0b3"
+                            android:textSize="@dimen/sp_14" />
+                    </LinearLayout>
+                </RelativeLayout>
+
+                <TextView
+                    android:id="@+id/tv_register"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/dp_4"
+                    android:gravity="center_vertical"
+                    android:linksClickable="true"
+                    android:singleLine="true"
+                    android:text="@string/rx_txt_register_now"
+                    android:textColor="#20C0B3"
+                    android:textSize="@dimen/sp_14"
+                    android:textStyle="bold"
+                    android:visibility="gone" />
+
+                <Button
+                    android:id="@+id/login_default"
+                    android:layout_width="match_parent"
+                    android:layout_height="@dimen/button_height"
+                    android:layout_marginTop="@dimen/dp_12"
+                    android:layout_marginBottom="@dimen/dp_15"
+                    android:background="@drawable/selec_btn_bg"
+                    android:enabled="false"
+                    android:gravity="center"
+                    android:stateListAnimator="@null"
+                    android:text="@string/txt_login"
+                    android:textAllCaps="false"
+                    android:textColor="@color/white"
+                    android:textSize="@dimen/sp_16"
+                    tools:ignore="TouchTargetSizeCheck" />
+
+                <androidx.appcompat.widget.AppCompatTextView
+                    android:id="@+id/tv_switch"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:layout_marginStart="@dimen/dp_4"
+                    android:layout_marginBottom="@dimen/dp_15"
+                    android:linksClickable="true"
+                    android:paddingHorizontal="@dimen/dp_10"
+                    android:paddingVertical="@dimen/dp_2"
+                    android:singleLine="true"
+                    android:text="@string/txt_password_login"
+                    android:textColor="@color/color_315E5A"
+                    android:textSize="@dimen/sp_14"
+                    app:drawableStartCompat="@drawable/rx_change_login_pwd_or_captcha" />
+
+            </LinearLayout>
+        </LinearLayout>
+    </androidx.cardview.widget.CardView>
+</RelativeLayout>

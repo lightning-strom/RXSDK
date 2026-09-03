@@ -1,0 +1,1386 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="com.weile.jxmj"
+    android:versionCode="1004"
+    android:versionName="1000.0.4" >
+
+    <uses-sdk
+        android:minSdkVersion="23"
+        android:targetSdkVersion="30" />
+
+    <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <uses-permission android:name="com.android.launcher.permission.INSTALL_SHORTCUT" />
+    <uses-permission android:name="com.ruixue.clipper.CLIPPER" />
+    <uses-permission android:name="android.permission.WRITE_SECURE_SETTINGS" /> <!-- 权限测试 -->
+    <uses-permission android:name="android.permission.CAMERA" />
+    <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW" />
+    <uses-permission android:name="android.permission.READ_CALENDAR" />
+    <uses-permission android:name="android.permission.WRITE_CALENDAR" />
+    <uses-permission android:name="android.permission.ANSWER_PHONE_CALLS" />
+    <uses-permission android:name="android.permission.READ_PHONE_NUMBERS" />
+    <uses-permission android:name="android.permission.READ_MEDIA_IMAGES" />
+    <uses-permission android:name="android.permission.READ_MEDIA_VIDEO" />
+    <uses-permission android:name="android.permission.PACKAGE_USAGE_STATS" />
+    <uses-permission android:name="android.permission.WRITE_SETTINGS" />
+    <uses-permission android:name="android.permission.ACCESS_MEDIA_LOCATION" />
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" /> <!-- <uses-permission android:name="android.permission.RECORD_AUDIO" /> -->
+    <uses-permission android:name="android.permission.QUERY_ALL_PACKAGES" /> <!-- <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" /> -->
+    <!-- <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" /> -->
+    <!-- <uses-permission android:name="android.permission.ACCESS_BACKGROUND_LOCATION" /> -->
+    <uses-permission android:name="android.permission.SEND_SMS" />
+    <uses-permission android:name="android.permission.RECEIVE_SMS" />
+    <uses-permission android:name="android.permission.READ_PHONE_STATE" />
+    <uses-permission android:name="android.permission.BODY_SENSORS" />
+    <uses-permission android:name="android.permission.ACTIVITY_RECOGNITION" />
+    <uses-permission
+        android:name="android.permission.BLUETOOTH"
+        android:maxSdkVersion="30" />
+    <uses-permission
+        android:name="android.permission.BLUETOOTH_ADMIN"
+        android:maxSdkVersion="30" />
+    <uses-permission
+        android:name="android.permission.BLUETOOTH_SCAN"
+        android:usesPermissionFlags="neverForLocation" />
+    <uses-permission android:name="android.permission.BLUETOOTH_ADVERTISE" />
+    <uses-permission android:name="android.permission.BLUETOOTH_CONNECT" />
+    <uses-permission android:name="android.permission.SCHEDULE_EXACT_ALARM" />
+    <uses-permission android:name="android.permission.ACCESS_NOTIFICATION_POLICY" />
+    <uses-permission android:name="android.permission.REQUEST_IGNORE_BATTERY_OPTIMIZATIONS" /> <!-- Network -->
+    <uses-permission android:name="android.permission.INTERNET" /> <!-- Zxing -->
+    <uses-permission android:name="android.permission.VIBRATE" />
+
+    <uses-feature android:name="android.hardware.camera.autofocus" />
+
+    <uses-permission android:name="android.permission.READ_MEDIA_VISUAL_USER_SELECTED" />
+
+    <queries>
+        <package android:name="tv.danmaku.bili" />
+        <package android:name="com.eg.android.AlipayGphone" />
+        <package android:name="com.tencent.mm" />
+        <package android:name="com.vrviu.ls.bridge" />
+        <!-- freeme -->
+        <package android:name="com.android.creator" />
+        <package android:name="com.zhuoyi.security.lite" />
+        <package android:name="com.freeme.secureguard" />
+        <package android:name="com.android.secureguard" /> <!-- zte -->
+        <package android:name="com.mdid.msa" /> <!-- samsung -->
+        <package android:name="com.samsung.android.deviceidservice" /> <!-- coolpad -->
+        <package android:name="com.coolpad.deviceidsupport" /> <!-- oppo -->
+        <package android:name="com.heytap.openid" /> <!-- 360 -->
+        <package android:name="com.qiku.id" />
+
+        <intent> <!-- H5 支持手淘登录 -->
+            <action android:name="*" />
+
+            <data android:scheme="tbopen" />
+        </intent> <!-- 支付宝 app -->
+        <package android:name="com.eg.android.AlipayGphoneRC" /> <!-- 沙箱支付宝 app -->
+        <package android:name="hk.alipay.wallet" /> <!-- google -->
+        <package android:name="com.google.android.gms" />
+        <package android:name="com.android.vending" /> <!-- huawei -->
+        <package android:name="com.huawei.hwid" />
+        <package android:name="com.huawei.hwid.tv" />
+        <package android:name="com.huawei.hms" /> <!-- asus -->
+        <package android:name="com.asus.msa.SupplementaryDID" /> <!-- lenovo -->
+        <package android:name="com.zui.deviceidservice" />
+    </queries>
+
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+
+    <supports-screens
+        android:anyDensity="true"
+        android:largeScreens="true"
+        android:normalScreens="true"
+        android:resizeable="true"
+        android:smallScreens="true" /> <!-- asus -->
+    <uses-permission android:name="com.asus.msa.SupplementaryDID.ACCESS" /> <!-- freeme -->
+    <uses-permission android:name="freemme.permission.msa" />
+    <uses-permission android:name="freemme.permission.msa.SECURITY_ACCESS" /> <!-- oppo -->
+    <uses-permission android:name="oplus.permission.settings.LAUNCH_FOR_EXPORT" /> <!-- vivo -->
+    <uses-permission android:name="com.vivo.identifier.permission.OAID_STATE_DIALOG" /> <!-- Don't require camera, as this requires a rear camera. This allows it to work on the Nexus 7 -->
+    <uses-feature
+        android:name="android.hardware.camera"
+        android:required="false" />
+    <uses-feature
+        android:name="android.hardware.camera.front"
+        android:required="false" />
+    <uses-feature
+        android:name="android.hardware.camera.flash"
+        android:required="false" />
+    <uses-feature
+        android:name="android.hardware.screen.landscape"
+        android:required="false" />
+    <uses-feature
+        android:name="android.hardware.wifi"
+        android:required="false" />
+
+    <permission
+        android:name="com.weile.jxmj.gdt.qq.SEND_PERMISSION"
+        android:protectionLevel="signature" />
+    <permission
+        android:name="com.weile.jxmj.gdt.qq.RECEIVE_PERMISSION"
+        android:protectionLevel="signature" /> <!-- 文件读取权限 -->
+    <uses-permission android:name="com.weile.jxmj.gdt.qq.SEND_PERMISSION" />
+    <uses-permission android:name="com.weile.jxmj.gdt.qq.RECEIVE_PERMISSION" />
+
+    <application
+        android:name="com.ruixue.demo.MyApplication"
+        android:allowBackup="true"
+        android:appComponentFactory="androidx.core.app.CoreComponentFactory"
+        android:debuggable="true"
+        android:extractNativeLibs="false"
+        android:icon="@mipmap/ic_launcher"
+        android:label="@string/app_qipai_name"
+        android:networkSecurityConfig="@xml/network_security_config"
+        android:requestLegacyExternalStorage="true"
+        android:supportsRtl="true"
+        android:testOnly="true"
+        android:usesCleartextTraffic="true" >
+
+        <!-- 适配Android P，否则系统缺少相关类会崩溃 -->
+        <uses-library
+            android:name="org.apache.http.legacy"
+            android:required="false" />
+
+        <activity
+            android:name="com.ruixue.demo.activity.LdActivity"
+            android:exported="false" />
+        <activity
+            android:name="com.ruixue.demo.activity.ApiDemoV2Activity"
+            android:configChanges="orientation|screenSize|keyboardHidden"
+            android:exported="false"
+            android:screenOrientation="sensor"
+            android:theme="@style/ThemeTranslucent" />
+        <activity
+            android:name="com.ruixue.demo.activity.GameAreaActivity"
+            android:configChanges="orientation|screenSize|keyboardHidden"
+            android:exported="false"
+            android:screenOrientation="sensor"
+            android:theme="@style/ThemeTranslucent" />
+        <activity
+            android:name="com.ruixue.demo.activity.ShareTestActivity"
+            android:configChanges="orientation|screenSize|keyboardHidden"
+            android:exported="false"
+            android:screenOrientation="sensor"
+            android:theme="@style/ThemeTranslucent" /> <!-- &lt;!&ndash; 填写APPID &ndash;&gt; -->
+        <!-- &lt;!&ndash; 需要将xxid的值定义到string.xml里，否则可能被当成number处理而出错，若您的项目不支持从string.xml中获取，可尝试在数值前添加反斜杠和空格，如：android:value="\ 123456789"。 &ndash;&gt; -->
+        <!-- <meta-data -->
+        <!-- android:name="com.hihonor.iap.sdk.appid" -->
+        <!-- android:value="@string/honor_appid" /> -->
+        <!-- &lt;!&ndash; 填写CPID &ndash;&gt; -->
+        <!-- &lt;!&ndash; 需要将xxid的值定义到string.xml里，否则可能被当成number处理而出错，若您的项目不支持从string.xml中获取，可尝试在数值前添加反斜杠和空格，如：android:value="\ 123456789"。&ndash;&gt; -->
+        <!-- <meta-data -->
+        <!-- android:name="com.hihonor.iap.sdk.cpid" -->
+        <!-- android:value="@string/honor_cpid" /> -->
+        <!-- bilibili -->
+        <!-- &lt;!&ndash; 填写APPID &ndash;&gt; -->
+        <!-- &lt;!&ndash; 需要将xxid的值定义到string.xml里，否则可能被当成number处理而出错，若您的项目不支持从string.xml中获取，可尝试在数值前添加反斜杠和空格，如：android:value="\ 123456789"。 &ndash;&gt; -->
+        <!-- <meta-data -->
+        <!-- android:name="com.hihonor.iap.sdk.appid" -->
+        <!-- android:value="@string/honor_appid" /> -->
+        <!-- &lt;!&ndash; 填写CPID &ndash;&gt; -->
+        <!-- &lt;!&ndash; 需要将xxid的值定义到string.xml里，否则可能被当成number处理而出错，若您的项目不支持从string.xml中获取，可尝试在数值前添加反斜杠和空格，如：android:value="\ 123456789"。&ndash;&gt; -->
+        <!-- <meta-data -->
+        <!-- android:name="com.hihonor.iap.sdk.cpid" -->
+        <!-- android:value="@string/honor_cpid" /> -->
+        <!-- bilibili -->
+        <meta-data
+            android:name="BSGameSdk_PaidGame"
+            android:value="false" />
+        <meta-data
+            android:name="android.max_aspect"
+            android:value="2.4" />
+        <meta-data
+            android:name="com.huawei.agconnect.AccessNetwork"
+            android:value="false" /> <!-- <meta-data -->
+        <!-- android:name="vivoUnionAppId" -->
+        <!-- android:value="104260523" /> -->
+        <meta-data
+            android:name="vivoUnionAppId"
+            android:value="ab1f25ff8a0148a15227180692bd3314" /> <!-- ld -->
+        <meta-data
+            android:name="LD_GAME_ID"
+            android:value="2227" />
+        <meta-data
+            android:name="CHANNEL_ID"
+            android:value="100000" />
+        <meta-data
+            android:name="SUN_CHANNEL_ID"
+            android:value="100714" />
+        <meta-data
+            android:name="rx_vivo_appid"
+            android:value="100714" />
+        <meta-data
+            android:name="rx_oppo_app_secret"
+            android:value="07447c0EC7E3A407FD0c91fe859bcC79" />
+        <meta-data
+            android:name="JF_APPID"
+            android:value="81630" /> <!-- 此处替换为 -->
+        <meta-data
+            android:name="JF_APPKEY"
+            android:value="6F92ED477A9A6BDD8D7895BF698073E5" />
+        <meta-data
+            android:name="uc_game_id"
+            android:value="@string/uc_game_id" />
+        <meta-data
+            android:name="adjust_app_token"
+            android:value="a7tay9toq29s" />
+
+        <activity
+            android:name="com.ruixue.demo.activity.LoginActivity"
+            android:exported="false"
+            android:launchMode="singleTask"
+            android:theme="@style/ThemeTranslucent" />
+        <activity
+            android:name="com.ruixue.demo.activity.NavActivity"
+            android:configChanges="orientation|screenSize|keyboardHidden|screenLayout|navigation|smallestScreenSize|fontScale"
+            android:exported="false"
+            android:launchMode="singleTask"
+            android:theme="@style/ThemeTranslucent" />
+        <activity
+            android:name="com.ruixue.demo.activity.CustomCaptureActivity"
+            android:configChanges="orientation|screenSize|keyboardHidden|screenLayout|navigation|smallestScreenSize|fontScale"
+            android:screenOrientation="sensor"
+            android:theme="@style/ThemeTranslucent" />
+        <activity
+            android:name="com.ruixue.demo.activity.PromoTestActivity"
+            android:exported="false"
+            android:screenOrientation="sensor"
+            android:theme="@style/ThemeTranslucent" />
+        <activity
+            android:name="com.ruixue.demo.activity.SocialTestActivity"
+            android:exported="false"
+            android:launchMode="singleTask"
+            android:screenOrientation="sensor"
+            android:theme="@style/ThemeTranslucent" />
+        <activity
+            android:name="com.ruixue.demo.activity.LineActivity"
+            android:exported="false"
+            android:launchMode="singleTask"
+            android:theme="@style/ThemeTranslucent" />
+        <activity
+            android:name="com.ruixue.demo.activity.ServicesActivity"
+            android:exported="false"
+            android:launchMode="singleTask"
+            android:theme="@style/ThemeTranslucent"
+            android:windowSoftInputMode="stateVisible|adjustResize" />
+        <activity
+            android:name="com.ruixue.demo.activity.UcGameDemoActivity"
+            android:theme="@style/Theme.AppCompat" />
+        <activity
+            android:name="com.ruixue.demo.activity.IdcardNumberInputDemoActivity"
+            android:screenOrientation="sensor"
+            android:theme="@style/ThemeTranslucent" /> <!-- 增加app拉起相关cn.uc.gamesdk.activity.PullupActivity的声明 -->
+        <activity
+            android:name="cn.uc.gamesdk.activity.PullupActivity"
+            android:excludeFromRecents="true"
+            android:exported="true"
+            android:label="PullupActivity"
+            android:launchMode="singleTop"
+            android:taskAffinity="cn.uc.gamesdk.demo.diff"
+            android:theme="@android:style/Theme.Translucent" >
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+
+                <data android:scheme="ng3098544" />
+            </intent-filter>
+        </activity>
+        <activity
+            android:name="com.ruixue.demo.activity.WelcomeActivity"
+            android:configChanges="orientation|screenSize|keyboardHidden|screenLayout|navigation|smallestScreenSize|fontScale"
+            android:exported="true"
+            android:launchMode="singleTask"
+            android:theme="@style/ThemeTranslucent" >
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+        <activity
+            android:name="com.ruixue.demo.activity.HWOSActivity"
+            android:configChanges="orientation|screenSize|keyboardHidden|screenLayout|navigation|smallestScreenSize|fontScale"
+            android:exported="true"
+            android:launchMode="singleTask"
+            android:screenOrientation="sensor"
+            android:theme="@style/ThemeTranslucent" >
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+
+                <data android:scheme="huawei" />
+            </intent-filter>
+        </activity>
+        <activity
+            android:name="com.ruixue.demo.activity.HWCNActivity"
+            android:configChanges="orientation|screenSize|keyboardHidden|screenLayout|navigation|smallestScreenSize|fontScale"
+            android:exported="true"
+            android:launchMode="singleTask"
+            android:screenOrientation="sensor"
+            android:theme="@style/ThemeTranslucent" >
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+
+                <data android:scheme="huawei" />
+            </intent-filter>
+        </activity>
+        <activity
+            android:name="com.ruixue.demo.activity.FloatingScaleAct"
+            android:exported="true"
+            android:launchMode="singleInstance"
+            android:theme="@style/TranslucentAct" /> <!-- uei5v3uj -->
+        <meta-data
+            android:name="com.ruixue.APP_KEY"
+            android:value="nl7xvby2" />
+
+        <activity
+            android:name="com.ruixue.demo.activity.MainActivity"
+            android:configChanges="orientation|screenSize|smallestScreenSize|density"
+            android:exported="true"
+            android:launchMode="singleTask"
+            android:screenOrientation="sensor"
+            android:theme="@style/ThemeTranslucent" >
+            <intent-filter>
+                <action android:name="android.intent.action.CREATE_SHORTCUT" />
+                <action android:name="android.intent.action.VIEW" />
+
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <!-- 模拟配置通知栏点击事件的跳转地址 -->
+                <data android:scheme="jixiang433" />
+            </intent-filter>
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+
+                <data android:scheme="nl7xvby2" />
+            </intent-filter>
+
+            <!-- 应用自定义 scheme：ruixue:// （H5 支付回跳、deeplink 等场景统一入口） -->
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+
+                <data android:scheme="ruixue" />
+            </intent-filter>
+            <!-- 快手配置 需要把以下代码加入到你们主界面，如果没有特殊需要按下面处理 -->
+            <!-- 注意：默认情况下  游戏使用ks(+游戏缩写小写://home即可  path和参数可以根据自身是否需要 -->
+            <!-- 如下面锁示，需要将此加入游戏主界面的Activity里。 -->
+            <!-- <intent-filter> -->
+            <!-- <action android:name="android.intent.action.VIEW" /> -->
+            <!-- <category android:name="android.intent.category.BROWSABLE" /> -->
+            <!-- <category android:name="android.intent.category.DEFAULT" /> -->
+            <!-- &lt;!&ndash;协议部分&ndash;&gt; -->
+            <!-- <data android:scheme="kshome" /> -->
+            <!-- </intent-filter> -->
+        </activity>
+        <activity
+            android:name="com.ruixue.demo.permission.PermissionActivity"
+            android:exported="true"
+            android:launchMode="singleTask"
+            android:theme="@style/Theme.AppCompat.Light" /> <!-- 通知监听服务 -->
+        <service
+            android:name="com.ruixue.demo.permission.NotificationMonitorService"
+            android:exported="true"
+            android:permission="android.permission.BIND_NOTIFICATION_LISTENER_SERVICE" >
+            <intent-filter>
+                <action android:name="android.service.notification.NotificationListenerService" />
+            </intent-filter>
+        </service>
+
+        <meta-data
+            android:name="kwai_allow_tourist"
+            android:value="true" />
+
+        <activity
+            android:name="com.didichuxing.doraemonkit.ui.UniversalActivity"
+            android:screenOrientation="portrait"
+            android:theme="@style/Theme.AppCompat.Light.NoActionBar"
+            android:windowSoftInputMode="stateHidden|stateUnchanged" />
+        <activity
+            android:name="com.didichuxing.doraemonkit.ui.TranslucentActivity"
+            android:theme="@style/DK.Theme.Translucent"
+            android:windowSoftInputMode="stateHidden|stateUnchanged" />
+        <activity
+            android:name="com.didichuxing.doraemonkit.zxing.activity.CaptureActivity"
+            android:screenOrientation="portrait"
+            android:windowSoftInputMode="stateHidden|stateUnchanged" />
+
+        <provider
+            android:name="com.didichuxing.doraemonkit.DebugFileProvider"
+            android:authorities="com.weile.jxmj.debugfileprovider"
+            android:exported="false"
+            android:grantUriPermissions="true" >
+            <meta-data
+                android:name="android.support.FILE_PROVIDER_PATHS"
+                android:resource="@xml/debug_provider_paths" />
+        </provider>
+
+        <activity
+            android:name="com.ruixue.feedbackui.activity.PreviewActivity"
+            android:exported="false"
+            android:screenOrientation="sensor"
+            android:theme="@style/Theme.AppCompat.NoActionBar" />
+        <activity
+            android:name="com.luck.picture.lib.basic.PictureSelectorSupporterActivity"
+            android:configChanges="orientation|keyboardHidden|screenSize"
+            android:screenOrientation="sensor"
+            android:theme="@style/Theme.AppCompat.NoActionBar" />
+        <activity
+            android:name="com.ruixue.realauth.IdCardKeyboardActivity"
+            android:excludeFromRecents="true"
+            android:exported="false"
+            android:launchMode="singleTop"
+            android:taskAffinity=""
+            android:theme="@style/RuiXueIdCardKeyboardActivityTheme" />
+
+        <provider
+            android:name="com.luck.picture.lib.basic.PictureFileProvider"
+            android:authorities="com.weile.jxmj.luckProvider"
+            android:exported="false"
+            android:grantUriPermissions="true" >
+            <meta-data
+                android:name="android.support.FILE_PROVIDER_PATHS"
+                android:resource="@xml/ps_file_paths" />
+        </provider>
+
+        <service
+            android:name="com.luck.picture.lib.service.ForegroundService"
+            android:enabled="true"
+            android:foregroundServiceType="location" />
+
+        <activity
+            android:name="com.luck.picture.lib.basic.PictureSelectorTransparentActivity"
+            android:configChanges="orientation|keyboardHidden|screenSize"
+            android:theme="@style/Picture.Theme.Translucent" >
+        </activity>
+
+        <service
+            android:name="com.base.gsc_data.service.DataService"
+            android:enabled="true"
+            android:exported="false" />
+        <service
+            android:name="com.gsc.base.heartBeat.service.DataService"
+            android:enabled="true"
+            android:exported="false" />
+
+        <activity
+            android:name="com.bilibili.game.sdk.gscloudstorage.archive.ArchiveManagerActivity"
+            android:configChanges="keyboardHidden|navigation|orientation|screenSize"
+            android:launchMode="singleTask"
+            android:theme="@style/gsc_style_customDialog" />
+        <activity
+            android:name="com.gsc.exit.ExitActivity"
+            android:configChanges="keyboardHidden|navigation|orientation|screenSize"
+            android:launchMode="singleTask"
+            android:theme="@style/gsc_style_customDialog" >
+        </activity>
+        <activity
+            android:name="com.gsc.jigsaw.JigsawContainerActivity"
+            android:configChanges="keyboardHidden|navigation|orientation|screenSize"
+            android:launchMode="singleTask"
+            android:theme="@style/gsc_style_customDialog" />
+        <activity
+            android:name="com.gsc.tourist_anti.TouristAntiActivity"
+            android:configChanges="keyboardHidden|navigation|orientation|screenSize"
+            android:launchMode="singleTask"
+            android:theme="@style/gsc_style_customDialog" >
+        </activity>
+        <activity
+            android:name="com.gsc.force_update.ForceUpDateActivity"
+            android:configChanges="keyboardHidden|navigation|orientation|screenSize"
+            android:launchMode="singleTask"
+            android:theme="@style/live_BackDialog" />
+        <activity
+            android:name="com.gsc.minor_anti.MinorAntiActivity"
+            android:configChanges="keyboardHidden|navigation|orientation|screenSize"
+            android:launchMode="singleTask"
+            android:theme="@style/gsc_style_customDialog" >
+        </activity>
+        <activity
+            android:name="com.gsc.login_failure.AgainLoginActivity"
+            android:configChanges="keyboardHidden|navigation|orientation|screenSize"
+            android:launchMode="singleTask"
+            android:theme="@style/gsc_style_customDialog" >
+        </activity>
+        <activity
+            android:name="com.gsc.login_failure.AgainLoginSmsCodeActivity"
+            android:configChanges="keyboardHidden|navigation|orientation|screenSize"
+            android:launchMode="singleTask"
+            android:theme="@style/gsc_style_customDialog" >
+        </activity>
+        <activity
+            android:name="com.gsc.phone_reg.RegPhoneActivity"
+            android:configChanges="keyboardHidden|navigation|orientation|screenSize"
+            android:launchMode="singleTask"
+            android:theme="@style/gsc_style_customDialog" >
+        </activity>
+        <activity
+            android:name="com.gsc.phone_reg.RegSmsCodeActivity"
+            android:configChanges="keyboardHidden|navigation|orientation|screenSize"
+            android:launchMode="singleTask"
+            android:theme="@style/gsc_style_customDialog" >
+        </activity>
+        <activity
+            android:name="com.gsc.minor_anti_pay.MinorAntiPayActivity"
+            android:configChanges="keyboardHidden|navigation|orientation|screenSize"
+            android:launchMode="singleTask"
+            android:theme="@style/gsc_style_customDialog" >
+        </activity>
+        <activity
+            android:name="com.gsc.pre_web.PreWebActivity"
+            android:configChanges="keyboardHidden|navigation|orientation|screenSize"
+            android:launchMode="singleTask"
+            android:theme="@style/gsc_style_customDialog" />
+        <activity
+            android:name="com.gsc.three_no_account.ThreeNoSelectActivity"
+            android:configChanges="keyboardHidden|navigation|orientation|screenSize"
+            android:launchMode="singleTask"
+            android:theme="@style/gsc_style_customDialog" >
+        </activity>
+        <activity
+            android:name="com.gsc.three_no_account.ThreeNoPhoneActivity"
+            android:configChanges="keyboardHidden|navigation|orientation|screenSize"
+            android:launchMode="singleTask"
+            android:theme="@style/gsc_style_customDialog" >
+        </activity>
+        <activity
+            android:name="com.gsc.three_no_account.ThreeNoSuccessActivity"
+            android:configChanges="keyboardHidden|navigation|orientation|screenSize"
+            android:launchMode="singleTask"
+            android:theme="@style/gsc_style_customDialog" >
+        </activity>
+        <activity
+            android:name="com.gsc.three_no_account.apple.AppleThreeNoBindActivity"
+            android:configChanges="keyboardHidden|navigation|orientation|screenSize"
+            android:launchMode="singleTask"
+            android:theme="@style/gsc_style_customDialog" >
+        </activity>
+        <activity
+            android:name="com.gsc.three_no_account.apple.AppleThreeNoSMSCodeActivity"
+            android:configChanges="keyboardHidden|navigation|orientation|screenSize"
+            android:launchMode="singleTask"
+            android:theme="@style/gsc_style_customDialog" >
+        </activity>
+        <activity
+            android:name="com.gsc.three_no_account.apple.AppleThreeNoSuccessActivity"
+            android:configChanges="keyboardHidden|navigation|orientation|screenSize"
+            android:launchMode="singleTask"
+            android:theme="@style/gsc_style_customDialog" >
+        </activity>
+        <activity
+            android:name="com.gsc.auto_login.AutoLoginActivity"
+            android:configChanges="keyboardHidden|navigation|orientation|screenSize"
+            android:launchMode="singleTask"
+            android:theme="@style/gsc_style_customDialog" >
+        </activity>
+        <activity
+            android:name="com.gsc.real.RealNameAuthenticationActivity"
+            android:configChanges="keyboardHidden|navigation|orientation|screenSize"
+            android:launchMode="singleTask"
+            android:theme="@style/gsc_style_customDialog" >
+        </activity>
+        <activity
+            android:name="com.gsc.real.RealNameAuthSuccessActivity"
+            android:configChanges="keyboardHidden|navigation|orientation|screenSize"
+            android:launchMode="singleTask"
+            android:theme="@style/gsc_style_customDialog" >
+        </activity>
+        <activity
+            android:name="com.gsc.yyx_cashier.YyxCashierH5Activity"
+            android:configChanges="keyboardHidden|navigation|orientation|screenSize"
+            android:launchMode="singleTask"
+            android:screenOrientation="portrait"
+            android:theme="@style/gsc_customPaymentTheme" />
+
+        <service
+            android:name="com.gsc.base.service.CaptureService"
+            android:foregroundServiceType="mediaProjection" />
+
+        <activity
+            android:name="com.gsc.floatball.authorization.FriendsAuthorizationActivity"
+            android:theme="@style/gsc_style_customDialog" />
+        <activity
+            android:name="com.gsc.pwd_modify.ModifyPwdSelectActivity"
+            android:configChanges="keyboardHidden|navigation|orientation|screenSize"
+            android:launchMode="singleTask"
+            android:theme="@style/gsc_style_customDialog" >
+        </activity>
+        <activity
+            android:name="com.gsc.pwd_modify.ModifyPwdPhoneActivity"
+            android:configChanges="keyboardHidden|navigation|orientation|screenSize"
+            android:launchMode="singleTask"
+            android:theme="@style/gsc_style_customDialog" >
+        </activity>
+        <activity
+            android:name="com.gsc.pwd_modify.ModifyPwdEmailActivity"
+            android:configChanges="keyboardHidden|navigation|orientation|screenSize"
+            android:launchMode="singleTask"
+            android:theme="@style/gsc_style_customDialog" >
+        </activity>
+        <activity
+            android:name="com.gsc.pwd_modify.ModifyPwdActivity"
+            android:configChanges="keyboardHidden|navigation|orientation|screenSize"
+            android:launchMode="singleTask"
+            android:theme="@style/gsc_style_customDialog" >
+        </activity>
+        <activity
+            android:name="com.gsc.cashier_h5.CashierH5Activity"
+            android:configChanges="keyboardHidden|navigation|orientation|screenSize"
+            android:launchMode="singleTask"
+            android:screenOrientation="portrait"
+            android:theme="@style/gsc_customPaymentTheme" />
+        <activity
+            android:name="com.gsc.paid.PaidActivity"
+            android:configChanges="keyboardHidden|navigation|orientation|screenSize"
+            android:launchMode="singleTask"
+            android:theme="@style/gsc_style_customDialog" >
+        </activity>
+        <activity
+            android:name="com.gsc.pwd_forgot.ForgotPwdSmsCodeActivity"
+            android:configChanges="keyboardHidden|navigation|orientation|screenSize"
+            android:launchMode="singleTask"
+            android:theme="@style/gsc_style_customDialog" >
+        </activity>
+        <activity
+            android:name="com.gsc.pwd_forgot.ForgotPwdSelectActivity"
+            android:configChanges="keyboardHidden|navigation|orientation|screenSize"
+            android:launchMode="singleTask"
+            android:theme="@style/gsc_style_customDialog" >
+        </activity>
+        <activity
+            android:name="com.gsc.pwd_forgot.ForgotPwdPhoneActivity"
+            android:configChanges="keyboardHidden|navigation|orientation|screenSize"
+            android:launchMode="singleTask"
+            android:theme="@style/gsc_style_customDialog" >
+        </activity>
+        <activity
+            android:name="com.gsc.pwd_forgot.ForgotPwdEmailActivity"
+            android:configChanges="keyboardHidden|navigation|orientation|screenSize"
+            android:launchMode="singleTask"
+            android:theme="@style/gsc_style_customDialog" >
+        </activity>
+        <activity
+            android:name="com.gsc.pwd_forgot.ForgotPwdResetActivity"
+            android:configChanges="keyboardHidden|navigation|orientation|screenSize"
+            android:launchMode="singleTask"
+            android:theme="@style/gsc_style_customDialog" >
+        </activity>
+        <activity
+            android:name="com.gsc.pwd_forgot.ForgotPwdResetResultActivity"
+            android:configChanges="keyboardHidden|navigation|orientation|screenSize"
+            android:launchMode="singleTask"
+            android:theme="@style/gsc_style_customDialog" >
+        </activity>
+        <activity
+            android:name="com.gsc.pwd_forgot.dt.ForgotPwdSelectDTActivity"
+            android:configChanges="keyboardHidden|navigation|orientation|screenSize"
+            android:launchMode="singleTask"
+            android:theme="@style/gsc_style_customDialog" >
+        </activity>
+        <activity
+            android:name="com.gsc.announcement.AnnouncementActivity"
+            android:configChanges="keyboardHidden|navigation|orientation|screenSize"
+            android:launchMode="singleTask"
+            android:theme="@style/gsc_style_customDialog" />
+        <activity
+            android:name="com.gsc.yyx.YyxLoginActivity"
+            android:configChanges="keyboardHidden|navigation|orientation|screenSize"
+            android:launchMode="singleTask"
+            android:theme="@style/gsc_style_customDialog" >
+        </activity>
+        <activity
+            android:name="com.gsc.account_login.AccountLoginActivity"
+            android:configChanges="keyboardHidden|navigation|orientation|screenSize"
+            android:launchMode="singleTask"
+            android:theme="@style/gsc_style_customDialog" >
+        </activity>
+        <activity
+            android:name="com.gsc.activate.ActivateActivity"
+            android:configChanges="keyboardHidden|navigation|orientation|screenSize"
+            android:launchMode="singleTask"
+            android:theme="@style/gsc_style_customDialog" >
+        </activity>
+        <activity
+            android:name="com.gsc.real_modify.RealNameAuthInvalidActivity"
+            android:configChanges="keyboardHidden|navigation|orientation|screenSize"
+            android:launchMode="singleTask"
+            android:theme="@style/gsc_style_customDialog" >
+        </activity>
+        <activity
+            android:name="com.gsc.real_modify.RealNameAuthMinorActivity"
+            android:configChanges="keyboardHidden|navigation|orientation|screenSize"
+            android:launchMode="singleTask"
+            android:theme="@style/gsc_style_customDialog" >
+        </activity>
+        <activity
+            android:name="com.gsc.real_modify.RealNameAuthActivity"
+            android:configChanges="keyboardHidden|navigation|orientation|screenSize"
+            android:launchMode="singleTask"
+            android:theme="@style/gsc_style_customDialog" >
+        </activity>
+        <activity
+            android:name="com.gsc.real_modify.RealNameSuccessActivity"
+            android:configChanges="keyboardHidden|navigation|orientation|screenSize"
+            android:launchMode="singleTask"
+            android:theme="@style/gsc_style_customDialog" >
+        </activity>
+        <activity
+            android:name="com.gsc.account_unregister.AccountUnregisterEmptyActivity"
+            android:configChanges="keyboardHidden|navigation|orientation|screenSize"
+            android:theme="@style/gsc_style_customDialog" />
+        <activity
+            android:name="com.gsc.account_unregister.AccountUnregisterWaitingPeriodActivity"
+            android:configChanges="keyboardHidden|navigation|orientation|screenSize"
+            android:theme="@style/gsc_style_customDialog" />
+        <activity
+            android:name="com.gsc.web.CommonWebActivity"
+            android:configChanges="keyboardHidden|navigation|orientation|screenSize"
+            android:launchMode="singleTask"
+            android:theme="@style/gsc_style_customDialog" >
+        </activity>
+        <activity
+            android:name="com.gsc.apple.AppleBindActivity"
+            android:configChanges="keyboardHidden|navigation|orientation|screenSize"
+            android:launchMode="singleTask"
+            android:theme="@style/gsc_style_customDialog" >
+        </activity>
+        <activity
+            android:name="com.gsc.apple.AppleSMSCodeActivity"
+            android:configChanges="keyboardHidden|navigation|orientation|screenSize"
+            android:launchMode="singleTask"
+            android:theme="@style/gsc_style_customDialog" >
+        </activity>
+        <activity
+            android:name="com.gsc.apple.AppleBindSuccessActivity"
+            android:configChanges="keyboardHidden|navigation|orientation|screenSize"
+            android:launchMode="singleTask"
+            android:theme="@style/gsc_style_customDialog" >
+        </activity>
+        <activity
+            android:name="com.gsc.apple.AppleLoginActivity"
+            android:configChanges="keyboardHidden|navigation|orientation|screenSize"
+            android:launchMode="singleTask"
+            android:theme="@style/gsc_style_customDialog" >
+        </activity>
+        <activity
+            android:name="com.gsc.apple.AppleLoginWebActivity"
+            android:configChanges="keyboardHidden|navigation|orientation|screenSize"
+            android:launchMode="singleTask"
+            android:theme="@style/gsc_style_customDialog" >
+        </activity>
+        <activity
+            android:name="com.gsc.webcontainer.WebContainerActivity"
+            android:configChanges="smallestScreenSize|keyboardHidden|navigation|orientation|screenSize"
+            android:theme="@android:style/Theme.Translucent.NoTitleBar.Fullscreen"
+            android:windowSoftInputMode="adjustResize" />
+        <activity
+            android:name="com.gsc.limit_pay.LimitPayActivity"
+            android:configChanges="keyboardHidden|navigation|orientation|screenSize"
+            android:launchMode="singleTask"
+            android:theme="@style/gsc_style_customDialog" >
+        </activity>
+        <activity
+            android:name="com.gsc.phone_login.PhoneLoginActivity"
+            android:configChanges="keyboardHidden|navigation|orientation|screenSize"
+            android:launchMode="singleTask"
+            android:theme="@style/gsc_style_customDialog" >
+        </activity>
+        <activity
+            android:name="com.gsc.phone_login.SmsCodeActivity"
+            android:configChanges="keyboardHidden|navigation|orientation|screenSize"
+            android:launchMode="singleTask"
+            android:theme="@style/gsc_style_customDialog" >
+        </activity>
+        <activity
+            android:name="com.gsc.oauth_login.OAuthLoginActivity"
+            android:configChanges="keyboardHidden|navigation|orientation|screenSize"
+            android:launchMode="singleTask"
+            android:theme="@style/gsc_style_customDialog" >
+        </activity>
+        <activity
+            android:name="com.base.bgcplugin.delegate.StubActivity"
+            android:exported="false"
+            android:launchMode="standard" /> <!-- Stub Activities -->
+        <activity
+            android:name="com.base.bgcplugin.framework.A$1"
+            android:exported="false"
+            android:launchMode="standard" />
+        <activity
+            android:name="com.base.bgcplugin.framework.A$2"
+            android:exported="false"
+            android:launchMode="standard"
+            android:theme="@android:style/Theme.Translucent" /> <!-- Stub Activities -->
+        <activity
+            android:name="com.base.bgcplugin.framework.B$1"
+            android:exported="false"
+            android:launchMode="singleTop" />
+        <activity
+            android:name="com.base.bgcplugin.framework.B$2"
+            android:exported="false"
+            android:launchMode="singleTop" />
+        <activity
+            android:name="com.base.bgcplugin.framework.B$3"
+            android:exported="false"
+            android:launchMode="singleTop" />
+        <activity
+            android:name="com.base.bgcplugin.framework.B$4"
+            android:exported="false"
+            android:launchMode="singleTop" />
+        <activity
+            android:name="com.base.bgcplugin.framework.B$5"
+            android:exported="false"
+            android:launchMode="singleTop" />
+        <activity
+            android:name="com.base.bgcplugin.framework.B$6"
+            android:exported="false"
+            android:launchMode="singleTop" />
+        <activity
+            android:name="com.base.bgcplugin.framework.B$7"
+            android:exported="false"
+            android:launchMode="singleTop" />
+        <activity
+            android:name="com.base.bgcplugin.framework.B$8"
+            android:exported="false"
+            android:launchMode="singleTop" />
+        <activity
+            android:name="com.base.bgcplugin.framework.BT$1"
+            android:exported="false"
+            android:launchMode="singleTop"
+            android:theme="@android:style/Theme.Translucent" />
+        <activity
+            android:name="com.base.bgcplugin.framework.BT$2"
+            android:exported="false"
+            android:launchMode="singleTop"
+            android:theme="@android:style/Theme.Translucent" />
+        <activity
+            android:name="com.base.bgcplugin.framework.BT$3"
+            android:exported="false"
+            android:launchMode="singleTop"
+            android:theme="@android:style/Theme.Translucent" />
+        <activity
+            android:name="com.base.bgcplugin.framework.BT$4"
+            android:exported="false"
+            android:launchMode="singleTop"
+            android:theme="@android:style/Theme.Translucent" />
+        <activity
+            android:name="com.base.bgcplugin.framework.BT$5"
+            android:exported="false"
+            android:launchMode="singleTop"
+            android:theme="@android:style/Theme.Translucent" />
+        <activity
+            android:name="com.base.bgcplugin.framework.BT$6"
+            android:exported="false"
+            android:launchMode="singleTop"
+            android:theme="@android:style/Theme.Translucent" />
+        <activity
+            android:name="com.base.bgcplugin.framework.BT$7"
+            android:exported="false"
+            android:launchMode="singleTop"
+            android:theme="@android:style/Theme.Translucent" />
+        <activity
+            android:name="com.base.bgcplugin.framework.BT$8"
+            android:exported="false"
+            android:launchMode="singleTop"
+            android:theme="@android:style/Theme.Translucent" /> <!-- Stub Activities -->
+        <activity
+            android:name="com.base.bgcplugin.framework.C$1"
+            android:exported="false"
+            android:launchMode="singleTask" />
+        <activity
+            android:name="com.base.bgcplugin.framework.C$2"
+            android:exported="false"
+            android:launchMode="singleTask" />
+        <activity
+            android:name="com.base.bgcplugin.framework.C$3"
+            android:exported="false"
+            android:launchMode="singleTask" />
+        <activity
+            android:name="com.base.bgcplugin.framework.C$4"
+            android:exported="false"
+            android:launchMode="singleTask" />
+        <activity
+            android:name="com.base.bgcplugin.framework.C$5"
+            android:exported="false"
+            android:launchMode="singleTask" />
+        <activity
+            android:name="com.base.bgcplugin.framework.C$6"
+            android:exported="false"
+            android:launchMode="singleTask" />
+        <activity
+            android:name="com.base.bgcplugin.framework.C$7"
+            android:exported="false"
+            android:launchMode="singleTask" />
+        <activity
+            android:name="com.base.bgcplugin.framework.C$8"
+            android:exported="false"
+            android:launchMode="singleTask" />
+        <activity
+            android:name="com.base.bgcplugin.framework.CT$1"
+            android:exported="false"
+            android:launchMode="singleTask"
+            android:theme="@android:style/Theme.Translucent" />
+        <activity
+            android:name="com.base.bgcplugin.framework.CT$2"
+            android:exported="false"
+            android:launchMode="singleTask"
+            android:theme="@android:style/Theme.Translucent" />
+        <activity
+            android:name="com.base.bgcplugin.framework.CT$3"
+            android:exported="false"
+            android:launchMode="singleTask"
+            android:theme="@android:style/Theme.Translucent" />
+        <activity
+            android:name="com.base.bgcplugin.framework.CT$4"
+            android:exported="false"
+            android:launchMode="singleTask"
+            android:theme="@android:style/Theme.Translucent" />
+        <activity
+            android:name="com.base.bgcplugin.framework.CT$5"
+            android:exported="false"
+            android:launchMode="singleTask"
+            android:theme="@android:style/Theme.Translucent" />
+        <activity
+            android:name="com.base.bgcplugin.framework.CT$6"
+            android:exported="false"
+            android:launchMode="singleTask"
+            android:theme="@android:style/Theme.Translucent" />
+        <activity
+            android:name="com.base.bgcplugin.framework.CT$7"
+            android:exported="false"
+            android:launchMode="singleTask"
+            android:theme="@android:style/Theme.Translucent" />
+        <activity
+            android:name="com.base.bgcplugin.framework.CT$8"
+            android:exported="false"
+            android:launchMode="singleTask"
+            android:theme="@android:style/Theme.Translucent" /> <!-- Stub Activities -->
+        <activity
+            android:name="com.base.bgcplugin.framework.D$1"
+            android:exported="false"
+            android:launchMode="singleInstance" />
+        <activity
+            android:name="com.base.bgcplugin.framework.D$2"
+            android:exported="false"
+            android:launchMode="singleInstance" />
+        <activity
+            android:name="com.base.bgcplugin.framework.D$3"
+            android:exported="false"
+            android:launchMode="singleInstance" />
+        <activity
+            android:name="com.base.bgcplugin.framework.D$4"
+            android:exported="false"
+            android:launchMode="singleInstance" />
+        <activity
+            android:name="com.base.bgcplugin.framework.D$5"
+            android:exported="false"
+            android:launchMode="singleInstance" />
+        <activity
+            android:name="com.base.bgcplugin.framework.D$6"
+            android:exported="false"
+            android:launchMode="singleInstance" />
+        <activity
+            android:name="com.base.bgcplugin.framework.D$7"
+            android:exported="false"
+            android:launchMode="singleInstance" />
+        <activity
+            android:name="com.base.bgcplugin.framework.D$8"
+            android:exported="false"
+            android:launchMode="singleInstance" />
+        <activity
+            android:name="com.base.bgcplugin.framework.DT$1"
+            android:exported="false"
+            android:launchMode="singleInstance"
+            android:theme="@android:style/Theme.Translucent" />
+        <activity
+            android:name="com.base.bgcplugin.framework.DT$2"
+            android:exported="false"
+            android:launchMode="singleInstance"
+            android:theme="@android:style/Theme.Translucent" />
+        <activity
+            android:name="com.base.bgcplugin.framework.DT$3"
+            android:exported="false"
+            android:launchMode="singleInstance"
+            android:theme="@android:style/Theme.Translucent" />
+        <activity
+            android:name="com.base.bgcplugin.framework.DT$4"
+            android:exported="false"
+            android:launchMode="singleInstance"
+            android:theme="@android:style/Theme.Translucent" />
+        <activity
+            android:name="com.base.bgcplugin.framework.DT$5"
+            android:exported="false"
+            android:launchMode="singleInstance"
+            android:theme="@android:style/Theme.Translucent" />
+        <activity
+            android:name="com.base.bgcplugin.framework.DT$6"
+            android:exported="false"
+            android:launchMode="singleInstance"
+            android:theme="@android:style/Theme.Translucent" />
+        <activity
+            android:name="com.base.bgcplugin.framework.DT$7"
+            android:exported="false"
+            android:launchMode="singleInstance"
+            android:theme="@android:style/Theme.Translucent" />
+        <activity
+            android:name="com.base.bgcplugin.framework.DT$8"
+            android:exported="false"
+            android:launchMode="singleInstance"
+            android:theme="@android:style/Theme.Translucent" /> <!-- Local Service running in main process -->
+        <service
+            android:name="com.base.bgcplugin.delegate.StubService"
+            android:exported="false" />
+        <service
+            android:name="com.base.bgcplugin.delegate.StubForegroundService"
+            android:exported="false"
+            android:foregroundServiceType="mediaProjection" /> <!-- Daemon Service running in child process -->
+        <!-- <service android:exported="false" android:name="com.base.bgcplugin.delegate.RemoteService" android:process=":daemon"> -->
+        <!-- <intent-filter> -->
+        <!-- <action android:name="${applicationId}.intent.ACTION_DAEMON_SERVICE" /> -->
+        <!-- </intent-filter> -->
+        <!-- </service> -->
+        <provider
+            android:name="com.base.bgcplugin.delegate.LocalContentProvider"
+            android:authorities="com.weile.jxmj.bgc.local.Provider"
+            android:exported="false" />
+
+        <activity
+            android:name="com.gsc.wiki_game.WikiGameTipActivity"
+            android:configChanges="keyboardHidden|navigation|orientation|screenSize"
+            android:launchMode="singleTask"
+            android:theme="@style/gsc_style_customDialog" >
+        </activity>
+        <activity
+            android:name="com.gsc.captcha.CaptchaActivity"
+            android:configChanges="keyboardHidden|navigation|orientation|screenSize"
+            android:launchMode="singleTask"
+            android:theme="@style/gsc_style_customDialog" >
+        </activity>
+        <activity
+            android:name="com.gsc.captcha.ImageCaptchaActivity"
+            android:configChanges="keyboardHidden|navigation|orientation|screenSize"
+            android:launchMode="singleTask"
+            android:theme="@style/gsc_style_customDialog" >
+        </activity>
+        <activity
+            android:name="com.base.gsc_agreement_library.AgreementWebActivity"
+            android:configChanges="keyboardHidden|navigation|orientation|screenSize"
+            android:launchMode="singleTask"
+            android:theme="@style/gsc_style_customDialog" />
+        <activity
+            android:name="com.gsc.realname_web.RealNameWebActivity"
+            android:configChanges="keyboardHidden|navigation|orientation|screenSize"
+            android:launchMode="singleTask"
+            android:theme="@style/gsc_style_customDialog" />
+        <activity
+            android:name="com.bsgamesdk.android.activity.PrePayActivity"
+            android:configChanges="keyboardHidden|navigation|orientation|screenSize"
+            android:launchMode="singleTop"
+            android:theme="@style/bsgamesdk_customDialog" >
+        </activity>
+        <activity
+            android:name="com.bsgamesdk.android.activity.PaymentActivity"
+            android:configChanges="keyboardHidden|navigation|orientation|screenSize"
+            android:launchMode="singleTop"
+            android:screenOrientation="portrait"
+            android:theme="@style/bsgamesdk_customPaymentTranslucentTheme" >
+        </activity>
+        <activity
+            android:name="com.bsgamesdk.android.activity.BSGameSdkAgreementActivity"
+            android:configChanges="keyboardHidden|navigation|orientation|screenSize"
+            android:launchMode="singleTop"
+            android:theme="@android:style/Theme.NoTitleBar.Fullscreen" >
+        </activity>
+        <activity
+            android:name="com.bsgamesdk.android.activity.Login_RegActivity"
+            android:configChanges="keyboardHidden|navigation|orientation|screenSize"
+            android:launchMode="singleTop"
+            android:theme="@style/bsgamesdk_customDialog" >
+        </activity>
+        <activity
+            android:name="com.bsgamesdk.android.activity.LoadingActivity"
+            android:configChanges="keyboardHidden|navigation|orientation|screenSize"
+            android:launchMode="singleTop"
+            android:theme="@style/bsgamesdk_customDialog" >
+        </activity>
+        <activity
+            android:name="com.bsgamesdk.android.activity.TouristActivity"
+            android:configChanges="keyboardHidden|navigation|orientation|screenSize"
+            android:launchMode="singleTop"
+            android:theme="@style/bsgamesdk_customDialog" >
+        </activity>
+        <activity
+            android:name="com.bsgamesdk.android.activity.WelcomeActivity"
+            android:configChanges="keyboardHidden|navigation|orientation|screenSize"
+            android:launchMode="singleTop"
+            android:theme="@style/bsgemsdk_activity_welcome_style" >
+        </activity>
+        <activity
+            android:name="com.bsgamesdk.android.activity.NoticeActivity"
+            android:configChanges="keyboardHidden|navigation|orientation|screenSize"
+            android:launchMode="singleTop"
+            android:theme="@style/bsgamesdk_customDialog" >
+        </activity>
+        <activity
+            android:name="com.bsgamesdk.android.activity.PointActivity"
+            android:configChanges="keyboardHidden|navigation|orientation|screenSize"
+            android:launchMode="singleTop"
+            android:theme="@style/bsgamesdk_customDialog" >
+        </activity>
+        <activity
+            android:name="com.bsgamesdk.android.activity.ExitActivity"
+            android:configChanges="keyboardHidden|navigation|orientation|screenSize"
+            android:launchMode="singleTop"
+            android:theme="@style/bsgamesdk_customDialog" >
+        </activity>
+        <activity
+            android:name="com.bsgamesdk.android.activity.RegisterActivity"
+            android:configChanges="keyboardHidden|navigation|orientation|screenSize"
+            android:launchMode="singleTop"
+            android:theme="@style/bsgamesdk_customDialog" >
+        </activity>
+        <activity
+            android:name="com.bsgamesdk.android.activity.LicenseAgreementActivity"
+            android:configChanges="keyboardHidden|navigation|orientation|screenSize"
+            android:launchMode="singleTop"
+            android:theme="@style/bsgamesdk_customDialog" >
+        </activity>
+        <activity
+            android:name="com.bsgamesdk.android.activity.CaptchaWebActivity"
+            android:configChanges="keyboardHidden|navigation|orientation|screenSize"
+            android:launchMode="singleTop"
+            android:theme="@style/bsgamesdk_customDialog" >
+        </activity>
+        <activity
+            android:name="com.bsgamesdk.android.activity.WebActivity"
+            android:configChanges="keyboardHidden|navigation|orientation|screenSize"
+            android:launchMode="singleTop"
+            android:theme="@style/bsgamesdk_customDialog" >
+        </activity>
+        <activity
+            android:name="com.bsgamesdk.android.activity.BSGameAppleLoginActivity"
+            android:configChanges="keyboardHidden|navigation|orientation|screenSize"
+            android:launchMode="singleTop"
+            android:theme="@android:style/Theme.NoTitleBar.Fullscreen" >
+        </activity>
+        <activity
+            android:name="com.bsgamesdk.android.activity.RealNameWebActivity"
+            android:configChanges="keyboardHidden|navigation|orientation|screenSize"
+            android:launchMode="singleTop"
+            android:theme="@style/bsgamesdk_customDialog" >
+        </activity>
+        <activity
+            android:name="com.bsgamesdk.android.activity.PreWebActivity"
+            android:configChanges="keyboardHidden|navigation|orientation|screenSize"
+            android:launchMode="singleTop"
+            android:theme="@style/bsgamesdk_customDialog" >
+        </activity> <!-- paypal  start -->
+        <activity android:name="com.paypal.android.sdk.payments.PaymentActivity" />
+        <activity android:name="com.paypal.android.sdk.payments.PaymentMethodActivity" />
+        <activity android:name="com.paypal.android.sdk.payments.PaymentConfirmActivity" />
+        <activity android:name="com.paypal.android.sdk.payments.LoginActivity" />
+        <activity android:name="com.paypal.android.sdk.payments.PayPalFuturePaymentActivity" />
+        <activity android:name="com.paypal.android.sdk.payments.FuturePaymentConsentActivity" />
+        <activity android:name="com.paypal.android.sdk.payments.FuturePaymentInfoActivity" />
+        <activity android:name="com.paypal.android.sdk.payments.PayPalProfileSharingActivity" />
+        <activity android:name="com.paypal.android.sdk.payments.ProfileSharingConsentActivity" />
+
+        <service
+            android:name="com.paypal.android.sdk.payments.PayPalService"
+            android:exported="false" /> <!-- paypal  end -->
+        <activity
+            android:name="com.bsgamesdk.android.dc.activity.BSGameAntiIndulegnceActivity"
+            android:configChanges="keyboardHidden|navigation|orientation|screenSize"
+            android:launchMode="singleTask"
+            android:theme="@style/bsgamesdk_dc_customDialog" >
+        </activity> <!-- data-collect start -->
+        <service
+            android:name="com.bsgamesdk.android.dc.service.DcUpService"
+            android:enabled="true"
+            android:exported="false" >
+        </service>
+
+        <activity
+            android:name="com.gsc.tourist.TouristAccountUpgradeActivity"
+            android:configChanges="keyboardHidden|navigation|orientation|screenSize"
+            android:launchMode="singleTask"
+            android:theme="@style/gsc_style_customDialog" >
+        </activity>
+        <activity
+            android:name="com.gsc.tourist.TouristAccountBindActivity"
+            android:configChanges="keyboardHidden|navigation|orientation|screenSize"
+            android:launchMode="singleTask"
+            android:theme="@style/gsc_style_customDialog" >
+        </activity>
+        <activity
+            android:name="com.gsc.tourist.TouristAccountBindSuccessActivity"
+            android:configChanges="keyboardHidden|navigation|orientation|screenSize"
+            android:launchMode="singleTask"
+            android:theme="@style/gsc_style_customDialog" >
+        </activity>
+        <activity
+            android:name="com.gsc.welcome.WelcomeActivity"
+            android:configChanges="keyboardHidden|navigation|orientation|screenSize"
+            android:launchMode="singleTask"
+            android:theme="@style/gsc_style_welcome" >
+        </activity>
+        <activity
+            android:name="com.gsc.account_protect.AccountProtectActivity"
+            android:configChanges="keyboardHidden|navigation|orientation|screenSize"
+            android:launchMode="singleTask"
+            android:theme="@style/gsc_style_customDialog" >
+        </activity>
+        <activity
+            android:name="com.gsc.login_record.LoginRecordActivity"
+            android:configChanges="keyboardHidden|navigation|orientation|screenSize"
+            android:launchMode="singleTask"
+            android:theme="@style/gsc_style_customDialog" >
+        </activity>
+
+        <meta-data
+            android:name="android.support.VERSION"
+            android:value="26.0.0-SNAPSHOT" />
+
+        <activity
+            android:name="com.bun.miitmdid.utilsforrequestpermission.PermissionTransparentActivity"
+            android:theme="@android:style/Theme.Translucent.NoTitleBar" />
+
+        <meta-data
+            android:name="com.huawei.hms.client.service.name:ads-identifier"
+            android:value="ads-identifier:3.4.62.300" />
+        <meta-data
+            android:name="RX_PLUGIN_WECHAT"
+            android:value="com.ruixue.wechat.WXSdkWrapper" />
+
+        <activity
+            android:name="com.alipay.sdk.app.H5PayActivity"
+            android:configChanges="orientation|keyboardHidden|navigation|screenSize|locale|keyboard|screenLayout|density|fontScale|layoutDirection|smallestScreenSize"
+            android:exported="false"
+            android:theme="@android:style/Theme.NoTitleBar" >
+        </activity>
+        <activity
+            android:name="com.alipay.sdk.app.H5AuthActivity"
+            android:configChanges="orientation|keyboardHidden|navigation|screenSize|locale|keyboard|screenLayout|density|fontScale|layoutDirection|smallestScreenSize"
+            android:exported="false"
+            android:theme="@android:style/Theme.NoTitleBar" >
+        </activity>
+        <activity
+            android:name="com.alipay.sdk.app.PayResultActivity"
+            android:configChanges="orientation|keyboardHidden|navigation|screenSize|locale|keyboard|screenLayout|density|fontScale|layoutDirection|smallestScreenSize"
+            android:exported="true"
+            android:launchMode="singleInstance"
+            android:theme="@android:style/Theme.Translucent.NoTitleBar" >
+        </activity>
+        <activity
+            android:name="com.alipay.sdk.app.AlipayResultActivity"
+            android:configChanges="orientation|keyboardHidden|navigation|screenSize|locale|keyboard|screenLayout|density|fontScale|layoutDirection|smallestScreenSize"
+            android:exported="true"
+            android:launchMode="singleTask"
+            android:theme="@android:style/Theme.Translucent.NoTitleBar" >
+        </activity>
+        <activity
+            android:name="com.alipay.sdk.app.H5OpenAuthActivity"
+            android:configChanges="orientation|keyboardHidden|navigation|screenSize|locale|keyboard|screenLayout|density|fontScale|layoutDirection|smallestScreenSize"
+            android:exported="false"
+            android:screenOrientation="behind"
+            android:windowSoftInputMode="adjustResize|stateHidden" >
+        </activity>
+        <activity
+            android:name="com.alipay.sdk.app.APayEntranceActivity"
+            android:configChanges="orientation|keyboardHidden|navigation|screenSize|locale|keyboard|screenLayout|density|fontScale|layoutDirection|smallestScreenSize"
+            android:exported="false"
+            android:theme="@android:style/Theme.Translucent.NoTitleBar" >
+        </activity> <!-- 表示当前项目已经适配了分区存储特性 -->
+        <meta-data
+            android:name="ScopedStorage"
+            android:value="true" />
+
+        <activity
+            android:name="com.ruixue.callback.RXEntryActivity"
+            android:enabled="true"
+            android:exported="true"
+            android:launchMode="singleTask"
+            android:theme="@android:style/Theme.Translucent.NoTitleBar" />
+
+        <provider
+            android:name="com.ruixue.internal.RXFileProvider"
+            android:authorities="com.weile.jxmj.rxfileprovider"
+            android:exported="false"
+            android:grantUriPermissions="true" >
+            <meta-data
+                android:name="android.support.FILE_PROVIDER_PATHS"
+                android:resource="@xml/rx_file_provider_paths" />
+        </provider>
+
+        <activity
+            android:name="com.journeyapps.barcodescanner.CaptureActivity"
+            android:clearTaskOnLaunch="true"
+            android:screenOrientation="sensorLandscape"
+            android:stateNotNeeded="true"
+            android:theme="@style/zxing_CaptureTheme"
+            android:windowSoftInputMode="stateAlwaysHidden" />
+
+        <provider
+            android:name="androidx.startup.InitializationProvider"
+            android:authorities="com.weile.jxmj.androidx-startup"
+            android:exported="false" >
+            <meta-data
+                android:name="androidx.emoji2.text.EmojiCompatInitializer"
+                android:value="androidx.startup" />
+            <meta-data
+                android:name="androidx.lifecycle.ProcessLifecycleInitializer"
+                android:value="androidx.startup" />
+            <meta-data
+                android:name="androidx.profileinstaller.ProfileInstallerInitializer"
+                android:value="androidx.startup" />
+        </provider>
+
+        <uses-library
+            android:name="androidx.window.extensions"
+            android:required="false" />
+        <uses-library
+            android:name="androidx.window.sidecar"
+            android:required="false" />
+
+        <receiver
+            android:name="androidx.profileinstaller.ProfileInstallReceiver"
+            android:directBootAware="false"
+            android:enabled="true"
+            android:exported="true"
+            android:permission="android.permission.DUMP" >
+            <intent-filter>
+                <action android:name="androidx.profileinstaller.action.INSTALL_PROFILE" />
+            </intent-filter>
+            <intent-filter>
+                <action android:name="androidx.profileinstaller.action.SKIP_FILE" />
+            </intent-filter>
+            <intent-filter>
+                <action android:name="androidx.profileinstaller.action.SAVE_PROFILE" />
+            </intent-filter>
+            <intent-filter>
+                <action android:name="androidx.profileinstaller.action.BENCHMARK_OPERATION" />
+            </intent-filter>
+        </receiver>
+
+        <provider
+            android:name="com.qq.gdt.action.GDTInitProvider"
+            android:authorities="com.weile.jxmj.GDTInitProvider"
+            android:exported="false" >
+        </provider>
+    </application>
+
+</manifest>

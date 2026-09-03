@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="utf-8"?><!-- RXSDK Demo 主界面布局 -->
+<!-- 顺序: 初始化 → UI → 登录·账号 → 大数据 → 支付 → 测试 → 渠道 → 调试 -->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/rx_bg"
+    android:orientation="vertical">
+
+    <!-- ==================== 顶部状态栏 ==================== -->
+    <com.ruixue.demo.widget.MiniStatusBar
+        android:id="@+id/status_bar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
+
+    <!-- ==================== 主内容区域 ==================== -->
+    <ScrollView
+        android:id="@+id/scroll_view"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:fillViewport="true">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:paddingHorizontal="4dp"
+            android:paddingVertical="4dp">
+
+            <!-- 1. ⚡ 初始化 -->
+            <include layout="@layout/card_init" />
+            <!-- 2. 🖥️ UI 组件 -->
+            <include layout="@layout/card_ui" />
+            <!-- 3. 🔐 登录 · 账号（含登录/用户信息/账号管理） -->
+            <include layout="@layout/card_login_user" />
+            <!-- 4. 📊 大数据·归因 -->
+            <include layout="@layout/card_bigdata" />
+            <!-- 5. 💰 支付 -->
+            <include layout="@layout/card_pay" />
+            <!-- 6. 🧪 测试入口 -->
+            <include layout="@layout/card_test_entry" />
+            <!-- 7. 🌏 渠道·海外 -->
+            <include layout="@layout/card_channel" />
+            <!-- 8. 🔧 其他·调试（含版本/法务/公告/快捷测试/反馈·客服 API） -->
+            <include layout="@layout/card_debug" />
+
+        </LinearLayout>
+    </ScrollView>
+
+    <!-- ==================== 吸底日志区域 ==================== -->
+    <com.ruixue.demo.widget.ResizableLogPanel
+        android:id="@+id/log_panel"
+        android:layout_width="match_parent"
+        android:layout_height="160dp" />
+
+</LinearLayout>
