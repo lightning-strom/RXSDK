@@ -1,0 +1,67 @@
+﻿#include "pch-c.h"
+#ifndef _MSC_VER
+# include <alloca.h>
+#else
+# include <malloc.h>
+#endif
+
+
+#include "codegen/il2cpp-codegen-metadata.h"
+
+
+
+
+
+extern void RXPay_Pay_mC0FA253BB772B9ACC6BDF1934428A7E1FE310A0D (void);
+extern void RXPay_IOS_GetProductInfos_m83F9E71796C1B531574B980ABCE48E1B4E6CA7EC (void);
+extern void RXPay__cctor_mBE4446CBCE411F371B06E05559D0022411042C82 (void);
+extern void RXPayIOS_Pay_m3B187E3ED251A0C7274E2546D16D839419A21556 (void);
+extern void RXPayIOS_GetProductInfos_mF26B850AA864D81F3B923F3E9AF57AC5A8549B2D (void);
+extern void RXPayIOS_ios_iap_requestWithDict_m77FB3EBF7E2F7500857C4E22AAF61AAE8FCD7271 (void);
+extern void RXPayIOS_ios_getProductInfoWithProductIdArr_m7DBC9BDE0DE1F5DA676397F0C4DC380304ECF6AB (void);
+extern void RXPayIOS__ctor_mC876E92BAA63456067B1C3EBD79F6A810C4F2EA6 (void);
+static Il2CppMethodPointer s_methodPointers[9] = 
+{
+	RXPay_Pay_mC0FA253BB772B9ACC6BDF1934428A7E1FE310A0D,
+	RXPay_IOS_GetProductInfos_m83F9E71796C1B531574B980ABCE48E1B4E6CA7EC,
+	RXPay__cctor_mBE4446CBCE411F371B06E05559D0022411042C82,
+	RXPayIOS_Pay_m3B187E3ED251A0C7274E2546D16D839419A21556,
+	RXPayIOS_GetProductInfos_mF26B850AA864D81F3B923F3E9AF57AC5A8549B2D,
+	RXPayIOS_ios_iap_requestWithDict_m77FB3EBF7E2F7500857C4E22AAF61AAE8FCD7271,
+	RXPayIOS_ios_getProductInfoWithProductIdArr_m7DBC9BDE0DE1F5DA676397F0C4DC380304ECF6AB,
+	RXPayIOS__ctor_mC876E92BAA63456067B1C3EBD79F6A810C4F2EA6,
+	NULL,
+};
+static const int32_t s_InvokerIndices[9] = 
+{
+	7275,
+	7275,
+	8594,
+	1453,
+	1453,
+	7275,
+	7275,
+	5899,
+	0,
+};
+IL2CPP_EXTERN_C const Il2CppCodeGenModule g_RuiXue_Pay_CodeGenModule;
+const Il2CppCodeGenModule g_RuiXue_Pay_CodeGenModule = 
+{
+	"RuiXue.Pay.dll",
+	9,
+	s_methodPointers,
+	0,
+	NULL,
+	s_InvokerIndices,
+	0,
+	NULL,
+	0,
+	NULL,
+	0,
+	NULL,
+	NULL,
+	NULL,
+	NULL,
+	NULL,
+	NULL,
+};
