@@ -1,0 +1,219 @@
+# 时间戳上报功能说明
+
+## 功能概述
+
+该功能用于收集上报数据并延迟批量上报，通过压缩减少网络传输体积。
+
+## 核心设计
+
+### 存储结构
+
+- **时间戳 key 列表**：`rx_track_collect_keys` - 存储所有时间戳 key 的数组
+- **数据存储**：`rx_track_collect_{timestamp}` - 每个时间戳对应的数据数组
+- **锁标志**：`rx_track_collect_lock` - 当前正在上报的时间戳 key（单个）
+
+### 限制参数
+
+| 参数 | 值 | 说明 |
+|------|-----|------|
+| `MAX_ITEMS_PER_KEY` | 100 | 每个时间戳最多存储 100 条数据 |
+| `MAX_KEYS` | 5 | 最多存储 5 个时间戳（严格控制） |
+| `MAX_REPORT_KEYS_PER_ROUND` | 5 | 每轮上报最多 5 个时间戳 |
+| `MIN_FLUSH_INTERVAL` | 100ms | 最小上报间隔 |
+| `DEFAULT_FLUSH_INTERVAL` | 60000ms | 默认上报间隔（1分钟） |
+| `DEFAULT_MAX_CACHE_COUNT` | 100 | 默认缓存数据上限 |
+| `MIN_MAX_CACHE_COUNT` | 100 | 最小缓存数据上限 |
+| `MAX_MAX_CACHE_COUNT` | 1000 | 最大缓存数据上限 |
+| `REPORT_FAIL_COOLDOWN` | 10000ms | 上报失败冷却时间（10秒） |
+
+### 安全机制
+
+1. **异常保护**：所有函数内部都有 try-catch，不会抛出未捕获的错误
+2. **数据验证**：存储前验证数据有效性，确保是数组类型
+3. **上报失败冷却**：失败后 10 秒内不会再次触发立即上报，防止频繁重试
+4. **成功后重置冷却**：上报成功后会重置冷却时间
+5. **锁机制**：防止并发上报，失败时自动解锁
+6. **定时器保护**：定时器回调内部有 try-catch，不会因单次错误导致定时器停止
+7. **压缩失败处理**：压缩失败时跳过上报，不会导致程序崩溃
+
+## 参数说明
+
+### flushInterval（上报间隔）
+
+- **单位**：秒
+- **默认值**：60 秒
+- **最小值**：1 秒（内部转换后最小 100ms）
+- **类型**：正整数，非整数会四舍五入
+- **无效值**：忽略，使用默认值
+
+### maxCacheCount（缓存数据上限）
+
+- **单位**：条
+- **默认值**：100 条
+- **范围**：100 - 1000
+- **类型**：正整数，非整数会四舍五入
+- **触发机制**：缓存总量达到上限时立即上报
+- **无效值**：忽略，使用默认值
+
+## 代码位置
+
+### 主要文件
+
+- `src/utils/utils.ts` - 核心逻辑实现
+- `src/api/api.ts` - `trackCompressedApi` 压缩上报接口
+- `src/api/request.ts` - 支持自定义 header 的请求处理
+- `src/index.wegame.ts` - 初始化时启动定时器
+
+### 关键函数
+
+```typescript
+// 存储数据
+saveTrackDataToStorage(data: any): void
+
+// 压缩/解压数据
+compressData(data: any): string
+decompressData(compressed: string): any
+
+// 锁定/解锁时间戳
+lockTrackKey(key: string): void
+unlockTrackKey(): void
+
+// 删除已上报数据
+removeTrackData(key: string): void
+
+// 获取缓存数据总量
+getTotalCacheCount(): number
+
+// 更新配置
+updateMaxCacheCount(maxCount: number): void
+updateTrackReportInterval(interval: number): void
+
+// 检查/触发立即上报
+shouldTriggerImmediateReport(): boolean
+triggerImmediateReport(): Promise<void>
+
+// 执行分批上报
+reportTrackDataOnce(trackApiFunc): Promise<void>
+
+// 定时器控制
+startTrackReportTimer(trackApiFunc, interval?): void
+stopTrackReportTimer(): void
+
+// 重置冷却时间
+resetReportCooldown(): void
+```
+
+## 数据流程
+
+### 1. 数据写入流程
+
+```
+dataTrack(params)
+  ↓
+处理 flushInterval 参数（秒→毫秒）
+  ↓
+处理 maxCacheCount 参数（100-1000）
+  ↓
+saveTrackDataToStorage(data)
+  ↓
+判断是否需要新建时间戳：
+  - 当前key不存在
+  - 当前key已满100条
+  - 当前key被锁定
+  ↓
+写入数据
+  ↓
+shouldTriggerImmediateReport() 检查：
+  - 正在上报中？→ 不触发
+  - 在冷却期内？→ 不触发
+  - 缓存总量 >= maxCacheCount？→ 触发
+  ↓
+如果触发，执行 triggerImmediateReport()
+```
+
+### 2. 定时上报流程（默认每 1 分钟）
+
+```
+定时器触发
+  ↓
+检查是否正在立即上报
+  ↓
+reportTrackDataOnce()
+  ↓
+检查是否有锁定的key
+  ↓
+取前5个时间戳逐个上报
+  ↓
+锁定 → 压缩 → API调用 → 成功删除并解锁
+  ↓
+成功：重置冷却时间
+失败：记录失败时间，进入冷却期
+```
+
+### 3. 立即上报流程
+
+```
+triggerImmediateReport()
+  ↓
+暂停定时器
+  ↓
+执行 reportTrackDataOnce()
+  ↓
+重启定时器（重置计时）
+```
+
+## 请求格式
+
+### 请求头
+
+```
+content-encoding: lz
+```
+
+### 请求体
+
+压缩后的 base64 字符串（使用 lz-string 库）
+
+## 服务端解压（Go）
+
+```go
+import (
+    "encoding/json"
+    lzstring "github.com/daku10/go-lz-string"
+)
+
+func DecompressTrackData(compressed string) ([]map[string]interface{}, error) {
+    decompressed, err := lzstring.DecompressFromBase64(compressed)
+    if err != nil {
+        return nil, err
+    }
+
+    var data []map[string]interface{}
+    json.Unmarshal([]byte(decompressed), &data)
+
+    return data, nil
+}
+```
+
+## 调用示例
+
+```typescript
+// 使用默认配置（间隔60秒，缓存上限100条）
+sdk.dataTrack({
+  event: 'user_action',
+  properties: { action: 'click' }
+})
+
+// 自定义配置
+sdk.dataTrack({
+  event: 'user_action',
+  flushInterval: 10,      // 10秒上报一次
+  maxCacheCount: 200,     // 缓存达到200条时立即上报
+  properties: { action: 'click' }
+})
+```
+
+## 依赖库
+
+- `lz-string` - 数据压缩库（前端）
+- `github.com/daku10/go-lz-string` - 数据解压库（Go 服务端）

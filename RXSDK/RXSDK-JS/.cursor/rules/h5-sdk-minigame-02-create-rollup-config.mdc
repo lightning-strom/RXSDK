@@ -1,0 +1,71 @@
+# 创建 H5 SDK 小游戏 - 步骤 2: 创建 Rollup 构建配置文件
+
+## 文件位置
+
+创建文件: `build/rollup.config.{channel_name}_h5.ts`
+
+## 核心要求
+
+1. **type 变量**: `const type = 'h5_{channel_name}'`，必须与 SDK 文件名中的类型一致
+2. **环境变量**: 设置 `process.env.TYPE = type`
+3. **使用 mergeConfig**: 调用 `mergeConfig` 函数合并配置
+4. **类型定义生成**: 调用 `generateTypesDefinitions(type)` 生成类型定义
+
+## 必需配置
+
+### 开发环境配置
+
+- **开发服务器**: 使用 `rollup-plugin-serve`，端口 2000（可调整避免冲突）
+- **环境变量替换**: 使用 `rollup-plugin-replace` 替换 `process.env.NODE_ENV` 和 `process.env.VUE_ENV`
+- **HTML 文件复制**: 使用 `rollup-plugin-copy-merge` 复制并转换 HTML 文件，将 `__TYPE__` 替换为实际类型名
+
+### 生产环境配置
+
+- **类型定义复制**: 复制 `src/types/h5/interface.d.ts` 到 `dist/{type}/channelSDK/interface.d.ts`
+- **清理输出目录**: 使用 `rollup-plugin-clear` 清理输出目录
+
+## 输入文件配置
+
+```typescript
+input: isProd ? `src/index.${type}.ts` : `src/demo/${type}/index.ts`
+```
+
+- 生产环境: 使用主 SDK 文件
+- 开发环境: 使用 Demo 文件
+
+## 必需导入
+
+```typescript
+import copy from 'rollup-plugin-copy-merge'
+import dts from 'rollup-plugin-dts'
+import server from 'rollup-plugin-serve'
+import clear from 'rollup-plugin-clear'
+import replace from 'rollup-plugin-replace'
+import { mergeConfig } from './common.config.ts'
+import { buildOutput, distTypes } from './path.ts'
+import { resolve } from 'path'
+```
+
+## generateTypesDefinitions 函数
+
+必须实现类型定义生成函数:
+
+- 输入: `${distTypes}/index.${type}.d.ts`
+- 输出: `dist/{type}/channelSDK/index.d.ts`
+- 格式: ESM 格式
+
+## 检查点
+
+- [ ] type 变量与 SDK 文件名匹配（格式: `h5_{channel_name}`）
+- [ ] 端口号不与其他配置冲突（建议 2000-2999 范围）
+- [ ] Demo 文件路径正确: `src/demo/${type}/index.ts`
+- [ ] HTML 文件路径正确: `src/demo/${type}/index.html`
+- [ ] 类型定义文件路径正确
+
+## 参考示例
+
+参考现有实现:
+
+- `build/rollup.config.haluo_h5.ts`
+- `build/rollup.config.qiqi_h5.ts`
+- `build/rollup.config.xunlei_h5.ts`

@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html lang="en-us">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <link rel="stylesheet" href="TemplateData/style.css">
+    <style>
+      #unity-container {
+        width: 100%;
+        height: 100%;
+      }
+
+
+      body, html {
+        margin: 0;
+        padding: 0;
+        height: 100%;
+        overflow: hidden;
+        background-color: black !important; /* 添加!important确保优先级 */
+      }
+      #unity-canvas {
+        background-color: black;
+      }
+      #unity-container {
+        background-color: black;
+      }
+
+      /* Loading overlay */
+      #loading-overlay {
+        position: fixed;
+        bottom: 0; left: 0; width: 100%; height: 100%;
+        background: #000 url('TemplateData/90ece91480c1a825c7e51139a74a5bba.jpg') center center / cover no-repeat;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        z-index: 9999;
+        transition: opacity 0.4s ease;
+      }
+      #loading-overlay.fade-out {
+        opacity: 0;
+        pointer-events: none;
+      }
+      #loading-text {
+        color: #ccc;
+        font-family: Arial, sans-serif;
+        font-size: 14px;
+        margin-bottom: 16px;
+      }
+      #loading-bar-bg {
+        width: 240px;
+        height: 8px;
+        background: #333;
+        border-radius: 4px;
+        overflow: hidden;
+      }
+      #loading-bar-fill {
+        width: 0%;
+        height: 100%;
+        background: linear-gradient(90deg, #4fc3f7, #0288d1);
+        border-radius: 4px;
+        transition: width 0.15s ease;
+      }
+      #loading-percent {
+        color: #888;
+        font-family: Arial, sans-serif;
+        font-size: 12px;
+        margin-top: 8px;
+      }
+      .loading-content {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        position: absolute;
+        bottom: 25%;
+        left: 50%;
+        transform: translateX(-50%);
+        z-index: 10000;  /* 确保在背景之上 */
+      }
+
+    </style>
+      <script src="44618169448840e5d696c6ad8a7acb23.js"></script>
+      <script src="5246d4d487eef2c34b0878173f7a1ffe.js"></script>
+      <script src="CallRXVNGJS.js"></script>
+      <script src="c3fe4e3f3fe2b75877614b66a1eddd46.js"></script>
+
+  </head>
+  <body>
+    <div id="unity-container" class="unity-desktop">
+      <canvas id="unity-canvas" width=960 height=540 tabindex="-1"></canvas>
+        <div id='sdk-container'></div>
+      <div id="unity-bg"></div>
+      <div id="loading-overlay">
+        <div class="loading-content">  <!-- 新增包装器 -->
+          <div id="loading-text">Đang tải xuống...</div>
+          <div id="loading-bar-bg">
+            <div id="loading-bar-fill"></div>
+          </div>
+          <div id="loading-percent">0%</div>
+        </div>
+      </div>
+      <div id="unity-warning"> </div>
+      <div id="unity-footer">
+        <div id="unity-webgl-logo"></div>
+        <div id="unity-fullscreen-button"></div>
+        <div id="unity-build-title">qpby</div>
+      </div>
+    </div>
+    <script>
+
+(function() {
+  window.parent.SendPoint(200);
+
+  var rawAddEventListener = EventTarget.prototype.addEventListener;
+  var lastTouchStartTime = 0;
+  var isTouchActive = false;
+  var throttleDelay = 100;
+
+  EventTarget.prototype.addEventListener = function(type, listener, options) {
+    if (this == window) {
+      return rawAddEventListener.call(this, type, listener, options);
+    }
+
+    if (type !== 'touchstart' && type !== 'touchend') {
+      return rawAddEventListener.call(this, type, listener, options);
+    }
+
+    var self = this;
+
+    var wrapped = function(event) {
+      var now = Date.now();
+
+      if (type === 'touchstart') {
+        // 如果已经有活跃的触摸或者时间间隔太短，跳过
+        if (isTouchActive || (now - lastTouchStartTime < throttleDelay)) {
+          return;
+        }
+
+        isTouchActive = true;
+        lastTouchStartTime = now;
+      }
+      else if (type === 'touchend') {
+        // 如果没有活跃的触摸，跳过
+        if (!isTouchActive) {
+          return;
+        }
+
+        isTouchActive = false;
+      }
+
+      // requestAnimationFrame(function() {
+      //   listener.call(self, event);
+      // });
+      listener.call(self, event);
+    };
+
+    listener.__wrappedListener__ = wrapped;
+    return rawAddEventListener.call(this, type, wrapped, options);
+  };
+
+  var rawRemoveEventListener = EventTarget.prototype.removeEventListener;
+  EventTarget.prototype.removeEventListener = function(type, listener, options) {
+    if (type === 'touchend') {
+      isTouchActive = false;
+    }
+
+    var wrapped = listener.__wrappedListener__ || listener;
+    return rawRemoveEventListener.call(this, type, wrapped, options);
+  };
+})();
+      var container = document.querySelector("#unity-container");
+      var canvas = document.querySelector("#unity-canvas");
+      var fullscreenButton = document.querySelector("#unity-fullscreen-button");
+      var warningBanner = document.querySelector("#unity-warning");
+      var unityBg = document.querySelector("#unity-bg");
+
+      // Shows a temporary message banner/ribbon for a few seconds, or
+      // a permanent error message on top of the canvas if type=='error'.
+      // If type=='warning', a yellow highlight color is used.
+      // Modify or remove this function to customize the visually presented
+      // way that non-critical warnings and error messages are presented to the
+      // user.
+      function unityShowBanner(msg, type) {
+        function updateBannerVisibility() {
+          warningBanner.style.display = warningBanner.children.length ? 'block' : 'none';
+        }
+        var div = document.createElement('div');
+        div.innerHTML = msg;
+        warningBanner.appendChild(div);
+        if (type == 'error') div.style = 'background: red; padding: 10px;';
+        else {
+          if (type == 'warning') div.style = 'background: yellow; padding: 10px;';
+          setTimeout(function() {
+            warningBanner.removeChild(div);
+            updateBannerVisibility();
+          }, 5000);
+        }
+        updateBannerVisibility();
+      }
+
+      var buildUrl = "Build";
+      var loaderUrl = buildUrl + "/7b236e996596ac2d7a8db4113bc0b468.loader.js";
+      var config = {
+        dataUrl: buildUrl + "/bf79d87fa9307ccbb59b668030e9821f.data.unityweb",
+        frameworkUrl: buildUrl + "/37c344a29c2b885d5f227b9e2747dac8.framework.js.unityweb",
+        codeUrl: buildUrl + "/bb43b301fc81e035bb4f189372c08edd.wasm.unityweb",
+        symbolsUrl: buildUrl + "/664e9397cb348555e32d038eddd79ec8.symbols.json.unityweb",
+        streamingAssetsUrl: "StreamingAssets",
+        companyName: "weile",
+        productName: "qpby",
+        productVersion: "1.1.6",
+        showBanner: unityShowBanner,
+      };
+
+      // By default, Unity keeps WebGL canvas render target size matched with
+      // the DOM size of the canvas element (scaled by window.devicePixelRatio)
+      // Set this to false if you want to decouple this synchronization from
+      // happening inside the engine, and you would instead like to size up
+      // the canvas DOM size and WebGL render target sizes yourself.
+      // config.matchWebGLToCanvasSize = false;
+
+      // 添加响应式调整画布大小的函数
+      function resizeUnityCanvas() {
+        var containerWidth = window.innerWidth;
+        var containerHeight = window.innerHeight;
+
+        canvas.style.width = window.innerWidth + "px";
+        canvas.style.height = window.innerHeight + "px";
+      }
+
+
+      if (/iPhone|iPad|iPod|Android|Mobile/i.test(navigator.userAgent)) {
+        // Mobile device style: fill the whole browser client area with the game canvas:
+
+        var meta = document.createElement('meta');
+        meta.name = 'viewport';
+        meta.content = 'width=device-width, height=device-height, initial-scale=1.0, user-scalable=no, shrink-to-fit=yes';
+        document.getElementsByTagName('head')[0].appendChild(meta);
+        container.className = "unity-mobile";
+        canvas.className = "unity-mobile";
+
+        // To lower canvas resolution on mobile devices to gain some
+        // performance, uncomment the following line:
+        // config.devicePixelRatio = 1;
+
+
+      } else {
+        // Desktop style: Render the game canvas in a window that can be maximized to fullscreen:
+        resizeUnityCanvas();
+        // 添加窗口大小变化事件监听器
+        window.addEventListener('resize', resizeUnityCanvas);
+      }
+
+
+      var unityInstance = null;
+
+      var script = document.createElement("script");
+      script.src = loaderUrl;
+      script.onload = () => {
+        window.parent.SendPoint(300);
+        createUnityInstance(canvas, config, (progress) => {
+                var pct = Math.floor(progress * 100);
+                var fill = document.getElementById('loading-bar-fill');
+                var percentText = document.getElementById('loading-percent');
+                var loadingText = document.getElementById('loading-text');
+                if (fill) fill.style.width = pct + '%';
+                if (percentText) percentText.textContent = pct + '%';
+                if (loadingText) {
+                  if (progress < 0.5) loadingText.textContent = 'Đang tải xuống tài nguyên...';
+                  else if (progress < 0.9) loadingText.textContent = 'Động cơ tải...';
+                  else loadingText.textContent = 'Đang khởi tạo...';
+                }
+            }).then((instance) => {
+                window.parent.SendPoint(400);
+                unityInstance = instance; // 赋值为全局变量
+                callRXJSOnMounted(unityInstance);
+                unityInstance.SendMessage('GameApp', 'GetWebUUID', window.parent.deviceId);
+                var overlay = document.getElementById('loading-overlay');
+                if (overlay) {
+                  overlay.classList.add('fade-out');
+                  setTimeout(function() { overlay.remove(); }, 500);
+                }
+                unityBg.style.display = "none";
+                fullscreenButton.onclick = () => {
+                  unityInstance.SetFullscreen(1);
+                };
+              }).catch((message) => {
+                alert(message);
+              });
+            };
+
+      document.body.appendChild(script);
+
+      // 监听页面可见性变化，通知 Unity
+      document.addEventListener('visibilitychange', function() {
+        if (unityInstance && unityInstance.SendMessage) {
+          if (document.hidden) {
+            unityInstance.SendMessage('GameApp', 'PauseAllAudio');
+          } else {
+            unityInstance.SendMessage('GameApp', 'ResumeAllAudio');
+          }
+        }
+      });
+
+    </script>
+  </body>
+</html>

@@ -1,0 +1,93 @@
+# 创建 H5 SDK 小游戏 - 步骤 3: 创建 Demo 测试文件
+
+## 目录结构
+
+创建目录: `src/demo/h5_{channel_name}/`
+
+需要创建的文件:
+
+1. `index.ts` - Demo 入口文件
+2. `web.ts` - Vue 组件和逻辑
+3. `index.html` - HTML 模板
+
+## 1. index.ts 文件
+
+```typescript
+import Web from './web'
+Web()
+```
+
+## 2. web.ts 文件要求
+
+### 必需导入
+
+- `Vue from 'vue/dist/vue.esm.browser'`
+- `SdkH5 from '@/index.h5_{channel_name}'`
+- `eruda from 'eruda'` (用于移动端调试)
+
+### Vue 组件要求
+
+- 组件名: `Demo`
+- 必须实现的方法:
+  - `init()`: 初始化 SDK 并登录
+  - `login()`: 登录
+  - `pay()`: 支付
+  - `share()`: 分享
+  - `startRewardVideo()`: 激励广告
+  - `eventReport()`: 事件上报
+  - `getchannelInfo()`: 获取用户来源信息
+  - `getEnv()`: 获取当前环境信息
+
+### init 方法配置
+
+必须配置的参数:
+
+- `productId`: 产品 ID（根据实际情况修改）
+- `channelId`: 渠道 ID，格式为 `minigame_{channel_name}`
+- `cpid`: CP ID（根据实际情况修改）
+- `gameId`: 游戏 ID（根据实际情况修改）
+- `baseUrlList`: API 基础 URL 列表（根据环境修改）
+
+### login 方法配置
+
+- `method`: 登录方法，通常与 channelId 一致
+
+### pay 方法配置
+
+- `pay_type`: 支付类型，通常与 channelId 一致
+- `goods_tag`: 商品标签
+- `trade_no`: 交易号（使用时间戳）
+
+## 3. index.html 文件要求
+
+### 必需元素
+
+- `<div id="app">` 容器
+- `<demo />` 组件
+- 脚本标签: `<script src="./index.__TYPE__.umd.js"></script>`
+
+### 可选元素
+
+- 如果需要预加载第三方 SDK，添加 `<script src="{SDK_SCRIPT_URL}"></script>`
+
+## 替换占位符
+
+- `{channel_name}`: 渠道名称（小写，下划线分隔）
+- `{渠道显示名称}`: 渠道的中文显示名称（用于页面标题）
+
+## 检查点
+
+- [ ] index.ts 文件已创建
+- [ ] web.ts 文件已创建，所有方法已实现
+- [ ] index.html 文件已创建
+- [ ] SDK 导入路径正确: `@/index.h5_{channel_name}`
+- [ ] 初始化参数已根据实际情况修改
+- [ ] 如果需要，已添加第三方 SDK 脚本标签
+
+## 参考示例
+
+参考现有实现:
+
+- `src/demo/h5_haluo/`
+- `src/demo/h5_qiqi/`
+- `src/demo/h5_xunlei/`

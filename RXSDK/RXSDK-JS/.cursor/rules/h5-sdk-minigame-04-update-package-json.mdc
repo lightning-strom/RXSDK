@@ -1,0 +1,83 @@
+# 创建 H5 SDK 小游戏 - 步骤 4: 更新 package.json 构建脚本
+
+## 文件位置
+
+更新文件: `package.json`
+
+## 需要添加的脚本
+
+在 `package.json` 的 `scripts` 部分添加以下两个脚本:
+
+### build 脚本
+
+```json
+"build:{channel_name}_h5": "cross-env NODE_ENV=production rollup -c build/rollup.config.{channel_name}_h5.ts"
+```
+
+### start 脚本
+
+```json
+"start:{channel_name}_h5": "cross-env NODE_ENV=development rollup -c build/rollup.config.{channel_name}_h5.ts -w"
+```
+
+## 脚本说明
+
+### build 脚本
+
+- **用途**: 生产环境构建
+- **命令**: `npm run build:{channel_name}_h5`
+- **功能**:
+  - 使用生产环境配置
+  - 生成压缩后的 UMD 格式文件
+  - 生成类型定义文件
+  - 输出到 `dist/h5_{channel_name}/` 目录
+
+### start 脚本
+
+- **用途**: 开发环境启动
+- **命令**: `npm run start:{channel_name}_h5`
+- **功能**:
+  - 使用开发环境配置
+  - 启动开发服务器（默认端口 2000）
+  - 监听文件变化自动重新构建
+  - 支持热更新
+
+## 批量构建脚本（可选）
+
+如果需要批量构建多个 H5 SDK，可以在 `build:h5_sdk` 脚本中添加:
+
+```json
+"build:h5_sdk": "npm run build:vng_h5 && npm run build:4399_h5 && npm run build:{channel_name}_h5 && ..."
+```
+
+## 检查点
+
+- [ ] build 脚本已添加，格式: `build:{channel_name}_h5`
+- [ ] start 脚本已添加，格式: `start:{channel_name}_h5`
+- [ ] rollup 配置文件路径正确: `build/rollup.config.{channel_name}_h5.ts`
+- [ ] 如果需要在批量构建中包含，已添加到 `build:h5_sdk`
+
+## 使用示例
+
+### 开发环境
+
+```bash
+npm run start:{channel_name}_h5
+```
+
+访问 `http://127.0.0.1:2000/h5_{channel_name}/` 查看 Demo
+
+### 生产环境
+
+```bash
+npm run build:{channel_name}_h5
+```
+
+构建完成后，文件输出到 `dist/h5_{channel_name}/` 目录
+
+## 注意事项
+
+1. 脚本名称中的 `{channel_name}` 必须与 rollup 配置文件名中的一致
+2. 确保 rollup 配置文件路径正确
+3. 如果端口冲突，需要在 rollup 配置文件中修改端口号
+4. 开发环境启动后，修改源代码会自动重新构建

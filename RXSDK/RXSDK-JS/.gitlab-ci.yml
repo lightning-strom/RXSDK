@@ -1,0 +1,83 @@
+stages:
+  - install_deps
+  - build_image
+  - deploy
+
+variables:
+  PREIMAGE_PRO: registry-vpc.cn-beijing.aliyuncs.com/jiaxiang
+  TOKEN_PRO: ff079cca-4de2-444a-a4be-372727d55d5d
+  CLUSTER: faxing
+  NAMESPACE: api
+  APPNAME: res-nginx
+  MODULES:
+    description: '需要打包的模块, 不填为全部(module1,module2)(暂时不可用)'
+    value: ''
+
+cache: &global_cache
+#   key: ${CI_COMMIT_REF_NAME} 加上这个就编译报错
+  paths:
+    - node_modules/
+  policy: pull-push
+
+install_deps_pro:
+  stage: install_deps
+  only:
+    refs:
+      - master
+    variables:
+     - $CI_COMMIT_MESSAGE =~ /deps:/
+  tags:
+    - ecs-runner-pro
+  script:
+    - echo "=========== env pro start install_deps ==========="
+    - pwd
+    - yarn
+
+build_pro:
+  stage: build_image
+  only:
+    refs:
+      - master
+    variables:
+     - $CI_COMMIT_MESSAGE =~ /:rocket:/
+  cache:
+    # inherit all global cache settings
+    <<: *global_cache
+    # override the policy
+    policy: pull
+  tags:
+    - ecs-runner-pro
+  script:
+    - echo "=========== env pro start build package ==========="
+    - date
+    - npx tsc -v
+    - >
+      if [ "$MODULES" == "" ]; then
+        yarn build
+      else
+        yarn build --modules $MODULES
+      fi
+    - ls dist
+    - echo "=========== env pro start build docker image ==========="
+    - echo "${CI_COMMIT_SHA} ${GITLAB_USER_EMAIL}"
+    - date
+    - gitHash=`git rev-parse HEAD | cut -c1-8`
+    - docker build -f nginx/pro/Dockerfile -t ${PREIMAGE_PRO}/${CLUSTER}.$NAMESPACE.${APPNAME}:${gitHash} .
+    - docker push ${PREIMAGE_PRO}/${CLUSTER}.$NAMESPACE.${APPNAME}:${gitHash}
+
+deploy_pro:
+  stage: deploy
+  cache: {}
+  only:
+    refs:
+      - master
+    variables:
+     - $CI_COMMIT_MESSAGE =~ /:rocket:/
+  tags:
+    - ecs-runner-pro
+  script:
+    - echo "=========== env pro start deploy to k8s ==========="
+    - gitHash=`git rev-parse HEAD | cut -c1-8`
+    - echo curl -H "Content-Type:application/json" -H "Authorization:$TOKEN_PRO" -X POST -d "{\"creater\":\"$GITLAB_USER_EMAIL\",\"image\":\"${PREIMAGE_PRO}/${CLUSTER}.${NAMESPACE}.${APPNAME}:${gitHash}\"}" "http://k8sapp.jiaxianghudong.com/task/api/v1/deploy"
+    - status=`curl -H "Content-Type:application/json" -H "Authorization:$TOKEN_PRO" -X POST -d "{\"creater\":\"$GITLAB_USER_EMAIL\",\"image\":\"${PREIMAGE_PRO}/${CLUSTER}.${NAMESPACE}.${APPNAME}:${gitHash}\"}" "http://k8sapp.jiaxianghudong.com/task/api/v1/deploy"`
+    - if [[ `echo $status |awk '{print $2}'` == '2,' ]];then echo '发布成功';else echo $status && exit 1;fi

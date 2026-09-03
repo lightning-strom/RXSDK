@@ -1,0 +1,112 @@
+# 创建 H5 SDK 小游戏 - 快速开始指南
+
+## 创建流程
+
+按照以下步骤顺序执行，每个步骤都有对应的规则文件:
+
+1. **步骤 1**: 创建主 SDK 文件 - 参考 `h5-sdk-minigame-01-create-main-sdk.mdc`
+2. **步骤 2**: 创建 Rollup 配置 - 参考 `h5-sdk-minigame-02-create-rollup-config.mdc`
+3. **步骤 3**: 创建 Demo 文件 - 参考 `h5-sdk-minigame-03-create-demo-files.mdc`
+4. **步骤 4**: 更新 package.json - 参考 `h5-sdk-minigame-04-update-package-json.mdc`
+5. **步骤 5**: 创建类型定义（可选）- 参考 `h5-sdk-minigame-05-create-type-definitions.mdc`
+
+## 命名规范
+
+### SDK 文件
+
+- 格式: `index.h5_{channel_name}.ts`
+- 示例: `index.h5_haluo.ts`, `index.h5_qiqi.ts`
+
+### Rollup 配置
+
+- 格式: `rollup.config.{channel_name}_h5.ts`
+- 示例: `rollup.config.haluo_h5.ts`, `rollup.config.qiqi_h5.ts`
+
+### Demo 目录
+
+- 格式: `h5_{channel_name}`
+- 示例: `h5_haluo`, `h5_qiqi`
+
+### 类名
+
+- 格式: `SdkH5{ChannelName}`
+- 示例: `SdkH5Haluo`, `SdkH5QQ`
+
+### Platform 常量
+
+- 格式: `minigame_{channel_name}` 或根据实际平台命名
+- 示例: `minigame_haluo`, `minigame_77`
+
+## 占位符替换表
+
+创建新 SDK 时，使用以下表格进行替换:
+
+| 占位符             | 说明                         | 示例                                   |
+| ------------------ | ---------------------------- | -------------------------------------- |
+| `{channel_name}`   | 渠道名称（小写，下划线）     | `haluo`, `qiqi`, `xunlei`              |
+| `{ChannelName}`    | 渠道名称（首字母大写，驼峰） | `Haluo`, `Qiqi`, `Xunlei`              |
+| `{PLATFORM}`       | 平台标识                     | `minigame_haluo`, `minigame_77`        |
+| `{SDK_GLOBAL_VAR}` | 第三方 SDK 全局变量          | `ymyReleaseSdk`, `QQSY_SDK`, `XL_GAME` |
+| `{SDK_SCRIPT_URL}` | 第三方 SDK 脚本 URL          | `https://res.jhygame.com/...`          |
+
+## 测试步骤
+
+1. **启动开发服务器**
+
+   ```bash
+   npm run start:{channel_name}_h5
+   ```
+
+2. **访问 Demo 页面**
+
+   - 打开浏览器访问 `http://127.0.0.1:2000/h5_{channel_name}/`
+   - 检查控制台是否有错误
+
+3. **测试功能**
+
+   - 点击"初始化并登录"按钮
+   - 检查登录是否成功
+   - 测试其他功能（支付、分享等）
+
+4. **构建生产版本**
+
+   ```bash
+   npm run build:{channel_name}_h5
+   ```
+
+5. **检查输出**
+   - 检查 `dist/h5_{channel_name}/` 目录
+   - 确认生成了 UMD 文件
+   - 确认生成了类型定义文件（如果配置了）
+
+## 常见问题
+
+### 端口冲突
+
+如果开发服务器端口被占用，修改 `rollup.config.{channel_name}_h5.ts` 中的端口号。
+
+### SDK 加载失败
+
+- 检查第三方 SDK 脚本 URL 是否正确
+- 检查 SDK 全局变量名是否正确
+- 如果在 iframe 中，确保使用了 findSDK 函数
+
+### 类型错误
+
+- 确保所有类型定义已正确导入
+- 检查类型定义文件是否存在
+- 确认类型名称拼写正确
+
+### 构建失败
+
+- 检查所有文件路径是否正确
+- 确认所有依赖已安装
+- 查看 rollup 错误信息
+
+## 参考示例
+
+可以参考以下现有实现:
+
+- 哈啰: `src/index.h5_haluo.ts`, `build/rollup.config.haluo_h5.ts`
+- 七七: `src/index.h5_qiqi.ts`, `build/rollup.config.qiqi_h5.ts`
+- 迅雷: `src/index.h5_xunlei.ts`, `build/rollup.config.xunlei_h5.ts`

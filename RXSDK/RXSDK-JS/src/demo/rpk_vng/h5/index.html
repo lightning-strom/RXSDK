@@ -1,0 +1,305 @@
+<!doctype html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no,minimal-ui">
+		<meta http-equiv="Pragma" content="no-cache">
+		<meta http-equiv="Cache-Control" content="no-cache">
+		<meta http-equiv="Expires" content="0">
+		<meta http-equiv="Access-Control-Allow-Origin" content="*">
+		<meta http-equiv="x-rim-auto-match" content="none">
+		<meta name="format-detection" content="telephone=yes">
+		<meta name="screen-orientation" content="true">
+		<meta name="format-detection" content="telephone=no">
+		<meta name="full-screen" content="yes">
+		<meta name="x5-fullscreen" content="true">
+		<meta name="360-fullscreen" content="true">
+		<meta name="mobile-web-app-capable" content="yes">
+		<meta name="apple-mobile-web-app-capable" content="yes">
+		<meta name="x5-page-mode" content="app">
+		<meta name="browsermode" content="application">
+		<title>Bắn Cá Vui Vẻ</title>
+		<script>
+			(function() {
+				var base = document.createElement("base");
+				var path = window.location.pathname;
+				if (path.slice(-5) === ".html") {
+					path = path.slice(0, path.lastIndexOf("/") + 1);
+				} else if (path.charAt(path.length - 1) !== "/") {
+					path += "/";
+				}
+				base.href = path || "/";
+				document.head.appendChild(base);
+			})();
+		</script>
+		<link rel="icon" type="image/png" href="TemplateData/dbf67a1ef637217f31e38cad50e71ec4.png">
+		<link rel="apple-touch-icon" type="image/png" href="TemplateData/dbf67a1ef637217f31e38cad50e71ec4.png">
+		<link rel="manifest" href="manifest.webmanifest">
+		<meta name="theme-color" content="#000000">
+		<style>
+			html, body, div, span, applet, object, iframe, h1, h2, h3, h4, h5, h6, p, blockquote, pre, a, abbr, acronym, address, big, cite, code, del, dfn, em, img, ins, kbd, q, s, samp, small, strike, strong, sub, sup, tt, var, b, u, i, center, dl, dt, dd, ol, ul, li, fieldset, form, label, legend, table, caption, tbody, tfoot, thead, tr, th, td, article, aside, canvas, details, embed, figure, figcaption, footer, header, hgroup, menu, nav, output, ruby, section, summary, time, mark, audio, video,button{margin:0;padding:0;font-style: normal;}
+			body, html { background: #000 !important; }
+			/*禁止浏览器修改字体大小*/
+			html{font-size: 12px;}
+			html body{
+				-webkit-text-size-adjust: none !important;
+				-moz-text-size-adjust: none !important;
+				-ms-text-size-adjust: none !important;
+				text-size-adjust: none !important;
+			}
+			a{text-decoration: none;}
+			a:hover,a:active,a:visited,a:link,a:focus{
+				-webkit-tap-highlight-color:rgba(0,0,0,0);
+				-webkit-tap-highlight-color: transparent;
+				outline:none;
+			}
+			body,html{height: 100%; overflow:hidden;position: relative;top: 0px;left:0px;}
+			.landscape-screen{
+				transform-origin: top left;
+				transform: rotate(90deg) translateY(-100%)
+			}
+			#Frame {
+				border-style: unset;
+				display: block
+			}
+		</style>
+		<!-- sdk相关配置 -->
+		<script>
+			window.addEventListener('vnggamessdk_ready', () => {
+				window.VNGGamesSDK.init().then((res) =>
+					console.log('SDK init result:', res)
+				)
+			})
+		</script>
+		<script src='https://cdn.choingay.vn/js/vnggamessdk-mini-v3.js'></script> 
+		<script src="b1306420254084fd216bf92051acc7f1.js"></script>
+	</head>
+	<body>
+		<iframe id="Frame" src="608bd1c0ae79280063fcf2b8492d1b42.html"></iframe>
+		<script>
+			var Frame = document.getElementById("Frame");
+			var deferredInstallPrompt = null;
+
+			function isStandaloneMode() {
+				return window.matchMedia("(display-mode: standalone)").matches || window.navigator.standalone === true;
+			}
+
+			function notifyUnityInstallHint(message) {
+				try {
+					if (Frame && Frame.contentWindow && typeof Frame.contentWindow.SendMessage === "function") {
+						Frame.contentWindow.SendMessage("GameApp", "OnInstallHint", message || "");
+						return true;
+					}
+				} catch (error) {
+					console.warn("notify unity install hint failed", error);
+				}
+				return false;
+			}
+
+			function openInstallFlow() {
+				if (deferredInstallPrompt) {
+					deferredInstallPrompt.prompt();
+					deferredInstallPrompt.userChoice.finally(function() {
+						deferredInstallPrompt = null;
+					});
+					return;
+				}
+
+				var isIOS = /iPhone|iPad|iPod/i.test(navigator.userAgent);
+				if (isIOS && !isStandaloneMode()) {
+					notifyUnityInstallHint("Tap browser Share, then choose Add to Home Screen.");
+					return;
+				}
+
+				notifyUnityInstallHint("This browser does not support one-tap install. Use browser menu to add to home screen.");
+			}
+
+			window.H5InstallBridge = {
+				openInstall: openInstallFlow,
+				isStandaloneMode: isStandaloneMode
+			};
+
+			window.addEventListener("beforeinstallprompt", function(event) {
+				event.preventDefault();
+				deferredInstallPrompt = event;
+			});
+
+			window.addEventListener("appinstalled", function() {
+				deferredInstallPrompt = null;
+			});
+
+			if ("serviceWorker" in navigator) {
+				window.addEventListener("load", function() {
+					navigator.serviceWorker.register("sw.js").catch(function(err) {
+						console.warn("service worker register failed", err);
+					});
+				});
+			}
+
+			window.addEventListener("message", function(event) {
+				if (event.origin && event.origin !== window.location.origin) {
+					return;
+				}
+				var payload = event && event.data;
+				var type = (typeof payload === "string") ? payload : (payload && payload.type);
+				if (type === "H5_INSTALL_OPEN") {
+					openInstallFlow();
+				}
+			});
+
+function SetPageTitle(title) {
+    document.title = title;
+}
+
+function isMobile() {
+  return /iPhone|iPad|iPod|Android|Mobile/i.test(navigator.userAgent);
+}
+
+function isFullScreen() {
+  return document.fullscreenElement ||
+         document.webkitFullscreenElement ||
+         document.mozFullScreenElement ||
+         document.msFullscreenElement;
+}
+
+function resizeFrameDesktop() {
+  var ww = window.innerWidth;
+  var wh = window.innerHeight;
+  var w = ww, h = wh;
+  var wr = ww / wh;	  
+  var gr = 960 / 540;
+  
+  if (wr > 2.2 || wr < gr)
+  {
+	  if (wr > gr) {
+	    h = wh;
+	    w = h * gr;
+	  } else {
+	    w = ww;
+	    h = w / gr;
+	  }
+  }
+  
+  Frame.style.position = "absolute";
+  Frame.style.left = 0;
+  Frame.style.right = 0;
+  Frame.style.top = 0;
+  Frame.style.bottom = 0;
+  Frame.style.margin = "auto";
+  Frame.style.width = w + "px";
+  Frame.style.height = h + "px";
+  Frame.style.background = "#000";
+  // 不再设置Frame.width/height属性
+}
+
+function resizeFrameMobile() 
+{
+	var orientation = window.orientation;
+	//开始时调用
+	if(orientation == 180 || orientation == 0 || orientation == -180)
+	{
+		//注意竖屏时要把 iframe的宽设置为当前窗口的高度 高设置为当前窗口的宽度
+		Frame.height = window.innerWidth;
+		Frame.width = window.innerHeight;
+		
+		//通过css样式旋转90度
+		Frame.classList.add("landscape-screen");
+	}
+	else
+	{
+		//横屏时则正常
+		Frame.height = window.innerHeight;
+		Frame.width = window.innerWidth;
+		
+		//通过移除类去掉css样式
+		Frame.classList.remove("landscape-screen");
+	}
+}
+
+if (isMobile()) 
+{
+	resizeFrameMobile();
+	setTimeout(resizeFrameMobile, 200);
+	setTimeout(resizeFrameMobile, 400);
+	setTimeout(resizeFrameMobile, 600);
+			
+	//监听手机旋转事件 根据旋转状态设置旋转的css样式
+	window.onorientationchange = function () {
+		setTimeout(resizeFrameMobile, 200);
+		setTimeout(resizeFrameMobile, 400);
+		setTimeout(resizeFrameMobile, 600);
+    };
+  	document.addEventListener('fullscreenchange', function () {
+		setTimeout(resizeFrameMobile, 200);
+		setTimeout(resizeFrameMobile, 400);
+		setTimeout(resizeFrameMobile, 600);
+    });
+	document.addEventListener('visibilitychange', function() {
+    try {
+      if (Frame && Frame.contentWindow && typeof Frame.contentWindow.SendMessage === 'function') {
+        if (document.hidden) {
+          Frame.contentWindow.SendMessage('GameApp', 'PauseAllAudio');
+        } else {
+          Frame.contentWindow.SendMessage('GameApp', 'ResumeAllAudio');
+        }
+      }
+    } catch (error) {
+      console.warn('无法访问iframe内容，可能存在跨域限制:', error);
+    }
+  });
+}
+else
+{
+	// 桌面端自适应缩放
+	Frame.style.background = "#000";
+	resizeFrameDesktop();
+	window.addEventListener('resize', resizeFrameDesktop);
+	document.addEventListener('fullscreenchange', resizeFrameDesktop);
+}
+		</script>
+		<script>
+
+		// 启动分析开关
+		let startupTrace = true;
+
+$(function() {
+	if(!startupTrace) return;
+
+    console.log("jQuery已就绪"+deviceId);
+	SendPoint(100);
+});
+    
+function SendPoint(point) {
+	if(!startupTrace) return;
+
+	$.ajax({
+		url: 'https://tracking-wlfish.uwa4d.com/stats?'+"id="+deviceId+"&gamestart="+point,
+        type: 'GET',
+        success: function(response) {
+			console.log("success!");
+        },
+        error: function(xhr, status, error) {
+			if(error && error.trim().length > 0) {
+				console.error("An error occurred: " + error);
+			}
+         }
+	});
+};
+
+function generateUUID() {
+  return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+    const r = Math.random() * 16 | 0;
+    const v = c === 'x' ? r : (r & 0x3 | 0x8);
+    return v.toString(16);
+  });
+}
+
+let deviceId = localStorage.getItem('deviceId');
+if (!deviceId) {
+  deviceId = generateUUID();
+  localStorage.setItem('deviceId', deviceId);
+}
+
+		</script>
+	</body>
+</html>

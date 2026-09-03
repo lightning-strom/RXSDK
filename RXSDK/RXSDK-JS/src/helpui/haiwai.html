@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang='en'>
+<head>
+  <meta charset='UTF-8'>
+  <title>Title</title>
+</head>
+<body>
+
+<!--facebook-->
+<script>
+  window.fbAsyncInit = function() {
+    FB.init({
+      appId            : 'your-app-id',
+      xfbml            : true,
+      version          : 'v22.0'
+    });
+  };
+
+  FB.ui({
+    method: 'share',
+    href: 'https://developers.facebook.com/docs/'
+  }, function(response){});
+
+  FB.login(function(response) {
+    if (response.authResponse) {
+      console.log('Welcome!  Fetching your information.... ');
+      FB.api('/me', function(response) {
+        console.log('Good to see you, ' + response.name + '.');
+      });
+    } else {
+      console.log('User cancelled login or did not fully authorize.');
+    }
+  });
+</script>
+<script async defer crossorigin="anonymous" src="https://connect.facebook.net/en_US/sdk.js"></script>
+
+<!--google-->
+<!--加载 Google 平台库-->
+<!--您必须在集成了 Google 登录的网页中添加 Google 平台库。-->
+<script src="https://apis.google.com/js/platform.js" async defer></script>
+
+<!--指定应用的客户端 ID-->
+<!--使用 google-signin-client_id 元元素指定您在 Google Developers Console 中为应用创建的客户端 ID。-->
+<meta name="google-signin-client_id" content="YOUR_CLIENT_ID.apps.googleusercontent.com">
+
+<!--添加 Google 登录按钮-->
+<!--如需向您的网站添加 Google 登录按钮，最简单的方法是使用自动呈现的登录按钮。只需几行代码，您就可以添加一个按钮，该按钮会自动配置自己，以便根据用户的登录状态和您请求的范围显示适当的文本、徽标和颜色。-->
+<!--如需创建使用默认设置的 Google 登录按钮，请将类为 g-signin2 的 div 元素添加到登录页面：-->
+<div class="g-signin2" data-onsuccess="onSignIn"></div>
+
+<!--获取配置文件信息-->
+<!--使用默认范围为用户登录 Google 后，您可以访问用户的 Google ID、姓名、个人资料网址和电子邮件地址。-->
+<!--如需检索用户的个人资料信息，请使用 getBasicProfile() 方法。-->
+<script>
+  function onSignIn(googleUser) {
+    var profile = googleUser.getBasicProfile();
+    console.log('ID: ' + profile.getId()); // Do not send to your backend! Use an ID token instead.
+    console.log('Name: ' + profile.getName());
+    console.log('Image URL: ' + profile.getImageUrl());
+    console.log('Email: ' + profile.getEmail()); // This is null if the 'email' scope is not present.
+    var id_token = googleUser.getAuthResponse().id_token;
+  }
+
+  if (auth2.isSignedIn.get()) {
+    var profile = auth2.currentUser.get().getBasicProfile();
+    console.log('ID: ' + profile.getId());
+    console.log('Full Name: ' + profile.getName());
+    console.log('Given Name: ' + profile.getGivenName());
+    console.log('Family Name: ' + profile.getFamilyName());
+    console.log('Image URL: ' + profile.getImageUrl());
+    console.log('Email: ' + profile.getEmail());
+  }
+</script>
+
+<!--您可以向您的网站添加退出按钮或链接，让用户无需退出 Google 即可退出您的应用。如需创建退出账号链接，请将调用 GoogleAuth.signOut() 方法的函数附加到链接的 onclick 事件。-->
+<a href="#" onclick="signOut();">Sign out</a>
+<script>
+  function signOut() {
+    var auth2 = gapi.auth2.getAuthInstance();
+    auth2.signOut().then(function () {
+      console.log('User signed out.');
+    });
+  }
+</script>
+</body>
+</html>

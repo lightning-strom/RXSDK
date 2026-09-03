@@ -1,0 +1,2 @@
+!function(e,s){"object"==typeof exports&&"undefined"!=typeof module?module.exports=s():"function"==typeof define&&define.amd?define(s):(e="undefined"!=typeof globalThis?globalThis:e||self).channelSDK=s()}(this,(function(){"use strict";return class{constructor(e){if("rx_shareMessageToFriend"===e.event)wx.getFriendCloudStorage({keyList:[],success:e=>{}}),wx.shareMessageToFriend({openId:e.openid,imageUrl:e.imageUrl,title:e.title,success(e){},fail(e){}})}}}));
+//# sourceMappingURL=channel-sdk.open_data.v2.umd.js.map

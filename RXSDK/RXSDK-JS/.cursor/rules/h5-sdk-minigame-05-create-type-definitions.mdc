@@ -1,0 +1,104 @@
+# 创建 H5 SDK 小游戏 - 步骤 5: 创建类型定义文件（可选）
+
+## 说明
+
+如果 SDK 需要特定的类型定义（如登录参数、支付参数等），需要创建或更新类型定义文件。
+
+## 文件位置
+
+类型定义通常位于:
+
+- `src/types/h5sdk.d.ts` - H5 SDK 通用类型定义
+- `src/types/h5/interface.d.ts` - H5 接口类型定义
+- 或在主 SDK 文件中直接定义
+
+## 必需的类型定义
+
+### 1. 登录参数类型
+
+```typescript
+interface H5{ChannelName}LoginParam {
+  method?: string
+  login_openid?: string
+  ext?: {
+    uid?: string
+    token?: string
+    sign?: string
+    [key: string]: any
+  }
+  [key: string]: any
+}
+```
+
+### 2. 支付参数类型
+
+```typescript
+interface H5{ChannelName}PayParam {
+  pay_type: string
+  goods_tag: string
+  trade_no: string
+  currency?: string
+  indulge_auth?: number
+  age?: number
+  is_debug?: number
+  env?: number
+  exchange?: boolean
+  [key: string]: any
+}
+```
+
+### 3. 分享参数类型（如果需要）
+
+```typescript
+interface H5{ChannelName}ShareParam {
+  gameShareUrl: string
+  [key: string]: any
+}
+```
+
+## 参数校验配置
+
+如果需要在 `src/h5/checkConfig.ts` 中添加参数校验:
+
+```typescript
+export const H5{ChannelName}PayCheckParams = {
+  pay_type: {
+    type: 'string',
+    required: true
+  },
+  goods_tag: {
+    type: 'string',
+    required: true
+  },
+  trade_no: {
+    type: 'string',
+    required: true
+  },
+  currency: {
+    type: 'string',
+    required: false
+  }
+  // ... 其他字段
+}
+```
+
+## 检查点
+
+- [ ] 登录参数类型已定义
+- [ ] 支付参数类型已定义
+- [ ] 分享参数类型已定义（如果需要）
+- [ ] 其他特定参数类型已定义
+- [ ] 参数校验规则已添加到 checkConfig（如果需要）
+
+## 注意事项
+
+1. 类型定义应该与实际的第三方 SDK API 保持一致
+2. 如果参数是可选的，使用 `?:` 标记
+3. 如果参数结构复杂，可以定义嵌套接口
+4. 确保类型定义导出，以便在其他文件中使用
+
+## 何时需要创建类型定义
+
+1. **必须创建**: 当 SDK 有特殊的参数结构，与通用 H5 参数不同时
+2. **建议创建**: 当需要严格的类型检查时
+3. **可选创建**: 当参数结构简单，可以直接使用通用类型时

@@ -1,0 +1,96 @@
+# 创建 H5 SDK 小游戏 - 步骤 1: 创建主 SDK 实现文件
+
+## 文件位置
+
+创建文件: `src/index.h5_{channel_name}.ts`
+
+## 核心要求
+
+1. **继承 SdkCommon 类**: 类名格式为 `SdkH5{ChannelName}`，继承自 `SdkCommon`
+2. **定义 PLATFORM 常量**: `const PLATFORM = 'minigame_{channel_name}'`
+3. **声明全局 SDK 变量**: 使用 `declare global { var {SDK_GLOBAL_VAR}: any }`
+4. **构造函数实现**:
+   - 调用 `super(PLATFORM)`
+   - 合并系统信息: `Object.assign(SYSTEM_INFO, SYSTEM_INFO_H5, { ...initParams })`
+   - 检查 SDK 是否已加载，如果未加载则动态加载脚本
+   - 调用 `getInitConfig` 进行初始化
+
+## 必需的方法
+
+### 1. login 方法
+
+- 参数: `params: H5{ChannelName}LoginParam, callback: H5MethodParams`
+- 功能: 处理用户登录，调用第三方 SDK 获取登录信息，然后调用后端 API
+- 关键步骤:
+  - 生成 distinct_id（使用 uuid）
+  - 处理子渠道 ID
+  - 如果提供 login_openid 则使用 token 登录，否则使用凭证登录
+  - 保存登录状态和 token
+
+### 2. pay 方法
+
+- 参数: `params: H5{ChannelName}PayParam, callback: H5MethodParams`
+- 功能: 处理支付，先调用后端 API 创建订单，然后调用第三方 SDK 支付
+- 关键步骤:
+  - 参数校验
+  - 调用 orderApi 创建订单
+  - 调用第三方 SDK 的 pay 方法
+
+### 3. getInitConfig 方法（私有）
+
+- 功能: 获取初始化配置
+- 关键步骤:
+  - 调用 getInitConf API
+  - 处理版本信息
+  - 检查子渠道 ID
+  - 检查是否需要激活
+
+## 必需的属性
+
+- `businessRuleDefaultRefreshTime`: 默认刷新时间（600000 毫秒）
+- `businessRulesInfo`: 商业广告规则信息对象
+- `businessRuleInvoking`: 商业化接口调用状态
+- `businessWindowsQueue`: 商业化窗口队列
+- `trackPublicPropsFailCount`: 上报公共属性失败次数
+- `initConfig`: 初始化配置
+- `scheduleInitMap`: 调度埋点
+- `scheduleReportProps`: 分享数据缓存调度上报参数
+- `subChannelId`: 子渠道 ID
+- `is_promoter`: 是否为推广员
+- `game_id`: 游戏 ID
+- `promoInfo`: 推广员福利码信息
+
+## 导入要求
+
+必须导入以下模块:
+
+- `@/config` 中的 SYSTEM_INFO, USER_INFO
+- `@/h5/config` 中的 SYSTEM_INFO as SYSTEM_INFO_H5
+- `@/h5/utils` 中的工具函数
+- `@/h5/apis` 中的 API 函数
+- `@/h5/checkConfig` 中的参数校验
+- `./h5/SdkCommon` 基类
+
+## 替换占位符
+
+创建时替换以下占位符:
+
+- `{channel_name}`: 渠道名称（小写，下划线分隔，如 `haluo`, `qiqi`）
+- `{ChannelName}`: 渠道名称（首字母大写，驼峰命名，如 `Haluo`, `Qiqi`）
+- `{PLATFORM}`: 平台标识（如 `minigame_haluo`, `minigame_77`）
+- `{SDK_GLOBAL_VAR}`: 第三方 SDK 的全局变量名（如 `ymyReleaseSdk`, `QQSY_SDK`）
+- `{SDK_SCRIPT_URL}`: 第三方 SDK 的脚本 URL（如果需要动态加载）
+
+## 特殊处理
+
+1. **iframe 环境**: 如果 SDK 在 iframe 中，需要创建 findSDK 函数来查找 SDK
+2. **SDK 初始化**: 某些 SDK 需要先初始化，在 constructor 中调用初始化方法
+3. **错误处理**: 所有方法都要使用 handleTrackError 进行错误处理
+
+## 参考示例
+
+参考现有实现:
+
+- `src/index.h5_haluo.ts` - 哈啰 SDK
+- `src/index.h5_qiqi.ts` - 七七 SDK
+- `src/index.h5_xunlei.ts` - 迅雷 SDK
