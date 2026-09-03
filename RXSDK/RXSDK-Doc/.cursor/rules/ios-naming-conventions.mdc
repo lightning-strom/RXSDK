@@ -1,0 +1,156 @@
+---
+alwaysApply: true
+---
+# iOS Objective-C 命名规范
+
+## 保留前缀规则
+
+iOS/Objective-C 中有一些系统保留的方法前缀，**不能**用于属性名或自定义方法名：
+
+### 禁止使用的前缀
+
+| 前缀 | 原因 | 错误示例 | 正确示例 |
+|------|------|----------|----------|
+| `init` | 初始化方法保留前缀 | `initButton` | `mInitButton` |
+| `new` | 工厂方法保留前缀 | `newView` | `mNewView` |
+| `copy` | 内存管理保留前缀 | `copyLabel` | `mCopyLabel` |
+| `mutableCopy` | 内存管理保留前缀 | `mutableCopyArray` | `mMutableCopyArray` |
+| `alloc` | 内存分配保留前缀 | `allocButton` | `mAllocButton` |
+
+### 为什么不能使用这些前缀？
+
+1. **ARC 内存管理**：编译器会根据方法名前缀来决定内存管理策略
+2. **命名约定**：Objective-C 遵循严格的命名约定，`init`/`new`/`copy` 开头的方法被认为会返回一个新的持有对象
+3. **编译器警告/错误**：使用这些前缀作为属性名会导致编译警告或运行时问题
+
+## 推荐的命名方案
+
+### 属性命名
+
+使用 `m` 前缀（member 的缩写）来标识 UI 控件属性：
+
+```objc
+// ✅ 正确
+@property (nonatomic, strong) UIButton *mInitButton;
+@property (nonatomic, strong) UILabel *mTitleLabel;
+@property (nonatomic, strong) UIView *mContainerView;
+
+// ❌ 错误
+@property (nonatomic, strong) UIButton *initButton;
+@property (nonatomic, strong) UIButton *newButton;
+@property (nonatomic, strong) UILabel *copyLabel;
+```
+
+### 方法命名
+
+对应的方法也应使用相同的命名风格：
+
+```objc
+// ✅ 正确
+- (void)mInitButtonTapped;
+- (void)setupMInitButton;
+
+// ❌ 错误  
+- (void)initButtonTapped;  // 可能被误认为初始化方法
+```
+
+## 其他命名约定
+
+### 类名
+- 使用大驼峰命名法（PascalCase）
+- 建议使用项目前缀，如 `RX`
+
+```objc
+// ✅ 正确
+@interface RXLoginViewController : UIViewController
+@interface RXUserModel : NSObject
+```
+
+### 方法名
+- 使用小驼峰命名法（camelCase）
+- 动词开头描述行为
+
+```objc
+// ✅ 正确
+- (void)fetchUserData;
+- (void)handleLoginButtonTapped;
+- (BOOL)validateInput;
+```
+
+### 常量
+- 使用 `k` 前缀 + 大驼峰
+
+```objc
+// ✅ 正确
+static NSString *const kAPIBaseURL = @"https://api.example.com";
+static CGFloat const kDefaultPadding = 16.0;
+```
+
+### 枚举
+- 使用 `NS_ENUM` 或 `NS_OPTIONS`
+- 枚举名使用大驼峰，值使用枚举名作为前缀
+
+```objc
+// ✅ 正确
+typedef NS_ENUM(NSInteger, RXUserStatus) {
+    RXUserStatusOffline,
+    RXUserStatusOnline,
+    RXUserStatusAway
+};
+```
+
+## 新建类文件流程
+
+在 iOS 项目中创建新的 .h/.m 文件后，**必须**将文件添加到 Xcode 项目文件 (`project.pbxproj`) 中，否则文件不会被编译。
+
+### 需要修改的 4 个 section
+
+以 `ServicesViewController` 为例：
+
+#### 1. PBXBuildFile section
+添加 .m 文件的编译引用：
+```
+3D0000001000000000000008 /* ServicesViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 3D000000200000000000000E /* ServicesViewController.m */; };
+```
+
+#### 2. PBXFileReference section
+添加 .h 和 .m 文件引用：
+```
+3D000000200000000000000D /* ServicesViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ServicesViewController.h; sourceTree = "<group>"; };
+3D000000200000000000000E /* ServicesViewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ServicesViewController.m; sourceTree = "<group>"; };
+```
+
+#### 3. PBXGroup section
+将文件添加到对应的 Group（如 RXSDKDemo-iOS）的 children 数组中：
+```
+3D000000200000000000000D /* ServicesViewController.h */,
+3D000000200000000000000E /* ServicesViewController.m */,
+```
+
+#### 4. PBXSourcesBuildPhase section
+将 .m 文件添加到编译源列表的 files 数组中：
+```
+3D0000001000000000000008 /* ServicesViewController.m in Sources */,
+```
+
+### ID 生成规则
+
+- 观察项目中现有的 ID 模式（通常是 24 位十六进制）
+- 按顺序递增生成新的唯一 ID
+- BuildFile ID 和 FileReference ID 使用不同的前缀序列
+
+### 注意事项
+
+- 只有 .m 文件需要添加到 PBXBuildFile 和 PBXSourcesBuildPhase
+- .h 文件只需添加到 PBXFileReference 和 PBXGroup
+- 修改后重新打开 Xcode 项目即可生效
+
+## 总结
+
+| 类型 | 命名规则 | 示例 |
+|------|----------|------|
+| 类名 | 前缀 + 大驼峰 | `RXLoginViewController` |
+| 属性 | 小驼峰，UI控件用 `m` 前缀避开保留词 | `mInitButton`, `userName` |
+| 方法 | 小驼峰，动词开头 | `fetchData`, `handleTap` |
+| 常量 | `k` + 大驼峰 | `kAPIBaseURL` |
+| 枚举 | 枚举名大驼峰，值用枚举名前缀 | `RXUserStatusOnline` |

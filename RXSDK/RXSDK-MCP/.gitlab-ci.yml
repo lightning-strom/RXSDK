@@ -1,0 +1,100 @@
+# 要实现镜像构建, 请在 ruixue/ciconfig 项目中添加如下文件: 项目根目录/build/${CPID}/config.sh
+# 其文件内容为:
+#
+# RegistryHost="registry.cn-beijing.aliyuncs.com"
+# RegistryImageNamespace="haiqiruixue"
+# NotifyURL="http://gw.ruixueyun.com/api/v1/gwadmin/git/save_image"
+#
+# 参数说明:
+#   RegistryHost (必须) 镜像仓库地址, 多数情况下无需配置, 默认值为 registry.cn-beijing.aliyuncs.com
+#   RegistryImageNamespace (必须) 镜像仓库命名空间名称
+#   NotifyURL (必须) 镜像构建完成的通知地址
+
+image: haiqi-registry.cn-beijing.cr.aliyuncs.com/haiqiruixue/gobuilder:latest
+
+variables:
+    CPID:
+        description: "要发布的目标 CPID，只允许指定 1 个 CPID 或者直接使用 all 发布全部。"
+        value: "2000144"
+    CMD:
+        description: "要编译的可执行文件名，即 cmd 下 main.go 所在目录名称（多个名称可使用半角逗号分隔，all 表示发布所有 cmd 下的执行文件）。"
+        value: "mcp"
+    JUMPTEST:
+        description: "是否要跳过代码静态检查和测试 (0|1)。"
+        value: "1"
+    USECGO:
+        description: "是否使用 cgo (0|1)。"
+        value: "0"
+    CMDENV:
+        description: "设置给执行程序的环境变量，可在程序中通过 'GO_CI_ENV' 获取。"
+        value: ""
+    PORTLIST:
+        description: "镜像要开放的端口列表，以半角逗号分隔多项。"
+        value: "8080,8081,8888"
+
+before_script:
+    - _=""
+    - _=""
+    - _="=====> before script..."
+    - _=""
+    - _=""
+    - date '+%Y-%m-%d %H:%M:%S.%N'
+    - if [ $CMD = "all" ]; then VCMD=$(ls cmd | grep -v / | grep '^[^_]' | xargs echo | sed 's/ /,/g'); fi;
+    - VCMD=$(echo $CMD | sed 's/ //g')
+    - git config --global url."https://gitlab-ci-token:${CI_JOB_TOKEN}@git.jiaxianghudong.com/".insteadOf "https://git.jiaxianghudong.com/"
+    - mkdir -p .go && echo "GOPATH => $GOPATH" && echo "Workdir => `pwd`" && ls -al
+    - go env -w GOPROXY=https://goproxy.cn,https://proxy.golang.com.cn,direct
+    - go env -w GONOPROXY=git.jiaxianghudong.com
+    - go env -w GONOSUMDB=git.jiaxianghudong.com
+    - go env -w GO111MODULE=on
+    - if [ "$USECGO" = "1" ]; then go env -w CGO_ENABLED=1; else go env -w CGO_ENABLED=0; fi
+    - go env
+    - go mod download
+
+stages:
+    - build_and_deploy
+
+build_and_deploy:
+    stage: build_and_deploy
+    script:
+        - _=""
+        - _=""
+        - _="==========> code analysis..."
+        - _=""
+        - _=""
+        - _="-----> golangci-lint run <-----"
+        - if [ "$JUMPTEST" != "1" ]; then make lint; fi
+        - _="-----> go test <-----"
+        - if [ "$JUMPTEST" != "1" ]; then make test; fi
+        - _="-----> go test -race -short <-----"
+        - if [ "$JUMPTEST" != "1" ]; then make race; fi
+        - _=""
+        - _=""
+        - _="==========> environment..."
+        - _=""
+        - _=""
+        - date '+%Y-%m-%d %H:%M:%S.%N'
+        - echo $CPID
+        - echo $CMD
+        - echo $JUMPTEST
+        - echo $USECGO
+        - echo $CMDENV
+        - echo $PORTLIST
+        - git branch
+        - _=""
+        - _=""
+        - _="==========> build..."
+        - _=""
+        - _=""
+        - arr=(`echo $CMD | sed 's/,/\n/g'`); for cmd in ${arr[*]}; do make release name=$cmd; done
+        - ls -alh ./*-linux-amd64
+        - _=""
+        - _=""
+        - _="==========> build_image..."
+        - _=""
+        - _=""
+        - arr=(`echo $CMD | sed 's/,/\n/g'`); for cmd in ${arr[*]}; do buildimage ./$cmd-linux-amd64 $CI_PROJECT_ID $CI_COMMIT_REF_NAME $GITLAB_USER_EMAIL "$CPID" "$CMDENV" "$PORTLIST"; done
+    tags:
+        - haiqi
+    rules:
+        - if: '$CI_PIPELINE_SOURCE == "web" || $CI_PIPELINE_SOURCE == "api"'

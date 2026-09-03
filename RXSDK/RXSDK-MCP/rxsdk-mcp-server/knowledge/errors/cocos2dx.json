@@ -1,0 +1,226 @@
+{
+  "platform": "cocos2dx",
+  "version": "v1",
+  "entries": [
+    {
+      "id": "cocos-ui-module-not-available--2",
+      "scenes": [
+        "ui",
+        "init"
+      ],
+      "codes": [
+        "-2"
+      ],
+      "keywords": [
+        "ui module not available",
+        "please add rxuikit pod",
+        "未安装的模块在调用时会返回错误 json"
+      ],
+      "summary": "Cocos2dx 调用了未接入的 UI 模块或宿主工程缺少对应原生依赖",
+      "causes": [
+        "iOS 宿主工程没有接入 RXUIKit，导致 UI stub 直接返回 code=-2",
+        "Cocos 工程只接了基础能力，没有接对应 UI 模块",
+        "调用了 showLoginUI、userCenter、announcement 等 UI API，但宿主原生层并未实现"
+      ],
+      "solutions": [
+        "如果是 iOS，先检查宿主工程是否已添加 RXUIKit 相关 Pod",
+        "确认当前调用的 API 是否属于 UI 模块，而不是基础 OpenAPI 模块",
+        "对于未接入模块，先完成宿主工程接入，再在 Cocos 层调用对应 API"
+      ],
+      "relatedDocs": [
+        "RXSDK-Cocos2dx/Classes/RuixueSDK/ios/RuixueSDKWrapper+UI.mm",
+        "RXSDK-Cocos2dx/install_sdk.sh"
+      ],
+      "priority": 100
+    },
+    {
+      "id": "cocos-activity-not-set--1",
+      "scenes": [
+        "init"
+      ],
+      "codes": [
+        "-1"
+      ],
+      "keywords": [
+        "activity 未设置",
+        "activity not set"
+      ],
+      "summary": "Cocos2dx Android 宿主没有先设置 Activity，导致桥接初始化失败",
+      "causes": [
+        "没有在 Cocos2dxActivity 或 AppActivity 中先调用 setActivity",
+        "桥接层在 Activity 创建前就开始使用 SDK",
+        "宿主生命周期接入顺序不正确"
+      ],
+      "solutions": [
+        "在 Android 宿主启动时先调用 RuixueSDK.setActivity(activity)",
+        "确保设置 Activity 后再调用 init、login、pay 等能力",
+        "如果是多 Activity 场景，确认当前活动页和桥接使用的是同一个 Activity 上下文"
+      ],
+      "relatedDocs": [
+        "RXSDK-Cocos2dx/proj.android/app/src/com/ruixue/sdk/RuixueSDK.java"
+      ],
+      "priority": 95
+    },
+    {
+      "id": "cocos-json-parse-failed",
+      "scenes": [
+        "common"
+      ],
+      "keywords": [
+        "json 解析失败",
+        "json parse failed"
+      ],
+      "summary": "Cocos2dx 传给原生层的 paramsJson 不是合法 JSON",
+      "causes": [
+        "C++ 层拼接 JSON 字符串时格式不正确",
+        "字符串里存在未转义字符，原生端解析失败",
+        "调用方传的是空字符串或半结构化文本，而不是标准 JSON"
+      ],
+      "solutions": [
+        "先打印传入原生层的完整 paramsJson，确认是否是合法 JSON",
+        "统一使用 JSON 库构建参数，不要手写拼接复杂字符串",
+        "逐个核对必填字段名称是否与桥接约定一致"
+      ],
+      "relatedDocs": [
+        "RXSDK-Cocos2dx/Classes/RuixueSDK/ios/RuixueSDKWrapper.mm",
+        "RXSDK-Cocos2dx/proj.android/app/src/com/ruixue/sdk/RuixueSDK.java"
+      ],
+      "priority": 88
+    },
+    {
+      "id": "cocos-build-response-failed--1",
+      "scenes": [
+        "common"
+      ],
+      "codes": [
+        "-1"
+      ],
+      "keywords": [
+        "构建响应失败",
+        "build response failed"
+      ],
+      "summary": "Cocos2dx 原生桥接在构建统一响应 JSON 时失败",
+      "causes": [
+        "原生层返回的数据对象无法正常序列化为 JSON",
+        "响应构建过程中又发生了异常，最终退回默认错误 JSON",
+        "桥接层传入的数据结构与统一回调格式不兼容"
+      ],
+      "solutions": [
+        "优先检查原生层回调时写入 data 的对象是否可序列化",
+        "把问题缩小到最小响应，只返回 code/msg/data 三个字段再逐步恢复",
+        "同时检查 iOS 和 Android 桥接是否返回了相同结构"
+      ],
+      "relatedDocs": [
+        "RXSDK-Cocos2dx/proj.android/app/src/com/ruixue/sdk/RuixueSDK.java",
+        "RXSDK-Cocos2dx/Classes/RuixueSDK/RuixueBridge.h"
+      ],
+      "priority": 70
+    },
+    {
+      "id": "cocos-init-common-2001",
+      "scenes": [
+        "init"
+      ],
+      "codes": [
+        "2001"
+      ],
+      "keywords": [
+        "初始化错误，或未初始化",
+        "init error",
+        "未初始化"
+      ],
+      "summary": "Cocos2dx 宿主原生 SDK 未初始化成功就开始调用业务能力",
+      "causes": [
+        "C++ 层调用顺序早于原生层实际初始化完成",
+        "宿主参数不完整，导致原生初始化失败",
+        "桥接层初始化成功与业务侧可调用时机没有严格同步"
+      ],
+      "solutions": [
+        "只在初始化成功回调后继续调用登录、支付、实名等能力",
+        "核对宿主工程里的 cpId、productId、channelId、baseUrls 等参数",
+        "出现跨平台差异时，优先回到 iOS/Android 原生初始化日志继续排查"
+      ],
+      "relatedDocs": [
+        "RXSDK-Cocos2dx/Classes/RuixueSDK/RuixueBridge.h",
+        "RXSDK-Doc/common/specs/error_codes.md"
+      ],
+      "priority": 78
+    },
+    {
+      "id": "cocos-sdk-not-initialized--1",
+      "scenes": [
+        "init"
+      ],
+      "codes": [
+        "-1"
+      ],
+      "keywords": [
+        "SDK 未初始化",
+        "sdk not initialized"
+      ],
+      "summary": "Cocos2dx 桥接层检测到 SDK 未初始化",
+      "causes": [
+        "C++ 层在原生 SDK 初始化成功前调用了登录、支付或其他业务接口"
+      ],
+      "solutions": [
+        "请等待 init 成功回调后再调用其他接口，并确认 Cocos 与原生宿主初始化状态同步"
+      ],
+      "relatedDocs": [
+        "RXSDK-Cocos2dx/Classes/RuixueSDK/ios/RuixueSDKWrapper.mm",
+        "RXSDK-Cocos2dx/proj.android/app/src/com/ruixue/sdk/RuixueSDK.java"
+      ],
+      "priority": 96
+    },
+    {
+      "id": "cocos-pay-param-goods-tag-empty--1",
+      "scenes": [
+        "pay"
+      ],
+      "codes": [
+        "-1"
+      ],
+      "keywords": [
+        "goodsTag",
+        "商品标签不能为空",
+        "tradeNo",
+        "CP 订单号不能为空"
+      ],
+      "summary": "Cocos2dx 支付参数缺少 goodsTag 或 tradeNo",
+      "causes": [
+        "C++ 层组装支付 JSON 时缺少瑞雪后台计费点 goodsTag 或 CP 订单号 tradeNo"
+      ],
+      "solutions": [
+        "请在 Cocos 层支付参数中补齐 goodsTag 和 tradeNo，并确认 goodsTag 与瑞雪后台计费点一致"
+      ],
+      "relatedDocs": [
+        "RXSDK-Cocos2dx/Classes/RuixueSDK/ios/RuixueSDKWrapper.mm",
+        "RXSDK-Cocos2dx/Classes/RuixueSDK/RuixueBridge.h"
+      ],
+      "priority": 90
+    },
+    {
+      "id": "cocos-ios-register-not-implemented--1",
+      "scenes": [
+        "login"
+      ],
+      "codes": [
+        "-1"
+      ],
+      "keywords": [
+        "iOS 注册接口待对接",
+        "待对接"
+      ],
+      "summary": "Cocos2dx iOS 注册接口仍是功能桩",
+      "causes": [
+        "Cocos2dx 当前封装没有完成 iOS 注册接口桥接，不是网络或服务端错误"
+      ],
+      "solutions": [
+        "请改用已接入的注册/登录流程，或补齐 iOS 原生注册桥接后再调用"
+      ],
+      "relatedDocs": [
+        "RXSDK-Cocos2dx/Classes/RuixueSDK/ios/RuixueSDKWrapper.mm"
+      ],
+      "priority": 72
+    }
+  ]
+}

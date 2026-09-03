@@ -1,0 +1,190 @@
+import hilog from '@ohos.hilog';
+import { BusinessError } from '@kit.BasicServicesKit';
+import { SDKManager } from "./RXInterface";
+
+type NativeCallback = (type: string, status: string, data: string) => void
+
+export default class RXAPIManager {
+  public GetData(key: string, value: string): string {
+    try {
+      let info: ESObject = globalThis.sdkInfo;
+      let ret: string = value;
+      if (info && info.hasOwnProperty(key) && info[key] !== undefined) {
+        ret = info[key];
+      }
+      hilog.info(0x0000, "Get data", "Get data success" + ret);
+      return ret;
+    } catch (error) {
+      hilog.info(0x0000, "Get data", "Get data faild" + error);
+      return value;
+    }
+  }
+
+  public GetSdkInfo(): string {
+    try {
+      let info: ESObject = globalThis.sdkInfo;
+      if (!info || typeof info !== "object") {
+        return JSON.stringify({
+          code: -1, message: "SDK info is unavailable"
+        });
+      } else {
+        return JSON.stringify(info);
+      }
+    } catch (error) {
+      hilog.info(0x0000, "Get data", "Get data fail :" + error);
+      return JSON.stringify({
+        code: -2, message: error?.toString()
+      });
+    }
+  }
+
+  RXInit(loginParams: string, callback: NativeCallback) {
+    try {
+      SDKManager.RXInit(loginParams, callback)
+    } catch (err) {
+      console.error("rxsdk err code:" + (err as BusinessError).code + ",msg:" + (err as BusinessError).message);
+      err.msg ??= err.message
+      callback("Init", "failed", JSON.stringify(err));
+    }
+  }
+
+  RXLogin(loginParams: string, callback: NativeCallback) {
+    try {
+      SDKManager.RXLogin(loginParams, callback)
+    } catch (err) {
+      console.error("rxsdk err code:" + (err as BusinessError).code + ",msg:" + (err as BusinessError).message);
+      err.msg ??= err.message
+      callback("UnionLogin", "failed", JSON.stringify(err));
+    }
+  }
+
+  RXUserCenter(params: string, callback: NativeCallback) {
+    try {
+      SDKManager.RXUserCenter(params, callback)
+    } catch (err) {
+      console.error("rxsdk err code:" + (err as BusinessError).code + ",msg:" + (err as BusinessError).message);
+      err.msg ??= err.message
+      callback("showUserCenterUI", "failed", JSON.stringify(err));
+    }
+  }
+
+  RXHelperCenter(params: string, callback: NativeCallback) {
+    try {
+      SDKManager.RXHelperCenter(params, callback)
+    } catch (err) {
+      console.error("rxsdk err code:" + (err as BusinessError).code + ",msg:" + (err as BusinessError).message);
+      err.msg ??= err.message
+      callback("showHelperCenterUI", "failed", JSON.stringify(err));
+    }
+  }
+
+  RXWebView(params: string, callback: NativeCallback) {
+    try {
+      SDKManager.RXWebView(params, callback)
+    } catch (err) {
+      console.error("rxsdk err code:" + (err as BusinessError).code + ",msg:" + (err as BusinessError).message);
+      err.msg ??= err.message
+      callback("showWebView", "failed", JSON.stringify(err));
+    }
+  }
+  RXSendCaptcha(params: string, callback: NativeCallback) {
+    try {
+      SDKManager.RXSendCaptcha(params, callback)
+    } catch (err) {
+      console.error("rxsdk err code:" + (err as BusinessError).code + ",msg:" + (err as BusinessError).message);
+      err.msg ??= err.message
+      callback("sendCaptcha", "failed", JSON.stringify(err));
+    }
+  }
+
+  RXShowPrivacyUI(params: string, callback: NativeCallback) {
+    try {
+      SDKManager.RXShowPrivacyUI(params, callback)
+    } catch (err) {
+      console.error("rxsdk err code:" + (err as BusinessError).code + ",msg:" + (err as BusinessError).message);
+    }
+  }
+
+  RXLogout(params: string) {
+    try {
+      SDKManager.RXLogout(params)
+    } catch (err) {
+      console.error("rxsdk err code:" + (err as BusinessError).code + ",msg:" + (err as BusinessError).message);
+    }
+  }
+
+  UpdateToken(params: string) {
+    try {
+      SDKManager.UpdateToken(params)
+    } catch (err) {
+      console.error("rxsdk err code:" + (err as BusinessError).code + ",msg:" + (err as BusinessError).message);
+    }
+  }
+  
+  UpdateLoginData(params: string) {
+    try {
+      SDKManager.UpdateLoginData(params)
+    } catch (err) {
+      console.error("rxsdk err code:" + (err as BusinessError).code + ",msg:" + (err as BusinessError).message);
+    }
+  }
+
+  TrackData(params: string) {
+    try {
+      SDKManager.TrackData(params)
+    } catch (err) {
+      console.error("rxsdk err code:" + (err as BusinessError).code + ",msg:" + (err as BusinessError).message);
+    }
+  }
+
+  TrackUserAction(params: string) {
+    try {
+      SDKManager.TrackUserAction(params)
+    } catch (err) {
+      console.error("rxsdk err code:" + (err as BusinessError).code + ",msg:" + (err as BusinessError).message);
+    }
+  }
+  StopTrackUserAction() {
+    try {
+      SDKManager.StopTrackUserAction()
+    } catch (err) {
+      console.error("rxsdk err code:" + (err as BusinessError).code + ",msg:" + (err as BusinessError).message);
+    }
+  }
+
+  Share(params: string, callback: NativeCallback) {
+    try {
+      SDKManager.RXShare(params, callback)
+    } catch (err) {
+      console.error("rxsdk err code:" + (err as BusinessError).code + ",msg:" + (err as BusinessError).message);
+    }
+  }
+
+  OnKnockShare(params: string, callback: NativeCallback) {
+    try {
+      SDKManager.RXOnKnockShare(params, callback)
+    } catch (err) {
+      console.error("rxsdk err code:" + (err as BusinessError).code + ",msg:" + (err as BusinessError).message);
+    }
+  }
+
+  OffKnockShare(params: string) {
+    try {
+      SDKManager.RXOffKnockShare(params)
+    } catch (err) {
+      console.error("rxsdk err code:" + (err as BusinessError).code + ",msg:" + (err as BusinessError).message);
+    }
+  }
+
+
+  public static getInstance() {
+    return new RXAPIManager();
+  }
+}
+
+
+export function RegisterRXAPIManager() {
+  let register: Record<string, Object> = {};
+  register["RXAPIManager"] = RXAPIManager;
+  return register;
+}

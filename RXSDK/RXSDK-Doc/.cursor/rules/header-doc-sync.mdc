@@ -1,0 +1,129 @@
+---
+alwaysApply: true
+---
+# iOS Public 方法同步规则
+
+> ⚠️ **强制规则**：iOS 新增或改动 public 方法时，**必须**同步执行以下两步操作。
+
+---
+
+## 必须执行的操作
+
+### 步骤 1：同步方法文档
+
+将方法变更同步到 `RXSDK-Doc/ios/public_class_methods.md`
+
+### 步骤 2：添加版本记录
+
+在 `RXSDK-Doc/version/Version-ios.md` 中添加变更记录
+
+---
+
+## 同步范围
+
+以下头文件的 public 方法变更需要同步：
+
+| 头文件 | 对应文档章节 | 说明 |
+|--------|-------------|------|
+| `RXSDK-iOS/RXSDKCode/RXSDK/Common/RXSDK.h` | `RXSDK（统一入口类）` | 统一 SDK 入口类 |
+| `RXSDK-iOS/RXAddressBookCode/.../RXService.h` | `RXService（纯 API 服务类）` | 纯 API 服务 |
+| `RXSDK-iOS/RXUIKitCode/RXUIKit/RXUIKitService.h` | `RXUIKitService（国内版 UI）` | 国内版 UI 服务 |
+| `RXSDK-iOS/RXOSUIKitCode/RXUIKit-OS/RXOSUIKitService.h` | `RXOSUIKitService（海外版 UI）` | 海外版 UI 服务 |
+
+---
+
+## 同步规则详情
+
+### 1. 新增方法
+- 在头文件中新增 public 方法时，**必须**同步添加到对应文档章节
+- 文档格式需包含：方法签名、参数说明、返回值说明
+- **必须**在 Version-ios.md 添加版本记录
+
+### 2. 修改方法
+- 方法签名变更时，同步更新文档
+- 参数变更时，同步更新参数说明
+- 注释变更时，同步更新文档说明
+- **必须**在 Version-ios.md 添加版本记录
+
+### 3. 删除方法
+- 删除 public 方法时，同步从文档中移除
+- 废弃（DEPRECATED）的方法不需要添加到文档
+- **必须**在 Version-ios.md 添加版本记录
+
+### 4. 不需要同步的内容
+- `DEPRECATED_MSG_ATTRIBUTE` 标记的废弃方法
+- 私有方法（未在 .h 文件中声明）
+- delegate 协议和属性（使用 complete block 回调）
+
+---
+
+## 文档格式要求
+
+### public_class_methods.md 格式
+
+```objc
+#pragma mark - 功能分类
+
+/// 方法说明
+/// @param paramName 参数说明
+/// @param complete 结果回调
+- (void)methodName:(Type *)param
+          complete:(RXSDKRequestComplete)complete;
+```
+
+### Version-ios.md 格式
+
+```markdown
+### vX.X.X (YYYY-MM-DD)
+
+**修改类型：** 新增/修改/删除
+
+**修改内容：**
+- [类名] 新增/修改/删除 `methodName:` 方法
+- 方法说明...
+
+**涉及文件：**
+- `RXSDK-iOS/.../XXX.h`
+- `RXSDK-Doc/ios/public_class_methods.md`
+
+**备注：**
+- 
+```
+
+---
+
+## 同步检查清单
+
+当修改 iOS public 方法时，确认以下事项：
+
+- [ ] **文档同步**：新增/修改/删除的方法已同步到 `public_class_methods.md`
+- [ ] **方法签名**：文档中的方法签名与头文件一致
+- [ ] **参数说明**：参数说明完整准确
+- [ ] **功能分类**：使用正确的 `#pragma mark` 分类
+- [ ] **版本记录**：已在 `Version-ios.md` 添加变更记录
+- [ ] **日期更新**：`public_class_methods.md` 顶部的统计日期已更新
+
+---
+
+## AI 助手行为规范
+
+AI 助手在检测到以下文件变更时，**必须**主动执行同步操作：
+
+| 触发文件 | 同步操作 |
+|---------|---------|
+| `RXSDK.h` 变更 | → 同步 `public_class_methods.md` 的 RXSDK 章节 + 更新 `Version-ios.md` |
+| `RXService.h` 变更 | → 同步 `public_class_methods.md` 的 RXService 章节 + 更新 `Version-ios.md` |
+| `RXUIKitService.h` 变更 | → 同步 `public_class_methods.md` 的 RXUIKitService 章节 + 更新 `Version-ios.md` |
+| `RXOSUIKitService.h` 变更 | → 同步 `public_class_methods.md` 的 RXOSUIKitService 章节 + 更新 `Version-ios.md` |
+
+### 执行顺序
+
+1. 完成头文件修改
+2. 同步更新 `RXSDK-Doc/ios/public_class_methods.md`
+3. 在 `RXSDK-Doc/version/Version-ios.md` 添加版本记录
+4. 告知用户已完成同步
+
+---
+
+**最后更新**：2026-01-30  
+**版本**：v2.0

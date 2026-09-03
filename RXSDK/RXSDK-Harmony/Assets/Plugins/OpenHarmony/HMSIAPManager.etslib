@@ -1,0 +1,55 @@
+import { SDKManager } from "./RXInterface";
+
+export default class HMSIAPManager {
+
+ 
+  /**
+   * 初始化IAP
+   */
+  public InitIAPOnUI(callback: (msgType: string, status: string, data: string) => void) {
+    SDKManager.IAPInitOnUI(callback);
+  }
+
+  /**
+   * 查询商品列表
+   */
+  public QueryIAPListOnUI(storeType: string, storeIdList: string[], callback: (msgType: string, status: string, data: string) => void) {
+    SDKManager.IAPQueryProductsOnUI(storeType, storeIdList, callback);
+  }
+
+  /**
+   * 发起购买
+   */
+  public StartPurchaseOnUI(storeType: string, storeId: string,  developerPayload: string, reservedInfo: string,callback: (msgType: string, status: string, data: string) => void) {
+    SDKManager.IAPPurchaseOnUI(storeType, storeId,developerPayload,reservedInfo, callback);
+  }
+
+  public StartPurchaseUI(params: string, callback: (msgType: string, status: string, data: string) => void) {
+    SDKManager.IAPPurchase(params, callback);
+  }
+
+  /**
+   * 核销购买
+   */
+  public ConsumePurchaseOnUI(purchaseToken: string, callback: (msgType: string, status: string, data: string) => void) {
+    SDKManager.IAPConsumePurchaseOnUI(purchaseToken, callback);
+  }
+
+  /**
+   * 检测已购买商品
+   */
+  public CheckOwnedPurchasesOnUI(storeType: string, callback: (msgType: string, status: string, data: string) => void) {
+    SDKManager.IAPQueryOwnedPurchasesOnUI(storeType, callback);
+  }
+
+  public static getInstance() {
+    return new HMSIAPManager();
+  }
+}
+
+
+export function RegisterHMSIAPManager() {
+  let register : Record<string, Object> = {};
+  register["HMSIAPManager"] = HMSIAPManager;
+  return register;
+}

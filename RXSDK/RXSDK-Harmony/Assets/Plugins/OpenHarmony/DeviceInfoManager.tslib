@@ -1,0 +1,58 @@
+import deviceinfo from '@ohos.deviceInfo';
+
+export default class DeviceInfoManager {
+  public static getInstance(): DeviceInfoManager {
+    return new DeviceInfoManager();
+  }
+
+  public getDeviceInfo(): string {
+    let commonDeviceInfo: CommonDeviceInfo = new CommonDeviceInfo();
+
+    let deviceTypeInfo: string = deviceinfo.deviceType;
+    console.info('the value of the deviceType is :' + deviceTypeInfo);
+    commonDeviceInfo.deviceType = deviceTypeInfo;
+
+    console.log('CommonDeviceInfo: ===> ' + JSON.stringify(commonDeviceInfo));
+
+    let manufactureInfo: string = deviceinfo.manufacture;
+    console.info('the value of the manufactureInfo is :' + manufactureInfo);
+    commonDeviceInfo.manufacture = manufactureInfo;
+
+    let brandInfo: string = deviceinfo.brand;
+    console.info('the value of the device brand is :' + brandInfo);
+    commonDeviceInfo.brand = brandInfo;
+
+    let marketNameInfo: string = deviceinfo.marketName;
+    console.info('the value of the deviceinfo marketName is :' + marketNameInfo);
+    commonDeviceInfo.marketName = marketNameInfo;
+
+
+    let productModelInfo: string = deviceinfo.productModel;
+    console.info('the value of the deviceinfo productModel is :' + productModelInfo);
+    commonDeviceInfo.productModel = productModelInfo;
+
+    let deviceInfoStr = JSON.stringify(commonDeviceInfo)
+    console.log('CommonDeviceInfo: ===> ' + deviceInfoStr);
+    return deviceInfoStr;
+
+  }
+}
+
+
+class CommonDeviceInfo {
+  public deviceType: string;
+
+  public manufacture: string;
+
+  public brand: string;
+
+  public marketName: string;
+
+  public productModel: string;
+}
+
+export function RegisterDeviceInfoManager() {
+  var register = {};
+  register["DeviceInfoManager"] = DeviceInfoManager;
+  return register;
+}

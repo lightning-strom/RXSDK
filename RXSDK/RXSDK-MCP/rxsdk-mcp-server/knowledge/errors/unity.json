@@ -1,0 +1,305 @@
+{
+  "platform": "unity",
+  "version": "v1",
+  "entries": [
+    {
+      "id": "unity-not-support--1001",
+      "scenes": [
+        "common"
+      ],
+      "codes": [
+        "-1001"
+      ],
+      "keywords": [
+        "当前平台不支持此功能",
+        "not support",
+        "notsupporthelper"
+      ],
+      "summary": "Unity 当前构建目标或运行平台不支持该功能",
+      "causes": [
+        "当前平台没有对应的原生实现或桥接实现",
+        "功能只支持 iOS/Android，但当前运行在 Editor、WebGL 或其他不支持平台",
+        "调用了 NotSupportHelper 返回的兜底实现"
+      ],
+      "solutions": [
+        "先确认当前构建目标是否在该功能支持范围内",
+        "如果运行在 Editor 或 WebGL，先检查该模块是否明确支持该平台",
+        "在业务侧对 code=-1001 做兼容处理，避免把“不支持”误报为初始化失败"
+      ],
+      "relatedDocs": [
+        "RXSDK-Unity/Packages/com.ruixue.unitysdk/Runtime/Core/Common/NotSupportHelper.cs",
+        "RXSDK-Doc/unity/api/callback.md"
+      ],
+      "priority": 100
+    },
+    {
+      "id": "unity-json-parse-failed",
+      "scenes": [
+        "common"
+      ],
+      "keywords": [
+        "JSON解析失败",
+        "json parse failed",
+        "fromjson"
+      ],
+      "summary": "Unity 侧尝试把返回字符串解析为 JSON 失败",
+      "causes": [
+        "传入 SdkResult.FromJson 的字符串不是合法 JSON",
+        "原生或 JS 桥接层返回了非 JSON 格式的错误文本",
+        "调用方在成功/失败回调里直接按固定结构解析，但返回结构不符合预期"
+      ],
+      "solutions": [
+        "先打印原始回调字符串，确认是否真的是合法 JSON",
+        "优先按 code/msg/data 统一结构解析，不要假设字段一定存在",
+        "如果是桥接层返回纯文本错误，先在桥接层改成标准 JSON 再解析"
+      ],
+      "relatedDocs": [
+        "RXSDK-Unity/Packages/com.ruixue.unitysdk/Runtime/Core/Common/SdkResult.cs",
+        "RXSDK-Doc/unity/api/callback.md"
+      ],
+      "priority": 88
+    },
+    {
+      "id": "unity-init-error-2001",
+      "scenes": [
+        "init"
+      ],
+      "codes": [
+        "2001"
+      ],
+      "keywords": [
+        "初始化错误，或未初始化",
+        "init error",
+        "未初始化"
+      ],
+      "summary": "Unity 在 SDK 初始化完成前调用了业务接口，或初始化参数不正确",
+      "causes": [
+        "没有先调用 RXSDK.Initialize，或初始化结果尚未成功就调用其他能力",
+        "初始化参数缺失，例如 cpid、productId、channelId、baseUrlList 不完整",
+        "跨平台桥接虽然存在，但原生端实际上还未初始化成功"
+      ],
+      "solutions": [
+        "只在 RXSDK.Initialize 成功回调后再继续调用登录、支付等能力",
+        "检查 Unity 侧配置对象和原生侧初始化参数是否一致",
+        "如果只在某个平台出现，继续对照 iOS/Android 原生日志确认初始化是否成功"
+      ],
+      "relatedDocs": [
+        "RXSDK-Doc/unity/api/callback.md",
+        "RXSDK-Unity/Packages/com.ruixue.unitysdk/Runtime/Core/Common/SdkResult.cs"
+      ],
+      "priority": 95
+    },
+    {
+      "id": "unity-login-cancel-3001",
+      "scenes": [
+        "login"
+      ],
+      "codes": [
+        "3001",
+        "3002"
+      ],
+      "keywords": [
+        "登录取消",
+        "登录失败",
+        "授权拒绝",
+        "login deny",
+        "login fail"
+      ],
+      "summary": "Unity 登录流程被取消或第三方授权失败",
+      "causes": [
+        "用户主动取消登录或拒绝授权",
+        "第三方登录桥接返回了原生端失败 JSON",
+        "调用方没有把失败回调字符串按 JSON 结构解析"
+      ],
+      "solutions": [
+        "先打印 onError 返回的原始字符串，确认 code、msg、thirdcode",
+        "对 3001 取消和 3002 第三方登录失败做分支处理",
+        "如果是第三方登录失败，继续检查对应平台的工程配置和后台参数"
+      ],
+      "relatedDocs": [
+        "RXSDK-Doc/unity/api/callback.md",
+        "RXSDK-Unity/Packages/com.ruixue.unitysdk/Runtime/Login/RXLogin.cs"
+      ],
+      "priority": 72
+    },
+    {
+      "id": "unity-pay-cancel-4001",
+      "scenes": [
+        "pay"
+      ],
+      "codes": [
+        "4001"
+      ],
+      "keywords": [
+        "支付取消",
+        "cancel pay",
+        "用户取消支付"
+      ],
+      "summary": "Unity 支付被用户取消",
+      "causes": [
+        "用户在原生支付页主动取消",
+        "调用方把取消场景误认为支付失败",
+        "Unity 侧没有对失败 JSON 里的 code 进行区分处理"
+      ],
+      "solutions": [
+        "对 code=4001 按取消路径处理，而不是统一弹“支付失败”",
+        "如果用户未取消却收到 4001，继续排查原生支付渠道日志",
+        "记录订单号、支付渠道、第三方错误字段，便于进一步定位"
+      ],
+      "relatedDocs": [
+        "RXSDK-Doc/unity/api/callback.md",
+        "RXSDK-Unity/Packages/com.ruixue.unitysdk/Runtime/Pay/RXPay.cs"
+      ],
+      "priority": 70
+    },
+    {
+      "id": "unity-init-params-error-2000",
+      "scenes": [
+        "init"
+      ],
+      "codes": [
+        "2000"
+      ],
+      "keywords": [
+        "初始化参数错误",
+        "cpid",
+        "productId",
+        "channelId",
+        "baseUrlList"
+      ],
+      "summary": "Unity 初始化参数错误",
+      "causes": [
+        "Unity 传给原生 SDK 的初始化配置缺少 cpid、productId、channelId 或 baseUrlList"
+      ],
+      "solutions": [
+        "请检查 Unity 侧 RXSdkInitConfig 与原生端配置是否完整，并确认初始化成功后再调用业务接口"
+      ],
+      "relatedDocs": [
+        "RXSDK-Doc/unity/api/callback.md",
+        "RXSDK-Unity/Packages/com.ruixue.unitysdk/Runtime/Core/Common/SdkResult.cs"
+      ],
+      "priority": 86
+    },
+    {
+      "id": "unity-third-login-error-3002",
+      "scenes": [
+        "login"
+      ],
+      "codes": [
+        "3002"
+      ],
+      "keywords": [
+        "三方登录错误",
+        "third login",
+        "thirdcode",
+        "thirdmsg"
+      ],
+      "summary": "Unity 第三方登录失败由原生端透传",
+      "causes": [
+        "iOS/Android 原生第三方登录配置或授权流程失败，Unity 侧只是透传失败 JSON"
+      ],
+      "solutions": [
+        "请打印 Unity onError 原始 JSON，并根据 thirdcode/thirdmsg 回到对应 iOS/Android 第三方登录配置排查"
+      ],
+      "relatedDocs": [
+        "RXSDK-Doc/unity/api/callback.md",
+        "RXSDK-Unity/Packages/com.ruixue.unitysdk/Runtime/Login/RXLogin.cs"
+      ],
+      "priority": 74
+    },
+    {
+      "id": "unity-pay-params-error-4000",
+      "scenes": [
+        "pay"
+      ],
+      "codes": [
+        "4000"
+      ],
+      "keywords": [
+        "支付参数错误",
+        "pay params",
+        "productId",
+        "tradeNo"
+      ],
+      "summary": "Unity 支付参数错误",
+      "causes": [
+        "Unity 支付参数缺少商品、订单号、金额或渠道需要的扩展字段"
+      ],
+      "solutions": [
+        "请打印传给 RXPay 的完整参数，核对商品 ID、订单号、金额、透传字段和原生渠道要求"
+      ],
+      "relatedDocs": [
+        "RXSDK-Doc/unity/api/callback.md",
+        "RXSDK-Unity/Packages/com.ruixue.unitysdk/Runtime/Pay/RXPay.cs"
+      ],
+      "priority": 76
+    },
+    {
+      "id": "unity-minigame-webgl-only",
+      "scenes": [
+        "minigame_weixin",
+        "minigame_douyin"
+      ],
+      "keywords": [
+        "小游戏",
+        "webgl",
+        "RXMiniGameWeiXin",
+        "RXMiniGameDouYin",
+        "UNITY_WEBGL",
+        "DllNotFoundException",
+        "__Internal",
+        "rx_msgSecCheck",
+        "rx_openCustomerServiceConversation"
+      ],
+      "summary": "Unity 微信/抖音小游戏接口只在 WebGL 平台可用，非 WebGL 平台调用会缺少原生桥接",
+      "causes": [
+        "在 Editor 或非 WebGL 平台调用 RXMiniGameWeiXin/RXMiniGameDouYin，__Internal 桥接方法不存在",
+        "调用代码没有包裹在 #if UNITY_WEBGL 中，导致其他平台编译或运行报错",
+        "未添加小游戏包 com.ruixue.unitysdk.minigame.weixin / com.ruixue.unitysdk.minigame.douyin 依赖"
+      ],
+      "solutions": [
+        "把小游戏专属接口调用包裹在 #if UNITY_WEBGL / #endif 中，只在 WebGL 构建里执行",
+        "在 Packages/manifest.json 追加对应小游戏包依赖，版本号与 base 保持一致",
+        "通用能力（初始化/登录/支付/埋点）用 RuiXue 主命名空间接口，不要在小游戏类里找"
+      ],
+      "relatedDocs": [
+        "RXSDK-Unity/Packages/com.ruixue.unitysdk.webgl.weixin/Runtime/RXMiniGameWeiXin.cs",
+        "RXSDK-Unity/Packages/com.ruixue.unitysdk.webgl.douyin/Runtime/RXMiniGameDouYin.cs"
+      ],
+      "priority": 68
+    },
+    {
+      "id": "unity-minigame-runtime-js-mismatch",
+      "scenes": [
+        "minigame_weixin",
+        "minigame_douyin"
+      ],
+      "keywords": [
+        "小游戏",
+        "channelSDK",
+        "index.js",
+        "channel-sdk.douyin",
+        "sdk is not a function",
+        "undefined is not a function",
+        "StarkSDK",
+        "TTSDK"
+      ],
+      "summary": "Unity 小游戏运行时 JS 与 SDK 版本不匹配，或抖音缺少 StarkSDK 依赖",
+      "causes": [
+        "内嵌运行时 JS 未随 SDK 更新：微信 Plugins/WebGL/RXJsSdk_WeiXin/channelSDK/index.js、抖音 Plugins/WebGL/RXJsSdk_DouYin/channel-sdk.douyin.v2.dev.umd.js",
+        "微信误用了 wegame.full 全量包覆盖基础包 index.js",
+        "抖音小游戏工程未集成 StarkSDK(TTSDK)，导致录屏/支付/启动参数相关接口报错"
+      ],
+      "solutions": [
+        "用 RXSDK-JS 的 npm run build:wegame 基础包同步微信 channelSDK/index.js（不要用 wegame.full）",
+        "用 RXSDK-JS 的 npm run build:douyin 的 dev umd 同步抖音 channel-sdk.douyin.v2.dev.umd.js",
+        "抖音工程确认已正确集成 StarkSDK(TTSDK) 及其依赖"
+      ],
+      "relatedDocs": [
+        "RXSDK-Unity/Packages/com.ruixue.unitysdk.webgl.weixin/Plugins/WebGL/RXJsSdk_WeiXin/channelSDK/index.js",
+        "RXSDK-Unity/Packages/com.ruixue.unitysdk.webgl.douyin/Plugins/WebGL/RXJsSdk_DouYin/channel-sdk.douyin.v2.dev.umd.js"
+      ],
+      "priority": 66
+    }
+  ]
+}

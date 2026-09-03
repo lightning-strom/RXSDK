@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>iframe 支付页面调用示例</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      padding: 20px;
+      background: #f5f5f5;
+    }
+
+    .container {
+      max-width: 900px;
+      margin: 0 auto;
+    }
+
+    h1 {
+      margin-bottom: 20px;
+      color: #333;
+    }
+
+    .panel {
+      background: white;
+      padding: 20px;
+      border-radius: 8px;
+      margin-bottom: 20px;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    }
+
+    .panel h3 {
+      margin-bottom: 15px;
+      color: #333;
+    }
+
+    .form-row {
+      display: flex;
+      gap: 16px;
+      margin-bottom: 15px;
+    }
+
+    .form-group {
+      flex: 1;
+    }
+
+    .form-group label {
+      display: block;
+      margin-bottom: 5px;
+      font-weight: 500;
+      color: #555;
+    }
+
+    .form-group input,
+    .form-group select {
+      width: 100%;
+      padding: 8px 12px;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      font-size: 14px;
+    }
+
+    .btn {
+      padding: 10px 20px;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 14px;
+      margin-right: 10px;
+    }
+
+    .btn-primary {
+      background: #0256FF;
+      color: white;
+    }
+
+    .btn-secondary {
+      background: #6c757d;
+      color: white;
+    }
+
+    #payIframe {
+      width: 100%;
+      height: 600px;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      background: white;
+    }
+
+    .log-panel {
+      background: #1e1e1e;
+      color: #d4d4d4;
+      padding: 15px;
+      border-radius: 8px;
+      max-height: 200px;
+      overflow-y: auto;
+      font-family: monospace;
+      font-size: 12px;
+    }
+
+    .log-item {
+      margin-bottom: 8px;
+      padding: 5px;
+      border-radius: 3px;
+    }
+
+    .log-item.sent {
+      background: #264f78;
+    }
+
+    .log-item.received {
+      background: #4d4d00;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="container">
+    <h1>🔧 iframe 支付页面调用示例</h1>
+
+    <!-- 配置面板 -->
+    <div class="panel">
+      <h3>配置参数</h3>
+      <div class="form-row">
+        <div class="form-group">
+          <label>语言</label>
+          <select id="language">
+            <option value="zh">中文</option>
+            <option value="en" selected>English</option>
+            <option value="ja">日本語</option>
+            <option value="th">ไทย</option>
+            <option value="ar">العربية (RTL)</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>API 域名</label>
+          <input type="text" id="domain" value="https://os-api-test.ruixueyun.com" />
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label>商品标签 (goods_tag)</label>
+          <input type="text" id="goodsTag" value="842000099" />
+        </div>
+        <div class="form-group">
+          <label>商品名称</label>
+          <input type="text" id="goodsName" value="测试商品" />
+        </div>
+      </div>
+      <button class="btn btn-primary" onclick="openAndSend()">打开支付页面</button>
+      <button class="btn btn-secondary" onclick="closeIframe()">关闭</button>
+    </div>
+
+    <!-- iframe -->
+    <div class="panel">
+      <h3>支付页面</h3>
+      <iframe id="payIframe" src="about:blank"></iframe>
+    </div>
+
+    <!-- 日志 -->
+    <div class="log-panel" id="logPanel">
+      <div style="color: #888;">📋 通信日志</div>
+    </div>
+  </div>
+
+  <script>
+    const iframe = document.getElementById('payIframe');
+    const logPanel = document.getElementById('logPanel');
+
+    // 生成参数
+    function getParams() {
+      const language = document.getElementById('language').value;
+      const domain = document.getElementById('domain').value;
+      const goodsTag = document.getElementById('goodsTag').value;
+      const goodsName = document.getElementById('goodsName').value;
+
+      return {
+        type: 'INIT_PAY_PARAMS',
+        api_params: {
+          country_code: 'CN',
+          productid: '1002',
+          devicecode: '3BBEFEB39BA19A9745F5D4C72FB8BB54',
+          cpid: '119',
+          domain: domain,
+          language: language,
+          platformid: '1',
+          version: '3.5.26',
+          channelid: '1000',
+          tzoffset: '8.00'
+        },
+        request_headers: {
+          'ruixue-channelid': '1000',
+          'ruixue-accesstoken': 'your-token',
+          'ruixue-devicecode': '3BBEFEB39BA19A9745F5D4C72FB8BB54',
+          'ruixue-traceid': Date.now().toString(),
+          'ruixue-language': language,
+          'ruixue-platformid': '1',
+          'ruixue-tzoffset': '8.00',
+          'ruixue-cpid': '119',
+          'ruixue-version': '3.5.26',
+          'ruixue-productid': '1002'
+        },
+        order_info: {
+          country_code: 'CN',
+          goods_tag: goodsTag,
+          goods_name: goodsName,
+          openid: 'test-openid',
+          env: 1
+        }
+      };
+    }
+
+    // 打开并发送参数
+    function openAndSend() {
+      iframe.src = '/static/pay/#/pay';
+      addLog('打开 iframe', {}, 'sent');
+    }
+
+    // 关闭
+    function closeIframe() {
+      iframe.src = 'about:blank';
+      addLog('关闭 iframe', {}, 'sent');
+    }
+
+    // 监听消息
+    window.addEventListener('message', function (event) {
+      addLog('收到: ' + event.data.type, event.data, 'received');
+
+      // iframe 准备好后发送参数（握手机制）
+      if (event.data.type === 'PAY_IFRAME_READY') {
+        const params = getParams();
+        iframe.contentWindow.postMessage(params, '*');
+        addLog('发送参数', params, 'sent');
+      }
+
+      // 支付结果
+      if (event.data.type === 'PAY_RESULT') {
+        alert('支付结果: ' + event.data.result);
+      }
+    });
+
+    // 添加日志
+    function addLog(title, data, type) {
+      const time = new Date().toLocaleTimeString();
+      const div = document.createElement('div');
+      div.className = 'log-item ' + type;
+      div.innerHTML = `<span style="color:#888">[${time}]</span> ${type === 'sent' ? '📤' : '📥'} ${title}`;
+      logPanel.appendChild(div);
+      logPanel.scrollTop = logPanel.scrollHeight;
+    }
+  </script>
+</body>
+
+</html>

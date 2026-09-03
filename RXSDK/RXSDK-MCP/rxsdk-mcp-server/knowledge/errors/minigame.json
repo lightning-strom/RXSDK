@@ -1,0 +1,354 @@
+{
+  "platform": "minigame",
+  "version": "v1",
+  "entries": [
+    {
+      "id": "minigame-init-error-2001",
+      "scenes": [
+        "init"
+      ],
+      "codes": [
+        "2001"
+      ],
+      "keywords": [
+        "初始化错误，或未初始化",
+        "init error",
+        "not initialized"
+      ],
+      "summary": "小游戏 SDK 尚未初始化完成，或初始化配置缺失",
+      "causes": [
+        "在 new RxSdk / 初始化完成前就调用了登录、支付、广告等接口",
+        "productId、channelId、cpid、baseUrlList 缺失或配置错误",
+        "小游戏环境脚本加载失败，导致初始化链路未走通"
+      ],
+      "solutions": [
+        "确保先完成 SDK 初始化，再调用其他业务接口",
+        "逐项核对 productId、channelId、cpid、baseUrlList 配置",
+        "如果是 H5 渠道，继续检查外部脚本加载和运行环境初始化日志"
+      ],
+      "relatedDocs": [
+        "RXSDK-JS/src/config/const.ts",
+        "RXSDK-Doc/common/specs/error_codes.md"
+      ],
+      "priority": 95
+    },
+    {
+      "id": "minigame-login-deny-3001",
+      "scenes": [
+        "login"
+      ],
+      "codes": [
+        "3001",
+        "3002"
+      ],
+      "keywords": [
+        "登录拒绝",
+        "登录失败",
+        "login deny",
+        "login fail",
+        "用户拒绝授权"
+      ],
+      "summary": "小游戏登录授权被拒绝或登录流程失败",
+      "causes": [
+        "用户拒绝了平台授权或登录流程被中断",
+        "平台登录接口返回失败，原始错误被包装为统一错误码",
+        "调用方没有区分 3001 授权拒绝和 3002 登录失败"
+      ],
+      "solutions": [
+        "先区分是用户主动拒绝还是平台接口异常",
+        "打印原始平台错误对象并保留 thirdcode/thirdmsg 信息",
+        "如果是渠道差异问题，继续查看对应 index.*.ts 的平台实现"
+      ],
+      "relatedDocs": [
+        "RXSDK-JS/src/config/const.ts",
+        "RXSDK-JS/src/index.wegame.ts",
+        "RXSDK-JS/src/index.qq.ts"
+      ],
+      "priority": 78
+    },
+    {
+      "id": "minigame-pay-params-4000",
+      "scenes": [
+        "pay"
+      ],
+      "codes": [
+        "4000"
+      ],
+      "keywords": [
+        "支付参数错误",
+        "pay params error",
+        "参数错误"
+      ],
+      "summary": "小游戏支付参数不完整或字段格式不符合要求",
+      "causes": [
+        "商品信息、金额、透传参数等关键字段缺失",
+        "调用支付接口前没有拿到必需的订单信息",
+        "平台渠道对参数格式有额外要求，但业务侧未适配"
+      ],
+      "solutions": [
+        "检查下单参数是否完整，尤其是商品标识、订单号和金额",
+        "对照对应渠道实现确认是否还需要额外字段",
+        "在发起支付前打印完整参数，避免只看到统一错误码"
+      ],
+      "relatedDocs": [
+        "RXSDK-JS/src/config/const.ts",
+        "RXSDK-JS/src/index.wegame.ts"
+      ],
+      "priority": 85
+    },
+    {
+      "id": "minigame-pay-cancel-4001",
+      "scenes": [
+        "pay"
+      ],
+      "codes": [
+        "4001"
+      ],
+      "keywords": [
+        "支付取消",
+        "cancel pay",
+        "用户取消支付"
+      ],
+      "summary": "小游戏支付被用户取消",
+      "causes": [
+        "用户在平台支付面板中主动取消",
+        "业务侧把取消路径误认为支付异常",
+        "渠道返回取消状态，但日志没有区分处理"
+      ],
+      "solutions": [
+        "将 4001 作为取消场景处理，不要直接归类为支付失败",
+        "如需继续定位，请补充原始平台错误对象和订单号",
+        "把取消、失败、成功三类支付结果分别埋点"
+      ],
+      "relatedDocs": [
+        "RXSDK-JS/src/config/const.ts",
+        "RXSDK-JS/src/index.h5_uc.ts",
+        "RXSDK-JS/src/index.h5_vivo.ts"
+      ],
+      "priority": 72
+    },
+    {
+      "id": "minigame-location-auth-deny-6021",
+      "scenes": [
+        "permission"
+      ],
+      "codes": [
+        "6021",
+        "6020"
+      ],
+      "keywords": [
+        "定位失败",
+        "定位授权拒绝",
+        "location fail",
+        "location auth deny"
+      ],
+      "summary": "小游戏定位失败或定位权限被拒绝",
+      "causes": [
+        "用户拒绝了定位授权，平台无法返回地理位置",
+        "设备定位服务关闭，或渠道环境不支持定位能力",
+        "业务侧没有区分“权限拒绝”和“定位失败”"
+      ],
+      "solutions": [
+        "先区分是 6021 权限拒绝还是 6020 定位失败",
+        "引导用户重新授权或在系统设置中开启定位",
+        "确认当前小游戏平台和运行环境是否支持定位接口"
+      ],
+      "relatedDocs": [
+        "RXSDK-JS/src/config/const.ts",
+        "RXSDK-JS/src/index.qq.ts"
+      ],
+      "priority": 82
+    },
+    {
+      "id": "minigame-ad-load-timeout-10000",
+      "scenes": [
+        "ad"
+      ],
+      "codes": [
+        "10000",
+        "1000000"
+      ],
+      "keywords": [
+        "广告加载超时",
+        "adloadtimeout",
+        "广告单元无效",
+        "无合适的广告"
+      ],
+      "summary": "小游戏广告加载失败、超时或广告位配置异常",
+      "causes": [
+        "广告位配置错误，广告单元无效或被关闭",
+        "当前流量无可用广告，平台返回无填充",
+        "广告加载耗时过长，命中了 SDK 超时逻辑"
+      ],
+      "solutions": [
+        "检查广告位 ID、广告单元状态和平台审核状态",
+        "对照 errCode 查看是否属于无广告、广告位无效或平台内部错误",
+        "对广告加载设置兜底 UI，不要把超时直接等同于 SDK 崩溃"
+      ],
+      "relatedDocs": [
+        "RXSDK-JS/src/config/const.ts",
+        "RXSDK-JS/src/index.qq.ts",
+        "RXSDK-JS/src/index.h5_vivo.ts"
+      ],
+      "priority": 84
+    },
+    {
+      "id": "minigame-api-not-exist-2002",
+      "scenes": [
+        "common"
+      ],
+      "codes": [
+        "2002"
+      ],
+      "keywords": [
+        "API_NOT_EXIST",
+        "api not exist",
+        "接口不存在"
+      ],
+      "summary": "小游戏当前渠道不支持该 API",
+      "causes": [
+        "调用了当前渠道 SDK 未实现或平台不开放的接口"
+      ],
+      "solutions": [
+        "请确认当前小游戏渠道是否支持该能力，并在业务侧做渠道能力判断或降级处理"
+      ],
+      "relatedDocs": [
+        "RXSDK-JS/src/config/const.ts"
+      ],
+      "priority": 80
+    },
+    {
+      "id": "minigame-pay-type-error-4300",
+      "scenes": [
+        "pay"
+      ],
+      "codes": [
+        "4300"
+      ],
+      "keywords": [
+        "PAY_TYPE_ERROR",
+        "当前环境不支持该支付方式",
+        "支付方式"
+      ],
+      "summary": "小游戏当前环境不支持指定支付方式",
+      "causes": [
+        "渠道容器或当前环境不支持调用方指定的支付方式"
+      ],
+      "solutions": [
+        "请核对渠道支持的支付类型，并按当前容器能力选择对应支付方式或隐藏入口"
+      ],
+      "relatedDocs": [
+        "RXSDK-JS/src/config/const.ts",
+        "RXSDK-JS/src/index.wegame.ts"
+      ],
+      "priority": 86
+    },
+    {
+      "id": "minigame-share-trigger-overtime-5003",
+      "scenes": [
+        "share"
+      ],
+      "codes": [
+        "5003"
+      ],
+      "keywords": [
+        "SHARE_TRIGGER_OVERTIME",
+        "分享超时",
+        "share overtime"
+      ],
+      "summary": "小游戏分享触发超时",
+      "causes": [
+        "平台分享面板未在预期时间内触发或回调，可能与渠道限制、用户操作或环境异常有关"
+      ],
+      "solutions": [
+        "请检查分享调用时机、分享参数和平台回调，并对超时场景做失败兜底"
+      ],
+      "relatedDocs": [
+        "RXSDK-JS/src/config/const.ts",
+        "RXSDK-JS/src/index.qq.ts"
+      ],
+      "priority": 78
+    },
+    {
+      "id": "minigame-user-info-auth-deny-6003",
+      "scenes": [
+        "permission",
+        "login"
+      ],
+      "codes": [
+        "6003"
+      ],
+      "keywords": [
+        "USER_INFO_AUTH_DENY",
+        "用户信息授权拒绝",
+        "user info auth deny"
+      ],
+      "summary": "小游戏用户信息授权被拒绝",
+      "causes": [
+        "用户拒绝了头像昵称等用户信息授权，平台无法返回完整用户资料"
+      ],
+      "solutions": [
+        "请按拒绝授权路径处理，必要时引导用户重新授权，不要把该错误当成 SDK 初始化失败"
+      ],
+      "relatedDocs": [
+        "RXSDK-JS/src/config/const.ts"
+      ],
+      "priority": 78
+    },
+    {
+      "id": "minigame-ad-unit-invalid-1002-1004",
+      "scenes": [
+        "ad"
+      ],
+      "codes": [
+        "1002",
+        "1004",
+        "1005",
+        "1006",
+        "1007",
+        "1008"
+      ],
+      "keywords": [
+        "广告单元无效",
+        "无合适的广告",
+        "广告组件审核中",
+        "广告组件被驳回",
+        "广告组件被封禁",
+        "广告单元已关闭"
+      ],
+      "summary": "小游戏广告位无效、无填充或广告组件状态异常",
+      "causes": [
+        "广告位 ID 配置错误、无广告填充、广告组件审核中/驳回/封禁/关闭"
+      ],
+      "solutions": [
+        "请到对应小游戏平台后台检查广告位 ID、广告组件审核状态和投放填充情况"
+      ],
+      "relatedDocs": [
+        "RXSDK-JS/src/config/const.ts"
+      ],
+      "priority": 84
+    },
+    {
+      "id": "minigame-sdk-load-failed-h5-360",
+      "scenes": [
+        "init"
+      ],
+      "keywords": [
+        "sdk 加载失败",
+        "h5_360",
+        "ChannelSDK load failed"
+      ],
+      "summary": "H5/360 小游戏外部 SDK 脚本加载失败",
+      "causes": [
+        "渠道外部脚本、CDN 或容器网络加载失败，导致 ChannelSDK 不可用"
+      ],
+      "solutions": [
+        "请检查外部 SDK 脚本地址、CDN 访问、渠道容器网络和页面加载顺序"
+      ],
+      "relatedDocs": [
+        "RXSDK-JS/src/index.h5_360.ts"
+      ],
+      "priority": 74
+    }
+  ]
+}

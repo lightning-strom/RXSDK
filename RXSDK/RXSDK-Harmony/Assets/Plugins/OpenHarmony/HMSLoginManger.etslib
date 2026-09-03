@@ -1,0 +1,30 @@
+import { SDKManager } from "./RXInterface";
+
+export function RegisterHMSLoginManger() {
+  let register: Record<string, Object> = {};
+  //登录
+  register["HMSLoginManager"] = HMSLoginManager;
+  return register;
+}
+
+
+export class HMSLoginManager {
+  /**
+   * 玩家登录-UI
+   */
+  LoginOnUI(callback: (msgType: string, status: string, data: string) => void) {
+    SDKManager.LoginOnUI(callback);
+  }
+
+  UnionLoginOnUI(loginParams: string, callback: (msgType: string, status: string, data: string) => void) {
+    SDKManager.UnionLoginOnUI(loginParams, callback);
+  }
+
+  LogoutOnUI(callback: (msgType: string, status: string, data: string) => void) {
+    SDKManager.LogoutOnUI(callback);
+  }
+
+  public static getInstance() {
+    return new HMSLoginManager();
+  }
+}

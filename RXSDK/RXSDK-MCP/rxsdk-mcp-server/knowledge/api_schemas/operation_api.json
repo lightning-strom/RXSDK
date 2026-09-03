@@ -1,0 +1,2849 @@
+{
+  "source": "operation_api",
+  "schemaDialect": "https://json-schema.org/draft/2020-12/schema",
+  "generatedAt": "2026-08-06T10:34:33+08:00",
+  "endpointCount": 32,
+  "endpoints": [
+    {
+      "path": "/v1/jump/{product_id}",
+      "method": "GET",
+      "module": "jump",
+      "requestSchema": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "properties": {
+          "product_id": {
+            "description": "[query] [path] product_id",
+            "type": "string"
+          }
+        },
+        "required": [
+          "product_id"
+        ],
+        "type": "object"
+      },
+      "responseSchema": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "properties": {
+          "code": {
+            "description": "状态 0 成功，其它失败",
+            "type": "integer"
+          },
+          "data": {
+            "description": "动态返回数据"
+          },
+          "message": {
+            "description": "错误信息",
+            "type": "string"
+          },
+          "toast_message": {
+            "description": "弹窗信息",
+            "type": "string"
+          }
+        },
+        "type": "object"
+      }
+    },
+    {
+      "path": "/v1/operationapi/ad/data",
+      "method": "POST",
+      "module": "ad",
+      "summary": "获取广告数据",
+      "requestSchema": {
+        "$defs": {
+          "ReqShareGetDataCustomExt": {
+            "properties": {
+              "bigdata_ext": {
+                "additionalProperties": true,
+                "type": "object"
+              }
+            },
+            "required": [
+              "bigdata_ext"
+            ],
+            "type": "object"
+          }
+        },
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "properties": {
+          "browser_language": {
+            "type": "string"
+          },
+          "channel_id": {
+            "type": "string"
+          },
+          "custom_ext": {
+            "$ref": "#/$defs/ReqShareGetDataCustomExt"
+          },
+          "func": {
+            "type": "string"
+          },
+          "get_qrcode": {
+            "type": "boolean"
+          },
+          "id": {
+            "type": "integer"
+          },
+          "language": {
+            "type": "string"
+          },
+          "open_id": {
+            "description": "分享用户的openid",
+            "type": "string"
+          },
+          "platform": {
+            "type": "string"
+          },
+          "product_id": {
+            "type": "string"
+          },
+          "region": {
+            "type": "string"
+          },
+          "ruixue-accesstoken": {
+            "description": "[query] [header] token",
+            "type": "string"
+          },
+          "ruixue-channelid": {
+            "description": "[query] [header] token",
+            "type": "string"
+          },
+          "ruixue-productid": {
+            "description": "[query] [header] token",
+            "type": "string"
+          },
+          "sdk_transmits": {
+            "description": "sdk透传参数",
+            "type": "string"
+          },
+          "sub_channel_id": {
+            "description": "子渠道",
+            "type": "string"
+          },
+          "transmits": {
+            "description": "透传参数 原样返回",
+            "type": "string"
+          },
+          "type": {
+            "description": "类型 app/mini",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "func",
+          "platform",
+          "product_id",
+          "channel_id",
+          "sub_channel_id",
+          "region",
+          "type",
+          "transmits",
+          "open_id",
+          "language",
+          "browser_language",
+          "sdk_transmits",
+          "custom_ext",
+          "get_qrcode"
+        ],
+        "type": "object"
+      },
+      "responseSchema": {
+        "$defs": {
+          "AdContent": {
+            "properties": {
+              "ad_type,omitempty": {
+                "description": "微信  ad_type（rewarded 激励广告，custom 原生模板广告，interstitial 插屏广告",
+                "type": "string"
+              },
+              "ext,omitempty": {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              "identify,omitempty": {
+                "description": "广告标识",
+                "type": "string"
+              },
+              "platform,omitempty": {
+                "description": "三方平台",
+                "type": "string"
+              }
+            },
+            "type": "object"
+          },
+          "MaterialAtlasInfo": {
+            "properties": {
+              "content,omitempty": {
+                "type": "string"
+              },
+              "height,omitempty": {
+                "description": "高度",
+                "type": "integer"
+              },
+              "image_url,omitempty": {
+                "description": "图片地址",
+                "type": "string"
+              },
+              "landing_id,omitempty": {
+                "description": "落地页ID",
+                "type": "integer"
+              },
+              "landing_url,omitempty": {
+                "description": "落地页url",
+                "type": "string"
+              },
+              "width,omitempty": {
+                "description": "宽度",
+                "type": "integer"
+              },
+              "x,omitempty": {
+                "description": "二维码x坐标",
+                "type": "integer"
+              },
+              "y,omitempty": {
+                "description": "二维码y坐标",
+                "type": "integer"
+              }
+            },
+            "type": "object"
+          },
+          "ReqMaterialTemplate": {
+            "properties": {
+              "audios,omitempty": {
+                "items": {
+                  "type": "string"
+                },
+                "type": "array"
+              },
+              "contents,omitempty": {
+                "items": {
+                  "type": "string"
+                },
+                "type": "array"
+              },
+              "description,omitempty": {
+                "description": "描述",
+                "type": "string"
+              },
+              "images,omitempty": {
+                "items": {
+                  "type": "string"
+                },
+                "type": "array"
+              },
+              "template_id,omitempty": {
+                "description": "华为模版id",
+                "type": "string"
+              }
+            },
+            "type": "object"
+          },
+          "ShareContent": {
+            "properties": {
+              "atlas,omitempty": {
+                "description": "图集",
+                "items": {
+                  "$ref": "#/$defs/MaterialAtlasInfo"
+                },
+                "type": "array"
+              },
+              "content,omitempty": {
+                "description": "分享的内容",
+                "type": "string"
+              },
+              "copywriting,omitempty": {
+                "description": "分享文案（海外）",
+                "type": "string"
+              },
+              "height,omitempty": {
+                "description": "图片类型时二维码的高度",
+                "type": "integer"
+              },
+              "image,omitempty": {
+                "description": "图片地址",
+                "type": "string"
+              },
+              "image_url,omitempty": {
+                "description": "缩略图别名",
+                "type": "string"
+              },
+              "is_hyaline,omitempty": {
+                "description": "是否背景透明",
+                "type": "integer"
+              },
+              "landing_id,omitempty": {
+                "description": "落地页ID",
+                "type": "integer"
+              },
+              "material_id,omitempty": {
+                "description": "素材ID",
+                "type": "integer"
+              },
+              "material_type,omitempty": {
+                "description": "素材类型",
+                "type": "string"
+              },
+              "meta_source,omitempty": {
+                "description": "落地页链接 1 手动维护 2 读取落地页信息（动态链接，客户端自己赋值）",
+                "type": "integer"
+              },
+              "qrcode,omitempty": {
+                "type": "string"
+              },
+              "share_id,omitempty": {
+                "type": "string"
+              },
+              "template,omitempty": {
+                "$ref": "#/$defs/ReqMaterialTemplate"
+              },
+              "template_id,omitempty": {
+                "description": "分享模版ID",
+                "type": "string"
+              },
+              "title,omitempty": {
+                "description": "标题",
+                "type": "string"
+              },
+              "url,omitempty": {
+                "description": "URL 拼接后的地址",
+                "type": "string"
+              },
+              "video,omitempty": {
+                "description": "视频地址",
+                "type": "string"
+              },
+              "video_contents,omitempty": {
+                "description": "抖音口令分享ID",
+                "items": {
+                  "type": "string"
+                },
+                "type": "array"
+              },
+              "width,omitempty": {
+                "description": "图片类型时二维码的宽度",
+                "type": "integer"
+              },
+              "x,omitempty": {
+                "description": "图片类型时二维码的x轴坐标",
+                "type": "integer"
+              },
+              "y,omitempty": {
+                "description": "图片类型时二维码的y轴坐标",
+                "type": "integer"
+              }
+            },
+            "type": "object"
+          },
+          "ShareData": {
+            "properties": {
+              "ad_content,omitempty": {
+                "$ref": "#/$defs/AdContent"
+              },
+              "browser_language": {
+                "type": "string"
+              },
+              "content,omitempty": {
+                "$ref": "#/$defs/ShareContent",
+                "description": "分享内容"
+              },
+              "identity": {
+                "description": "ExamplePlatforms interface{}      `json:\"example_platforms\"`   // 参照数据，正式时无用",
+                "type": "string"
+              },
+              "platform": {
+                "description": "当前使用的平台 即客户端上传过来的平台",
+                "type": "string"
+              },
+              "platforms": {
+                "additionalProperties": {
+                  "type": "integer"
+                },
+                "description": "平台信息",
+                "type": "object"
+              },
+              "scheduling,omitempty": {
+                "$ref": "#/$defs/ShareSchedulingData",
+                "description": "FailedMsg        string           `json:\"failed_msg,omitempty\"` // 接入分享调度后，如果此字段有值，则为分享失败"
+              },
+              "strategy,omitempty": {
+                "$ref": "#/$defs/Strategy",
+                "description": "策略信息"
+              },
+              "transmits,omitempty": {
+                "description": "透传参数 原样返回",
+                "type": "string"
+              },
+              "trigger": {
+                "$ref": "#/$defs/Trigger",
+                "description": "埋点信息"
+              }
+            },
+            "required": [
+              "trigger",
+              "platforms",
+              "platform",
+              "identity",
+              "browser_language"
+            ],
+            "type": "object"
+          },
+          "ShareSchedulingData": {
+            "properties": {
+              "remaining_share_count,omitempty": {
+                "description": "剩余分享总次数为0时，客户端需调用初始化方法重新渲染分享入口",
+                "type": "integer"
+              },
+              "scheduling_event,omitempty": {
+                "description": "1 成功， -1 失败",
+                "type": "integer"
+              },
+              "scheduling_failed_msg,omitempty": {
+                "description": "接入分享调度后，分享失败内容",
+                "type": "string"
+              },
+              "scheduling_sign": {
+                "description": "给游戏测服务端使用cpkey解析",
+                "type": "string"
+              },
+              "scheduling_type": {
+                "description": "share , ad",
+                "type": "string"
+              },
+              "user_type,omitempty": {
+                "type": "integer"
+              }
+            },
+            "required": [
+              "scheduling_type",
+              "scheduling_sign"
+            ],
+            "type": "object"
+          },
+          "Strategy": {
+            "properties": {
+              "channel_id,omitempty": {
+                "description": "渠道ID",
+                "type": "string"
+              },
+              "contents,omitempty": {
+                "description": "策略关联的内容",
+                "type": "object"
+              },
+              "id,omitempty": {
+                "type": "integer"
+              },
+              "is_general,omitempty": {
+                "description": "是否为通用  0为否 1为是 策略为成就的才允许通用  小程序/App、每个类型下边只能有一个",
+                "type": "integer"
+              },
+              "name,omitempty": {
+                "description": "策略名称",
+                "type": "string"
+              },
+              "platform,omitempty": {
+                "description": "所属平台",
+                "type": "string"
+              },
+              "product_id,omitempty": {
+                "description": "产品",
+                "type": "string"
+              },
+              "region,omitempty": {
+                "description": "地区 -1 为不筛选 \"\"为显示地区为全部的",
+                "type": "string"
+              },
+              "share_type,omitempty": {
+                "description": "分享类型. 1:app分享; 2:小游戏分享",
+                "type": "integer"
+              },
+              "status,omitempty": {
+                "description": "状态 1:正常 -1:禁用",
+                "type": "integer"
+              },
+              "strategy_group_id": {
+                "description": "策略组ID",
+                "type": "integer"
+              },
+              "triggers,omitempty": {
+                "description": "策略关联的埋点ID列表",
+                "type": "object"
+              },
+              "type,omitempty": {
+                "description": "策略类型. 1, 诱导; 2:组队; 3:成就",
+                "type": "integer"
+              }
+            },
+            "required": [
+              "strategy_group_id"
+            ],
+            "type": "object"
+          },
+          "Trigger": {
+            "properties": {
+              "failed_msg,omitempty": {
+                "description": "失败提示",
+                "type": "string"
+              },
+              "id,omitempty": {
+                "description": "id",
+                "type": "integer"
+              },
+              "status,omitempty": {
+                "description": "状态 1, 正常; -1, 禁用",
+                "type": "integer"
+              },
+              "tag,omitempty": {
+                "description": "埋点标识",
+                "type": "string"
+              },
+              "time_interval": {
+                "description": "触发间隔时间",
+                "type": "integer"
+              },
+              "title,omitempty": {
+                "description": "标题",
+                "type": "string"
+              },
+              "type,omitempty": {
+                "description": "埋点类型 1:诱导 2:活动 3:成就 4:好友房 5:特殊分享埋点",
+                "type": "integer"
+              }
+            },
+            "required": [
+              "time_interval"
+            ],
+            "type": "object"
+          }
+        },
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "properties": {
+          "code": {
+            "description": "状态 0 成功，其它失败",
+            "type": "integer"
+          },
+          "data": {
+            "$ref": "#/$defs/ShareData"
+          },
+          "message": {
+            "description": "错误信息",
+            "type": "string"
+          },
+          "toast_message": {
+            "description": "弹窗信息",
+            "type": "string"
+          }
+        },
+        "type": "object"
+      }
+    },
+    {
+      "path": "/v1/operationapi/wx/jsapi_ticket",
+      "method": "POST",
+      "module": "wx",
+      "requestSchema": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "properties": {},
+        "type": "object"
+      },
+      "responseSchema": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "properties": {
+          "code": {
+            "description": "状态 0 成功，其它失败",
+            "type": "integer"
+          },
+          "data": {
+            "description": "动态返回数据"
+          },
+          "message": {
+            "description": "错误信息",
+            "type": "string"
+          },
+          "toast_message": {
+            "description": "弹窗信息",
+            "type": "string"
+          }
+        },
+        "type": "object"
+      }
+    },
+    {
+      "path": "/v1/operationapi/scheduling/init",
+      "method": "POST",
+      "module": "scheduling",
+      "summary": "初始化调度",
+      "requestSchema": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "properties": {
+          "channel_id": {
+            "type": "string"
+          },
+          "func": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "language": {
+            "type": "string"
+          },
+          "open_id": {
+            "description": "分享用户的openid",
+            "type": "string"
+          },
+          "platform": {
+            "type": "string"
+          },
+          "product_id": {
+            "type": "string"
+          },
+          "ruixue-accesstoken": {
+            "description": "[query] [header] token",
+            "type": "string"
+          },
+          "ruixue-channelid": {
+            "description": "[query] [header] token",
+            "type": "string"
+          },
+          "ruixue-productid": {
+            "description": "[query] [header] token",
+            "type": "string"
+          },
+          "type": {
+            "description": "类型 app/mini",
+            "type": "string"
+          }
+        },
+        "required": [
+          "func",
+          "platform",
+          "product_id",
+          "channel_id",
+          "type",
+          "open_id",
+          "language"
+        ],
+        "type": "object"
+      },
+      "responseSchema": {
+        "$defs": {
+          "ShareSchedulingData": {
+            "properties": {
+              "remaining_share_count,omitempty": {
+                "description": "剩余分享总次数为0时，客户端需调用初始化方法重新渲染分享入口",
+                "type": "integer"
+              },
+              "scheduling_event,omitempty": {
+                "description": "1 成功， -1 失败",
+                "type": "integer"
+              },
+              "scheduling_failed_msg,omitempty": {
+                "description": "接入分享调度后，分享失败内容",
+                "type": "string"
+              },
+              "scheduling_sign": {
+                "description": "给游戏测服务端使用cpkey解析",
+                "type": "string"
+              },
+              "scheduling_type": {
+                "description": "share , ad",
+                "type": "string"
+              },
+              "user_type,omitempty": {
+                "type": "integer"
+              }
+            },
+            "required": [
+              "scheduling_type",
+              "scheduling_sign"
+            ],
+            "type": "object"
+          }
+        },
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "properties": {
+          "code": {
+            "description": "状态 0 成功，其它失败",
+            "type": "integer"
+          },
+          "data": {
+            "additionalProperties": {
+              "$ref": "#/$defs/ShareSchedulingData"
+            },
+            "type": "object"
+          },
+          "message": {
+            "description": "错误信息",
+            "type": "string"
+          },
+          "toast_message": {
+            "description": "弹窗信息",
+            "type": "string"
+          }
+        },
+        "type": "object"
+      }
+    },
+    {
+      "path": "/v1/operationapi/trigger/version",
+      "method": "GET",
+      "module": "trigger",
+      "requestSchema": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "properties": {},
+        "type": "object"
+      },
+      "responseSchema": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "properties": {
+          "code": {
+            "description": "状态 0 成功，其它失败",
+            "type": "integer"
+          },
+          "data": {
+            "description": "动态返回数据"
+          },
+          "message": {
+            "description": "错误信息",
+            "type": "string"
+          },
+          "toast_message": {
+            "description": "弹窗信息",
+            "type": "string"
+          }
+        },
+        "type": "object"
+      }
+    },
+    {
+      "path": "/v1/operationapi/url/landingtest/{r:[\\w\\-]+}",
+      "method": "GET",
+      "module": "url",
+      "requestSchema": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "properties": {
+          "r": {
+            "description": "[query] [path] r",
+            "type": "string"
+          }
+        },
+        "required": [
+          "r"
+        ],
+        "type": "object"
+      },
+      "responseSchema": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "properties": {
+          "code": {
+            "description": "状态 0 成功，其它失败",
+            "type": "integer"
+          },
+          "data": {
+            "description": "动态返回数据"
+          },
+          "message": {
+            "description": "错误信息",
+            "type": "string"
+          },
+          "toast_message": {
+            "description": "弹窗信息",
+            "type": "string"
+          }
+        },
+        "type": "object"
+      }
+    },
+    {
+      "path": "/v1/operationapi/url/download_url",
+      "method": "GET",
+      "module": "url",
+      "summary": "获取渠道包下载地址",
+      "requestSchema": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "properties": {
+          "channel_id": {
+            "description": "[query] 渠道id",
+            "type": "string"
+          },
+          "inviter_openid": {
+            "description": "[query] 邀请人openid",
+            "type": "string"
+          },
+          "product_id": {
+            "description": "[query] 产品id",
+            "type": "string"
+          }
+        },
+        "required": [
+          "product_id",
+          "channel_id",
+          "inviter_openid"
+        ],
+        "type": "object"
+      },
+      "responseSchema": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "properties": {
+          "code": {
+            "description": "状态 0 成功，其它失败",
+            "type": "integer"
+          },
+          "data": {
+            "additionalProperties": {
+              "type": "string"
+            },
+            "type": "object"
+          },
+          "message": {
+            "description": "错误信息",
+            "type": "string"
+          },
+          "toast_message": {
+            "description": "弹窗信息",
+            "type": "string"
+          }
+        },
+        "type": "object"
+      }
+    },
+    {
+      "path": "/v1/operationapi/share/platforms",
+      "method": "GET",
+      "module": "share",
+      "requestSchema": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "properties": {},
+        "type": "object"
+      },
+      "responseSchema": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "properties": {
+          "code": {
+            "description": "状态 0 成功，其它失败",
+            "type": "integer"
+          },
+          "data": {
+            "description": "动态返回数据"
+          },
+          "message": {
+            "description": "错误信息",
+            "type": "string"
+          },
+          "toast_message": {
+            "description": "弹窗信息",
+            "type": "string"
+          }
+        },
+        "type": "object"
+      }
+    },
+    {
+      "path": "/v1/operationapi/legal/terms",
+      "method": "GET",
+      "module": "legal",
+      "summary": "获取法务条款",
+      "requestSchema": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "properties": {
+          "channel_id": {
+            "description": "[query] 渠道id",
+            "type": "string"
+          },
+          "keys": {
+            "description": "[query] 条款标识，多个逗号分割，优先级低于position",
+            "type": "string"
+          },
+          "position": {
+            "description": "[query] 显示位置，1登录 2用户中心 4其他",
+            "type": "integer"
+          },
+          "product_id": {
+            "description": "[query] 产品id",
+            "type": "string"
+          }
+        },
+        "required": [
+          "product_id",
+          "channel_id",
+          "keys"
+        ],
+        "type": "object"
+      },
+      "responseSchema": {
+        "$defs": {
+          "Item": {
+            "properties": {
+              "content": {
+                "type": "string"
+              },
+              "id": {
+                "type": "integer"
+              },
+              "is_default": {
+                "type": "integer"
+              },
+              "key": {
+                "type": "string"
+              },
+              "sort": {
+                "type": "integer"
+              },
+              "title": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "id",
+              "key",
+              "title",
+              "content",
+              "is_default",
+              "sort"
+            ],
+            "type": "object"
+          }
+        },
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "properties": {
+          "code": {
+            "description": "状态 0 成功，其它失败",
+            "type": "integer"
+          },
+          "data": {
+            "additionalProperties": {
+              "$ref": "#/$defs/Item"
+            },
+            "type": "object"
+          },
+          "message": {
+            "description": "错误信息",
+            "type": "string"
+          },
+          "toast_message": {
+            "description": "弹窗信息",
+            "type": "string"
+          }
+        },
+        "type": "object"
+      }
+    },
+    {
+      "path": "/v1/operationapi/callback/landing/query/{y}/{m}/{d}/{filename}",
+      "method": "GET",
+      "module": "callback",
+      "requestSchema": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "properties": {
+          "d": {
+            "description": "[query] [path] d",
+            "type": "string"
+          },
+          "filename": {
+            "description": "[query] [path] filename",
+            "type": "string"
+          },
+          "m": {
+            "description": "[query] [path] m",
+            "type": "string"
+          },
+          "y": {
+            "description": "[query] [path] y",
+            "type": "string"
+          }
+        },
+        "required": [
+          "y",
+          "m",
+          "d",
+          "filename"
+        ],
+        "type": "object"
+      },
+      "responseSchema": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "properties": {
+          "code": {
+            "description": "状态 0 成功，其它失败",
+            "type": "integer"
+          },
+          "data": {
+            "description": "动态返回数据"
+          },
+          "message": {
+            "description": "错误信息",
+            "type": "string"
+          },
+          "toast_message": {
+            "description": "弹窗信息",
+            "type": "string"
+          }
+        },
+        "type": "object"
+      }
+    },
+    {
+      "path": "/v1/operationapi/jump_wechat/list",
+      "method": "GET",
+      "module": "jump_wechat",
+      "requestSchema": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "properties": {},
+        "type": "object"
+      },
+      "responseSchema": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "properties": {
+          "code": {
+            "description": "状态 0 成功，其它失败",
+            "type": "integer"
+          },
+          "data": {
+            "description": "动态返回数据"
+          },
+          "message": {
+            "description": "错误信息",
+            "type": "string"
+          },
+          "toast_message": {
+            "description": "弹窗信息",
+            "type": "string"
+          }
+        },
+        "type": "object"
+      }
+    },
+    {
+      "path": "/v1/operationapi/share/click",
+      "method": "POST",
+      "module": "share",
+      "summary": "分享链接点击",
+      "requestSchema": {
+        "$defs": {
+          "ShareSource": {
+            "properties": {
+              "inviter_channelid": {
+                "type": "string"
+              },
+              "inviter_openid,omitempty": {
+                "description": "分享者 openid",
+                "type": "string"
+              },
+              "inviter_productid": {
+                "type": "string"
+              },
+              "inviter_region,omitempty": {
+                "description": "分享者地区",
+                "type": "string"
+              },
+              "inviter_subchannelid": {
+                "type": "string"
+              },
+              "landing_id,omitempty": {
+                "description": "落地页 ID",
+                "type": "string"
+              },
+              "material_id,omitempty": {
+                "description": "素材 ID",
+                "type": "string"
+              },
+              "material_type,omitempty": {
+                "description": "素材类型",
+                "type": "string"
+              },
+              "share_time,omitempty": {
+                "description": "分享时间，秒级时间戳",
+                "type": "string"
+              },
+              "share_type,omitempty": {
+                "description": "分享类型. app, app 分享；mini, 小游戏分享",
+                "type": "string"
+              },
+              "strategy_group_id,omitempty": {
+                "description": "策略组ID",
+                "type": "string"
+              },
+              "strategy_id,omitempty": {
+                "description": "策略ID",
+                "type": "string"
+              },
+              "strategy_type,omitempty": {
+                "description": "策略类型",
+                "type": "string"
+              },
+              "trigger_id,omitempty": {
+                "description": "埋点 ID",
+                "type": "string"
+              },
+              "trigger_tag,omitempty": {
+                "description": "埋点标识",
+                "type": "string"
+              },
+              "trigger_type,omitempty": {
+                "description": "埋点类型",
+                "type": "string"
+              }
+            },
+            "required": [
+              "inviter_productid",
+              "inviter_channelid",
+              "inviter_subchannelid"
+            ],
+            "type": "object"
+          }
+        },
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "properties": {
+          "data_info": {
+            "additionalProperties": true,
+            "type": "object"
+          },
+          "share": {
+            "$ref": "#/$defs/ShareSource"
+          }
+        },
+        "required": [
+          "share",
+          "data_info"
+        ],
+        "type": "object"
+      },
+      "responseSchema": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "properties": {
+          "code": {
+            "description": "状态 0 成功，其它失败",
+            "type": "integer"
+          },
+          "data": {
+            "description": "动态返回数据"
+          },
+          "message": {
+            "description": "错误信息",
+            "type": "string"
+          },
+          "toast_message": {
+            "description": "弹窗信息",
+            "type": "string"
+          }
+        },
+        "type": "object"
+      }
+    },
+    {
+      "path": "/v1/operationapi/share/scheduling_report",
+      "method": "POST",
+      "module": "share",
+      "requestSchema": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "properties": {
+          "inviter_openid": {
+            "description": "邀请人openid",
+            "type": "string"
+          },
+          "scheduling_use_type": {
+            "description": "落地页打开事件 landing_query",
+            "type": "string"
+          }
+        },
+        "required": [
+          "scheduling_use_type",
+          "inviter_openid"
+        ],
+        "type": "object"
+      },
+      "responseSchema": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "properties": {
+          "code": {
+            "description": "状态 0 成功，其它失败",
+            "type": "integer"
+          },
+          "data": {
+            "description": "动态返回数据"
+          },
+          "message": {
+            "description": "错误信息",
+            "type": "string"
+          },
+          "toast_message": {
+            "description": "弹窗信息",
+            "type": "string"
+          }
+        },
+        "type": "object"
+      }
+    },
+    {
+      "path": "/v1/operationapi/trigger/list",
+      "method": "GET",
+      "module": "trigger",
+      "requestSchema": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "properties": {},
+        "type": "object"
+      },
+      "responseSchema": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "properties": {
+          "code": {
+            "description": "状态 0 成功，其它失败",
+            "type": "integer"
+          },
+          "data": {
+            "description": "动态返回数据"
+          },
+          "message": {
+            "description": "错误信息",
+            "type": "string"
+          },
+          "toast_message": {
+            "description": "弹窗信息",
+            "type": "string"
+          }
+        },
+        "type": "object"
+      }
+    },
+    {
+      "path": "/v1/operationapi/url/parse",
+      "method": "GET",
+      "module": "url",
+      "summary": "解析短链接",
+      "requestSchema": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "properties": {
+          "identity": {
+            "description": "[query] 短名",
+            "type": "string"
+          }
+        },
+        "required": [
+          "identity"
+        ],
+        "type": "object"
+      },
+      "responseSchema": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "properties": {
+          "code": {
+            "description": "状态 0 成功，其它失败",
+            "type": "integer"
+          },
+          "data": {
+            "additionalProperties": {
+              "type": "string"
+            },
+            "type": "object"
+          },
+          "message": {
+            "description": "错误信息",
+            "type": "string"
+          },
+          "toast_message": {
+            "description": "弹窗信息",
+            "type": "string"
+          }
+        },
+        "type": "object"
+      }
+    },
+    {
+      "path": "/v1/operationapi/url/landing",
+      "method": "GET",
+      "module": "url",
+      "summary": "链接根据国家语言跳转落地页",
+      "requestSchema": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "properties": {
+          "identity": {
+            "description": "[query] 短名",
+            "type": "string"
+          },
+          "link_id": {
+            "description": "[query] 链接id",
+            "type": "string"
+          },
+          "product_id": {
+            "description": "[query] 产品id",
+            "type": "string"
+          },
+          "type": {
+            "description": "[query] 链接类型",
+            "type": "string"
+          }
+        },
+        "required": [
+          "identity",
+          "link_id",
+          "product_id",
+          "type"
+        ],
+        "type": "object"
+      },
+      "responseSchema": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "properties": {
+          "code": {
+            "description": "状态 0 成功，其它失败",
+            "type": "integer"
+          },
+          "data": {
+            "additionalProperties": {
+              "type": "string"
+            },
+            "type": "object"
+          },
+          "message": {
+            "description": "错误信息",
+            "type": "string"
+          },
+          "toast_message": {
+            "description": "弹窗信息",
+            "type": "string"
+          }
+        },
+        "type": "object"
+      }
+    },
+    {
+      "path": "/v1/jump/{product_id}/{channel_id}",
+      "method": "GET",
+      "module": "jump",
+      "requestSchema": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "properties": {
+          "channel_id": {
+            "description": "[query] [path] channel_id",
+            "type": "string"
+          },
+          "product_id": {
+            "description": "[query] [path] product_id",
+            "type": "string"
+          }
+        },
+        "required": [
+          "product_id",
+          "channel_id"
+        ],
+        "type": "object"
+      },
+      "responseSchema": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "properties": {
+          "code": {
+            "description": "状态 0 成功，其它失败",
+            "type": "integer"
+          },
+          "data": {
+            "description": "动态返回数据"
+          },
+          "message": {
+            "description": "错误信息",
+            "type": "string"
+          },
+          "toast_message": {
+            "description": "弹窗信息",
+            "type": "string"
+          }
+        },
+        "type": "object"
+      }
+    },
+    {
+      "path": "/v1/url/short",
+      "method": "POST",
+      "module": "url",
+      "summary": "设置域名短链接",
+      "requestSchema": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "properties": {
+          "jump_url": {
+            "type": "string"
+          },
+          "url": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "jump_url",
+          "url"
+        ],
+        "type": "object"
+      },
+      "responseSchema": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "properties": {
+          "code": {
+            "description": "状态 0 成功，其它失败",
+            "type": "integer"
+          },
+          "data": {
+            "additionalProperties": {
+              "type": "string"
+            },
+            "type": "object"
+          },
+          "message": {
+            "description": "错误信息",
+            "type": "string"
+          },
+          "toast_message": {
+            "description": "弹窗信息",
+            "type": "string"
+          }
+        },
+        "type": "object"
+      }
+    },
+    {
+      "path": "/v1/text/short",
+      "method": "POST",
+      "module": "text",
+      "requestSchema": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "properties": {
+          "text": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "text"
+        ],
+        "type": "object"
+      },
+      "responseSchema": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "properties": {
+          "code": {
+            "description": "状态 0 成功，其它失败",
+            "type": "integer"
+          },
+          "data": {
+            "description": "动态返回数据"
+          },
+          "message": {
+            "description": "错误信息",
+            "type": "string"
+          },
+          "toast_message": {
+            "description": "弹窗信息",
+            "type": "string"
+          }
+        },
+        "type": "object"
+      }
+    },
+    {
+      "path": "/v1/operationapi/ip_report",
+      "method": "POST",
+      "module": "ip_report",
+      "requestSchema": {
+        "$defs": {
+          "IpReportCallbackData": {
+            "properties": {
+              "ip": {
+                "type": "string"
+              },
+              "robot_msg": {
+                "type": "string"
+              },
+              "status": {
+                "type": "integer"
+              }
+            },
+            "required": [
+              "ip",
+              "status",
+              "robot_msg"
+            ],
+            "type": "object"
+          }
+        },
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "properties": {
+          "data": {
+            "items": {
+              "$ref": "#/$defs/IpReportCallbackData"
+            },
+            "type": "array"
+          },
+          "type": {
+            "description": "create, update, delete",
+            "type": "string"
+          }
+        },
+        "required": [
+          "type",
+          "data"
+        ],
+        "type": "object"
+      },
+      "responseSchema": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "properties": {
+          "code": {
+            "description": "状态 0 成功，其它失败",
+            "type": "integer"
+          },
+          "data": {
+            "description": "动态返回数据"
+          },
+          "message": {
+            "description": "错误信息",
+            "type": "string"
+          },
+          "toast_message": {
+            "description": "弹窗信息",
+            "type": "string"
+          }
+        },
+        "type": "object"
+      }
+    },
+    {
+      "path": "/v1/text/short",
+      "method": "GET",
+      "module": "text",
+      "requestSchema": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "properties": {},
+        "type": "object"
+      },
+      "responseSchema": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "properties": {
+          "code": {
+            "description": "状态 0 成功，其它失败",
+            "type": "integer"
+          },
+          "data": {
+            "description": "动态返回数据"
+          },
+          "message": {
+            "description": "错误信息",
+            "type": "string"
+          },
+          "toast_message": {
+            "description": "弹窗信息",
+            "type": "string"
+          }
+        },
+        "type": "object"
+      }
+    },
+    {
+      "path": "/v1/operationapi/url/landing_report",
+      "method": "POST",
+      "module": "url",
+      "summary": "直接上报落地页事件",
+      "requestSchema": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "properties": {
+          "devicecode": {
+            "type": "string"
+          },
+          "identity": {
+            "description": "[query] 短名",
+            "type": "string"
+          },
+          "landing_report": {
+            "type": "integer"
+          },
+          "properties": {
+            "additionalProperties": true,
+            "type": "object"
+          }
+        },
+        "required": [
+          "identity",
+          "landing_report",
+          "properties",
+          "devicecode"
+        ],
+        "type": "object"
+      },
+      "responseSchema": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "properties": {
+          "code": {
+            "description": "状态 0 成功，其它失败",
+            "type": "integer"
+          },
+          "data": {
+            "description": "动态返回数据"
+          },
+          "message": {
+            "description": "错误信息",
+            "type": "string"
+          },
+          "toast_message": {
+            "description": "弹窗信息",
+            "type": "string"
+          }
+        },
+        "type": "object"
+      }
+    },
+    {
+      "path": "/v1/operationapi/url/landingresp",
+      "method": "GET",
+      "module": "url",
+      "requestSchema": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "properties": {},
+        "type": "object"
+      },
+      "responseSchema": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "properties": {
+          "code": {
+            "description": "状态 0 成功，其它失败",
+            "type": "integer"
+          },
+          "data": {
+            "description": "动态返回数据"
+          },
+          "message": {
+            "description": "错误信息",
+            "type": "string"
+          },
+          "toast_message": {
+            "description": "弹窗信息",
+            "type": "string"
+          }
+        },
+        "type": "object"
+      }
+    },
+    {
+      "path": "/v1/operationapi/test",
+      "method": "GET",
+      "module": "test",
+      "requestSchema": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "properties": {},
+        "type": "object"
+      },
+      "responseSchema": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "properties": {
+          "code": {
+            "description": "状态 0 成功，其它失败",
+            "type": "integer"
+          },
+          "data": {
+            "description": "动态返回数据"
+          },
+          "message": {
+            "description": "错误信息",
+            "type": "string"
+          },
+          "toast_message": {
+            "description": "弹窗信息",
+            "type": "string"
+          }
+        },
+        "type": "object"
+      }
+    },
+    {
+      "path": "/v1/operationapi/landing/openinstall",
+      "method": "GET",
+      "module": "landing",
+      "requestSchema": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "properties": {},
+        "type": "object"
+      },
+      "responseSchema": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "properties": {
+          "code": {
+            "description": "状态 0 成功，其它失败",
+            "type": "integer"
+          },
+          "data": {
+            "description": "动态返回数据"
+          },
+          "message": {
+            "description": "错误信息",
+            "type": "string"
+          },
+          "toast_message": {
+            "description": "弹窗信息",
+            "type": "string"
+          }
+        },
+        "type": "object"
+      }
+    },
+    {
+      "path": "/v1/operationapi/share/data",
+      "method": "POST",
+      "module": "share",
+      "summary": "获取分享数据",
+      "requestSchema": {
+        "$defs": {
+          "ReqShareGetDataCustomExt": {
+            "properties": {
+              "bigdata_ext": {
+                "additionalProperties": true,
+                "type": "object"
+              }
+            },
+            "required": [
+              "bigdata_ext"
+            ],
+            "type": "object"
+          }
+        },
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "properties": {
+          "browser_language": {
+            "type": "string"
+          },
+          "channel_id": {
+            "type": "string"
+          },
+          "custom_ext": {
+            "$ref": "#/$defs/ReqShareGetDataCustomExt"
+          },
+          "func": {
+            "type": "string"
+          },
+          "get_qrcode": {
+            "type": "boolean"
+          },
+          "id": {
+            "type": "integer"
+          },
+          "language": {
+            "type": "string"
+          },
+          "open_id": {
+            "description": "分享用户的openid",
+            "type": "string"
+          },
+          "platform": {
+            "type": "string"
+          },
+          "product_id": {
+            "type": "string"
+          },
+          "region": {
+            "type": "string"
+          },
+          "ruixue-accesstoken": {
+            "description": "[query] [header] token",
+            "type": "string"
+          },
+          "ruixue-channelid": {
+            "description": "[query] [header] token",
+            "type": "string"
+          },
+          "ruixue-productid": {
+            "description": "[query] [header] token",
+            "type": "string"
+          },
+          "sdk_transmits": {
+            "description": "sdk透传参数",
+            "type": "string"
+          },
+          "sub_channel_id": {
+            "description": "子渠道",
+            "type": "string"
+          },
+          "transmits": {
+            "description": "透传参数 原样返回",
+            "type": "string"
+          },
+          "type": {
+            "description": "类型 app/mini",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "func",
+          "platform",
+          "product_id",
+          "channel_id",
+          "sub_channel_id",
+          "region",
+          "type",
+          "transmits",
+          "open_id",
+          "language",
+          "browser_language",
+          "sdk_transmits",
+          "custom_ext",
+          "get_qrcode"
+        ],
+        "type": "object"
+      },
+      "responseSchema": {
+        "$defs": {
+          "AdContent": {
+            "properties": {
+              "ad_type,omitempty": {
+                "description": "微信  ad_type（rewarded 激励广告，custom 原生模板广告，interstitial 插屏广告",
+                "type": "string"
+              },
+              "ext,omitempty": {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              "identify,omitempty": {
+                "description": "广告标识",
+                "type": "string"
+              },
+              "platform,omitempty": {
+                "description": "三方平台",
+                "type": "string"
+              }
+            },
+            "type": "object"
+          },
+          "MaterialAtlasInfo": {
+            "properties": {
+              "content,omitempty": {
+                "type": "string"
+              },
+              "height,omitempty": {
+                "description": "高度",
+                "type": "integer"
+              },
+              "image_url,omitempty": {
+                "description": "图片地址",
+                "type": "string"
+              },
+              "landing_id,omitempty": {
+                "description": "落地页ID",
+                "type": "integer"
+              },
+              "landing_url,omitempty": {
+                "description": "落地页url",
+                "type": "string"
+              },
+              "width,omitempty": {
+                "description": "宽度",
+                "type": "integer"
+              },
+              "x,omitempty": {
+                "description": "二维码x坐标",
+                "type": "integer"
+              },
+              "y,omitempty": {
+                "description": "二维码y坐标",
+                "type": "integer"
+              }
+            },
+            "type": "object"
+          },
+          "ReqMaterialTemplate": {
+            "properties": {
+              "audios,omitempty": {
+                "items": {
+                  "type": "string"
+                },
+                "type": "array"
+              },
+              "contents,omitempty": {
+                "items": {
+                  "type": "string"
+                },
+                "type": "array"
+              },
+              "description,omitempty": {
+                "description": "描述",
+                "type": "string"
+              },
+              "images,omitempty": {
+                "items": {
+                  "type": "string"
+                },
+                "type": "array"
+              },
+              "template_id,omitempty": {
+                "description": "华为模版id",
+                "type": "string"
+              }
+            },
+            "type": "object"
+          },
+          "ShareContent": {
+            "properties": {
+              "atlas,omitempty": {
+                "description": "图集",
+                "items": {
+                  "$ref": "#/$defs/MaterialAtlasInfo"
+                },
+                "type": "array"
+              },
+              "content,omitempty": {
+                "description": "分享的内容",
+                "type": "string"
+              },
+              "copywriting,omitempty": {
+                "description": "分享文案（海外）",
+                "type": "string"
+              },
+              "height,omitempty": {
+                "description": "图片类型时二维码的高度",
+                "type": "integer"
+              },
+              "image,omitempty": {
+                "description": "图片地址",
+                "type": "string"
+              },
+              "image_url,omitempty": {
+                "description": "缩略图别名",
+                "type": "string"
+              },
+              "is_hyaline,omitempty": {
+                "description": "是否背景透明",
+                "type": "integer"
+              },
+              "landing_id,omitempty": {
+                "description": "落地页ID",
+                "type": "integer"
+              },
+              "material_id,omitempty": {
+                "description": "素材ID",
+                "type": "integer"
+              },
+              "material_type,omitempty": {
+                "description": "素材类型",
+                "type": "string"
+              },
+              "meta_source,omitempty": {
+                "description": "落地页链接 1 手动维护 2 读取落地页信息（动态链接，客户端自己赋值）",
+                "type": "integer"
+              },
+              "qrcode,omitempty": {
+                "type": "string"
+              },
+              "share_id,omitempty": {
+                "type": "string"
+              },
+              "template,omitempty": {
+                "$ref": "#/$defs/ReqMaterialTemplate"
+              },
+              "template_id,omitempty": {
+                "description": "分享模版ID",
+                "type": "string"
+              },
+              "title,omitempty": {
+                "description": "标题",
+                "type": "string"
+              },
+              "url,omitempty": {
+                "description": "URL 拼接后的地址",
+                "type": "string"
+              },
+              "video,omitempty": {
+                "description": "视频地址",
+                "type": "string"
+              },
+              "video_contents,omitempty": {
+                "description": "抖音口令分享ID",
+                "items": {
+                  "type": "string"
+                },
+                "type": "array"
+              },
+              "width,omitempty": {
+                "description": "图片类型时二维码的宽度",
+                "type": "integer"
+              },
+              "x,omitempty": {
+                "description": "图片类型时二维码的x轴坐标",
+                "type": "integer"
+              },
+              "y,omitempty": {
+                "description": "图片类型时二维码的y轴坐标",
+                "type": "integer"
+              }
+            },
+            "type": "object"
+          },
+          "ShareData": {
+            "properties": {
+              "ad_content,omitempty": {
+                "$ref": "#/$defs/AdContent"
+              },
+              "browser_language": {
+                "type": "string"
+              },
+              "content,omitempty": {
+                "$ref": "#/$defs/ShareContent",
+                "description": "分享内容"
+              },
+              "identity": {
+                "description": "ExamplePlatforms interface{}      `json:\"example_platforms\"`   // 参照数据，正式时无用",
+                "type": "string"
+              },
+              "platform": {
+                "description": "当前使用的平台 即客户端上传过来的平台",
+                "type": "string"
+              },
+              "platforms": {
+                "additionalProperties": {
+                  "type": "integer"
+                },
+                "description": "平台信息",
+                "type": "object"
+              },
+              "scheduling,omitempty": {
+                "$ref": "#/$defs/ShareSchedulingData",
+                "description": "FailedMsg        string           `json:\"failed_msg,omitempty\"` // 接入分享调度后，如果此字段有值，则为分享失败"
+              },
+              "strategy,omitempty": {
+                "$ref": "#/$defs/Strategy",
+                "description": "策略信息"
+              },
+              "transmits,omitempty": {
+                "description": "透传参数 原样返回",
+                "type": "string"
+              },
+              "trigger": {
+                "$ref": "#/$defs/Trigger",
+                "description": "埋点信息"
+              }
+            },
+            "required": [
+              "trigger",
+              "platforms",
+              "platform",
+              "identity",
+              "browser_language"
+            ],
+            "type": "object"
+          },
+          "ShareSchedulingData": {
+            "properties": {
+              "remaining_share_count,omitempty": {
+                "description": "剩余分享总次数为0时，客户端需调用初始化方法重新渲染分享入口",
+                "type": "integer"
+              },
+              "scheduling_event,omitempty": {
+                "description": "1 成功， -1 失败",
+                "type": "integer"
+              },
+              "scheduling_failed_msg,omitempty": {
+                "description": "接入分享调度后，分享失败内容",
+                "type": "string"
+              },
+              "scheduling_sign": {
+                "description": "给游戏测服务端使用cpkey解析",
+                "type": "string"
+              },
+              "scheduling_type": {
+                "description": "share , ad",
+                "type": "string"
+              },
+              "user_type,omitempty": {
+                "type": "integer"
+              }
+            },
+            "required": [
+              "scheduling_type",
+              "scheduling_sign"
+            ],
+            "type": "object"
+          },
+          "Strategy": {
+            "properties": {
+              "channel_id,omitempty": {
+                "description": "渠道ID",
+                "type": "string"
+              },
+              "contents,omitempty": {
+                "description": "策略关联的内容",
+                "type": "object"
+              },
+              "id,omitempty": {
+                "type": "integer"
+              },
+              "is_general,omitempty": {
+                "description": "是否为通用  0为否 1为是 策略为成就的才允许通用  小程序/App、每个类型下边只能有一个",
+                "type": "integer"
+              },
+              "name,omitempty": {
+                "description": "策略名称",
+                "type": "string"
+              },
+              "platform,omitempty": {
+                "description": "所属平台",
+                "type": "string"
+              },
+              "product_id,omitempty": {
+                "description": "产品",
+                "type": "string"
+              },
+              "region,omitempty": {
+                "description": "地区 -1 为不筛选 \"\"为显示地区为全部的",
+                "type": "string"
+              },
+              "share_type,omitempty": {
+                "description": "分享类型. 1:app分享; 2:小游戏分享",
+                "type": "integer"
+              },
+              "status,omitempty": {
+                "description": "状态 1:正常 -1:禁用",
+                "type": "integer"
+              },
+              "strategy_group_id": {
+                "description": "策略组ID",
+                "type": "integer"
+              },
+              "triggers,omitempty": {
+                "description": "策略关联的埋点ID列表",
+                "type": "object"
+              },
+              "type,omitempty": {
+                "description": "策略类型. 1, 诱导; 2:组队; 3:成就",
+                "type": "integer"
+              }
+            },
+            "required": [
+              "strategy_group_id"
+            ],
+            "type": "object"
+          },
+          "Trigger": {
+            "properties": {
+              "failed_msg,omitempty": {
+                "description": "失败提示",
+                "type": "string"
+              },
+              "id,omitempty": {
+                "description": "id",
+                "type": "integer"
+              },
+              "status,omitempty": {
+                "description": "状态 1, 正常; -1, 禁用",
+                "type": "integer"
+              },
+              "tag,omitempty": {
+                "description": "埋点标识",
+                "type": "string"
+              },
+              "time_interval": {
+                "description": "触发间隔时间",
+                "type": "integer"
+              },
+              "title,omitempty": {
+                "description": "标题",
+                "type": "string"
+              },
+              "type,omitempty": {
+                "description": "埋点类型 1:诱导 2:活动 3:成就 4:好友房 5:特殊分享埋点",
+                "type": "integer"
+              }
+            },
+            "required": [
+              "time_interval"
+            ],
+            "type": "object"
+          }
+        },
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "properties": {
+          "code": {
+            "description": "状态 0 成功，其它失败",
+            "type": "integer"
+          },
+          "data": {
+            "$ref": "#/$defs/ShareData"
+          },
+          "message": {
+            "description": "错误信息",
+            "type": "string"
+          },
+          "toast_message": {
+            "description": "弹窗信息",
+            "type": "string"
+          }
+        },
+        "type": "object"
+      }
+    },
+    {
+      "path": "/v1/operationapi/scheduling_report",
+      "method": "POST",
+      "module": "scheduling_report",
+      "summary": "分享广告上报",
+      "requestSchema": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "properties": {
+          "properties": {
+            "additionalProperties": true,
+            "description": "*ShareProperties",
+            "type": "object"
+          },
+          "ruixue-accesstoken": {
+            "description": "[query] [header] token",
+            "type": "string"
+          },
+          "ruixue-channelid": {
+            "description": "[query] [header] token",
+            "type": "string"
+          },
+          "ruixue-productid": {
+            "description": "[query] [header] token",
+            "type": "string"
+          },
+          "scheduling_event": {
+            "description": "事件 done, 1, true 成功， fail, -1, false 失败"
+          },
+          "scheduling_type": {
+            "description": "share 分享  ad 广告",
+            "type": "string"
+          }
+        },
+        "required": [
+          "scheduling_type",
+          "scheduling_event",
+          "properties"
+        ],
+        "type": "object"
+      },
+      "responseSchema": {
+        "$defs": {
+          "AdContent": {
+            "properties": {
+              "ad_type,omitempty": {
+                "description": "微信  ad_type（rewarded 激励广告，custom 原生模板广告，interstitial 插屏广告",
+                "type": "string"
+              },
+              "ext,omitempty": {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              "identify,omitempty": {
+                "description": "广告标识",
+                "type": "string"
+              },
+              "platform,omitempty": {
+                "description": "三方平台",
+                "type": "string"
+              }
+            },
+            "type": "object"
+          },
+          "MaterialAtlasInfo": {
+            "properties": {
+              "content,omitempty": {
+                "type": "string"
+              },
+              "height,omitempty": {
+                "description": "高度",
+                "type": "integer"
+              },
+              "image_url,omitempty": {
+                "description": "图片地址",
+                "type": "string"
+              },
+              "landing_id,omitempty": {
+                "description": "落地页ID",
+                "type": "integer"
+              },
+              "landing_url,omitempty": {
+                "description": "落地页url",
+                "type": "string"
+              },
+              "width,omitempty": {
+                "description": "宽度",
+                "type": "integer"
+              },
+              "x,omitempty": {
+                "description": "二维码x坐标",
+                "type": "integer"
+              },
+              "y,omitempty": {
+                "description": "二维码y坐标",
+                "type": "integer"
+              }
+            },
+            "type": "object"
+          },
+          "ReqMaterialTemplate": {
+            "properties": {
+              "audios,omitempty": {
+                "items": {
+                  "type": "string"
+                },
+                "type": "array"
+              },
+              "contents,omitempty": {
+                "items": {
+                  "type": "string"
+                },
+                "type": "array"
+              },
+              "description,omitempty": {
+                "description": "描述",
+                "type": "string"
+              },
+              "images,omitempty": {
+                "items": {
+                  "type": "string"
+                },
+                "type": "array"
+              },
+              "template_id,omitempty": {
+                "description": "华为模版id",
+                "type": "string"
+              }
+            },
+            "type": "object"
+          },
+          "ShareContent": {
+            "properties": {
+              "atlas,omitempty": {
+                "description": "图集",
+                "items": {
+                  "$ref": "#/$defs/MaterialAtlasInfo"
+                },
+                "type": "array"
+              },
+              "content,omitempty": {
+                "description": "分享的内容",
+                "type": "string"
+              },
+              "copywriting,omitempty": {
+                "description": "分享文案（海外）",
+                "type": "string"
+              },
+              "height,omitempty": {
+                "description": "图片类型时二维码的高度",
+                "type": "integer"
+              },
+              "image,omitempty": {
+                "description": "图片地址",
+                "type": "string"
+              },
+              "image_url,omitempty": {
+                "description": "缩略图别名",
+                "type": "string"
+              },
+              "is_hyaline,omitempty": {
+                "description": "是否背景透明",
+                "type": "integer"
+              },
+              "landing_id,omitempty": {
+                "description": "落地页ID",
+                "type": "integer"
+              },
+              "material_id,omitempty": {
+                "description": "素材ID",
+                "type": "integer"
+              },
+              "material_type,omitempty": {
+                "description": "素材类型",
+                "type": "string"
+              },
+              "meta_source,omitempty": {
+                "description": "落地页链接 1 手动维护 2 读取落地页信息（动态链接，客户端自己赋值）",
+                "type": "integer"
+              },
+              "qrcode,omitempty": {
+                "type": "string"
+              },
+              "share_id,omitempty": {
+                "type": "string"
+              },
+              "template,omitempty": {
+                "$ref": "#/$defs/ReqMaterialTemplate"
+              },
+              "template_id,omitempty": {
+                "description": "分享模版ID",
+                "type": "string"
+              },
+              "title,omitempty": {
+                "description": "标题",
+                "type": "string"
+              },
+              "url,omitempty": {
+                "description": "URL 拼接后的地址",
+                "type": "string"
+              },
+              "video,omitempty": {
+                "description": "视频地址",
+                "type": "string"
+              },
+              "video_contents,omitempty": {
+                "description": "抖音口令分享ID",
+                "items": {
+                  "type": "string"
+                },
+                "type": "array"
+              },
+              "width,omitempty": {
+                "description": "图片类型时二维码的宽度",
+                "type": "integer"
+              },
+              "x,omitempty": {
+                "description": "图片类型时二维码的x轴坐标",
+                "type": "integer"
+              },
+              "y,omitempty": {
+                "description": "图片类型时二维码的y轴坐标",
+                "type": "integer"
+              }
+            },
+            "type": "object"
+          },
+          "ShareData": {
+            "properties": {
+              "ad_content,omitempty": {
+                "$ref": "#/$defs/AdContent"
+              },
+              "browser_language": {
+                "type": "string"
+              },
+              "content,omitempty": {
+                "$ref": "#/$defs/ShareContent",
+                "description": "分享内容"
+              },
+              "identity": {
+                "description": "ExamplePlatforms interface{}      `json:\"example_platforms\"`   // 参照数据，正式时无用",
+                "type": "string"
+              },
+              "platform": {
+                "description": "当前使用的平台 即客户端上传过来的平台",
+                "type": "string"
+              },
+              "platforms": {
+                "additionalProperties": {
+                  "type": "integer"
+                },
+                "description": "平台信息",
+                "type": "object"
+              },
+              "scheduling,omitempty": {
+                "$ref": "#/$defs/ShareSchedulingData",
+                "description": "FailedMsg        string           `json:\"failed_msg,omitempty\"` // 接入分享调度后，如果此字段有值，则为分享失败"
+              },
+              "strategy,omitempty": {
+                "$ref": "#/$defs/Strategy",
+                "description": "策略信息"
+              },
+              "transmits,omitempty": {
+                "description": "透传参数 原样返回",
+                "type": "string"
+              },
+              "trigger": {
+                "$ref": "#/$defs/Trigger",
+                "description": "埋点信息"
+              }
+            },
+            "required": [
+              "trigger",
+              "platforms",
+              "platform",
+              "identity",
+              "browser_language"
+            ],
+            "type": "object"
+          },
+          "ShareSchedulingData": {
+            "properties": {
+              "remaining_share_count,omitempty": {
+                "description": "剩余分享总次数为0时，客户端需调用初始化方法重新渲染分享入口",
+                "type": "integer"
+              },
+              "scheduling_event,omitempty": {
+                "description": "1 成功， -1 失败",
+                "type": "integer"
+              },
+              "scheduling_failed_msg,omitempty": {
+                "description": "接入分享调度后，分享失败内容",
+                "type": "string"
+              },
+              "scheduling_sign": {
+                "description": "给游戏测服务端使用cpkey解析",
+                "type": "string"
+              },
+              "scheduling_type": {
+                "description": "share , ad",
+                "type": "string"
+              },
+              "user_type,omitempty": {
+                "type": "integer"
+              }
+            },
+            "required": [
+              "scheduling_type",
+              "scheduling_sign"
+            ],
+            "type": "object"
+          },
+          "Strategy": {
+            "properties": {
+              "channel_id,omitempty": {
+                "description": "渠道ID",
+                "type": "string"
+              },
+              "contents,omitempty": {
+                "description": "策略关联的内容",
+                "type": "object"
+              },
+              "id,omitempty": {
+                "type": "integer"
+              },
+              "is_general,omitempty": {
+                "description": "是否为通用  0为否 1为是 策略为成就的才允许通用  小程序/App、每个类型下边只能有一个",
+                "type": "integer"
+              },
+              "name,omitempty": {
+                "description": "策略名称",
+                "type": "string"
+              },
+              "platform,omitempty": {
+                "description": "所属平台",
+                "type": "string"
+              },
+              "product_id,omitempty": {
+                "description": "产品",
+                "type": "string"
+              },
+              "region,omitempty": {
+                "description": "地区 -1 为不筛选 \"\"为显示地区为全部的",
+                "type": "string"
+              },
+              "share_type,omitempty": {
+                "description": "分享类型. 1:app分享; 2:小游戏分享",
+                "type": "integer"
+              },
+              "status,omitempty": {
+                "description": "状态 1:正常 -1:禁用",
+                "type": "integer"
+              },
+              "strategy_group_id": {
+                "description": "策略组ID",
+                "type": "integer"
+              },
+              "triggers,omitempty": {
+                "description": "策略关联的埋点ID列表",
+                "type": "object"
+              },
+              "type,omitempty": {
+                "description": "策略类型. 1, 诱导; 2:组队; 3:成就",
+                "type": "integer"
+              }
+            },
+            "required": [
+              "strategy_group_id"
+            ],
+            "type": "object"
+          },
+          "Trigger": {
+            "properties": {
+              "failed_msg,omitempty": {
+                "description": "失败提示",
+                "type": "string"
+              },
+              "id,omitempty": {
+                "description": "id",
+                "type": "integer"
+              },
+              "status,omitempty": {
+                "description": "状态 1, 正常; -1, 禁用",
+                "type": "integer"
+              },
+              "tag,omitempty": {
+                "description": "埋点标识",
+                "type": "string"
+              },
+              "time_interval": {
+                "description": "触发间隔时间",
+                "type": "integer"
+              },
+              "title,omitempty": {
+                "description": "标题",
+                "type": "string"
+              },
+              "type,omitempty": {
+                "description": "埋点类型 1:诱导 2:活动 3:成就 4:好友房 5:特殊分享埋点",
+                "type": "integer"
+              }
+            },
+            "required": [
+              "time_interval"
+            ],
+            "type": "object"
+          }
+        },
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "properties": {
+          "code": {
+            "description": "状态 0 成功，其它失败",
+            "type": "integer"
+          },
+          "data": {
+            "$ref": "#/$defs/ShareData"
+          },
+          "message": {
+            "description": "错误信息",
+            "type": "string"
+          },
+          "toast_message": {
+            "description": "弹窗信息",
+            "type": "string"
+          }
+        },
+        "type": "object"
+      }
+    },
+    {
+      "path": "/v1/operationapi/legal",
+      "method": "GET",
+      "module": "legal",
+      "summary": "获取全部法务条款",
+      "requestSchema": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "properties": {
+          "channel_id": {
+            "description": "[query] 渠道id",
+            "type": "string"
+          },
+          "product_id": {
+            "description": "[query] 产品id",
+            "type": "string"
+          }
+        },
+        "required": [
+          "product_id",
+          "channel_id"
+        ],
+        "type": "object"
+      },
+      "responseSchema": {
+        "$defs": {
+          "Item": {
+            "properties": {
+              "content": {
+                "type": "string"
+              },
+              "id": {
+                "type": "integer"
+              },
+              "is_default": {
+                "type": "integer"
+              },
+              "key": {
+                "type": "string"
+              },
+              "sort": {
+                "type": "integer"
+              },
+              "title": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "id",
+              "key",
+              "title",
+              "content",
+              "is_default",
+              "sort"
+            ],
+            "type": "object"
+          },
+          "Legal": {
+            "properties": {
+              "terms": {
+                "items": {
+                  "$ref": "#/$defs/Item"
+                },
+                "type": "array"
+              }
+            },
+            "required": [
+              "terms"
+            ],
+            "type": "object"
+          }
+        },
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "properties": {
+          "code": {
+            "description": "状态 0 成功，其它失败",
+            "type": "integer"
+          },
+          "data": {
+            "$ref": "#/$defs/Legal"
+          },
+          "message": {
+            "description": "错误信息",
+            "type": "string"
+          },
+          "toast_message": {
+            "description": "弹窗信息",
+            "type": "string"
+          }
+        },
+        "type": "object"
+      }
+    },
+    {
+      "path": "/v1/operationapi/callback/{y}/{m}/{d}/{filename}",
+      "method": "GET",
+      "module": "callback",
+      "requestSchema": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "properties": {
+          "d": {
+            "description": "[query] [path] d",
+            "type": "string"
+          },
+          "filename": {
+            "description": "[query] [path] filename",
+            "type": "string"
+          },
+          "m": {
+            "description": "[query] [path] m",
+            "type": "string"
+          },
+          "y": {
+            "description": "[query] [path] y",
+            "type": "string"
+          }
+        },
+        "required": [
+          "y",
+          "m",
+          "d",
+          "filename"
+        ],
+        "type": "object"
+      },
+      "responseSchema": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "properties": {
+          "code": {
+            "description": "状态 0 成功，其它失败",
+            "type": "integer"
+          },
+          "data": {
+            "description": "动态返回数据"
+          },
+          "message": {
+            "description": "错误信息",
+            "type": "string"
+          },
+          "toast_message": {
+            "description": "弹窗信息",
+            "type": "string"
+          }
+        },
+        "type": "object"
+      }
+    },
+    {
+      "path": "/v1/url/redirect",
+      "method": "GET",
+      "module": "url",
+      "summary": "获取法务条款",
+      "requestSchema": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "properties": {
+          "d": {
+            "description": "[query] 短名",
+            "type": "string"
+          }
+        },
+        "required": [
+          "d"
+        ],
+        "type": "object"
+      },
+      "responseSchema": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "properties": {
+          "code": {
+            "description": "状态 0 成功，其它失败",
+            "type": "integer"
+          },
+          "data": {
+            "description": "动态返回数据"
+          },
+          "message": {
+            "description": "错误信息",
+            "type": "string"
+          },
+          "toast_message": {
+            "description": "弹窗信息",
+            "type": "string"
+          }
+        },
+        "type": "object"
+      }
+    },
+    {
+      "path": "/v1/operationapi/ad/scheduling_report",
+      "method": "POST",
+      "module": "ad",
+      "requestSchema": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "properties": {},
+        "type": "object"
+      },
+      "responseSchema": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "properties": {
+          "code": {
+            "description": "状态 0 成功，其它失败",
+            "type": "integer"
+          },
+          "data": {
+            "description": "动态返回数据"
+          },
+          "message": {
+            "description": "错误信息",
+            "type": "string"
+          },
+          "toast_message": {
+            "description": "弹窗信息",
+            "type": "string"
+          }
+        },
+        "type": "object"
+      }
+    },
+    {
+      "path": "/v1/operationapi/legal_terms_other",
+      "method": "GET",
+      "module": "legal_terms_other",
+      "requestSchema": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "properties": {},
+        "type": "object"
+      },
+      "responseSchema": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "properties": {
+          "code": {
+            "description": "状态 0 成功，其它失败",
+            "type": "integer"
+          },
+          "data": {
+            "description": "动态返回数据"
+          },
+          "message": {
+            "description": "错误信息",
+            "type": "string"
+          },
+          "toast_message": {
+            "description": "弹窗信息",
+            "type": "string"
+          }
+        },
+        "type": "object"
+      }
+    }
+  ]
+}

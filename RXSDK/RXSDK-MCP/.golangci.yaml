@@ -1,0 +1,57 @@
+run:
+    timeout: 5m
+    modules-download-mode: readonly
+
+linters:
+    disable-all: true
+    enable:
+        - revive
+        - govet
+        - goimports
+        - errcheck
+        - errname
+        - bodyclose
+        - unconvert
+        - goconst
+        - tagliatelle
+        - dogsled
+        - gocritic
+        - unused
+        - staticcheck
+        - typecheck
+
+linters-settings:
+    gomnd:
+        settings:
+            mnd:
+                # don't include the "operation" and "assign"
+                checks:
+                    - case
+                    - return
+    tagliatelle:
+        # Check the struck tag name case.
+        case:
+            # Use the struct field name to check the name of the struct tag.
+            # Default: false
+            use-field-name: true
+            rules:
+                # Any struct tag type can be used.
+                # Support string case: `camel`, `pascal`, `kebab`, `snake`, `goCamel`, `goPascal`, `goKebab`, `goSnake`, `upper`, `lower`
+                json: snake
+                yaml: snake
+                xml: snake
+                bson: snake
+                avro: snake
+                mapstructure: kebab
+    gocritic:
+        enabled-tags:
+            - diagnostic
+            - experimental
+            - opinionated
+            - performance
+            - style
+
+issues:
+    exclude-use-default: false
+    max-issues-per-linter: 0
+    max-same-issues: 0

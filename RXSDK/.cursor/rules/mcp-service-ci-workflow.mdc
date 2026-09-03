@@ -1,0 +1,14 @@
+---
+description: MCP 服务更新和发布必须按 CI 发布流程执行
+alwaysApply: true
+---
+
+# MCP 服务更新/发布规则
+
+当用户说“mcp 服务更新”、“更新 MCP 服务”、“发布 MCP”、“MCP 发布”、“触发 MCP CI”、“执行 mcp 服务更新或发布”等同义表达时，必须执行 `.cursor/skills/mcp-publish-ci/SKILL.md` 中的 CI 发布流程。
+
+- 不要只运行 `gen_mcp_server.sh` 作为完成结论；该脚本只用于本地二进制同步或发布前验证。
+- 默认按正式发布变量准备 CI：`CPID=2000144`、`CMD=mcp`、`JUMPTEST=0`、`USECGO=0`、`PORTLIST=8080,8081,8888`。
+- 发布前必须先检查 `RXSDK-MCP/` 独立 Git 仓库状态，并执行 Skill 中的测试和 release 构建验证。
+- 如缺少 GitLab API 凭证、远程权限或必要版本号信息，先明确阻塞项并询问用户，不得把本地编译成功描述成服务已更新。
+- 不要输出 token、私钥、CI 凭证或镜像仓库密钥。

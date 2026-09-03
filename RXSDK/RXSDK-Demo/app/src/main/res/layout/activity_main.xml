@@ -1,0 +1,356 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.core.widget.NestedScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:fillViewport="true"
+    android:background="@color/background"
+    tools:context=".MainActivity">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:paddingLeft="24dp"
+        android:paddingTop="24dp"
+        android:paddingRight="24dp"
+        android:paddingBottom="24dp">
+
+        <!-- ========== 顶部 Logo 和标题区域 ========== -->
+        <LinearLayout
+            android:id="@+id/headerLayout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:gravity="center_horizontal"
+            android:layout_marginBottom="32dp">
+
+            <!-- Logo 容器 - 80x80 带渐变背景和阴影 -->
+            <FrameLayout
+                android:id="@+id/logoContainer"
+                android:layout_width="80dp"
+                android:layout_height="80dp"
+                android:background="@drawable/gradient_logo"
+                android:elevation="10dp"
+                android:layout_marginBottom="16dp">
+
+                <ImageView
+                    android:layout_width="40dp"
+                    android:layout_height="40dp"
+                    android:layout_gravity="center"
+                    android:src="@drawable/ic_logo"
+                    android:contentDescription="Logo" />
+            </FrameLayout>
+
+            <!-- 标题 RXSDK Demo - 24sp Bold -->
+            <TextView
+                android:id="@+id/tvTitle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/app_name"
+                android:textSize="24sp"
+                android:textStyle="bold"
+                android:textColor="@color/primary_text"
+                android:lineHeight="32dp"
+                android:letterSpacing="0.003" />
+
+            <!-- 副标题 - 14sp -->
+            <TextView
+                android:id="@+id/tvSubtitle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/demo_subtitle"
+                android:textSize="14sp"
+                android:textColor="@color/secondary_text"
+                android:layout_marginTop="8dp"
+                android:lineHeight="20dp" />
+        </LinearLayout>
+
+        <!-- ========== SDK Status 卡片 ========== -->
+        <LinearLayout
+            android:id="@+id/statusCard"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:background="@drawable/bg_status_card"
+            android:paddingLeft="18dp"
+            android:paddingTop="18dp"
+            android:paddingRight="18dp"
+            android:paddingBottom="18dp"
+            android:layout_marginBottom="24dp">
+
+            <!-- Status 标题行 -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center_vertical">
+
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="@string/sdk_status"
+                    android:textSize="14sp"
+                    android:textStyle="bold"
+                    android:textColor="@color/primary_text"
+                    android:lineHeight="20dp" />
+
+                <!-- 状态点 - 灰色表示未初始化 -->
+                <View
+                    android:id="@+id/statusDot"
+                    android:layout_width="12dp"
+                    android:layout_height="12dp"
+                    android:background="@drawable/status_dot_gray" />
+            </LinearLayout>
+
+            <!-- 提示文字 -->
+            <TextView
+                android:id="@+id/tvStatusHint"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/sdk_status_hint"
+                android:textSize="12sp"
+                android:textColor="@color/secondary_text"
+                android:layout_marginTop="8dp"
+                android:lineHeight="16dp" />
+
+            <!-- Initialize 按钮 -->
+            <FrameLayout
+                android:id="@+id/btnInitialize"
+                android:layout_width="match_parent"
+                android:layout_height="48dp"
+                android:layout_marginTop="12dp"
+                android:background="@drawable/gradient_button_primary"
+                android:clickable="true"
+                android:focusable="true">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:text="@string/btn_initialize"
+                    android:textSize="16sp"
+                    android:textStyle="bold"
+                    android:textColor="@android:color/white"
+                    android:lineHeight="24dp" />
+            </FrameLayout>
+        </LinearLayout>
+
+        <!-- ========== API Services 分类标题 ========== -->
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/api_services"
+            android:textSize="14sp"
+            android:textStyle="bold"
+            android:textColor="@color/primary_text"
+            android:textAllCaps="true"
+            android:letterSpacing="0.014"
+            android:lineHeight="20dp"
+            android:layout_marginBottom="12dp" />
+
+        <!-- ========== API Services 网格 2x4 ========== -->
+        <androidx.gridlayout.widget.GridLayout
+            android:id="@+id/apiServicesGrid"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:columnCount="2"
+            app:rowCount="4"
+            app:useDefaultMargins="false"
+            android:layout_marginBottom="24dp">
+
+            <!-- Row 1: Login, User Info -->
+            <include
+                layout="@layout/item_api_button"
+                android:id="@+id/btnLogin"
+                app:layout_row="0"
+                app:layout_column="0"
+                app:layout_columnWeight="1"
+                app:layout_rowWeight="1"
+                android:layout_width="0dp"
+                android:layout_height="112dp"
+                android:layout_marginRight="6dp"
+                android:layout_marginBottom="12dp" />
+
+            <include
+                layout="@layout/item_api_button_purple"
+                android:id="@+id/btnUserInfo"
+                app:layout_row="0"
+                app:layout_column="1"
+                app:layout_columnWeight="1"
+                app:layout_rowWeight="1"
+                android:layout_width="0dp"
+                android:layout_height="112dp"
+                android:layout_marginLeft="6dp"
+                android:layout_marginBottom="12dp" />
+
+            <!-- Row 2: Gameplay, Payment -->
+            <include
+                layout="@layout/item_api_button_green"
+                android:id="@+id/btnGameplay"
+                app:layout_row="1"
+                app:layout_column="0"
+                app:layout_columnWeight="1"
+                app:layout_rowWeight="1"
+                android:layout_width="0dp"
+                android:layout_height="112dp"
+                android:layout_marginRight="6dp"
+                android:layout_marginBottom="12dp" />
+
+            <include
+                layout="@layout/item_api_button_orange"
+                android:id="@+id/btnPayment"
+                app:layout_row="1"
+                app:layout_column="1"
+                app:layout_columnWeight="1"
+                app:layout_rowWeight="1"
+                android:layout_width="0dp"
+                android:layout_height="112dp"
+                android:layout_marginLeft="6dp"
+                android:layout_marginBottom="12dp" />
+
+            <!-- Row 3: Share, Analytics -->
+            <include
+                layout="@layout/item_api_button_pink"
+                android:id="@+id/btnShare"
+                app:layout_row="2"
+                app:layout_column="0"
+                app:layout_columnWeight="1"
+                app:layout_rowWeight="1"
+                android:layout_width="0dp"
+                android:layout_height="112dp"
+                android:layout_marginRight="6dp"
+                android:layout_marginBottom="12dp" />
+
+            <include
+                layout="@layout/item_api_button_indigo"
+                android:id="@+id/btnAnalytics"
+                app:layout_row="2"
+                app:layout_column="1"
+                app:layout_columnWeight="1"
+                app:layout_rowWeight="1"
+                android:layout_width="0dp"
+                android:layout_height="112dp"
+                android:layout_marginLeft="6dp"
+                android:layout_marginBottom="12dp" />
+
+            <!-- Row 4: Feedback, Deregister -->
+            <include
+                layout="@layout/item_api_button_fire"
+                android:id="@+id/btnFeedback"
+                app:layout_row="3"
+                app:layout_column="0"
+                app:layout_columnWeight="1"
+                app:layout_rowWeight="1"
+                android:layout_width="0dp"
+                android:layout_height="112dp"
+                android:layout_marginRight="6dp" />
+
+            <include
+                layout="@layout/item_api_button_red"
+                android:id="@+id/btnDeregister"
+                app:layout_row="3"
+                app:layout_column="1"
+                app:layout_columnWeight="1"
+                app:layout_rowWeight="1"
+                android:layout_width="0dp"
+                android:layout_height="112dp"
+                android:layout_marginLeft="6dp" />
+
+        </androidx.gridlayout.widget.GridLayout>
+
+        <!-- ========== SDK 信息卡片 ========== -->
+        <LinearLayout
+            android:id="@+id/infoCard"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:background="@drawable/bg_info_card"
+            android:paddingLeft="17dp"
+            android:paddingTop="17dp"
+            android:paddingRight="17dp"
+            android:paddingBottom="17dp">
+
+            <!-- Framework 行 -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/framework_label"
+                    android:textSize="12sp"
+                    android:textStyle="bold"
+                    android:textColor="@color/info_text"
+                    android:lineHeight="16dp" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/framework_value"
+                    android:textSize="12sp"
+                    android:textColor="@color/info_text"
+                    android:layout_marginLeft="4dp"
+                    android:lineHeight="16dp" />
+            </LinearLayout>
+
+            <!-- Version 行 -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:layout_marginTop="0dp">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/version_label"
+                    android:textSize="12sp"
+                    android:textStyle="bold"
+                    android:textColor="@color/info_text"
+                    android:lineHeight="16dp" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/version_value"
+                    android:textSize="12sp"
+                    android:textColor="@color/info_text"
+                    android:layout_marginLeft="4dp"
+                    android:lineHeight="16dp" />
+            </LinearLayout>
+
+            <!-- Entry Class 行 -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:layout_marginTop="0dp">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/entry_class_label"
+                    android:textSize="12sp"
+                    android:textStyle="bold"
+                    android:textColor="@color/info_text"
+                    android:lineHeight="16dp" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/entry_class_value"
+                    android:textSize="12sp"
+                    android:textColor="@color/info_text"
+                    android:layout_marginLeft="4dp"
+                    android:lineHeight="16dp" />
+            </LinearLayout>
+        </LinearLayout>
+
+    </LinearLayout>
+
+</androidx.core.widget.NestedScrollView>

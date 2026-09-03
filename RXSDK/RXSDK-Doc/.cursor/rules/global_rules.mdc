@@ -1,0 +1,280 @@
+---
+description: 瑞雪 SDK 开发规范（全局规则）
+alwaysApply: true
+---
+
+# 瑞雪 SDK 开发规范
+
+> **适用范围**：所有 SDK 代码修改  
+> **优先级**：兼容性 > 安全性 > 可维护性
+
+---
+
+## 总原则
+
+| 原则 | 说明 |
+|------|------|
+| 不破坏兼容 | 不修改已发布 API 签名/参数含义/错误码语义，新增功能用增量扩展 |
+| 小步提交 | 每次改动聚焦单一目标，涉及行为变更必须补充测试与文档 |
+| 可回滚 | 避免大范围重命名，确需重构必须分阶段进行 |
+| 统一回调 | 所有异步接口使用 `RXRequestCallback`，回调在主线程执行 |
+
+---
+
+## 1. 代码风格
+
+- **Java**：遵循《Alibaba Java 开发手册》
+- **Kotlin**：遵循官方 Kotlin Coding Conventions
+- **包结构**：按 `api/ core/ utils/ model/ internal/` 分层
+- **命名**：对外接口统一驼峰（如 `getUserInfo`）
+- **注释**：对外 `public` 类/方法必须有 Javadoc
+
+## 2. API 设计
+
+- 参数 **≤ 5 个**，复杂入参封装为 DTO
+- 同步/异步方法分离，异步使用 `RXRequestCallback`
+- 敏感接口必须做入参校验，校验失败返回统一错误码
+- 明确 callback 线程（主线程/工作线程）
+
+## 3. 错误处理
+
+- **禁止裸抛异常**：不得抛出 `IOException/JSONException/RuntimeException`
+- **统一错误格式**：`code/msg` + 可选 `trace_id/thirdcode/thirdmsg/data`
+- **服务端错误码**：6 位整数，**原样透传**
+- **客户端错误码区间**（SDK 3.2.x+）：
+
+| 区间 | 类别 |
+|------|------|
+| 1000-1999 | 网络相关 |
+| 2000-2999 | 初始化相关 |
+| 3000-3999 | 登录相关 |
+| 4000-4999 | 支付相关 |
+| 5000-5999 | 分享相关 |
+| 6000-6999 | 权限与应用未安装 |
+
+## 4. 安全规范（强制）
+
+- ❌ 禁止硬编码 token/secret/password/服务器地址
+- ❌ 禁止日志打印敏感数据（token、密码、手机号、身份证）
+- ✅ 网络请求必须使用 HTTPS
+- ✅ 使用 `local.properties` / 环境变量 / CI secrets 注入配置
+
+## 5. 性能与兼容
+
+- SDK 初始化 < 1s，核心接口响应 < 300ms
+- 文件/网络/线程池必须可释放，避免 Context 泄漏
+- 明确最低 Android API 版本，评估低版本兼容
+
+## 6. 依赖与构建
+
+- 禁止动态版本（如 `+`、`4.+`），必须固定版本号
+- 新增依赖需说明用途，优先复用现有工具库
+- 发布 AAR 不得包含测试代码
+
+## 7. 测试规范
+
+- 核心逻辑单测覆盖率 ≥ 80%
+- 核心流程必须提供集成测试
+- 修复 bug 必须先补用例再修复
+
+## 8. 文档与版本
+
+- 必须维护：README / 快速开始 / 接口说明 / 错误码表
+- 版本号语义化：`主.次.修`
+- 每次发布更新 CHANGELOG
+
+---
+
+## 文档存放约定
+
+| 内容类型 | 存放位置 |
+|----------|----------|
+| API 文档 | `rxsdk-doc/android/api/`、`rxsdk-doc/ios/api/` |
+| 版本记录 | `rxsdk-doc/version/` |
+| MDC 规则 | `rxsdk-doc/.cursor/rules/` |
+
+---
+
+## iOS 开发补充
+
+### iOS 新增类文件流程（Xcode 项目配置）
+
+iOS 项目新增 `.h/.m` 文件时，**必须同步修改 `project.pbxproj`**，否则文件不会被编译。
+
+#### 修改步骤
+
+需要在 `project.pbxproj` 中添加以下 4 处配置：
+
+| 配置节 | 说明 | 示例 |
+|-------|------|------|
+| **PBXBuildFile** | `.m` 文件的编译引用 | `3D0000001000000000000007 /* RXSDKManager.m in Sources */` |
+| **PBXFileReference** | `.h` 和 `.m` 文件引用 | `3D000000200000000000000B /* RXSDKManager.h */` |
+| **PBXGroup** | 将文件添加到目录组 | 在对应 Group 的 `children` 中添加 |
+| **PBXSourcesBuildPhase** | `.m` 文件添加到编译源 | 在 `files` 数组中添加 |
+
+#### 示例：添加 `RXSDKManager.h/.m`
+
+```
+/* 1. PBXBuildFile section - 添加 .m 编译引用 */
+3D0000001000000000000007 /* RXSDKManager.m in Sources */ = {
+    isa = PBXBuildFile; 
+    fileRef = 3D000000200000000000000C /* RXSDKManager.m */; 
+};
+
+/* 2. PBXFileReference section - 添加文件引用 */
+3D000000200000000000000B /* RXSDKManager.h */ = {
+    isa = PBXFileReference; 
+    lastKnownFileType = sourcecode.c.h; 
+    path = RXSDKManager.h; 
+    sourceTree = "<group>"; 
+};
+3D000000200000000000000C /* RXSDKManager.m */ = {
+    isa = PBXFileReference; 
+    lastKnownFileType = sourcecode.c.objc; 
+    path = RXSDKManager.m; 
+    sourceTree = "<group>"; 
+};
+
+/* 3. PBXGroup section - 添加到目录组 children */
+children = (
+    ...
+    3D000000200000000000000B /* RXSDKManager.h */,
+    3D000000200000000000000C /* RXSDKManager.m */,
+    ...
+);
+
+/* 4. PBXSourcesBuildPhase section - 添加到编译源 */
+files = (
+    ...
+    3D0000001000000000000007 /* RXSDKManager.m in Sources */,
+    ...
+);
+```
+
+#### UUID 生成规则
+
+- 使用项目中现有 ID 的格式风格（如 `3D0000002000000000000XXX`）
+- 确保 ID 唯一，不与现有 ID 冲突
+- `.h` 和 `.m` 文件使用不同 ID
+- PBXBuildFile 和 PBXFileReference 使用不同 ID
+
+#### 注意事项
+
+- **仅 `.m` 文件** 需要添加到 PBXBuildFile 和 PBXSourcesBuildPhase
+- **`.h` 文件** 只需添加到 PBXFileReference 和 PBXGroup
+- 文件路径 `path` 应与实际文件位置一致
+- 修改后建议用 Xcode 打开项目验证配置正确
+
+---
+
+## 瑞雪 SDK MCP 工具使用规范
+
+> 瑞雪 SDK 提供 MCP 工具辅助代码生成，工具名：`ios` 和 `android`
+
+### 工具调用方式
+
+使用 `feature` 参数指定功能模块：
+
+```json
+// iOS 示例
+{ "feature": "init" }                                           // SDK 初始化
+{ "feature": "setup", "workspacePath": "/path", "region": "domestic" }  // 自动化接入
+{ "feature": "passport" }                                       // 用户通行证
+
+// Android 示例
+{ "feature": "init" }                                           // SDK 初始化
+{ "feature": "setup", "workspacePath": "/path", "region": "overseas" }  // 自动化接入
+{ "feature": "login" }                                          // UI 登录
+```
+
+### iOS 可用功能模块
+
+| 分类 | feature 值 |
+|------|------------|
+| 基础接入 | `init`, `setup`, `project_config`, `dependency` |
+| 用户通行证 | `passport`, `captcha`, `real_auth`, `account_binding`, `password`, `deregister` |
+| 游戏功能 | `game_area`, `game_character`, `iap` |
+| 其他功能 | `share`, `feedback`, `tracking`, `promo`, `announcement`, `device`, `store_review` |
+| 组件库 | `dns`, `openinstall`, `wechat_config` |
+
+### Android 可用功能模块
+
+| 分类 | feature 值 |
+|------|------------|
+| 基础接入 | `init`, `agent`, `dependency`, `setup` |
+| 用户登录 | `login`, `login_api`, `payment` |
+| 用户通行证 | `passport`, `captcha`, `real_auth`, `account_binding`, `password`, `deregister` |
+| 社交功能 | `social`, `friends`, `lbs`, `rank` |
+| 游戏功能 | `game_area`, `game_character` |
+| 其他功能 | `share`, `feedback`, `tracking`, `update`, `legal`, `promo`, `announcement`, `device` |
+
+### 常用参数说明
+
+| 参数 | 说明 | 适用 feature |
+|------|------|--------------|
+| `region` | `domestic`(国内) / `overseas`(海外) | setup, project_config, openinstall |
+| `workspacePath` | 项目根目录绝对路径 | setup, dns, openinstall, wechat_config |
+| `channel` | SDK 渠道（如 rxsdk_weile） | dependency, setup (Android) |
+| `version` | SDK 版本号 | dependency (Android) |
+
+### MCP Server 同步（开发者）
+
+修改 MCP Server 代码后，需执行构建脚本同步二进制文件：
+
+```bash
+cd RXSDK-MCP/rxsdk-mcp-server
+bash gen_mcp_server.sh
+```
+
+> 脚本会构建 macOS/Linux/Windows 三平台二进制，并移动到 `ruixue-sdk-mcp/go-bin/` 目录。
+
+---
+
+## AI 助手行为规范
+
+- 修改对外 API 前必须确认是否为公开接口
+- 发现明文凭证时优先提出整改方案
+- 修改后保证工程可编译
+- 修改对外 API 时同步更新文档
+- **使用瑞雪 SDK MCP 工具时，通过 `feature` 参数选择功能模块**
+
+---
+
+## iOS Public 方法同步规则（强制）
+
+> ⚠️ **强制规则**：iOS 新增或改动 public 方法时，必须执行以下操作。
+
+### 触发条件
+
+修改以下任一头文件中的 public 方法时触发：
+- `RXSDK.h`
+- `RXService.h`
+- `RXUIKitService.h`
+- `RXOSUIKitService.h`
+
+### 必须执行的操作
+
+1. **同步方法文档**：将变更同步到 `RXSDK-Doc/ios/public_class_methods.md`
+2. **添加版本记录**：在 `RXSDK-Doc/version/Version-ios.md` 添加变更记录
+
+### 版本记录格式
+
+```markdown
+### vX.X.X (YYYY-MM-DD)
+
+**修改类型：** 新增/修改/删除
+
+**修改内容：**
+- [类名] 新增/修改/删除 `methodName:` 方法
+
+**涉及文件：**
+- `RXSDK-iOS/.../XXX.h`
+- `RXSDK-Doc/ios/public_class_methods.md`
+```
+
+> 详细规则参见：`.cursor/rules/header-doc-sync.mdc`
+
+---
+
+**最后更新**：2026-02-02  
+**版本**：v3.2

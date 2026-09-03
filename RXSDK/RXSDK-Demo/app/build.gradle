@@ -1,0 +1,55 @@
+plugins {
+    id 'com.android.application'
+}
+
+android {
+    compileSdkVersion rootProject.ext.compileSdkVersion
+
+    defaultConfig {
+        applicationId "com.ruixue.demo"
+        minSdkVersion rootProject.ext.minSdkVersion
+        targetSdkVersion rootProject.ext.targetSdkVersion
+        versionCode 1
+        versionName "1.0.0"
+
+        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+        }
+    }
+    
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
+    
+    buildFeatures {
+        viewBinding true
+    }
+}
+
+dependencies {
+    def libs = rootProject.ext.libraries
+    
+    // AndroidX 核心库
+    implementation "androidx.appcompat:appcompat:${libs.appcompat}"
+    implementation "com.google.android.material:material:${libs.material}"
+    implementation "androidx.constraintlayout:constraintlayout:${libs.constraintlayout}"
+    implementation "androidx.gridlayout:gridlayout:1.0.0"
+    
+    // 测试依赖
+    testImplementation "junit:junit:${libs.junit}"
+    androidTestImplementation "androidx.test.ext:junit:${libs.test_ext_junit}"
+    androidTestImplementation "androidx.test.espresso:espresso-core:${libs.espresso_core}"
+    
+    // 如果需要引用本地 SDK，取消下面的注释并配置正确的路径
+    // implementation project(':rxsdk_base')
+    // implementation project(':rxsdk_base_ui')
+    
+    // 如果需要从 Maven 仓库引用 SDK，使用以下方式：
+    // implementation 'com.ruixue:rxsdk-base:1.0.0'
+}

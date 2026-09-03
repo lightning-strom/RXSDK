@@ -1,0 +1,701 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <title>Preparing Game Assets</title>
+  <style>
+    #card {
+      display: block;
+    }
+
+    :root {
+      --bg: #0b1020;
+      --card: #121936;
+      --muted: #7f8ab2;
+      --text: #e8ecff;
+      --accent: #6aa7ff;
+      --accent2: #22d3ee;
+      --ok: #22c55e;
+      --warn: #f59e0b;
+      --err: #ef4444;
+    }
+
+    html,
+    body {
+      width: 100%;
+      height: 100%;
+      margin: 0;
+      color: var(--text);
+      font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto,
+        Helvetica, Arial, "Apple Color Emoji", "Segoe UI Emoji";
+    }
+
+    /* Stage covers full viewport with subtle background */
+    .stage {
+      position: relative;
+      min-height: 100vh;
+      display: grid;
+      grid-template-rows: 1fr auto;
+      background-color: #041014;
+      padding-bottom: 12px;
+    }
+
+    .center {
+      display: grid;
+      place-items: center;
+    }
+
+    .page {
+      min-height: 100%;
+      display: grid;
+      place-items: center;
+      padding: 24px;
+      box-sizing: border-box;
+    }
+
+    .card {
+      width: 100%;
+    }
+
+    .app-header {
+      display: grid;
+      justify-items: center;
+      gap: 10px;
+      margin-bottom: 14px;
+      text-align: center;
+    }
+
+    .app-icon {
+      width: 82px;
+      height: 82px;
+      border-radius: 14px;
+      object-fit: cover;
+    }
+
+    h1 {
+      font-size: 20px;
+      margin: 0;
+      letter-spacing: 0.3px;
+    }
+
+    p.sub {
+      margin: 0;
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    .overall {
+      margin: 16px 0 16px;
+      width: 100%;
+      padding: 0 12px 0 12px;
+      justify-items: center;
+    }
+
+    .bar {
+      width: 100%;
+      height: 8px;
+      background: "#FFBF00";
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 999px;
+      margin-block: 12px;
+      overflow: hidden;
+      position: relative;
+    }
+
+    .fill {
+      height: 100%;
+      width: 0%;
+      background: linear-gradient(90deg,
+          #ffbf00 0%,
+          #ffa800 50%,
+          #ff8a00 100%);
+      transition: width 0.12s ease-out;
+      box-shadow: inset 0 -1px 0 rgba(255, 255, 255, 0.25);
+    }
+
+    .stats {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      color: var(--muted);
+      font-size: 12px;
+      margin-top: 8px;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+
+    .footer {
+      display: grid;
+      place-items: center;
+      padding: 0 12px 46px 12px;
+    }
+
+    .footer-logo {
+      width: 140px;
+      height: auto;
+    }
+
+    .loader {
+      width: 60px;
+      height: 60px;
+      border: 6px solid #ddd;
+      border-top-color: #3498db;
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+    }
+
+    @keyframes spin {
+      to {
+        transform: rotate(360deg);
+      }
+    }
+  </style>
+  <script src="https://cdn.jsdelivr.net/npm/fflate@0.8.2/umd/5246d4d487eef2c34b0878173f7a1ffe.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/eruda"></script>
+</head>
+
+<body>
+  <div class="stage" id="stageContainer">
+    <div class="center">
+      <div class="card" id="card">
+        <div class="app-header">
+          <img style="object-fit: contain; display: none" id="logo" class="app-icon" alt="" />
+          <h1 style="display: none" id="gameName"></h1>
+          <div class="loader" id="loadingIndicator"></div>
+        </div>
+      </div>
+    </div>
+    <div class="footer">
+      <div style="display: none" class="overall" id="footer">
+        <div class="bar">
+          <div id="overallFill" class="fill"></div>
+        </div>
+        <div class="stats">
+          <span id="percentText">0%</span>
+          <span id="overallStats">Initializing…</span>
+        </div>
+      </div>
+      <p style="font-size: 14px; text-align: center;" class="sub">
+        Our system is downloading files to speed up your launch. This process only runs once, so please hang tight for a
+        moment.
+      </p>
+      <img class="footer-logo" id="footerLogo" alt="" />
+    </div>
+  </div>
+
+  <script type="module">
+    const CACHE_FILE_DATABASE_NAME = "CACHE_FILE_DATABASE_NAME";
+    const CACHE_FILE_DATABASE_TABLE = "CACHE_FILE_DATABASE_TABLE";
+    const CACHE_VERSION_DATABASE_TABLE = "CACHE_VERSION_DATABASE_TABLE";
+    const CACHE_FILE_MAPPING_DATABASE_TABLE =
+      "CACHE_FILE_MAPPING_DATABASE_TABLE";
+    const CACHE_FILE_MAPPING_STORAGE_KEY = "CACHE_FILE_MAPPING_STORAGE_KEY";
+    const CACHE_VERSION_STORAGE_KEY = "CACHE_VERSION_STORAGE_KEY";
+    const SHOULD_ALLOW_FETCH_FROM_CACHING_STORAGE_KEY =
+      "SHOULD_ALLOW_FETCH_FROM_CACHING_STORAGE_KEY";
+
+    const totals = [{ loaded: 0, total: NaN }];
+
+    const params = new URLSearchParams(window.location.search);
+    const appId = params.get("app_id");
+    const appIdConfig = params.get("app_id_config");
+    const source = params.get("source");
+    const sdkEruda = params.get("sdk-eruda");
+    const code = params.get("code");
+    const widgetPlatform = params.get("widget_platform");
+    const platform = params.get("platform") || "";
+    let callbackLink = params.get("callback");
+
+    if (sdkEruda === "on") {
+      eruda.default.init();
+    }
+
+    //#region zipping
+
+    function unzipAsync(buf) {
+      return new Promise((resolve, reject) => {
+        try {
+          fflate.unzip(
+            new Uint8Array(buf),
+            { consume: true },
+            (err, files) => {
+              if (err) reject(err);
+              else resolve(files);
+            }
+          );
+        } catch (e) {
+          reject(e);
+        }
+      });
+    }
+
+    async function unzipGame(url = "", onProgress) {
+      const res = await fetch(url);
+      const progressResp = res.clone();
+      await handleProgressDownload(progressResp, onProgress);
+
+      const buf = await res.arrayBuffer();
+      const files = await unzipAsync(buf);
+
+      const buffersBundle = [];
+      for (const [name, data] of Object.entries(files)) {
+        if (name.startsWith("__MACOSX/") || name.startsWith("._")) continue;
+        const mimeType = name.split(".").pop();
+        buffersBundle.push({ fileName: name, arrBuffer: data, mimeType });
+        if (buffersBundle.length % 2 === 0)
+          await new Promise((r) => setTimeout(r, 0));
+      }
+      return buffersBundle;
+    }
+
+    const unZipGameByUrl = async (url = "", onProgress) => {
+      const arrBuffer = await unzipGame(
+        url,
+        (prog) => onProgress && onProgress(prog)
+      );
+      return arrBuffer;
+    };
+
+    //#endregion
+
+    //#region UI
+
+    const overallFill = document.getElementById("overallFill");
+    const overallStats = document.getElementById("overallStats");
+    const stageContainer = document.getElementById("stageContainer");
+    const card = document.getElementById("card");
+    const logo = document.getElementById("logo");
+    const percentText = document.getElementById("percentText");
+    const gameTitleEl = document.getElementById("gameName");
+    const footerLogo = document.getElementById("footerLogo");
+
+    const footer = document.getElementById("footer");
+    const loadingIndicator = document.getElementById("loadingIndicator");
+
+    function setShowLoading(show) {
+      if (show) {
+        logo.style.display = "none";
+        gameTitleEl.style.display = "none";
+        footer.style.display = "none";
+        loadingIndicator.style.display = "block";
+      } else {
+        logo.style.display = "block";
+        gameTitleEl.style.display = "block";
+        footer.style.display = "block";
+        loadingIndicator.style.display = "none";
+      }
+    }
+
+    function formatBytes(bytes) {
+      if (!Number.isFinite(bytes) || bytes < 0) return "—";
+      const units = ["B", "KB", "MB", "GB"];
+      let u = 0,
+        n = bytes;
+      while (n >= 1024 && u < units.length - 1) {
+        n /= 1024;
+        u++;
+      }
+      return n.toFixed(u === 0 ? 0 : n < 10 ? 2 : 1) + " " + units[u];
+    }
+
+    function formatDuration(sec) {
+      if (!Number.isFinite(sec) || sec <= 0) return "—";
+      if (sec < 60) return Math.ceil(sec) + "s";
+      const m = Math.floor(sec / 60);
+      const s = Math.ceil(sec % 60);
+      return m + "m " + (s < 10 ? "0" + s : s) + "s";
+    }
+
+    function updateOverallUI(fillEl, statsEl, totals, bps) {
+      const knownTotal = totals
+        .map((t) => t.total)
+        .filter((t) => Number.isFinite(t) && t > 0)
+        .reduce((a, b) => a + b, 0);
+      const knownLoaded = totals
+        .map((t) => t.loaded)
+        .slice(0, totals.length)
+        .reduce((a, b) => a + b, 0);
+      const p = knownTotal > 0 ? (knownLoaded / knownTotal) * 100 : 0;
+      fillEl.style.width = p.toFixed(2) + "%";
+      const speed = bps ? formatBytes(bps) + "/s" : "—";
+      const eta =
+        knownTotal > 0 && bps && bps > 0
+          ? formatDuration(Math.max(0, (knownTotal - knownLoaded) / bps))
+          : "—";
+      if (percentText) percentText.textContent = Math.floor(p) + "%";
+      statsEl.textContent = `${formatBytes(knownLoaded)} / ${formatBytes(
+        knownTotal
+      )} • ETA ${eta}`;
+    }
+
+    function updateBasicGameInfo(gameLogo, gameName) {
+      logo.src = gameLogo;
+      gameTitleEl.textContent = gameName;
+    }
+
+    //#endregion
+
+    //#region Config
+
+    async function generateSignature(source, ts, appId, secretKey) {
+      const message = `${source}|${ts}|${appId}`;
+      const enc = new TextEncoder();
+
+      const key = await crypto.subtle.importKey(
+        "raw",
+        enc.encode(secretKey),
+        { name: "HMAC", hash: "SHA-256" },
+        false,
+        ["sign"]
+      );
+
+      const signatureBuffer = await crypto.subtle.sign(
+        "HMAC",
+        key,
+        enc.encode(message)
+      );
+      const signatureArray = new Uint8Array(signatureBuffer);
+
+      let binary = "";
+      for (let i = 0; i < signatureArray.length; i++) {
+        binary += String.fromCharCode(signatureArray[i]);
+      }
+      const base64Signature = btoa(binary);
+      return encodeURIComponent(base64Signature);
+    }
+
+    async function fetchConfig() {
+      const ts = Date.now();
+      const secretKey = "gtvPuLbVDH1AnT0MkLHQh4gQ";
+      const signature = await generateSignature(source, ts, appId, secretKey);
+      const domain = "https://portal-be.choingay.vn/v1/public/games";
+      const url =
+        domain +
+        `?app_id=${appId}&source=${source}&ts=${ts}&sig=${signature}`;
+      const config = await fetch(url, { cache: "no-cache" });
+
+      const configText = await config.text();
+      const configParse = JSON.parse(configText);
+
+      return configParse;
+    }
+
+    async function fetchGameConfig() {
+      const config = await fetchConfig();
+      const dataConfig = config?.data;
+      const gameProperties = dataConfig?.properties;
+      const configBundle = gameProperties?.[platform || "bundle"];
+      const bundleInfo = configBundle?.bundle;
+      const bundleVersion = bundleInfo?.version;
+      const bundleUrl = bundleInfo?.url;
+
+      return {
+        bundleUrl,
+        bundleVersion,
+        logo: dataConfig?.smallLogo?.[0],
+        name: dataConfig?.name,
+      };
+    }
+
+    async function shouldProcessPredownload() {
+      try {
+        if (!appIdConfig) {
+          return false;
+        }
+
+        const userAgent = navigator.userAgent;
+
+        const fetchUrl = `https://portal-be.choingay.vn/v1/configs/sdk/apps/${appIdConfig}`;
+        const allowFetchFromCachingResponse = await fetch(fetchUrl);
+        const allowFetchFromCachingJson =
+          await allowFetchFromCachingResponse.json();
+        const allowFetchFromCaching =
+          allowFetchFromCachingJson?.allowFetchFromCaching || {};
+        const configByPlatform = allowFetchFromCaching[platform];
+        const lowercaseUA = userAgent.toLowerCase();
+        const os =
+          lowercaseUA.includes("iphone") || lowercaseUA.includes("ipad")
+            ? "ios"
+            : lowercaseUA.includes("android")
+              ? "android"
+              : "web";
+        const configByPlatformAndOs = configByPlatform || [];
+        if (configByPlatformAndOs?.length === 0 || !configByPlatformAndOs) {
+          return false;
+        }
+        return configByPlatformAndOs.includes(os);
+      } catch (error) {
+        return false;
+      }
+    }
+
+    //#endregion
+
+    //#region Database
+
+    async function openDbEnsureStoreWithKeyPath(dbName, storeName, keyPath) {
+      return await new Promise((resolve, reject) => {
+        const req = indexedDB.open(dbName);
+        req.onupgradeneeded = (event) => {
+          const db = event.target.result;
+          if (!db.objectStoreNames.contains(storeName)) {
+            db.createObjectStore(storeName, { keyPath });
+          }
+        };
+        req.onsuccess = (event) => {
+          const db = event.target.result;
+          if (!db.objectStoreNames.contains(storeName)) {
+            const newVersion = (db.version || 1) + 1;
+            db.close();
+            const upgradeReq = indexedDB.open(dbName, newVersion);
+            upgradeReq.onupgradeneeded = (ev) => {
+              const upDb = ev.target.result;
+              if (!upDb.objectStoreNames.contains(storeName)) {
+                upDb.createObjectStore(storeName, { keyPath });
+              }
+            };
+            upgradeReq.onsuccess = (ev) => resolve(ev.target.result);
+            upgradeReq.onerror = (ev) => reject(upgradeReq.error || ev);
+          } else {
+            resolve(db);
+          }
+        };
+        req.onerror = () => reject(req.error);
+      });
+    }
+
+    async function getDataFromIndexDB(table, keypath, key) {
+      const db = await openDbEnsureStoreWithKeyPath(
+        CACHE_FILE_DATABASE_NAME,
+        table,
+        keypath
+      );
+      const record = await new Promise((resolve, reject) => {
+        const tx = db.transaction([table], "readonly");
+        const store = tx.objectStore(table);
+        const req = store.get(key);
+        req.onsuccess = () => resolve(req.result || null);
+        req.onerror = () => reject(req.error);
+        tx.onerror = () => reject(tx.error);
+      });
+      db.close();
+
+      return record;
+    }
+
+    async function setDataToIndexDB(table, keypath, data) {
+      if (!data[keypath]) return;
+
+      const db = await openDbEnsureStoreWithKeyPath(
+        CACHE_FILE_DATABASE_NAME,
+        table,
+        keypath
+      );
+      await new Promise((resolve, reject) => {
+        const tx = db.transaction([table], "readwrite");
+        const store = tx.objectStore(table);
+        const req = store.put(data);
+        req.onsuccess = () => {
+          /* ok */
+        };
+        req.onerror = () => reject(req.error);
+        tx.oncomplete = () => resolve();
+        tx.onerror = (e) => reject(tx.error || e);
+        tx.onabort = (e) => reject(tx.error || e);
+      });
+      db.close();
+    }
+
+    async function getCachedFileMappingFromIndexDB() {
+      const record = await getDataFromIndexDB(
+        CACHE_FILE_MAPPING_DATABASE_TABLE,
+        "id",
+        "mapping"
+      );
+      return record?.list || [];
+    }
+
+    async function processCacheFileMapping(items) {
+      const toAdd = Array.isArray(items) ? items : [items];
+      const current = await getCachedFileMappingFromIndexDB();
+      const byName = new Map(current.map((it) => [it.name, it]));
+      for (const it of toAdd) byName.set(it.name, it);
+      const merged = Array.from(byName.values());
+
+      await setDataToIndexDB(CACHE_FILE_MAPPING_DATABASE_TABLE, "id", {
+        id: "mapping",
+        list: merged,
+      });
+    }
+
+    async function processCacheVersionBundle(bundleVersion) {
+      await setDataToIndexDB(CACHE_VERSION_DATABASE_TABLE, "id", {
+        id: "latest",
+        version: bundleVersion,
+      });
+    }
+
+    async function getCachedVersionBundleFromIndexDB() {
+      const record = await getDataFromIndexDB(
+        CACHE_VERSION_DATABASE_TABLE,
+        "id",
+        "latest"
+      );
+      return record?.version || null;
+    }
+
+    async function processCacheIndexDB(byteContent, fileName) {
+      await setDataToIndexDB(CACHE_FILE_DATABASE_TABLE, "fileName", {
+        fileName,
+        parsedBody: byteContent,
+      });
+
+      await processCacheFileMapping({
+        name: fileName,
+        size: byteContent.byteLength,
+      });
+    }
+
+    //#endregion
+
+    const handleProgressDownload = async (response, onProgress) => {
+      const total =
+        parseInt(response.headers.get("Content-Length") || "") || NaN;
+      const reader =
+        response.body && response.body.getReader
+          ? response.body.getReader()
+          : null;
+      let loaded = 0;
+      const start = performance.now();
+      let lastTick = start;
+      let lastLoaded = 0;
+
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+        loaded += value.byteLength;
+        const now = performance.now();
+        const dt = (now - lastTick) / 1000;
+        if (dt >= 0.1) {
+          const instantBps = (loaded - lastLoaded) / dt;
+          onProgress({
+            loaded,
+            total,
+            bps: instantBps,
+            elapsedSec: (now - start) / 1000,
+          });
+          lastTick = now;
+          lastLoaded = loaded;
+        }
+      }
+
+      const end = performance.now();
+      const elapsed = (end - start) / 1000;
+      const avgBps = loaded / Math.max(0.001, elapsed);
+      onProgress({ loaded, total, bps: avgBps, elapsedSec: elapsed });
+
+      return { loaded, total, reader };
+    };
+
+    const prepareLocalStorageForMainGame = async () => {
+      const currentAllowFetchFromCaching = localStorage.getItem(
+        SHOULD_ALLOW_FETCH_FROM_CACHING_STORAGE_KEY
+      );
+      if (currentAllowFetchFromCaching === "false") {
+        return;
+      }
+      const currentMappingFileCacheIndexedDB =
+        await getCachedFileMappingFromIndexDB();
+      if (
+        currentMappingFileCacheIndexedDB?.length === 0 ||
+        !currentMappingFileCacheIndexedDB
+      ) {
+        localStorage.setItem(
+          SHOULD_ALLOW_FETCH_FROM_CACHING_STORAGE_KEY,
+          "false"
+        );
+        return;
+      }
+      localStorage.setItem(
+        CACHE_FILE_MAPPING_STORAGE_KEY,
+        JSON.stringify(currentMappingFileCacheIndexedDB)
+      );
+      localStorage.setItem(
+        SHOULD_ALLOW_FETCH_FROM_CACHING_STORAGE_KEY,
+        "true"
+      );
+    };
+
+    const processToMainGame = async () => {
+      await prepareLocalStorageForMainGame();
+
+      window.parent.postMessage({ type: "PREDOWN_LOAD_DONE" }, "*");
+      if (stageContainer && stageContainer.parentNode) {
+        stageContainer.parentNode.removeChild(stageContainer);
+      }
+      if (callbackLink) {
+        location.href = `${callbackLink}&code=${code || ""}&platform=${platform || ""
+          }&widget_platform=${widgetPlatform || ""}`;
+      }
+    };
+
+    async function cacheBundle(bundleUrl, bundleVersion) {
+      const bundleContent = await unZipGameByUrl(
+        bundleUrl,
+        ({ loaded, total, bps }) => {
+          totals[0] = { loaded, total };
+          updateOverallUI(overallFill, overallStats, totals, bps);
+        }
+      );
+
+      for (const item of bundleContent) {
+        await processCacheIndexDB(item.arrBuffer, item.fileName);
+      }
+
+      await processCacheVersionBundle(bundleVersion);
+    }
+
+    async function process() {
+      try {
+        setShowLoading(true);
+
+        const shouldProcess = await shouldProcessPredownload();
+
+        if (!shouldProcess) {
+          return;
+        }
+
+        updateOverallUI(overallFill, overallStats, totals, 0);
+
+        const { bundleUrl, bundleVersion, logo, name } =
+          await fetchGameConfig();
+
+        if (!bundleUrl || !bundleVersion || !logo || !name) return;
+
+        updateBasicGameInfo(logo, name);
+
+        const latestCacheConfigVersion =
+          await getCachedVersionBundleFromIndexDB();
+        if (
+          latestCacheConfigVersion &&
+          latestCacheConfigVersion === bundleVersion
+        ) {
+          return;
+        }
+
+        setShowLoading(false);
+
+        await cacheBundle(bundleUrl, bundleVersion);
+      } catch (error) {
+      } finally {
+        processToMainGame();
+      }
+    }
+
+    process();
+  </script>
+</body>
+
+</html>

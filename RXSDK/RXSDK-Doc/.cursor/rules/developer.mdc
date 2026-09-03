@@ -1,0 +1,117 @@
+---
+alwaysApply: true
+---
+
+# 开发规则
+
+## 代码变更记录
+
+当进行代码改动时，需遵循以下规则：
+
+1. **记录改动内容**：将所有改动的代码整理到 Markdown 文档中
+2. **记录改动日期**：在文档中标注改动日期
+3. **文档存放位置**：文档统一存放到 `version/` 目录下（RXSDK-Doc/version）
+4. **文档命名格式**：建议使用 `YYYY-MM-DD_改动描述.md` 格式命名
+
+### 文档模板
+
+```markdown
+# 改动记录 - [简要描述]
+
+- **日期**：YYYY-MM-DD
+- **作者**：[作者名]
+- **影响范围**：[受影响的模块/文件]
+
+## 改动内容
+
+### [文件路径]
+
+改动说明...
+
+\`\`\`代码语言
+// 改动的代码
+\`\`\`
+
+## 备注
+
+[其他需要说明的内容]
+```
+
+---
+
+## iOS Public 类检测
+
+检测 RXSDK-iOS 项目中的 public 类时，需遵循以下规则：
+
+### 检测方法
+
+1. **不要直接扫描 .h 文件**：头文件中的类不一定是 public 的
+2. **检查 project.pbxproj**：真正的 public 类在 Xcode 项目文件中通过 `ATTRIBUTES = (Public, );` 标记
+3. **排除 Pods**：第三方依赖不计入统计
+4. **筛选有实现的类**：只统计同时有 `.h` 和 `.m` 文件的类
+
+### 检测命令
+
+```bash
+# 提取 public 头文件
+find /path/to/RXSDK-iOS -name "project.pbxproj" ! -path "*/Pods/*" \
+    -exec grep -h "ATTRIBUTES = (Public" {} \; \
+    | grep "\.h in Headers" \
+    | sed 's/.*\/\* \(.*\.h\) in Headers.*/\1/' \
+    | sort | uniq
+
+# 检查是否有对应的 .m 实现
+base="${header%.h}"
+find /path/to/RXSDK-iOS -name "${base}.m" ! -path "*/Pods/*"
+```
+
+### 相关文档
+
+- 检测方法详情：`RXSDK-Doc/ios/public_class_detection.md`
+- Public 类列表：`RXSDK-Doc/ios/public_classes.md`
+
+---
+
+## iOS 创建新类规则
+
+在 RXSDKCode 项目中创建新类时，**必须遵循以下规则**：
+
+### 创建前必须询问
+
+> ⚠️ **重要**：创建新类之前，必须先询问用户：**"是否需要将该类设置为 Public？"**
+
+### Public 与非 Public 的区别
+
+| 类型 | Headers 属性 | RXSDK_Pure.h | 对外可见 |
+|------|-------------|--------------|---------|
+| Public | `ATTRIBUTES = (Public, );` | 需要 import | ✅ 是 |
+| 非 Public | 无 | 不需要 | ❌ 否 |
+
+### 创建流程
+
+1. **创建 `.h` 和 `.m` 源文件**
+2. **修改 `project.pbxproj`**：
+   - 添加 PBXBuildFile（Public 类需加 `ATTRIBUTES = (Public, );`）
+   - 添加 PBXFileReference
+   - 添加到对应 PBXGroup 的 children
+   - 添加到 PBXHeadersBuildPhase
+   - 添加到 PBXSourcesBuildPhase
+3. **如果是 Public 类**：在 `RXSDK_Pure.h` 中添加 import
+
+### 操作命令示例
+
+```bash
+# 1. 查找参考文件的 UUID 格式
+grep -n "RXService.h" project.pbxproj
+
+# 2. 查找目标文件组
+grep -A 30 "Common.*PBXGroup" project.pbxproj
+
+# 3. 查找 Headers/Sources 构建阶段
+grep -A 50 "PBXHeadersBuildPhase" project.pbxproj
+grep -A 100 "PBXSourcesBuildPhase" project.pbxproj
+```
+
+### 相关文档
+
+- 完整流程详情：`RXSDK-Doc/ios/add_class_to_project.md`

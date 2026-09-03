@@ -1,0 +1,142 @@
+---
+alwaysApply: true
+---
+
+# RXSDK Demo 开发规范
+
+## 1. 双端同步原则（强制）
+
+所有 Demo 修改**默认必须同时更新 Android 和 iOS 两端**，确保双端 UI 和功能保持一致。
+
+### 1.1 同步范围
+
+- **UI 布局**：页面结构、控件位置、间距
+- **样式风格**：颜色、字体、圆角、阴影
+- **图片资源**：图标、Logo、背景图（从 Figma 统一导出）
+- **交互逻辑**：按钮点击、状态变更、弹窗提示
+- **文案内容**：标题、按钮文字、提示信息
+
+### 1.2 例外情况
+
+以下情况可单端修改，但需在 commit message 中明确说明：
+
+- 平台特有功能（如 iOS 特有的 Scene Delegate）
+- 平台特有 bug 修复
+- 平台特有适配（如 Android 特有的权限处理）
+
+## 2. 目录结构
+
+```
+RXSDK-Demo/
+├── RXSDKDemo-Android/          # Android Demo 项目
+│   ├── app/
+│   │   └── src/main/
+│   │       ├── java/           # Java 代码
+│   │       └── res/            # 资源文件
+│   └── build.gradle
+│
+└── RXSDKDemo-iOS/              # iOS Demo 项目
+    ├── RXSDKDemo-iOS/
+    │   ├── *.h / *.m           # Objective-C 代码
+    │   └── Assets.xcassets/    # 资源文件
+    └── RXSDKDemo-iOS.xcodeproj
+```
+
+## 3. 资源管理
+
+### 3.1 图片资源
+
+- **来源**：统一从 Figma 设计稿导出
+- **格式**：PNG 格式（支持透明度）
+- **命名**：`ic_<功能名>.png`（如 `ic_login.png`、`ic_payment.png`）
+- **分辨率**：
+  - Android：放入 `drawable-xxhdpi`（3x）
+  - iOS：使用 `@3x` 后缀，配置 Contents.json
+
+### 3.2 颜色资源
+
+统一使用 Figma 设计稿中的颜色值：
+
+| 用途 | 色值 | 说明 |
+|------|------|------|
+| 主色蓝 | #155DFC | 按钮渐变起始 |
+| 主色紫 | #9810FA | 按钮渐变结束 |
+| 背景色 | #F9FAFB | 页面背景 |
+| 主文字 | #101828 | 标题文字 |
+| 次文字 | #4A5565 | 描述文字 |
+| 卡片边框 | #E5E7EB | 卡片边框 |
+| 信息卡背景 | #EFF6FF | 底部信息卡 |
+| 信息卡文字 | #193CB8 | 底部信息文字 |
+
+## 4. 代码规范
+
+### 4.1 Android（Java）
+
+- 属性命名：使用 `m` 前缀（如 `mInitButton`）
+- 布局 ID：使用驼峰命名（如 `loginCard`、`statusDot`）
+- 字符串：统一放入 `strings.xml`
+
+### 4.2 iOS（Objective-C）
+
+- 属性命名：使用 `m` 前缀避免与系统方法冲突（如 `mInitButton`）
+- 禁止使用 `init`、`new`、`copy`、`alloc` 作为属性名前缀
+- 颜色：使用宏定义 `UIColorFromHex()`
+
+## 5. 版本管理
+
+### 5.1 版本号规则
+
+- 格式：`主版本.次版本.修订号`（如 `1.0.0`）
+- 主版本：重大功能变更或不兼容更新
+- 次版本：新增功能
+- 修订号：Bug 修复或小调整
+
+### 5.2 更新记录
+
+每次修改必须在 `RXSDK-Doc/version/Version-demo.md` 中记录：
+
+- 版本号
+- 修改日期
+- 修改内容
+- 涉及平台（默认双端）
+
+## 6. Commit 规范
+
+```
+[Demo] <类型>: <简要描述>
+
+<详细描述>
+
+涉及平台: Android, iOS（默认双端，单端需说明原因）
+```
+
+### 类型
+
+- `feat`: 新功能
+- `fix`: Bug 修复
+- `ui`: UI 调整
+- `refactor`: 代码重构
+- `docs`: 文档更新
+- `chore`: 其他（配置、依赖等）
+
+### 示例
+
+```
+[Demo] ui: 替换服务按钮图标为 Figma 导出资源
+
+- 从 Figma 下载 9 个图标（Logo + 8 个服务）
+- Android: 放入 drawable-xxhdpi，更新 activity_main.xml
+- iOS: 添加 imageset 资源，更新 ViewController.m
+
+涉及平台: Android, iOS
+```
+
+## 7. 检查清单
+
+修改 Demo 时，请逐项确认：
+
+- [ ] Android 和 iOS 双端是否同步修改
+- [ ] 图片资源是否从 Figma 统一导出
+- [ ] 颜色值是否与设计稿一致
+- [ ] Version-demo.md 是否已更新
+- [ ] Commit message 是否符合规范

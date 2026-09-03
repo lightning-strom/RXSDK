@@ -1,0 +1,473 @@
+{
+  "platform": "ios",
+  "version": "v1",
+  "entries": [
+    {
+      "id": "ios-network-timeout-1131",
+      "scenes": [
+        "network"
+      ],
+      "codes": [
+        "1131",
+        "-1001"
+      ],
+      "keywords": [
+        "请求超时",
+        "连接超时",
+        "超时错误",
+        "timeout"
+      ],
+      "summary": "iOS 网络请求超时",
+      "causes": [
+        "请求超时时间内没有建立连接或没有收到完整响应",
+        "当前网络环境不稳定，弱网或切网导致请求超时",
+        "接口响应慢，超出了 SDK 允许的超时时间"
+      ],
+      "solutions": [
+        "同时记录原始 NSError.code 和 SDK 侧 code，确认是否是系统超时映射而来",
+        "检查 baseUrlList 对应域名是否稳定、是否存在 DNS 或代理问题",
+        "如只在特定接口出现，继续联合服务端查看 trace_id 与接口耗时"
+      ],
+      "relatedDocs": [
+        "RXSDK-iOS/RXSDKCode/RXSDK/Utils（常用工具）/Tool（工具）/RXErrorTool.h",
+        "RXSDK-iOS/RXSDKCode/RXSDK/Utils（常用工具）/Tool（工具）/RXErrorTool.m",
+        "RXSDK-Doc/ios/api/callback.md"
+      ],
+      "priority": 90
+    },
+    {
+      "id": "ios-network-no-network-1120",
+      "scenes": [
+        "network"
+      ],
+      "codes": [
+        "1120",
+        "-1003",
+        "-1004",
+        "-1009"
+      ],
+      "keywords": [
+        "未知主机错误",
+        "检查网络连通性",
+        "无网络",
+        "unknown host",
+        "not connected to internet"
+      ],
+      "summary": "iOS 当前网络不可用或域名不可达",
+      "causes": [
+        "设备没有外网连接或被系统判定为离线",
+        "目标域名不可达，DNS 解析失败或 Host 写错",
+        "代理、VPN、企业网络策略拦截了请求"
+      ],
+      "solutions": [
+        "先确认设备是否联网，再核对接口域名是否可达",
+        "检查 SDK 初始化使用的 baseUrlList 是否配置正确",
+        "如是内网、代理或海外环境，继续检查 DNS、证书与网络策略"
+      ],
+      "relatedDocs": [
+        "RXSDK-iOS/RXSDKCode/RXSDK/Utils（常用工具）/Tool（工具）/RXErrorTool.h",
+        "RXSDK-iOS/RXSDKCode/RXSDK/Utils（常用工具）/Tool（工具）/RXErrorTool.m"
+      ],
+      "priority": 80
+    },
+    {
+      "id": "ios-init-error-2001",
+      "scenes": [
+        "init"
+      ],
+      "codes": [
+        "2001"
+      ],
+      "keywords": [
+        "初始化错误，或未初始化",
+        "sdk初始化错误",
+        "未初始化"
+      ],
+      "summary": "iOS SDK 初始化失败或业务接口调用早于初始化完成",
+      "causes": [
+        "还没有调用 initWithConfig，或初始化回调未成功就调用了其他接口",
+        "cpId、productId、channelId、baseUrlList 等参数缺失或错误",
+        "初始化流程在 AppDelegate 中执行时机不对，或 launchOptions 没有正确传入"
+      ],
+      "solutions": [
+        "确认 AppDelegate 中先完成 SDK 初始化，再调用登录、支付等业务能力",
+        "逐项核对 RXSdkInitConfig 的关键参数和环境配置",
+        "如果问题只在特定环境出现，记录完整 error.msg 和 trace_id 后继续排查"
+      ],
+      "relatedDocs": [
+        "RXSDK-iOS/RXSDKCode/RXSDK/Utils（常用工具）/Tool（工具）/RXErrorTool.h",
+        "RXSDK-iOS/RXSDKCode/RXSDK/Utils（常用工具）/Tool（工具）/RXErrorTool.m",
+        "RXSDK-Doc/ios/api/callback.md"
+      ],
+      "priority": 95
+    },
+    {
+      "id": "ios-third-init-error-2002",
+      "scenes": [
+        "init"
+      ],
+      "codes": [
+        "2002"
+      ],
+      "keywords": [
+        "三方初始化错误，或未初始化",
+        "third init",
+        "regist",
+        "configure"
+      ],
+      "summary": "iOS 三方组件初始化顺序或配置不正确",
+      "causes": [
+        "微信、Google、Firebase、Adjust 等三方组件没有在 SDK 初始化前完成注册",
+        "Info.plist、URL Scheme、Universal Link 或 Pod 依赖配置不完整",
+        "调用了对应能力，但没有先完成组件 regist/configure"
+      ],
+      "solutions": [
+        "确认三方组件初始化代码位于瑞雪 SDK 初始化之前",
+        "检查对应 Pod 是否已安装，以及 Info.plist / URL Types / Entitlements 是否齐全",
+        "如果是登录或分享场景，继续核对后台 AppID、ClientID、ClientToken 等参数"
+      ],
+      "relatedDocs": [
+        "RXSDK-iOS/RXSDKCode/RXSDK/Utils（常用工具）/Tool（工具）/RXErrorTool.h",
+        "RXSDK-iOS/RXSDKCode/RXSDK/Utils（常用工具）/Tool（工具）/RXErrorTool.m"
+      ],
+      "priority": 92
+    },
+    {
+      "id": "ios-login-cancel-3001",
+      "scenes": [
+        "login"
+      ],
+      "codes": [
+        "3001"
+      ],
+      "keywords": [
+        "登录取消",
+        "取消授权",
+        "用户取消登录"
+      ],
+      "summary": "iOS 登录被用户取消或授权未完成",
+      "causes": [
+        "用户主动关闭登录页或取消第三方授权弹窗",
+        "第三方登录流程被中断，没有完成回调",
+        "业务侧把取消场景误当作异常故障"
+      ],
+      "solutions": [
+        "先确认是否为用户主动取消，这类情况通常不需要按故障处理",
+        "如果不是主动取消，继续检查第三方登录回调链路是否完整",
+        "在业务侧对“取消”和“失败”做区分，避免误报"
+      ],
+      "relatedDocs": [
+        "RXSDK-iOS/RXSDKCode/RXSDK/Utils（常用工具）/Tool（工具）/RXErrorTool.h",
+        "RXSDK-iOS/RXSDKCode/RXSDK/Utils（常用工具）/Tool（工具）/RXErrorTool.m"
+      ],
+      "priority": 75
+    },
+    {
+      "id": "ios-password-format-3100",
+      "scenes": [
+        "login"
+      ],
+      "codes": [
+        "3100"
+      ],
+      "keywords": [
+        "密码正则验证错误",
+        "密码输入6-32位",
+        "密码格式错误"
+      ],
+      "summary": "iOS 密码格式不符合当前项目配置要求",
+      "causes": [
+        "输入密码不满足长度或复杂度规则",
+        "项目开启了自定义密码强度配置，但前端提示与实际规则不一致",
+        "修改密码时新密码和项目密码策略不匹配"
+      ],
+      "solutions": [
+        "先确认当前项目使用的是默认、简单还是自定义密码强度规则",
+        "按照 6-32 位、数字/字母/特殊符号的实际要求重新校验输入",
+        "如项目做了自定义规则，请同步更新前端提示文案，避免误导用户"
+      ],
+      "relatedDocs": [
+        "RXSDK-iOS/RXSDKCode/RXSDK/Utils（常用工具）/Tool（工具）/RXErrorTool.h",
+        "RXSDK-iOS/RXSDKCode/RXSDK/Utils（常用工具）/Tool（工具）/RXErrorTool.m"
+      ],
+      "priority": 70
+    },
+    {
+      "id": "ios-pay-cancel-4001",
+      "scenes": [
+        "pay"
+      ],
+      "codes": [
+        "4001"
+      ],
+      "keywords": [
+        "支付取消",
+        "iap取消",
+        "cancel pay"
+      ],
+      "summary": "iOS 支付被用户主动取消",
+      "causes": [
+        "用户在 App Store 支付流程中主动取消",
+        "业务侧没有区分“取消”和“失败”两类返回",
+        "测试过程中误把取消路径当作支付异常"
+      ],
+      "solutions": [
+        "优先按“取消支付”场景处理，不要直接归类为支付故障",
+        "如果用户声称未取消但仍返回 4001，继续检查 StoreKit 回调和前台切换情况",
+        "确认业务日志里是否记录了本次 tradeNo 与支付流程节点"
+      ],
+      "relatedDocs": [
+        "RXSDK-iOS/RXSDKCode/RXSDK/Utils（常用工具）/Tool（工具）/RXErrorTool.h",
+        "RXSDK-iOS/RXSDKCode/RXSDK/Utils（常用工具）/Tool（工具）/RXErrorTool.m"
+      ],
+      "priority": 75
+    },
+    {
+      "id": "ios-order-repeat-4100",
+      "scenes": [
+        "pay"
+      ],
+      "codes": [
+        "4100"
+      ],
+      "keywords": [
+        "重复下单",
+        "重复支付",
+        "order repeat"
+      ],
+      "summary": "iOS 支付请求出现重复下单",
+      "causes": [
+        "同一个订单号被重复发起支付",
+        "上一次支付流程未结束又再次点击下单",
+        "业务侧没有做支付按钮防重入或订单幂等"
+      ],
+      "solutions": [
+        "确认每次支付使用唯一 tradeNo，不要复用历史订单号",
+        "为支付按钮增加防重入和请求中状态控制",
+        "如有补单流程，先确认前一笔订单状态再决定是否重新下单"
+      ],
+      "relatedDocs": [
+        "RXSDK-iOS/RXSDKCode/RXSDK/Utils（常用工具）/Tool（工具）/RXErrorTool.h",
+        "RXSDK-iOS/RXSDKCode/RXSDK/Utils（常用工具）/Tool（工具）/RXErrorTool.m"
+      ],
+      "priority": 82
+    },
+    {
+      "id": "ios-disagree-privacy-6000",
+      "scenes": [
+        "permission"
+      ],
+      "codes": [
+        "6000"
+      ],
+      "keywords": [
+        "隐私协议拒绝",
+        "不同意隐私协议",
+        "privacy"
+      ],
+      "summary": "iOS 用户未同意隐私协议，SDK 主流程被阻断",
+      "causes": [
+        "用户在隐私协议弹窗中选择拒绝",
+        "业务侧没有在调用 SDK 前处理隐私授权流程",
+        "测试时跳过了隐私协议确认，直接调用登录或设备能力"
+      ],
+      "solutions": [
+        "确保用户同意隐私协议后再继续登录、支付、定位等能力调用",
+        "如果产品流程允许，先引导用户重新查看并同意隐私协议",
+        "不要在隐私未同意状态下提前触发需要系统权限或网络访问的能力"
+      ],
+      "relatedDocs": [
+        "RXSDK-iOS/RXSDKCode/RXSDK/Utils（常用工具）/Tool（工具）/RXErrorTool.h",
+        "RXSDK-iOS/RXSDKCode/RXSDK/Utils（常用工具）/Tool（工具）/RXErrorTool.m"
+      ],
+      "priority": 88
+    },
+    {
+      "id": "ios-wechat-login-callback-intercepted",
+      "scenes": [
+        "login"
+      ],
+      "keywords": [
+        "微信登录授权成功返回后没有登录成功回调",
+        "微信授权成功返回但没有登录成功回调",
+        "微信登录授权成功无回调",
+        "微信登录没有成功回调",
+        "onOpenURL 被拦截",
+        "onOpenURL 被重写"
+      ],
+      "matchMode": "keyword_only",
+      "summary": "iOS 微信授权返回后没有登录成功回调，onOpenURL 可能被拦截或重写",
+      "causes": [
+        "正常情况下 SDK 内部会自动监听 onOpenURL；当前项目重写或拦截了 onOpenURL，导致 SDK 无法收到微信授权回跳"
+      ],
+      "solutions": [
+        "在系统方法 - (BOOL)application:(UIApplication *)app openURL:(NSURL *)url options:(NSDictionary<UIApplicationOpenURLOptionsKey,id> *)options 中添加：\n// 正常情况 SDK 内部会自动监听 onOpenURL，由于当前项目的 onOpenURL 被拦截或重写导致无法监听，需要手动处理\n[[RXSDK sharedSDK] application:app openURL:url options:options];"
+      ],
+      "relatedDocs": [
+        "RXSDK-iOS/RXSDKCode/RXSDK/Common/RXPrivateService.m",
+        "RXSDK-Unity/Packages/com.ruixue.unitysdk.weixin/Plugins/IOS/RuiXueIOSBridgeWeiXin.mm"
+      ],
+      "priority": 100
+    },
+    {
+      "id": "ios-not-install-wechat-6101",
+      "scenes": [
+        "share"
+      ],
+      "codes": [
+        "6101"
+      ],
+      "keywords": [
+        "微信未安装",
+        "未安装微信",
+        "wechat not installed"
+      ],
+      "summary": "iOS 当前设备未安装微信，无法进行微信登录或分享",
+      "causes": [
+        "设备上没有安装微信客户端",
+        "业务没有在拉起前做安装检测",
+        "调用方把“未安装”误判成 SDK 初始化失败"
+      ],
+      "solutions": [
+        "先做微信安装检测，再决定是否展示微信入口",
+        "如果用户必须使用微信功能，提示先安装微信客户端",
+        "若设备已安装微信但仍报 6101，继续检查 URL Scheme、Universal Link 和微信配置"
+      ],
+      "relatedDocs": [
+        "RXSDK-iOS/RXSDKCode/RXSDK/Utils（常用工具）/Tool（工具）/RXErrorTool.h",
+        "RXSDK-iOS/RXSDKCode/RXSDK/Utils（常用工具）/Tool（工具）/RXErrorTool.m"
+      ],
+      "priority": 78
+    },
+    {
+      "id": "ios-init-params-error-2000",
+      "scenes": [
+        "init"
+      ],
+      "codes": [
+        "2000"
+      ],
+      "keywords": [
+        "初始化参数错误",
+        "RXSdkInitConfig",
+        "cpId",
+        "productId",
+        "channelId"
+      ],
+      "summary": "iOS 初始化参数错误",
+      "causes": [
+        "RXSdkInitConfig 中 cpId、productId、channelId、baseUrlList 等关键字段缺失或环境不匹配"
+      ],
+      "solutions": [
+        "请核对 RXSdkInitConfig 必填参数，并确认当前环境、渠道和后台配置一致"
+      ],
+      "relatedDocs": [
+        "RXSDK-iOS/RXSDKCode/RXSDK/Utils（常用工具）/Tool（工具）/RXErrorTool.m",
+        "RXSDK-Doc/ios/api/callback.md"
+      ],
+      "priority": 90
+    },
+    {
+      "id": "ios-iap-no-products-4202",
+      "scenes": [
+        "pay"
+      ],
+      "codes": [
+        "4202"
+      ],
+      "keywords": [
+        "没有商品",
+        "no products",
+        "product not found"
+      ],
+      "summary": "iOS IAP 没有查询到商品",
+      "causes": [
+        "App Store Connect 商品 ID 未配置/未生效，或瑞雪后台计费点与 App Store 商品 ID 不一致"
+      ],
+      "solutions": [
+        "请检查 App Store Connect 商品状态、Bundle ID、沙盒账号和瑞雪后台计费点商品 ID 是否一致"
+      ],
+      "relatedDocs": [
+        "RXSDK-iOS/RXSDKCode/RXSDK/Utils（常用工具）/Tool（工具）/RXErrorTool.m"
+      ],
+      "priority": 92
+    },
+    {
+      "id": "ios-iap-repair-failed-4201",
+      "scenes": [
+        "pay"
+      ],
+      "codes": [
+        "4201"
+      ],
+      "keywords": [
+        "补单失败",
+        "repair order failed",
+        "补发失败"
+      ],
+      "summary": "iOS IAP 补单失败",
+      "causes": [
+        "本地票据或服务端订单状态不一致，导致补单验单失败"
+      ],
+      "solutions": [
+        "请带订单号、transactionId、receipt 和 trace_id 联合服务端检查验单与发货状态"
+      ],
+      "relatedDocs": [
+        "RXSDK-iOS/RXSDKCode/RXSDK/Utils（常用工具）/Tool（工具）/RXErrorTool.m"
+      ],
+      "priority": 84
+    },
+    {
+      "id": "ios-permission-denied-6001",
+      "scenes": [
+        "permission"
+      ],
+      "codes": [
+        "6001"
+      ],
+      "keywords": [
+        "权限被拒绝或未开启",
+        "permission denied"
+      ],
+      "summary": "iOS 系统权限被拒绝或未开启",
+      "causes": [
+        "用户拒绝了相册、定位、相机、麦克风等系统权限，或权限在系统设置中关闭"
+      ],
+      "solutions": [
+        "请引导用户前往系统设置开启对应权限，并在调用前检查权限状态"
+      ],
+      "relatedDocs": [
+        "RXSDK-iOS/RXSDKCode/RXSDK/Utils（常用工具）/Tool（工具）/RXErrorTool.m"
+      ],
+      "priority": 78
+    },
+    {
+      "id": "ios-third-unknown-8000-9000",
+      "scenes": [
+        "common"
+      ],
+      "codes": [
+        "8000",
+        "9000"
+      ],
+      "keywords": [
+        "未知三方错误码",
+        "未知错误",
+        "thirdcode",
+        "thirdmsg"
+      ],
+      "summary": "iOS 未知错误或未知三方错误码",
+      "causes": [
+        "SDK 只拿到统一未知错误，具体原因需要查看 thirdcode、thirdmsg 或 trace_id"
+      ],
+      "solutions": [
+        "请保留完整 error：code、msg、thirdcode、thirdmsg、trace_id，并结合对应三方 SDK 文档或服务端日志排查"
+      ],
+      "relatedDocs": [
+        "RXSDK-iOS/RXSDKCode/RXSDK/Utils（常用工具）/Tool（工具）/RXErrorTool.m",
+        "RXSDK-Doc/common/specs/error_codes.md"
+      ],
+      "priority": 60
+    }
+  ]
+}

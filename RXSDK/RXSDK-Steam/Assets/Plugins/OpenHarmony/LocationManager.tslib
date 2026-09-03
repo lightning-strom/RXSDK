@@ -1,0 +1,32 @@
+import geoLocationManager from '@ohos.geoLocationManager';
+import BusinessError from "@ohos.base";
+
+export default class LocationManager {
+  public static getInstance(): LocationManager {
+    return new LocationManager();
+  }
+
+  public getCountryCode(callback: (data: string) => void): void {
+    try {
+      geoLocationManager.getCountryCode((err, result) => {
+        if (err) {
+          console.error('getCountryCode: err=' + JSON.stringify(err));
+        }
+        if (result) {
+          let dataStr = JSON.stringify(result)
+          console.log('getCountryCode: result=' + dataStr);
+          callback(dataStr);
+        }
+      });
+    } catch (err) {
+      console.error("errCode:" + (err as BusinessError.BusinessError).code + ",errMessage:" + (err as BusinessError.BusinessError).message);
+    }
+  }
+}
+
+
+export function RegisterLocationManager() {
+  var register = {};
+  register["LocationManager"] = LocationManager;
+  return register;
+}

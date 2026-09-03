@@ -1,0 +1,369 @@
+---
+description: 对外接口（OpenAPI）模板（Android/iOS/Unity/微信小游戏 多端通用）
+globs:
+  - "**/openapi/**/*.{java,kt,swift,h,m,mm,cs,js,ts}"
+  - "**/OpenAPI/**/*.{swift,h,m,mm,cs,js,ts}"
+  - "**/api/**/*.{java,kt,swift,h,m,mm,cs,js,ts}"
+  - "**/API/**/*.{swift,h,m,mm,cs,js,ts}"
+alwaysApply: false
+---
+
+# 对外接口模板（多端通用）
+
+> 适用范围：新增/修改对外公开接口（OpenAPI/Public API）及其实现
+>
+> 参考文档：
+> - [SDK 开发者文档](https://doc.ruixueyun.com/main/#/view?path=478fbd80-19b2-48ca-b304-524f39a7e866)
+> - [错误码标准](https://doc.ruixueyun.com/main/#/view?path=9687ce0a-3d92-4f7f-8516-d4c0de618475)
+
+---
+
+## 目录
+
+1. [核心规范](#1-核心规范)
+2. [统一错误结构](#2-统一错误结构)
+3. [Android 模板](#3-android-模板)
+4. [iOS 模板](#4-ios-模板)
+5. [Unity 模板](#5-unity-模板)
+6. [微信小游戏模板](#6-微信小游戏模板)
+7. [快速检查清单](#7-快速检查清单)
+
+---
+
+## 1. 核心规范
+
+### 1.1 接口设计原则
+
+| 规则 | 说明 |
+|------|------|
+| 参数数量 | ≤ 5 个，超过时封装为 Request/DTO |
+| 回调线程 | 必须明确声明（主线程/工作线程），实现中保持一致 |
+| 变更策略 | **只增不改**：新增方法/类/字段，禁止修改已发布签名 |
+| 异常处理 | 禁止抛出底层异常，通过 callback 返回统一错误结构 |
+
+### 1.2 硬约束（禁止事项）
+
+- ❌ 禁止抛出 `RuntimeException/JSONException/IOException` 等底层异常
+- ❌ 禁止在日志中打印敏感字段（token、密码、手机号、身份证等）
+- ❌ 禁止修改已发布 API 的签名或错误码语义
+- ❌ 禁止暴露 vendor SDK 类型（如 `WXResp`、`LoginResult`）
+- ❌ 禁止硬编码渠道差异（应通过插件路由机制处理）
+- ❌ **RXSDK 入口类禁止保留 `@Deprecated` 废弃函数**（废弃函数仅在底层 API 保留兼容）
+
+---
+
+## 2. 统一错误结构
+
+### 2.1 错误 JSON 字段
+
+```json
+{
+  "code": 2000,
+  "msg": "参数错误",
+  "trace_id": "xxxx",
+  "thirdcode": "WX_ERROR",
+  "thirdmsg": "微信返回错误",
+  "data": {"scene": "pay", "channel": "wechat"}
+}
+```
+
+| 字段 | 类型 | 必填 | 说明 |
+|------|------|------|------|
+| `code` | int | ✅ | 错误码 |
+| `msg` | string | ✅ | 错误信息 |
+| `trace_id` | string | - | 服务端追踪 ID |
+| `thirdcode` | any | - | 三方原始错误码 |
+| `thirdmsg` | string | - | 三方原始错误信息 |
+| `data` | object | - | 扩展信息 |
+
+### 2.2 错误码规范
+
+**服务端错误码**：6 位整数，必须**原样透传**，不得压缩/改写
+
+**客户端错误码**（SDK 3.2.x+）：
+
+| 区间 | 类别 |
+|------|------|
+| 1000-1999 | 网络相关 |
+| 2000-2999 | 初始化相关 |
+| 3000-3999 | 登录相关 |
+| 4000-4999 | 支付相关 |
+| 5000-5999 | 分享相关 |
+| 6000-6999 | 权限与应用未安装 |
+
+---
+
+## 3. Android 模板
+
+### 3.1 接口定义（Java）
+
+```java
+package com.ruixue.openapi;
+
+import android.app.Activity;
+import androidx.annotation.NonNull;
+import com.ruixue.RXRequestCallback;
+import java.util.Map;
+
+/**
+ * <模块名> 对外 API
+ *
+ * <p>注意：该接口为 SDK 对外公开接口，变更必须向后兼容。</p>
+ */
+public interface IExampleApi {
+
+    /**
+     * <一句话描述>
+     *
+     * @param activity Activity
+     * @param params   参数（参数 > 5 时封装为 DTO）
+     * @param callback 回调（主线程回调）
+     */
+    void example(@NonNull Activity activity,
+                 @NonNull Map<String, Object> params,
+                 @NonNull RXRequestCallback callback);
+}
+```
+
+### 3.2 接口实现（Java）
+
+```java
+public void example(@NonNull Activity activity,
+                    @Nullable Map<String, Object> params,
+                    @Nullable RXRequestCallback callback) {
+    final RXRequestCallback cb = callback != null ? callback : RXRequestCallback.EMPTY;
+
+    // 入参校验
+    if (activity == null || params == null) {
+        cb.onFailed(RXErrorCode.INIT_PARAMS_ERROR.toJSONObject());
+        return;
+    }
+
+    // 字段校验
+    String username = params.get("username") != null ? String.valueOf(params.get("username")) : null;
+    if (TextUtils.isEmpty(username)) {
+        cb.onFailed(RXErrorCode.INIT_PARAMS_ERROR.toJSONObject());
+        return;
+    }
+
+    // 构造请求体（避免修改外部传入 map）
+    Map<String, Object> body = new HashMap<>(params);
+    // TODO: 调用内部逻辑
+}
+```
+
+### 3.3 Request/DTO 模板
+
+```java
+public final class ExampleRequest {
+    @NonNull public final String username;
+    @NonNull public final String password;
+    @Nullable public final String captchaCode;
+    @Nullable public final Map<String, Object> ext;
+
+    public ExampleRequest(@NonNull String username, @NonNull String password,
+                          @Nullable String captchaCode, @Nullable Map<String, Object> ext) {
+        this.username = username;
+        this.password = password;
+        this.captchaCode = captchaCode;
+        this.ext = ext;
+    }
+}
+```
+
+---
+
+## 4. iOS 模板
+
+### 4.1 Swift Protocol
+
+```swift
+import Foundation
+
+/// <模块名> 对外 API
+public protocol RXExampleAPI {
+    func example(request: RXExampleRequest,
+                 completion: @escaping (Result<RXExampleResponse, RXSDKError>) -> Void)
+}
+
+/// 统一错误结构
+public struct RXSDKError: Error {
+    public let code: Int
+    public let msg: String
+    public let traceId: String?
+    public let thirdCode: String?
+    public let thirdMsg: String?
+    public let raw: String?
+    public let data: [String: Any]?
+}
+
+/// 请求参数
+public struct RXExampleRequest {
+    public let username: String
+    public let password: String
+    public let captchaCode: String?
+    public let ext: [String: Any]?
+}
+```
+
+### 4.2 Swift 实现
+
+```swift
+final class RXExampleAPIImpl: RXExampleAPI {
+    func example(request: RXExampleRequest,
+                 completion: @escaping (Result<RXExampleResponse, RXSDKError>) -> Void) {
+        guard !request.username.isEmpty else {
+            completion(.failure(RXSDKError(code: 2000, msg: "参数错误")))
+            return
+        }
+        // TODO: 调用业务层
+    }
+}
+```
+
+### 4.3 Objective-C Header
+
+```objective-c
+#import <Foundation/Foundation.h>
+
+NS_ASSUME_NONNULL_BEGIN
+
+FOUNDATION_EXPORT NSString * const RXSDKErrorUserInfoKeyMessage;   // @"msg"
+FOUNDATION_EXPORT NSString * const RXSDKErrorUserInfoKeyTraceId;   // @"trace_id"
+FOUNDATION_EXPORT NSString * const RXSDKErrorUserInfoKeyThirdCode; // @"thirdcode"
+FOUNDATION_EXPORT NSString * const RXSDKErrorUserInfoKeyThirdMsg;  // @"thirdmsg"
+
+typedef void (^RXSDKCompletion)(NSDictionary * _Nullable data, NSError * _Nullable error);
+
+@interface RXExampleAPI : NSObject
+
+- (void)exampleWithParams:(NSDictionary<NSString *, id> *)params
+               completion:(RXSDKCompletion)completion;
+
+@end
+
+NS_ASSUME_NONNULL_END
+```
+
+---
+
+## 5. Unity 模板
+
+```csharp
+using System;
+using UnityEngine;
+
+[Serializable]
+public class RXSDKError {
+    public int code;
+    public string msg;
+    public string trace_id;
+    public string thirdcode;
+    public string thirdmsg;
+    public string data;
+    public string raw;
+}
+
+public sealed class UnityRXRequestCallbackProxy : AndroidJavaProxy {
+    private readonly Action<string> _onSuccess;
+    private readonly Action<string> _onError;
+
+    public UnityRXRequestCallbackProxy(Action<string> onSuccess, Action<string> onError)
+        : base("com.ruixue.unity.UnityRXRequestCallback") {
+        _onSuccess = onSuccess;
+        _onError = onError;
+    }
+
+    public void onResponse(string json) => _onSuccess?.Invoke(json);
+    public void onError(string e) => _onError?.Invoke(e);
+}
+```
+
+---
+
+## 6. 微信小游戏模板
+
+```typescript
+export interface RXSDKError {
+  code: number;
+  msg: string;
+  trace_id?: string;
+  thirdcode?: any;
+  thirdmsg?: string;
+  data?: Record<string, any>;
+}
+
+export type RXResult<T> =
+  | { ok: true; data: T }
+  | { ok: false; error: RXSDKError };
+
+export class RXMiniGameSDK {
+  private static _inited = false;
+
+  static async init(cfg: { productId: string; channelId: string }): Promise<RXResult<void>> {
+    if (!cfg?.productId || !cfg?.channelId) {
+      return { ok: false, error: { code: 2000, msg: "参数错误" } };
+    }
+    RXMiniGameSDK._inited = true;
+    return { ok: true, data: undefined };
+  }
+
+  static async login(req: { method: string }): Promise<RXResult<object>> {
+    if (!RXMiniGameSDK._inited) {
+      return { ok: false, error: { code: 2001, msg: "SDK 未初始化" } };
+    }
+    // TODO: 调用 wx.login 等
+    return { ok: false, error: { code: 9000, msg: "未实现" } };
+  }
+}
+```
+
+---
+
+## 7. 快速检查清单
+
+### ✅ 接口设计
+
+- [ ] 参数数量 ≤ 5？超过时封装为 DTO
+- [ ] 接口命名语义化、风格统一
+- [ ] 明确声明回调线程，实现保持一致
+- [ ] 包含完整注释（功能、参数、返回值、异常）
+
+### ✅ 错误处理
+
+- [ ] 禁止抛出底层异常
+- [ ] 错误结构统一（code/msg/trace_id/thirdcode/thirdmsg）
+- [ ] 服务端错误码（6 位）原样透传
+- [ ] 三方错误放在 thirdcode/thirdmsg
+- [ ] 新增错误码已更新错误码表
+
+### ✅ 安全与兼容
+
+- [ ] 禁止日志打印敏感字段
+- [ ] 禁止硬编码敏感信息
+- [ ] 已发布 API 未修改签名/语义
+- [ ] 禁止暴露 vendor SDK 类型
+- [ ] 禁止硬编码渠道差异
+- [ ] RXSDK 入口类无 @Deprecated 函数
+
+### ✅ 多端一致
+
+- [ ] 各端错误结构字段一致
+- [ ] 保留原始错误 JSON 便于排查
+- [ ] 能力路由 key 稳定且与 config key 分离
+
+### ✅ 代码质量
+
+- [ ] 入参校验（非空、格式、范围）
+- [ ] 避免修改外部传入参数
+- [ ] 单元测试覆盖率 ≥ 80%
+
+---
+
+**最后更新**：2026-01-22  
+**版本**：v3.0  
+**变更**：
+- 精简文档结构，移除重复内容
+- 统一使用 `RXRequestCallback`
+- 新增 RXSDK 禁止保留废弃函数规则
+- 优化 globs 配置，支持通配符

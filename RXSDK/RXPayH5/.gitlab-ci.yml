@@ -1,0 +1,39 @@
+image: haiqi-registry.cn-beijing.cr.aliyuncs.com/haiqiruixue/febasic:v2.0.0
+
+variables:
+  BASIURL:
+    description: "用于修改推送压缩包的接口,一般情况无需修改"
+    value: "http://api.ruixueyun.com"
+  CPID:
+    description: "要发布的CP对应的CPID,全量发布使用all"
+    value: "114"
+  VENV:
+    description: "要发布的项目前缀"
+    value: "pay"
+  CLUSTER:
+    description: "集群麦网:maiwang，微乐:weile 游成:youcheng 鑫泽:xinze,只有CPID重复了才会添加,CI会报错"
+    value: ""
+stages:
+  - build_fe
+build_fe:
+  stage: build_fe
+  script:
+    - ls
+    - echo "$CPID"
+    - echo "$VENV"
+    - echo "$PROJECT_ID"
+    - echo "$CI_COMMIT_REF_NAME"
+    - echo "$(process.env)"
+    - _=""
+    - _=""
+    - _="==========> build..."
+    - date '+%Y-%m-%d %H:%M:%S.%N'
+    - _=""
+    - _=""
+    - export
+    - pwd
+    - node /app/node/index.js
+  tags:
+    - haiqi
+  rules:
+    - if: '$CI_PIPELINE_SOURCE == "web" || $CI_PIPELINE_SOURCE == "api"'

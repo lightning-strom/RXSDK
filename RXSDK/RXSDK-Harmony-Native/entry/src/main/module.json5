@@ -1,0 +1,155 @@
+{
+  "module": {
+    "name": "entry",
+    "type": "entry",
+    "description": "$string:module_desc",
+    "mainElement": "EntryAbility",
+    "deviceTypes": [
+      "phone",
+      "tablet",
+      "2in1"
+    ],
+    "metadata": [
+      {
+        "name": "ArkTSPartialUpdate",
+        "value": "true"
+      },
+      {
+        "name": "partialUpdateStrictCheck",
+        "value": "warn"
+      },
+      {
+        "name": "wx_appid",
+        "value": "wx2634a4144ccbe556"
+      },
+      {
+        "name": "com.openinstall.APP_KEY",
+        "value": "gyjljg",
+      },
+    ],
+    "querySchemes": [
+      "ruixue",
+      "jixiang",
+      "weile",
+      "weixin",
+      "wxopensdk",
+      "app1Scheme"
+    ],
+    "deliveryWithInstall": true,
+    "installationFree": false,
+    "pages": "$profile:main_pages",
+    "abilities": [
+      {
+        "name": "EntryAbility",
+        "srcEntry": "./ets/entryability/EntryAbility.ets",
+        "label": "$string:app_name",
+        "description": "$string:ability_desc",
+        "startWindowIcon": "$media:startIcon",
+        "startWindowBackground": "$color:start_window_background",
+        "orientation": "auto_rotation",
+        "exported": true,
+        "skills": [
+          {
+            "entities": [
+              "entity.system.browsable",
+              "entity.system.home"
+            ],
+            "actions": [
+              "action.system.home",
+              "ohos.want.action.viewData",
+              "ohos.want.action.sendData",
+              "wxentity.action.open"
+            ],
+            // 目标应用在配置支持接收的数据类型时，需穷举支持的UTD，比如：支持全部图片类型，可声明：general.image
+            // maxFileSupported 对于归属指定类型的文件，标识一次支持接收的最大数量。默认为0，代表不支持此类文件的分享。文件类型归属关系参考：@ohos.data.uniformTypeDescriptor (标准化数据定义与描述)
+            "uris": [
+              {
+                // scheme须配置为https
+                "scheme": "https",
+                // host须配置为关联的域名https://rxfile-test.ruixueyun.com
+                "host": "rxfile-test.ruixueyun.com",
+                // path可选，表示域名服务器上的目录或文件路径，例如www.example.com/path1/中的path1
+                // 如果应用只能处理部分特定的path，则此处应该配置应用所支持的path，避免出现应用不能处理的path链接也被引流到应用中的问题
+                "path": "sdk"
+              },
+              {
+                "scheme": "https",
+                "host": "gyjljg.openlink.cc",
+              },
+              {
+                "scheme": "ruixue"
+              }
+            ],
+            "domainVerify": true
+          },
+          {
+            "uris": [
+              {
+                "scheme": "file",
+                "utd": "general.text",
+                "maxFileSupported": 1
+              },
+              {
+                "scheme": "file",
+                "utd": "general.image",
+                "maxFileSupported": 1
+              },
+              {
+                "scheme": "https",
+                "utd": "general.hyperlink",
+                "maxFileSupported": 1
+              }
+            ]
+          }
+        ]
+      }
+    ],
+    "requestPermissions": [
+      {
+        "name": "ohos.permission.INTERNET",
+      },
+      {
+        "name": "ohos.permission.READ_PASTEBOARD",
+        "usedScene": {
+          "abilities": [
+            "EntryAbility",
+            "TuanjiePlayerAbility"
+          ],
+          "when": "inuse"
+        },
+        "reason": "$string:pasteboard_reason"
+      },
+      {
+        "name": "ohos.permission.APP_TRACKING_CONSENT",
+        "usedScene": {
+          "abilities": [
+            "TuanjiePlayerAbility"
+          ],
+          "when": "inuse"
+        },
+        "reason": "$string:read_tracking_reason"
+      },
+      {
+        "name": "ohos.permission.SET_NETWORK_INFO",
+        "usedScene": {
+          "abilities": [
+            "TuanjiePlayerAbility"
+          ],
+          "when": "inuse"
+        },
+        "reason": "$string:set_network_info"
+      },
+      {
+        "name": "ohos.permission.DISTRIBUTED_DATASYNC",
+        // 允许不同设备间的数据交换权限
+        "reason": "$string:distributed_permission",
+        "usedScene": {
+          "abilities": [
+            "EntryAbility"
+          ],
+          "when": "inuse"
+        }
+      }
+    ]
+  }
+}

@@ -1,0 +1,60 @@
+import { TuanjieLog } from 'classesLib';
+import { RXWebViewControl } from './RXWebViewControl';
+
+// 注：此对象由unity 调用。在工作线程中运行
+export class RXWebViewManager {
+  private static instance: RXWebViewManager;
+  private webViewControl: RXWebViewControl;
+  private jsCallUnityHandler?: (func: string, data: string) => void
+
+  private constructor() {
+    this.webViewControl = new RXWebViewControl();
+  }
+
+  // 获取单例对象
+  public static getInstance() {
+    if (!RXWebViewManager.instance) {
+      RXWebViewManager.instance = new RXWebViewManager();
+    }
+
+    return RXWebViewManager.instance;
+  }
+
+  // 打开url
+  public static openUrl(url: string, initParamsJson: string, isLight?: boolean, title?: string) {
+    //url = "https://cn-api-test.ruixueyun.com/static/service/"
+    TuanjieLog.debug("" + url);
+    TuanjieLog.debug("" + initParamsJson);
+    RXWebViewManager.getInstance().webViewControl.openUrl(url, initParamsJson, isLight, title);
+  }
+
+
+  // 关闭 webview
+  public static close() {
+    RXWebViewManager.getInstance().webViewControl.close();
+  }
+
+  // 运行脚本
+  public static runJavaScript(script: string) {
+    RXWebViewManager.getInstance().webViewControl.runJavaScript(script);
+  }
+
+  // 设置回调unity
+  public static SetJsCallUnityHandler(handler: (func: string, data: string) => void) {
+    globalThis.workerPort.addEventListener("message", async (e:ESObject) => {
+      let msg:ESObject = JSON.parse(JSON.stringify(e));
+      if (msg.data.type == "RXWebViewCallUnity") {
+        RXWebViewManager.getInstance().jsCallUnityHandler?.(msg.data.func, msg.data.data)
+      }
+    });
+
+    RXWebViewManager.getInstance().jsCallUnityHandler = handler;
+  }
+}
+
+export function RegisterRXWebViewManager() {
+  let register: Record<string, Object> = {};
+  register["RXWebViewManager"] = RXWebViewManager;
+  return register;
+
+}

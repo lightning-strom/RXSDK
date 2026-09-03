@@ -1,0 +1,1222 @@
+{
+  "platform": "android",
+  "version": "v1",
+  "entries": [
+    {
+      "id": "android-push-no-channel-plugin",
+      "scenes": [
+        "push",
+        "init"
+      ],
+      "keywords": [
+        "ruixue push plugin init failed",
+        "no push channel plugin support",
+        "push is not init success"
+      ],
+      "summary": "Android 推送插件初始化失败，当前没有可用的厂商推送通道",
+      "causes": [
+        "工程没有引入任何 rxsdk_push_xxx 厂商推送模块",
+        "Manifest 合并后没有出现 RX_PUSH_* 的 meta-data，导致 SDK 无法发现推送插件",
+        "虽然引入了插件，但当前设备厂商不匹配，或对应厂商初始化失败"
+      ],
+      "solutions": [
+        "检查 build.gradle 是否引入了至少一个厂商推送模块，例如 rxsdk_push_huawei、rxsdk_push_mi、rxsdk_push_oppo、rxsdk_push_vivo",
+        "检查合并后的 AndroidManifest.xml 是否包含 RX_PUSH_*、以及厂商所需的 AppID/AppKey meta-data",
+        "如果设备是海外机型、模拟器或非对应厂商 ROM，这类日志通常表示当前设备没有可用推送通道"
+      ],
+      "relatedDocs": [
+        "RXSDK-Android/push/rxsdk_push_base/src/main/java/com/ruixue/push/core/PushWrapper.java",
+        "RXSDK-Android/push/rxsdk_push_huawei/src/main/AndroidManifest.xml",
+        "RXSDK-Android/push/rxsdk_push_mi/src/main/AndroidManifest.xml"
+      ],
+      "priority": 100
+    },
+    {
+      "id": "android-network-timeout-1131",
+      "scenes": [
+        "network"
+      ],
+      "codes": [
+        "1131"
+      ],
+      "keywords": [
+        "timeout",
+        "请求超时",
+        "sockettimeout",
+        "网络超时"
+      ],
+      "summary": "Android 网络请求超时",
+      "causes": [
+        "网络波动导致请求在超时时间内未完成",
+        "接口响应慢或目标服务暂时不可用",
+        "代理、弱网或 DNS 异常导致实际连接耗时过长"
+      ],
+      "solutions": [
+        "检查设备网络、代理环境和接口域名是否稳定可达",
+        "同时记录 onResponse 中的 code/msg 与 onError(RXException) 的异常信息",
+        "如果有 trace_id，结合服务端日志确认是否是接口慢还是客户端连通性问题"
+      ],
+      "relatedDocs": [
+        "RXSDK-Android/rxsdk_base/src/main/java/com/ruixue/error/RXException.java",
+        "RXSDK-Doc/android/api/callback.md"
+      ],
+      "priority": 85
+    },
+    {
+      "id": "android-unknown-host-1120",
+      "scenes": [
+        "network"
+      ],
+      "codes": [
+        "1120"
+      ],
+      "keywords": [
+        "unknown host",
+        "域名解析失败",
+        "找不到主机",
+        "网络不可达"
+      ],
+      "summary": "Android 域名解析失败或目标主机不可达",
+      "causes": [
+        "设备当前无网络或网络不可用",
+        "接口 Host 配置错误、域名未生效或 DNS 有问题",
+        "测试环境、代理环境拦截了域名访问"
+      ],
+      "solutions": [
+        "检查 baseUrl、Host 和当前环境配置是否正确",
+        "在设备上直接验证域名解析和连通性",
+        "如果是海外或特定网络环境，继续检查 DNS、防火墙和代理策略"
+      ],
+      "relatedDocs": [
+        "RXSDK-Android/rxsdk_base/src/main/java/com/ruixue/error/RXException.java",
+        "RXSDK-Doc/android/api/callback.md"
+      ],
+      "priority": 80
+    },
+    {
+      "id": "android-init-error-2001",
+      "scenes": [
+        "init"
+      ],
+      "codes": [
+        "2001"
+      ],
+      "keywords": [
+        "init error",
+        "初始化错误",
+        "未初始化"
+      ],
+      "summary": "Android SDK 初始化失败或业务接口调用早于初始化完成",
+      "causes": [
+        "未先调用 RXSDK.initialize 或初始化回调未成功就调用其他接口",
+        "初始化参数错误，例如 cpId、productId、channelId、baseUrlList 缺失",
+        "Application 配置不正确，导致 SDK 生命周期没有完整接管"
+      ],
+      "solutions": [
+        "确认 Application 类已正确接入瑞雪 SDK 生命周期",
+        "确认初始化成功后再调用登录、支付、社交等业务能力",
+        "逐项检查初始化参数和当前渠道、版本配置是否匹配"
+      ],
+      "relatedDocs": [
+        "RXSDK-Android/rxsdk_base/src/main/java/com/ruixue/error/RXErrorCode.java",
+        "RXSDK-Doc/android/api/callback.md"
+      ],
+      "priority": 95
+    },
+    {
+      "id": "android-third-init-error-2002",
+      "scenes": [
+        "init"
+      ],
+      "codes": [
+        "2002"
+      ],
+      "keywords": [
+        "third init error",
+        "三方初始化错误",
+        "thirdparty init"
+      ],
+      "summary": "Android 三方组件初始化失败或前置配置不完整",
+      "causes": [
+        "第三方登录、支付、推送或统计组件没有按要求初始化",
+        "签名、AppID、包名、SHA1 或 Manifest 配置缺失",
+        "调用方把三方能力问题误当成瑞雪主 SDK 初始化失败"
+      ],
+      "solutions": [
+        "检查对应三方 SDK 的初始化顺序和工程配置",
+        "核对包名、签名、AppID、ClientID、scheme、权限与 meta-data",
+        "如果只有某一项三方能力失败，优先单独验证该组件能否正常工作"
+      ],
+      "relatedDocs": [
+        "RXSDK-Android/rxsdk_base/src/main/java/com/ruixue/error/RXErrorCode.java"
+      ],
+      "priority": 88
+    },
+    {
+      "id": "android-login-cancel-3001",
+      "scenes": [
+        "login"
+      ],
+      "codes": [
+        "3001"
+      ],
+      "keywords": [
+        "登录取消",
+        "用户取消登录",
+        "cancel login"
+      ],
+      "summary": "Android 登录被用户取消或授权中断",
+      "causes": [
+        "用户主动退出登录授权流程",
+        "第三方授权页关闭，没有走到成功回调",
+        "业务侧没有区分取消和失败"
+      ],
+      "solutions": [
+        "先按“取消登录”而不是“故障”分类处理",
+        "如果用户确认没有取消，继续检查三方回调 Activity 和返回码",
+        "在埋点与日志中区分取消、拒绝授权和真实异常三类场景"
+      ],
+      "relatedDocs": [
+        "RXSDK-Android/rxsdk_base/src/main/java/com/ruixue/error/RXErrorCode.java"
+      ],
+      "priority": 70
+    },
+    {
+      "id": "android-apkpure-google-login-timeout-3000",
+      "scenes": [
+        "login"
+      ],
+      "codes": [
+        "3000"
+      ],
+      "keywords": [
+        "login time out.",
+        "\"thirdmsg\":\"login time out.\"",
+        "\"code\":3000"
+      ],
+      "matchMode": "code_and_keyword",
+      "summary": "APKPure 渠道 Google 登录超时",
+      "causes": [
+        "当前网络环境无法稳定访问外网，导致 Google 登录流程超时"
+      ],
+      "solutions": [
+        "请确认当前网络环境是否能访问外网"
+      ],
+      "relatedDocs": [
+        "RXSDK-Android/overseas/rxsdk_apkpure/src/main/java/com/ruixue/sdk/apkpure/ApkpureSdkWrapper.java"
+      ],
+      "priority": 125
+    },
+    {
+      "id": "android-apkpure-line-channel-not-configured-3000",
+      "scenes": [
+        "login"
+      ],
+      "codes": [
+        "3000"
+      ],
+      "keywords": [
+        "LINE Channel ID未配置",
+        "\"thirdmsg\":\"LINE Channel ID未配置\"",
+        "\"code\":3000"
+      ],
+      "matchMode": "code_and_keyword",
+      "summary": "APKPure 渠道 Line 登录未配置",
+      "causes": [
+        "当前渠道没有正确配置 Line 登录所需的 Channel ID"
+      ],
+      "solutions": [
+        "请确认渠道是否配置了 Line 登录，参考文档：https://doc.ruixueyun.com/main/#/view?viewPath=a6cf18f5-0c6c-4bc4-ac39-46df8ac496a3&title=Line%E7%99%BB%E5%BD%95%E6%8E%A5%E2%BC%8A%E8%AF%B4%E6%98%8E&tab=&index=1"
+      ],
+      "relatedDocs": [
+        "https://doc.ruixueyun.com/main/#/view?viewPath=a6cf18f5-0c6c-4bc4-ac39-46df8ac496a3&title=Line%E7%99%BB%E5%BD%95%E6%8E%A5%E2%BC%8A%E8%AF%B4%E6%98%8E&tab=&index=1",
+        "RXSDK-Android/overseas/rxsdk_line/src/main/java/com/ruixue/sdk/line/LineSdkWrapper.java",
+        "RXSDK-Android/overseas/rxsdk_apkpure/src/main/java/com/ruixue/sdk/apkpure/ApkpureSdkWrapper.java"
+      ],
+      "priority": 126
+    },
+    {
+      "id": "android-apkpure-vk-web-login-network",
+      "scenes": [
+        "login"
+      ],
+      "requiredKeywords": [
+        "vk",
+        "拉起网页失败"
+      ],
+      "matchMode": "keyword_only",
+      "summary": "APKPure 渠道 VK 登录拉起网页失败",
+      "causes": [
+        "当前网络环境无法访问外网，导致 VK 授权网页无法正常拉起或加载"
+      ],
+      "solutions": [
+        "请确认当前网络环境是否能访问外网"
+      ],
+      "relatedDocs": [
+        "RXSDK-Android/overseas/rxsdk_vk/src/main/java/com/ruixue/sdk/vk/VkSdkWrapper.java",
+        "RXSDK-Android/overseas/rxsdk_vk/src/main/java/com/ruixue/sdk/vk/VkAuthActivity.java",
+        "RXSDK-Android/overseas/rxsdk_apkpure/src/main/java/com/ruixue/sdk/apkpure/ApkpureSdkWrapper.java"
+      ],
+      "priority": 124
+    },
+    {
+      "id": "android-apkpure-asdk-not-initialized-2002",
+      "scenes": [
+        "init",
+        "login"
+      ],
+      "codes": [
+        "2002"
+      ],
+      "keywords": [
+        "ASDK not initialized",
+        "check apkpure_appid in ext"
+      ],
+      "matchMode": "code_and_keyword",
+      "summary": "APKPure 渠道 ASDK 未初始化",
+      "causes": [
+        "APKPure 渠道缺少 apkpure_appid，导致 ASDK 没有完成初始化"
+      ],
+      "solutions": [
+        "请确认当前渠道是否配置了 apkpure_appid，并重新初始化 APKPure 渠道 SDK"
+      ],
+      "relatedDocs": [
+        "RXSDK-Android/overseas/rxsdk_apkpure/src/main/java/com/ruixue/sdk/apkpure/ApkpureSdkWrapper.java"
+      ],
+      "priority": 123
+    },
+    {
+      "id": "android-apkpure-google-sdk-not-init-2002",
+      "scenes": [
+        "init",
+        "login"
+      ],
+      "codes": [
+        "2002"
+      ],
+      "keywords": [
+        "google sdk not init"
+      ],
+      "matchMode": "code_and_keyword",
+      "summary": "APKPure 渠道 Google 登录组件未初始化",
+      "causes": [
+        "Google 登录插件没有完成初始化，常见原因是 Google Client ID、包名或签名配置不完整"
+      ],
+      "solutions": [
+        "请确认 APKPure 渠道已配置 Google 登录，并检查 Web client ID、包名和 SHA1 是否与 Google 后台一致"
+      ],
+      "relatedDocs": [
+        "RXSDK-Android/overseas/rxsdk_google/src/main/java/com/ruixue/sdk/google/GoogleSdkWrapper.java",
+        "RXSDK-Android/overseas/rxsdk_google/src/main/java/com/ruixue/sdk/google/GoogleConfig.java"
+      ],
+      "priority": 122
+    },
+    {
+      "id": "android-apkpure-google-developer-error",
+      "scenes": [
+        "login"
+      ],
+      "requiredKeywords": [
+        "google",
+        "developer_error"
+      ],
+      "matchMode": "keyword_only",
+      "summary": "APKPure 渠道 Google 登录配置错误",
+      "causes": [
+        "Google 登录返回 DEVELOPER_ERROR，通常是 Web client ID、包名、SHA1 或 Google 后台配置不匹配"
+      ],
+      "solutions": [
+        "请确认 Google 后台 Web client ID、Android 包名、签名 SHA1 与当前 APKPure 渠道包一致"
+      ],
+      "relatedDocs": [
+        "RXSDK-Android/overseas/rxsdk_google/src/main/java/com/ruixue/sdk/google/GoogleSdkWrapper.java",
+        "RXSDK-Android/overseas/rxsdk_google/src/main/java/com/ruixue/sdk/google/GoogleConfig.java"
+      ],
+      "priority": 121
+    },
+    {
+      "id": "android-apkpure-facebook-access-token-null-3000",
+      "scenes": [
+        "login"
+      ],
+      "codes": [
+        "3000"
+      ],
+      "keywords": [
+        "error facebook accessToken is null",
+        "facebook accessToken is null"
+      ],
+      "matchMode": "code_and_keyword",
+      "summary": "APKPure 渠道 Facebook 登录没有返回 accessToken",
+      "causes": [
+        "Facebook 登录授权未成功返回 accessToken，通常与 Facebook AppID、ClientToken、包名或签名配置有关"
+      ],
+      "solutions": [
+        "请确认 APKPure 渠道已配置 Facebook 登录，并检查 Facebook AppID、ClientToken、包名和签名 Key Hash"
+      ],
+      "relatedDocs": [
+        "RXSDK-Android/overseas/rxsdk_facebook/src/main/java/com/ruixue/sdk/facebook/FacebookSdkWrapper.java"
+      ],
+      "priority": 121
+    },
+    {
+      "id": "android-apkpure-line-channel-empty",
+      "scenes": [
+        "init",
+        "login"
+      ],
+      "keywords": [
+        "line_channel_id is empty",
+        "error line_channel_id is empty",
+        "please call initThirdSdk func, init lineApiClient first"
+      ],
+      "matchMode": "keyword_only",
+      "summary": "APKPure 渠道 Line 登录缺少 line_channel_id",
+      "causes": [
+        "当前渠道没有配置 Line Channel ID，或 Line 登录插件没有完成初始化"
+      ],
+      "solutions": [
+        "请确认渠道是否配置了 Line 登录，参考文档：https://doc.ruixueyun.com/main/#/view?viewPath=a6cf18f5-0c6c-4bc4-ac39-46df8ac496a3&title=Line%E7%99%BB%E5%BD%95%E6%8E%A5%E2%BC%8A%E8%AF%B4%E6%98%8E&tab=&index=1"
+      ],
+      "relatedDocs": [
+        "https://doc.ruixueyun.com/main/#/view?viewPath=a6cf18f5-0c6c-4bc4-ac39-46df8ac496a3&title=Line%E7%99%BB%E5%BD%95%E6%8E%A5%E2%BC%8A%E8%AF%B4%E6%98%8E&tab=&index=1",
+        "RXSDK-Android/overseas/rxsdk_line/src/main/java/com/ruixue/sdk/line/LineSdkWrapper.java"
+      ],
+      "priority": 120
+    },
+    {
+      "id": "android-apkpure-vk-client-id-missing-2002",
+      "scenes": [
+        "init",
+        "login"
+      ],
+      "codes": [
+        "2002"
+      ],
+      "keywords": [
+        "VK not initialized, check vk_client_id in ext",
+        "vk_client_id is empty"
+      ],
+      "matchMode": "code_and_keyword",
+      "summary": "APKPure 渠道 VK 登录缺少 vk_client_id",
+      "causes": [
+        "当前渠道没有配置 VK 应用 ID，导致 VK 登录插件没有初始化"
+      ],
+      "solutions": [
+        "请确认 APKPure 渠道已配置 VK 登录，并在渠道配置中补充 vk_client_id"
+      ],
+      "relatedDocs": [
+        "RXSDK-Android/overseas/rxsdk_vk/src/main/java/com/ruixue/sdk/vk/VkSdkWrapper.java"
+      ],
+      "priority": 120
+    },
+    {
+      "id": "android-apkpure-instagram-config-missing",
+      "scenes": [
+        "login"
+      ],
+      "keywords": [
+        "client id is null or redirect url is null",
+        "instagram login data null",
+        "instagram login error callback data is null"
+      ],
+      "matchMode": "keyword_only",
+      "summary": "APKPure 渠道 Instagram 登录配置缺失",
+      "causes": [
+        "Instagram 登录缺少 clientId 或 redirectUrl，导致授权页无法正常返回"
+      ],
+      "solutions": [
+        "请确认 APKPure 渠道已配置 Instagram 登录，并检查 clientId 与 redirectUrl 是否正确"
+      ],
+      "relatedDocs": [
+        "RXSDK-Android/overseas/rxsdk_instagram/src/main/java/com/ruixue/sdk/instagram/InstagramSdkWrapper.java",
+        "RXSDK-Android/overseas/rxsdk_instagram/src/main/java/com/ruixue/sdk/instagram/AuthenticationActivity.java"
+      ],
+      "priority": 119
+    },
+    {
+      "id": "android-apkpure-tiktok-config-or-network",
+      "scenes": [
+        "login"
+      ],
+      "requiredKeywords": [
+        "tiktok",
+        "login error"
+      ],
+      "matchMode": "keyword_only",
+      "summary": "APKPure 渠道 TikTok 登录失败",
+      "causes": [
+        "TikTok 登录未返回 auth code，常见原因是 clientKey/auth scheme 配置错误或当前网络无法访问外网"
+      ],
+      "solutions": [
+        "请确认 APKPure 渠道已配置 TikTok 登录，并检查 clientKey、auth scheme 以及当前网络环境是否能访问外网"
+      ],
+      "relatedDocs": [
+        "RXSDK-Android/overseas/rxsdk_tiktok/src/main/java/com/ruixue/sdk/tiktok/TikTokSdkWrapper.java"
+      ],
+      "priority": 118
+    },
+    {
+      "id": "android-apkpure-reddit-not-initialized-2000",
+      "scenes": [
+        "init",
+        "login"
+      ],
+      "codes": [
+        "2000"
+      ],
+      "keywords": [
+        "没有初始化",
+        "reddit_clientid",
+        "reddit_redirecturi"
+      ],
+      "matchMode": "code_and_keyword",
+      "summary": "APKPure 渠道 Reddit 登录未初始化",
+      "causes": [
+        "Reddit 登录缺少 reddit_clientid 或 reddit_redirecturi，导致授权流程无法启动"
+      ],
+      "solutions": [
+        "请确认 APKPure 渠道已配置 Reddit 登录，并检查 reddit_clientid 与 reddit_redirecturi"
+      ],
+      "relatedDocs": [
+        "RXSDK-Android/overseas/rxsdk_reddit/src/main/java/com/ruixue/sdk/reddit/RedditSdkWrapper.java"
+      ],
+      "priority": 118
+    },
+    {
+      "id": "android-apkpure-zalo-not-installed-6100",
+      "scenes": [
+        "login"
+      ],
+      "codes": [
+        "6100"
+      ],
+      "requiredKeywords": [
+        "zalo",
+        "not install"
+      ],
+      "matchMode": "code_and_keyword",
+      "summary": "APKPure 渠道 Zalo 登录未安装客户端",
+      "causes": [
+        "当前设备没有安装 Zalo 客户端，无法拉起 Zalo 登录"
+      ],
+      "solutions": [
+        "请确认当前设备已安装 Zalo 客户端，或在业务侧隐藏 Zalo 登录入口"
+      ],
+      "relatedDocs": [
+        "RXSDK-Android/overseas/rxsdk_zalo/src/main/java/com/ruixue/sdk/zalo/ZaloSdkWrapper.java"
+      ],
+      "priority": 116
+    },
+    {
+      "id": "android-apkpure-snapchat-login-failed",
+      "scenes": [
+        "login"
+      ],
+      "requiredKeywords": [
+        "snapchat",
+        "login failed"
+      ],
+      "matchMode": "keyword_only",
+      "summary": "APKPure 渠道 Snapchat 登录失败",
+      "causes": [
+        "Snapchat 登录失败通常与 Snapchat 应用状态、后台配置或当前网络环境有关"
+      ],
+      "solutions": [
+        "请确认当前设备已安装 Snapchat，并检查 Snapchat 登录配置以及当前网络环境是否能访问外网"
+      ],
+      "relatedDocs": [
+        "RXSDK-Android/overseas/rxsdk_snapchat/src/main/java/com/ruixue/sdk/snapchat/SnapchatSdkWrapper.java"
+      ],
+      "priority": 116
+    },
+    {
+      "id": "android-jiuyou-invalid-app-goods",
+      "scenes": [
+        "pay"
+      ],
+      "codes": [
+        "4001",
+        "4098",
+        "6000"
+      ],
+      "keywords": [
+        "INVALID_APP_GOODS",
+        "暂未开通支付功能",
+        "cn.uc.paysdk.pay.auth",
+        "SDK授权失败",
+        "jiuyou INVALID_APP_GOODS",
+        "9game INVALID_APP_GOODS",
+        "九游 INVALID_APP_GOODS"
+      ],
+      "matchMode": "keyword_only",
+      "summary": "九游支付授权返回 INVALID_APP_GOODS，后台支付能力或商品未开通",
+      "causes": [
+        "九游 pay.auth 阶段返回 INVALID_APP_GOODS，文案为“暂未开通支付功能，敬请期待”",
+        "九游后台当前 game_id、包名、签名或渠道包没有开通支付能力",
+        "九游商品或支付联调状态未启用，导致客户端未进入订单生成回调而被 RXSDK 表现为 4001"
+      ],
+      "solutions": [
+        "不要把该场景按普通用户取消处理；先在 logcat 中确认 Auth 返回的 error_code/error_msg",
+        "核对九游后台的 game_id、包名、签名、渠道包（如 JY_2）是否与当前 APK 一致并已开通支付",
+        "检查九游后台商品配置和支付联调/支付能力状态是否启用",
+        "若瑞雪 /v1/ke/order 已返回 ext.accountId、cpOrderId、amount、notifyUrl、sign 等字段，优先找九游后台排查支付能力状态"
+      ],
+      "relatedDocs": [
+        "RXSDK-Android/channel/rxsdk_9game/src/main/java/com/ruixue/sdk/M9GameBillingImpl.java",
+        "RXSDK-Android/channel/rxsdk_9game/src/main/java/com/ruixue/sdk/M9GameSdkApiImpl.java",
+        "RXSDK-Android/channel/rxsdk_9game/README.md"
+      ],
+      "priority": 130
+    },
+    {
+      "id": "android-pay-cancel-4001",
+      "scenes": [
+        "pay"
+      ],
+      "codes": [
+        "4001"
+      ],
+      "keywords": [
+        "支付取消",
+        "cancel pay",
+        "用户取消支付"
+      ],
+      "summary": "Android 支付被用户取消",
+      "causes": [
+        "用户在支付渠道页主动取消",
+        "业务侧把取消当成异常，导致误报警",
+        "支付渠道回调链路正常，但被错误归类"
+      ],
+      "solutions": [
+        "将 4001 视为取消场景，不要直接当作支付失败",
+        "如需继续排查，补充 tradeNo、支付渠道、thirdcode 和 thirdmsg",
+        "核对支付按钮点击、渠道拉起、回调返回三个关键节点日志"
+      ],
+      "relatedDocs": [
+        "RXSDK-Android/rxsdk_base/src/main/java/com/ruixue/error/RXErrorCode.java",
+        "RXSDK-Doc/android/api/callback.md"
+      ],
+      "priority": 75
+    },
+    {
+      "id": "android-third-party-product-id-null-4101",
+      "scenes": [
+        "pay"
+      ],
+      "codes": [
+        "4101"
+      ],
+      "keywords": [
+        "ext.product_id is null",
+        "product_id is null"
+      ],
+      "matchMode": "code_and_keyword",
+      "summary": "三方支付订单缺少 ext.product_id，说明三方计费点没有正确配置",
+      "causes": [
+        "瑞雪后台没有配置三方计费点，导致下单返回的 ext.product_id 为空"
+      ],
+      "solutions": [
+        "瑞雪后台未配置三方计费点，请前往后台进行配置"
+      ],
+      "relatedDocs": [
+        "RXSDK-MCP/rxsdk-mcp-server/knowledge/errors/android.json"
+      ],
+      "priority": 124
+    },
+    {
+      "id": "android-google-third-tag-null-4101",
+      "scenes": [
+        "pay"
+      ],
+      "codes": [
+        "4101"
+      ],
+      "keywords": [
+        "Error third_tag is null.",
+        "third_tag is null",
+        "google product id is null"
+      ],
+      "matchMode": "code_and_keyword",
+      "summary": "Google 支付订单缺少 third_tag，说明 Google 计费点没有正确配置",
+      "causes": [
+        "瑞雪后台没有配置 Google 计费点，导致下单返回的 ext.third_tag 为空"
+      ],
+      "solutions": [
+        "瑞雪后台未配置 Google 计费点，请前往后台进行配置"
+      ],
+      "relatedDocs": [
+        "RXSDK-Android/overseas/rxsdk_google/src/main/java/com/ruixue/sdk/google/GoogleBillingImpl.java",
+        "RXSDK-Android/overseas/rxsdk_google/src/main/java/com/ruixue/sdk/google/GoogleOrderData.java"
+      ],
+      "priority": 120
+    },
+    {
+      "id": "android-order-repeat-4100",
+      "scenes": [
+        "pay"
+      ],
+      "codes": [
+        "4100"
+      ],
+      "keywords": [
+        "重复下单",
+        "order repeat",
+        "重复支付"
+      ],
+      "summary": "Android 支付流程出现重复下单",
+      "causes": [
+        "相同订单号被重复发起支付",
+        "上一次支付未结束就再次点击支付",
+        "业务侧没有做支付请求幂等和防重入"
+      ],
+      "solutions": [
+        "保证每次支付使用唯一订单号或唯一 tradeNo",
+        "支付中禁用重复点击，或为请求增加状态锁",
+        "补单前先确认上一笔订单状态，不要直接重新下单"
+      ],
+      "relatedDocs": [
+        "RXSDK-Android/rxsdk_base/src/main/java/com/ruixue/error/RXErrorCode.java"
+      ],
+      "priority": 82
+    },
+    {
+      "id": "android-disagree-privacy-6000",
+      "scenes": [
+        "permission"
+      ],
+      "codes": [
+        "6000"
+      ],
+      "keywords": [
+        "未同意隐私协议",
+        "隐私协议拒绝",
+        "privacy"
+      ],
+      "summary": "Android 用户未同意隐私协议，SDK 流程被拦截",
+      "causes": [
+        "业务在用户未同意隐私协议前就启动了 SDK 能力",
+        "隐私弹窗流程没有接入或状态没有正确持久化",
+        "测试时跳过了隐私确认步骤"
+      ],
+      "solutions": [
+        "确保隐私协议同意后再调用登录、支付、定位等能力",
+        "如果产品允许，重新引导用户查看并同意协议",
+        "不要在隐私未同意时提前触发网络请求或设备标识采集"
+      ],
+      "relatedDocs": [
+        "RXSDK-Android/rxsdk_base/src/main/java/com/ruixue/error/RXErrorCode.java"
+      ],
+      "priority": 88
+    },
+    {
+      "id": "android-permission-denied-6002",
+      "scenes": [
+        "permission"
+      ],
+      "codes": [
+        "6002"
+      ],
+      "keywords": [
+        "权限被拒绝并不再提示",
+        "permission denied",
+        "永久拒绝"
+      ],
+      "summary": "Android 系统权限被永久拒绝",
+      "causes": [
+        "用户在系统权限弹窗中选择了拒绝且不再提示",
+        "业务没有在调用前做权限预检查",
+        "权限申请流程和实际业务调用顺序不一致"
+      ],
+      "solutions": [
+        "检测到永久拒绝后，引导用户前往系统设置手动开启权限",
+        "在调用拍照、定位、通讯录等能力前先做权限判断",
+        "区分“首次拒绝”和“永久拒绝”两类提示文案"
+      ],
+      "relatedDocs": [
+        "RXSDK-Android/rxsdk_base/src/main/java/com/ruixue/error/RXErrorCode.java"
+      ],
+      "priority": 80
+    },
+    {
+      "id": "android-huawei-product-id-null-4102",
+      "scenes": [
+        "pay"
+      ],
+      "codes": [
+        "4102"
+      ],
+      "keywords": [
+        "huawei product id is null error",
+        "hw_tag",
+        "huawei product id is null"
+      ],
+      "matchMode": "code_and_keyword",
+      "summary": "华为海外支付缺少 hw_tag 商品 ID",
+      "causes": [
+        "瑞雪后台没有为华为海外渠道配置计费点，导致下单返回的 ext.hw_tag 为空"
+      ],
+      "solutions": [
+        "请确认瑞雪后台已配置华为计费点，并保证下单返回 ext.hw_tag 与华为 AGC 商品 ID 一致"
+      ],
+      "relatedDocs": [
+        "RXSDK-Android/overseas/rxsdk_overseas_huawei/src/main/java/com/ruixue/ossdk/HmsBillingImpl.java"
+      ],
+      "priority": 123
+    },
+    {
+      "id": "android-huawei-delivery-url-missing-4102",
+      "scenes": [
+        "pay"
+      ],
+      "codes": [
+        "4102"
+      ],
+      "keywords": [
+        "未知发货地址",
+        "支付失败，未知发货地址"
+      ],
+      "matchMode": "code_and_keyword",
+      "summary": "华为海外支付缺少发货/验单回调地址",
+      "causes": [
+        "下单返回或 purchase payload 中没有可用于发货校验的 notify_url"
+      ],
+      "solutions": [
+        "请检查下单返回的 notify_url 和 developerPayload，确认后台已配置发货/验单回调地址"
+      ],
+      "relatedDocs": [
+        "RXSDK-Android/overseas/rxsdk_overseas_huawei/src/main/java/com/ruixue/ossdk/HmsBillingImpl.java"
+      ],
+      "priority": 118
+    },
+    {
+      "id": "android-rustore-third-tag-null-4101",
+      "scenes": [
+        "pay"
+      ],
+      "codes": [
+        "4101"
+      ],
+      "keywords": [
+        "RuStore product id (third_tag) is null",
+        "RuStore order data or ext is null",
+        "rustore third_tag"
+      ],
+      "matchMode": "code_and_keyword",
+      "summary": "RuStore 支付缺少 third_tag 商品 ID",
+      "causes": [
+        "瑞雪后台没有为 RuStore 渠道配置商品 ID，或下单返回缺少 ext.third_tag"
+      ],
+      "solutions": [
+        "请确认瑞雪后台已配置 RuStore 计费点，并保证下单返回 ext.third_tag"
+      ],
+      "relatedDocs": [
+        "RXSDK-Android/overseas/rxsdk_rustore/src/main/java/com/ruixue/sdk/rustore/RuStoreBillingImpl.java"
+      ],
+      "priority": 122
+    },
+    {
+      "id": "android-hq-unsupported-pay-type-4102",
+      "scenes": [
+        "pay"
+      ],
+      "codes": [
+        "4102"
+      ],
+      "keywords": [
+        "不支持的方式",
+        "unsupported hq type",
+        "HQ_PARAMS_ERROR"
+      ],
+      "summary": "H5/HQ 支付方式未被当前客户端支持",
+      "causes": [
+        "服务端下发的 hqType 没有对应客户端 PayHandler，或当前渠道包没有集成对应支付插件"
+      ],
+      "solutions": [
+        "请核对后台下发的 hqType 与客户端已集成的支付方式，必要时补齐对应支付插件或调整后台支付方式",
+        "若为星驿/星轶（hq_type=xy）：须 Android SDK ≥4.0.14；App 集成 com.ruixue:rxsdk_xingyi 且宿主白名单含 RX_PLUGIN_PAY_XINGYI；H5（ext.is_h5=1）集成 com.ruixue:rxsdk_h5pay 且含 RX_PLUGIN_HQ"
+      ],
+      "relatedDocs": [
+        "RXSDK-Android/rxsdk_h5pay/src/main/java/com/ruixue/hq/HQBillingImpl.java",
+        "RXSDK-Android/channel/rxsdk_xingyi/README.md"
+      ],
+      "priority": 115
+    },
+    {
+      "id": "android-google-billing-sku-name-empty-4002",
+      "scenes": [
+        "pay"
+      ],
+      "codes": [
+        "4002"
+      ],
+      "keywords": [
+        "SKU name can't be empty.",
+        "SKU name can't be empty",
+        "\"thirdcode\":5",
+        "\"thirdmsg\":\"SKU name can't be empty.\""
+      ],
+      "requiredKeywords": [
+        "SKU name can't be empty"
+      ],
+      "matchMode": "code_and_keyword",
+      "summary": "Google 支付 SKU name 为空，通常是计费点或 Google 商品配置不可用",
+      "causes": [
+        "瑞雪后台或 Google Play 后台计费点配置异常，导致拉起 Google 支付时 SKU 信息不完整"
+      ],
+      "solutions": [
+        "检查瑞雪后台是否配置了三方计费点",
+        "检查 google 后台该计费点是否可用",
+        "用户 Google play 账号所在地区是否支持付费"
+      ],
+      "relatedDocs": [
+        "RXSDK-Android/overseas/rxsdk_google/src/main/java/com/ruixue/sdk/google/GoogleBillingImpl.java",
+        "RXSDK-Android/overseas/rxsdk_google/src/main/java/com/ruixue/sdk/google/GoogleBillingHelper.java"
+      ],
+      "priority": 130
+    },
+    {
+      "id": "android-google-billing-developer-error-4002",
+      "scenes": [
+        "pay"
+      ],
+      "codes": [
+        "4002"
+      ],
+      "keywords": [
+        "DEVELOPER_ERROR",
+        "Billing response code: 5",
+        "Google Billing developer error"
+      ],
+      "matchMode": "code_and_keyword",
+      "summary": "Google Play Billing 返回 DEVELOPER_ERROR",
+      "causes": [
+        "Google Play 商品、包名、签名、测试账号或结算库配置与 Play Console 不匹配"
+      ],
+      "solutions": [
+        "请检查 Google Play Console 商品状态、包名、签名证书、测试账号和当前安装包来源是否一致"
+      ],
+      "relatedDocs": [
+        "RXSDK-Android/overseas/rxsdk_google/src/main/java/com/ruixue/sdk/google/GoogleBillingHelper.java"
+      ],
+      "priority": 118
+    },
+    {
+      "id": "android-google-billing-item-unavailable-4002",
+      "scenes": [
+        "pay"
+      ],
+      "codes": [
+        "4002"
+      ],
+      "keywords": [
+        "ITEM_UNAVAILABLE",
+        "no longer for sale",
+        "No sku details is found"
+      ],
+      "summary": "Google Play 商品不可售或商品详情不存在",
+      "causes": [
+        "Google Play Console 中商品未激活、地区不可售、商品 ID 不匹配或测试环境不可见"
+      ],
+      "solutions": [
+        "请确认商品 ID 与后台计费点一致，并检查商品是否已在 Google Play Console 激活且对当前地区/测试账号可见"
+      ],
+      "relatedDocs": [
+        "RXSDK-Android/overseas/rxsdk_google/src/main/java/com/ruixue/sdk/google/GoogleBillingImpl.java",
+        "RXSDK-Android/overseas/rxsdk_google/src/main/java/com/ruixue/sdk/google/GoogleBillingHelper.java"
+      ],
+      "priority": 116
+    },
+    {
+      "id": "android-wechat-h5-url-verification-failed-4102",
+      "scenes": [
+        "pay"
+      ],
+      "codes": [
+        "4102"
+      ],
+      "keywords": [
+        "weixin url verification failed"
+      ],
+      "matchMode": "code_and_keyword",
+      "summary": "微信 H5 支付中间页校验失败",
+      "causes": [
+        "微信 H5 支付页面结构变更、被风控/验证页拦截，或 pay_url/referer 配置不正确"
+      ],
+      "solutions": [
+        "请检查 pay_url、referer、商户 H5 页面是否被重定向到登录/验证页，并确认微信 H5 支付配置有效"
+      ],
+      "relatedDocs": [
+        "RXSDK-Android/rxsdk_h5pay/src/main/java/com/ruixue/hq/WechatH5.java"
+      ],
+      "priority": 112
+    },
+    {
+      "id": "android-h5-app-not-installed-4102",
+      "scenes": [
+        "pay"
+      ],
+      "codes": [
+        "4102",
+        "6100"
+      ],
+      "keywords": [
+        "Please check whether the app is installed",
+        "Please check line is installed"
+      ],
+      "summary": "H5/三方支付需要的客户端未安装",
+      "causes": [
+        "当前支付方式需要拉起第三方 App，但设备没有安装对应客户端"
+      ],
+      "solutions": [
+        "请确认设备已安装对应支付客户端，或在业务侧改用纯 H5/浏览器支付流程并隐藏不可用入口"
+      ],
+      "relatedDocs": [
+        "RXSDK-Android/rxsdk_h5pay/src/main/java/com/ruixue/hq/Line.java",
+        "RXSDK-Android/rxsdk_h5pay/src/main/java/com/ruixue/hq/Xsolla.java",
+        "RXSDK-Android/rxsdk_h5pay/src/main/java/com/ruixue/hq/PayerMax.java"
+      ],
+      "priority": 108
+    },
+    {
+      "id": "android-h5-webview-network-error",
+      "scenes": [
+        "pay",
+        "network"
+      ],
+      "keywords": [
+        "onReceivedError",
+        "failingUrl",
+        "net::ERR_",
+        "WebView 网络错误"
+      ],
+      "summary": "H5 收银台 WebView 加载失败",
+      "causes": [
+        "H5 支付页域名不可达、SSL/混合内容被拦截、海外网络环境无法访问目标地址"
+      ],
+      "solutions": [
+        "请检查 WebView failingUrl、errorCode/description、SSL 证书、域名白名单和当前网络环境"
+      ],
+      "relatedDocs": [
+        "RXSDK-Android/rxsdk_h5pay/src/main/java/com/ruixue/hq/HQCommon.java"
+      ],
+      "priority": 106
+    },
+    {
+      "id": "android-xingyi-h5-url-empty",
+      "scenes": [
+        "pay"
+      ],
+      "keywords": [
+        "xingyi h5 pay url is empty",
+        "h5PayData.payUrl",
+        "星驿 H5",
+        "星轶 H5"
+      ],
+      "summary": "星驿/星轶 H5 下单成功但收银台 URL 为空",
+      "causes": [
+        "Android SDK / 支付插件版本低于 4.0.14（星驿自 4.0.14 起支持）",
+        "服务端未在订单结果中返回 plug_url / ext.h5PayData.payUrl / ext.url / url / ext.h5 / h5",
+        "客户端未传 ext.is_h5=1，或未集成 rxsdk_h5pay，导致未走 XingYiH5 解析链路",
+        "误用独立 hq_type=xyh5 且后台未归一化到 xy + is_h5"
+      ],
+      "solutions": [
+        "将宿主与 com.ruixue:rxsdk_h5pay / rxsdk_xingyi 升级到 ≥4.0.14",
+        "确认支付参数 hq_type=xy 且 ext.is_h5=1，并集成 com.ruixue:rxsdk_h5pay",
+        "核对下单响应是否包含上述任一 URL 字段（优先 plug_url 与 ext.h5PayData.payUrl）",
+        "查看日志 onPageStarted / shouldOverrideUrlLoading，确认是否打开收银页或回跳 ruixue://pay/*"
+      ],
+      "relatedDocs": [
+        "RXSDK-Android/rxsdk_h5pay/src/main/java/com/ruixue/hq/XingYiH5.java",
+        "RXSDK-Android/rxsdk_h5pay/README.md",
+        "RXSDK-Android/channel/rxsdk_xingyi/README.md"
+      ],
+      "priority": 117
+    },
+    {
+      "id": "android-xingyi-plugin-missing-4102",
+      "scenes": [
+        "pay"
+      ],
+      "codes": [
+        "4102"
+      ],
+      "keywords": [
+        "RX_PLUGIN_PAY_XINGYI",
+        "XingYiSdkWrapper",
+        "hq_type=xy",
+        "星驿支付",
+        "星轶支付"
+      ],
+      "matchMode": "code_and_keyword",
+      "summary": "星驿/星轶支付插件未加载或未集成",
+      "causes": [
+        "Android SDK 版本低于 4.0.14（星驿/星轶支付自 4.0.14 起支持）",
+        "未依赖 com.ruixue:rxsdk_xingyi（App）或 com.ruixue:rxsdk_h5pay（H5）",
+        "宿主 getSupportPluginNames 未包含 RX_PLUGIN_PAY_XINGYI / RX_PLUGIN_HQ，依赖进包但不会 loadPlugins",
+        "H5 未设置 ext.is_h5=1，却期望走 WebView 收银"
+      ],
+      "solutions": [
+        "先将渠道宿主与支付插件升级到 ≥4.0.14",
+        "App：implementation com.ruixue:rxsdk_xingyi:≥4.0.14，宿主白名单加入 RX_PLUGIN_PAY_XINGYI，hq_type=xy 且不强制 is_h5=1",
+        "H5：implementation com.ruixue:rxsdk_h5pay:≥4.0.14，ext.is_h5=1，确认 RX_PLUGIN_HQ 已加载",
+        "推荐与渠道宿主并存引入两插件；新接入统一使用 hq_type=xy"
+      ],
+      "relatedDocs": [
+        "RXSDK-Android/channel/rxsdk_xingyi/README.md",
+        "RXSDK-Android/rxsdk_h5pay/README.md"
+      ],
+      "priority": 116
+    },
+    {
+      "id": "android-ysdk-missing-platform-type-3000",
+      "scenes": [
+        "login"
+      ],
+      "codes": [
+        "3000"
+      ],
+      "keywords": [
+        "required for platform_type params",
+        "error: required for platform_type params"
+      ],
+      "matchMode": "code_and_keyword",
+      "summary": "应用宝 YSDK 登录缺少 platform_type 或 ysdk_login_type",
+      "causes": [
+        "loginType/method 为 ysdk，但 ext 未传 platform_type，也未传 ysdk_login_type=ysdk_login_ui",
+        "rx_channel_config 仅配置 loginType: ysdk，业务侧未在登录参数中补充平台信息"
+      ],
+      "solutions": [
+        "API 登录：在 ext 中传 platform_type（YSDK ePlatform 整型，如 QQ/WX/游客，参考 com.tencent.ysdk.framework.common.ePlatform 与 Demo ChannelDemoActivity）",
+        "UI 登录：在 ext 中传 ysdk_login_type=ysdk_login_ui，可选 ysdk_login_ui_config",
+        "确认已集成 rxsdk_ysdk，且 Manifest 或 assets/ysdkconf.ini 已配置 YSDK_KEY、QQ_APP_ID、WX_APP_ID、OFFER_ID"
+      ],
+      "relatedDocs": [
+        "RXSDK-Android/channel/rxsdk_ysdk/src/main/java/com/ruixue/sdk/YSDKSdkApiImpl.java",
+        "RXSDK-Android/channel/rxsdk_ysdk/README.md",
+        "RXSDK-Android/demo/app_demo_ysdk/src/main/java/com/ruixue/demo/ChannelDemoActivity.java"
+      ],
+      "priority": 128
+    },
+    {
+      "id": "android-missing-rxsdk-base-ui-rxsdkui",
+      "scenes": [
+        "login"
+      ],
+      "requiredKeywords": [
+        "RXSdkUI",
+        "ClassNotFoundException"
+      ],
+      "matchMode": "keyword_only",
+      "summary": "缺少 rxsdk_base_ui，无法加载内置登录 UI（RXSdkUI）",
+      "causes": [
+        "业务调用 RXSdkUI.showLoginUI 或海外登录 UI 封装，但 build.gradle 未引入 com.ruixue:rxsdk_base_ui",
+        "仅集成 rxsdk_base / 渠道库，未集成 UI 模块"
+      ],
+      "solutions": [
+        "国内工程添加：implementation 'com.ruixue:rxsdk_base_ui:${version}'",
+        "海外工程按需添加：implementation 'com.ruixue:rxsdk_overseas:${version}'（或项目约定的海外 UI 包）",
+        "同步 Gradle 后确认 APK 内存在 com.ruixue.openapi.RXSdkUI",
+        "若使用 YSDK 渠道 API 登录（platform_type / ysdk_login_ui），可不依赖 RXSdkUI"
+      ],
+      "relatedDocs": [
+        "RXSDK-Android/rxsdk_base_ui/src/main/java/com/ruixue/openapi/RXSdkUI.java"
+      ],
+      "priority": 127
+    },
+    {
+      "id": "android-iifaa-validate-retry-310039",
+      "scenes": [
+        "real_auth",
+        "passport"
+      ],
+      "codes": [
+        "310039"
+      ],
+      "keywords": [
+        "iifaa",
+        "IIFAA",
+        "iifaa/validate",
+        "validate_by_bizid"
+      ],
+      "summary": "IIFAA 认证结果查询未就绪（310039），SDK 可自动重试",
+      "causes": [
+        "服务端 IIFAA 校验尚未完成，返回码 310039",
+        "业务自行调用风控接口，未使用 SDK 内置重试"
+      ],
+      "solutions": [
+        "优先使用 RXSDK.getInstance().getIIFAAResultWithRetryCount(retryCount, callback)，默认 310039 错误重试 3 次",
+        "接口路径为 POST v1/cgosdk/sdk/auth/iifaa/validate_by_bizid，请求体为空",
+        "若持续 310039，检查服务端 IIFAA 链路与用户是否已完成设备侧认证"
+      ],
+      "relatedDocs": [
+        "RXSDK-Android/rxsdk_base/src/main/java/com/ruixue/passport/PassportManager.java",
+        "RXSDK-Android/rxsdk_base/src/main/java/com/ruixue/openapi/RXSDK.java"
+      ],
+      "priority": 90
+    },
+    {
+      "id": "android-vk-manifest-placeholder-missing",
+      "scenes": [
+        "login",
+        "init"
+      ],
+      "keywords": [
+        "VKID",
+        "VKIDClientID",
+        "VKIDClientSecret",
+        "VKIDRedirectHost",
+        "VKIDRedirectScheme",
+        "vk authorize failed",
+        "vk init failed"
+      ],
+      "summary": "VK ID SDK 登录失败：宿主 Manifest 占位符（VKIDClientID/VKIDClientSecret/VKIDRedirectHost/VKIDRedirectScheme）未配置",
+      "causes": [
+        "宿主 build.gradle 的 manifestPlaceholders 未设置 VKIDClientID、VKIDClientSecret、VKIDRedirectHost、VKIDRedirectScheme",
+        "VKIDRedirectHost 必须为 vk.ru，VKIDRedirectScheme 必须为 vk{clientId}（如 clientId=12345 则为 vk12345）",
+        "VKIDClientSecret 是 VK 控制台 Secure Key，禁止硬编码进代码仓库，应通过 Gradle 属性或 CI 环境变量注入"
+      ],
+      "solutions": [
+        "在宿主 app/build.gradle 的 defaultConfig 中添加 manifestPlaceholders，示例：\n  manifestPlaceholders += [\n    VKIDClientID: \"<your_client_id>\",\n    VKIDClientSecret: \"<your_secure_key>\",\n    VKIDRedirectHost: \"vk.ru\",\n    VKIDRedirectScheme: \"vk<your_client_id>\"\n  ]",
+        "VKIDClientSecret 通过 Gradle 属性注入：在 gradle.properties（本地，加入 .gitignore）添加 VKID_CLIENT_SECRET=xxx，build.gradle 中读取 project.findProperty('VKID_CLIENT_SECRET') ?: ''",
+        "确认 rxsdk_vk 模块已引入：implementation 'com.ruixue:rxsdk_vk:${version}'"
+      ],
+      "relatedDocs": [
+        "RXSDK-Android/overseas/rxsdk_vk/README.md"
+      ],
+      "priority": 85
+    },
+    {
+      "id": "android-vk-pkce-client-id-missing-2002",
+      "scenes": [
+        "login",
+        "init"
+      ],
+      "codes": [
+        "2002",
+        "INIT_PARAMS_ERROR"
+      ],
+      "keywords": [
+        "vk_client_id",
+        "VK not initialized",
+        "INIT_PARAMS_ERROR",
+        "vk_auth_mode=code"
+      ],
+      "summary": "VK PKCE 模式初始化失败（2002/INIT_PARAMS_ERROR）：ext 中 vk_client_id 缺失或为空",
+      "causes": [
+        "vk_auth_mode=code（PKCE）时 vk_client_id 为必填项，为空会触发 INIT_PARAMS_ERROR",
+        "rxconfig.json 或初始化 ext 中 vk_client_id 配置为空字符串或未填写",
+        "SDK 模式（vk_auth_mode=sdk，默认）下 vk_client_id 可不传，但仍建议填写以便服务端查找 tp_appid"
+      ],
+      "solutions": [
+        "PKCE 模式：在 rxconfig.json 的 ext 或后台 init_configs 中填写 vk_client_id（与 VK 控制台 Client ID 一致）",
+        "若切换为默认 SDK 模式（去掉 vk_auth_mode=code 或改为 vk_auth_mode=sdk），vk_client_id 可选；但宿主仍须配置 Manifest 占位符（见 android-vk-manifest-placeholder-missing）",
+        "确认 VK 控制台应用状态正常，且包名/SHA1 已登记"
+      ],
+      "relatedDocs": [
+        "RXSDK-Android/overseas/rxsdk_vk/README.md"
+      ],
+      "priority": 85
+    }
+  ]
+}

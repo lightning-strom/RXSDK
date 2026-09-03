@@ -1,0 +1,282 @@
+:::tip
+基础库 RXSDK_Pure 3.8.5 以上支持。
+:::
+
+## 准备工作
+
+::: tip
+接入请前先做好准备工作。
+可通过 pod 方式接入**RXGDTSDK**组件，并使用**RXGDTSDK**相关功能。
+:::
+
+## SDK 集成
+
+- 编辑 Podfile 文件，添加如下配置：
+
+```objectivec
+pod 'RXGDTSDK'
+```
+
+## 初始化（必须）
+:::warning
+在 [瑞雪初始化方法](https://doc.ruixueyun.com/main/#/view?viewPath=9c947969-021b-4ff8-ad8a-7ea85bf414bd&title=SDK%20%E5%88%9D%E5%A7%8B%E5%8C%96%EF%BC%88%E5%BF%85%E9%A1%BB%EF%BC%89&tab=&index=1) 之前调用。
+:::
+
+**接口原型**
+
+```objectivec
+/**
+ * 初始化
+ */
+- (void)regist;
+```
+
+**调用示例**
+
+```objectivec
+[[RXGDTService sharedSDK] regist];
+```
+
+## 上报接口
+:::tip
+激活、注册、登录事件在使用对应功能时 SDK 自动上报，其他事件客户端按需上报。
+:::
+
+::: tip
+检测接入结果：查看控制台是否有 **action name** 日志。
+:::
+### 初始化/激活（非自动上报使用）
+```objectivec
+/**
+ * 初始化/激活
+ *
+ * @param context
+ * @param sid 
+ * @param secretKey
+ */
+- (void)initWithActionSetId:(NSString *)actionSetId secretKey:(NSString *)secretKey;
+
+// 调用示例
+[[RXGDTService sharedSDK] initWithActionSetId:setId secretKey:secretKey]
+```
+
+
+### 注册（非自动上报使用）
+```objectivec
+/**
+ * 注册
+ * @param method 表示注册方式，业务方可以传任意可标识注册方式的值，如注册方式为手机号（method = @"phone" ）、微信注册（method = @“WeChat” ）、邮箱（method = @"mail"）等；方便业务方在数据平台以method为key查询数据
+ * @param isSuccess 是否注册成功
+ */
+- (void)reportRegisterActionWithMethod:(NSString *)method isSuccess:(BOOL)isSuccess;
+
+// 调用示例
+[[RXGDTService sharedSDK] reportRegisterActionWithMethod:method isSuccess:YES];
+```
+
+
+### 登录（非自动上报使用）
+```objectivec
+/**
+ * 用户登录时事件
+ *
+ * @param method 表示登录的方式，如游戏账号、手机号等
+ * @param success 是否登录成功
+ */
+- (void)reportLoginActionWithMethod:(NSString *)method isSuccess:(BOOL)isSuccess;
+
+// 调用示例
+[[RXGDTService sharedSDK] reportLoginActionWithMethod:method isSuccess:YES];
+```
+
+### 创建游戏角色（必接）
+
+**接口原型**
+```objectivec
+/**
+ * 创建角色
+ * @param role 游戏角色
+ */
+- (void)reportCreateRoleActionWithRole:(NSString *)role;
+```
+
+**调用示例**
+```objectivec
+[[RXGDTService sharedSDK] reportCreateRoleActionWithRole:@"rolid"];
+```
+
+### 用户下单时事件（必接）
+
+**接口原型**
+```objectivec
+/**
+ * 下单
+ * @param type 内容类型如“配备”、“皮肤"
+ * @param name 商品或内容名称
+ * @param contentID 商品或内容标识符
+ * @param number 商品数量
+ * @param isVirtualCurrency 是否使用的是虚拟货币
+ * @param virtualCurrencyType 虚拟货币类型，如"元宝"、“金币”等
+ * @param realCurrencyType 真实货币类型，ISO 4217代码，如：“USD”
+ * @param isSuccess 提交购买/下单是否成功
+ */
+- (void)reportCheckoutActionWithContentType:(NSString *)type contentName:(NSString *)name contentID:(NSString *)contentID contentNumber:(NSUInteger)number isVirtualCurrency:(BOOL)isVirtualCurrency virtualCurrencyType:(NSString *)virtualCurrencyType realCurrencyType:(NSString *)realCurrencyType isSuccess:(BOOL)isSuccess;
+```
+
+**调用示例**
+```objectivec
+[[RXGDTService sharedSDK] reportCheckoutActionWithContentType:@"内容类型" contentName:@"商品名称" contentID:@"商品标识" contentNumber:商品数量 isVirtualCurrency:YES virtualCurrencyType:@"虚拟币类型" realCurrencyType:@"真实货币类型" isSuccess:YES];    [[RXGDTService sharedSDK] reportCheckoutActionWithContentType:@"内容类型" contentName:@"商品名称" contentID:@"商品标识" contentNumber:1 isVirtualCurrency:YES virtualCurrencyType:@"虚拟币类型" realCurrencyType:@"真实货币类型" isSuccess:YES];
+```
+
+
+### 用户支付时事件（必接）
+
+**接口原型**
+```objectivec
+/**
+ * 支付
+ * @param type 内容类型如“配备”、“皮肤”
+ * @param name 商品或内容名称
+ * @param contentID 商品或内容标识符
+ * @param number 商品数量
+ * @param channel 支付渠道名，如支付宝、微信等 @param realCurrency 真实货币类型，ISO 4217代码，如：“USD”
+ * @param amount 本次支付的真实货币的金额
+ * @param isSuccess 支付是否成功
+ */
+- (void)reportPurchaseActionWithContentType:(NSString *)type contentName:(NSString *)name contentID:(NSString *)contentID contentNumber:(NSUInteger)number paymentChannel:(NSString *)channel realCurrency:(NSString *)realCurrency currencyAmount:(unsigned long long)amount isSuccess:(BOOL)isSuccess;
+```
+
+**调用示例**
+```objectivec
+[[RXGDTService sharedSDK] reportPurchaseActionWithContentType:@"内容类型" contentName:@"商品名称" contentID:@"商品标识" contentNumber:1 paymentChannel:@"支付渠道" realCurrency:@"本次支付的真实币种" currencyAmount:本次支付的真实货币的金额 isSuccess:YES];
+```
+
+### 上报启动应用行为（必接）
+
+1.在 App 入口文件的 `applicationDidBecomeActive` 方法中调用 `[RXGDTService sharedSDK] logAction` 方法上报 **START_APP（启动应用）** 行为。
+**调用示例**
+```objectivec
+- (void)applicationDidBecomeActive:(UIApplication *)application
+{
+    [[RXGDTService sharedSDK] logAction:@"START_APP" actionParam:@{}];
+}
+```
+
+2.如果 App 是被第三方应用通过 `URL Scheme` 唤起，请在 App 入口文件的唤起回调方法中调用以下方法。
+**调用示例**
+```objectivec
+- (BOOL)application:(UIApplication *)app openURL:(NSURL *)url options:(NSDictionary<UIApplicationOpenURLOptionsKey,id> *)options
+{
+    [[RXGDTService sharedSDK] handleOpenUrl:url];
+    return YES;
+}
+```
+
+### 完成关键事件（如新手教学）时
+
+**接口原型**
+```objectivec
+/**
+ * 完成节点（如教学/任务/副本）时调用此接口
+ * @param questID 教学/任务/副本等关卡标识符
+ * @param type 节点类型
+ * @param name 教学/任务/副本等关卡名称
+ * @param number 第几个任务节点
+ * @param desc 节点描述
+ * @param isSuccess 节点是否完成*
+ */
+- (void)reportFinishQuestActionWithQuestID:(NSString *)questID questType:(NSString *)type questName:(NSString *)name questNumer:(NSUInteger)number description:(NSString *)desc isSuccess:(BOOL)isSuccess;
+```
+
+**调用示例**
+```objectivec
+[[RXGDTService sharedSDK] reportFinishQuestActionWithQuestID:@"教学/任务/副本等关卡标识符" questType:@"节点类型" questName:@"教学/任务/副本等关卡名称" questNumer:第几个任务节点 description:@"节点描述" isSuccess:YES];
+```
+
+### 分享
+
+**接口原型**
+```objectivec
+/**
+ * 分享至社交媒体时调用此接口
+ * @param channel 社交媒体
+ * @param isSuccess 分享是否成功
+ */
+- (void)reportShareActionWithChannel:(NSString *)channel isSuccess:(BOOL)isSuccess;
+```
+
+**调用示例**
+```objectivec
+[[RXGDTService sharedSDK] reportShareActionWithChannel:@"社交媒体" isSuccess:YES];
+```
+
+
+### 游戏升级时
+
+**接口原型**
+```objectivec
+/**
+ * 用户升级后调用此接口
+ * @param level 当前用户等级
+ */
+- (void)reportUpgradeLevelActionWithLevel:(NSUInteger)level;
+```
+
+**调用示例**
+```objectivec
+[[RXGDTService sharedSDK] reportUpgradeLevelActionWithLevel:当前用户等级];
+```
+
+### 用户对 App 评分时
+
+**接口原型**
+```objectivec
+/**
+ * 对APP进行应用商店评分时调用此接口
+ * @param rate 评分
+ */
+- (void)reportRateActionWithRate:(CGFloat)rate;
+```
+
+**调用示例**
+```objectivec
+[[RXGDTService sharedSDK] reportRateActionWithRate:评分];
+```
+
+### 查看内容/商品详情时
+
+**接口原型**
+```objectivec
+/**
+ * 查看内容/商品详情时调用此接口
+ * @param type 内容类型如“配备”、“皮肤”
+ * @param name 商品或内容名称
+ * @param contentID 商品或内容标识符
+ */
+- (void)reportViewContentActionWithContentType:(NSString *)type contentName:(NSString *)name contentID:(NSString *)contentID;
+```
+
+**调用示例**
+```objectivec
+[[RXGDTService sharedSDK] reportViewContentActionWithContentType:@"内容类型如“配备”、“皮肤”" contentName:@"商品或内容名称" contentID:@"商品或内容标识符"];
+```
+
+### 加入购物车时
+
+**接口原型**
+```objectivec
+/**
+ * 加入购物车时调用此接口
+ * @param type 内容类型如“配备”、“皮肤”
+ * @param name 商品或内容名称
+ * @param contentID 商品或内容标识符
+ * @param number 商品数量
+ * @param isSuccess 加入购买/购物车是否成功
+ */
+- (void)reportAddingToCartActionWithContentType:(NSString *)type contentName:(NSString *)name contentID:(NSString *)contentID contentNumber:(NSUInteger)number isSuccess:(BOOL)isSuccess;
+```
+
+**调用示例**
+```objectivec
+[[RXGDTService sharedSDK] reportAddingToCartActionWithContentType:@"内容类型如“配备”、“皮肤”" contentName:@"商品或内容名称" contentID:@"商品或内容标识符" contentNumber:商品数量 isSuccess:YES];
+```

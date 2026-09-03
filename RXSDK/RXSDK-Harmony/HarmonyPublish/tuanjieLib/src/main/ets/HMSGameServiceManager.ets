@@ -1,0 +1,58 @@
+import { SDKManager } from "./RXInterface";
+
+
+export default class HMSGameServiceManager {
+  /**
+   * 初始化gameservice
+   */
+  public GamePlayerInitOnUI(params: string,callback: (msgType: string, status: string, data: string) => void) {
+    SDKManager.GamePlayerInitOnUI(params,callback);
+  }
+
+
+  /**
+   *VerifyLocalPlayer
+   */
+  public GamePlayerVerifyLocalPlayerOnUI(playerInfo: string, callback: (msgType: string, status: string, data: string) => void) {
+    SDKManager.GamePlayerVerifyLocalPlayerOnUI(playerInfo, callback);
+  }
+
+  /**
+   *GamePlayerBindPlayerOnUI
+   */
+  public GamePlayerBindPlayerOnUI(params: string, callback: (msgType: string, status: string, data: string) => void) {
+    SDKManager.BingPlayerOnUI(params, callback);
+  }
+
+  /**
+   *GamePlayerUnBindPlayerOnUI
+   */
+  public GamePlayerUnBindPlayerOnUI(params: string, callback: (msgType: string, status: string, data: string) => void) {
+    SDKManager.UnBingPlayerOnUI(params, callback);
+  }
+
+  /**
+   * 获取玩家信息
+   */
+  public GamePlayerGetLocalOnUI(callback: (msgType: string, status: string, data: string) => void) {
+    SDKManager.GamePlayerGetLocalPlayerOnUI(callback);
+  }
+
+  /**
+   * 存入玩家信息
+   */
+  public GamePlayerSaveOnUI(playerInfo: string, callback: (msgType: string, status: string, data: string) => void) {
+    SDKManager.GamePlayerSavePlayerRoleOnUI(playerInfo, callback);
+  }
+
+  public static getInstance() {
+    return new HMSGameServiceManager();
+  }
+}
+
+
+export function RegisterHMSGameServiceManager() {
+  let register : Record<string, Object> = {};
+  register["HMSGameServiceManager"] = HMSGameServiceManager;
+  return register;
+}

@@ -1,0 +1,236 @@
+## 集成瑞雪SDK
+在app module 级别的 .gradle 文件中，在dependencies里引入SDK。
+
+```groovy
+implementation 'com.ruixue:rxsdk_gdt:${version}'
+```
+
+## 混淆说明
+在应用级根目录下打开混淆配置文件`proguard-rules.pro`，加入排除SDK的混淆配置
+```
+-dontwarn com.qq.gdt.action.**
+-keep class com.qq.gdt.action.** {*;}
+-keepclassmembers class com.qq.gdt.action.** {*;}
+-keep public class com.tencent.turingfd.sdk.**
+-keep class com.**.TNative$aa {public *;}
+-keep class com.**.TNative$aa$bb {public *;}
+-keep class com.**.TNative$bb {*;}
+-keep class com.**.TNative$bb$I {*;}
+
+-keepclasseswithmembers class * {
+    native <methods>;
+}
+```
+
+## 权限申请（非强制）
+如果您的 App 适配了 Android6.0（API >= 23），调用 logAction 时，需要处理 Android6.0 动态权限的兼容问题。具体做法是，先检查 App 是否获得了 android.permission.READ_PHONE_STATE 、 Manifest.permission.WRITE_EXTERNAL_STORAGE 权限，如果获得了这项权限，可以直接调用上面这段代码上报 App 启动行为；如果没有获得权限，那么可以调用 requestPermissions 方法来向用户申请权限（建议获得 android.permission.READ_PHONE_STATE 权限，上报数据会更准确，不是强制要求）
+```java
+// 在项目的主页面的 onCreate 方法中动态申请权限， 参考代码
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            if (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_PHONE_STATE) != PackageManager.PERMISSION_GRANTED || ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
+                //没有,申请权限  权限数组
+                ActivityCompat.requestPermissions(this, new String[] { Manifest.permission.READ_PHONE_STATE, Manifest.permission.WRITE_EXTERNAL_STORAGE}, 1000);
+            } 
+        }
+```
+
+## 上报接口
+:::tip
+激活、注册、登录事件在使用对应功能时 SDK 自动上报，其他事件客户端按需上报。
+:::
+
+::: tip
+检测接入结果：查看控制台是否有 **LogAction success** 日志。
+:::
+### 初始化（非自动上报使用，3.7.35以上）
+```java
+/**
+ * 初始化
+ *
+ * @param context
+ * @param sid 
+ * @param secretKey
+ * @param channel 可为空（为 tencent）, 可以填写 "natural", "bytedance", "kuaishou", "alibaba", "baidu", "others" 任选其一
+ * @param channelId 可传 "tencent"
+ */
+public void init(Context context, String sid, String secretKey, String channel, String channelId)
+
+// 调用示例
+GDTSdkWrapper.getInstance().init(context, sid, sk, "tencent", "tencent");
+```
+
+
+### 注册（非自动上报使用，3.7.35以上）
+```java
+/**
+ * 用户注册时事件
+ *
+ * @param method 表示注册方式 （游客: guest ）
+ * @param success 是否注册成功
+ */
+public void reportRegister(String method, boolean success)
+
+// 调用示例
+GDTSdkWrapper.getInstance().reportRegister("注册方式", true);
+```
+
+
+### 登录（非自动上报使用，3.7.35以上）
+```java
+/**
+ * 用户登录时事件
+ *
+ * @param method 表示登录的方式，如游戏账号、手机号等
+ * @param success 是否登录成功
+ */
+public void reportLogin(String method, boolean success)
+
+// 调用示例
+GDTSdkWrapper.getInstance().reportLogin("登录方式", true);
+```
+
+
+### 创建游戏角色
+```java
+/**
+ * 创建游戏角色
+ *
+ * @param role 游戏角色名称
+ */
+public void reportCreateRole(String role)
+
+// 调用示例
+GDTSdkWrapper.getInstance().reportCreateRole("CP 自己的游戏角色名称");
+```
+
+### 用户下单时事件
+```java
+/**
+ * 用户下单时事件
+ *
+ * @param type                商品类型
+ * @param name                商品名称
+ * @param id                  商品 id
+ * @param number              商品数量
+ * @param isVirtualCurrency   是否使用虚拟货币
+ * @param virtualCurrencyType 虚拟货币类型
+ * @param currency            真实货币类型
+ * @param success             下单是否成功
+ */
+public void reportCheckout(String type, String name, String id, int number, boolean isVirtualCurrency, String virtualCurrencyType, String currency, boolean success)
+
+// 调用示例
+GDTSdkWrapper.getInstance().reportCheckout("test", "rxname", "rx", 1, false, "vct", "CNY", true);
+```
+
+
+### 用户支付时事件
+```java
+/**
+ * 用户支付时事件
+ *
+ * @param goodsType    商品类型
+ * @param goodsName    商品名称
+ * @param goodsId      商品 id
+ * @param number       商品数量
+ * @param goodsChannel 支付渠道名，如支付宝、微信等
+ * @param currency     真是货币类型，如 "CNY"
+ * @param value        真实货币金额，单位分
+ * @param success      支付是否成功
+ */
+public void reportPurchase(String goodsType, String goodsName, String goodsId, int number, String goodsChannel, String currency, int value, boolean success)
+
+// 调用示例
+GDTSdkWrapper.getInstance().reportPurchase("test", "rxname", "rx", 1, "gchannel", "vct", 100, true);
+```
+
+### 完成关键事件（如新手教学）时
+```java
+/**
+ * 完成关键事件（如新手教学）时
+ *
+ * @param id      事件 id
+ * @param type    事件类型
+ * @param name    事件名称
+ * @param number  第几个事件
+ * @param desc    事件描述
+ * @param success 事件是否完成
+ */
+public void reportQuestFinish(String id, String type, String name, int number, String desc, boolean success) 
+
+// 调用示例
+GDTSdkWrapper.getInstance().reportQuestFinish("", "", "", 0, "",  true);
+```
+
+### 分享
+```java
+/**
+ * 分享
+ *
+ * @param channel 分享渠道
+ * @param success 是否分享成功
+ */
+public void reportShare(String channel, boolean success) 
+
+// 调用示例
+GDTSdkWrapper.getInstance().reportShare("", true);
+```
+
+### 游戏升级时
+```java
+/**
+ * 游戏升级时
+ *
+ * @param level 升级后的等级
+ */
+public void reportUpdateLevel(int level) 
+
+// 调用示例
+GDTSdkWrapper.getInstance().reportUpdateLevel(1);
+```
+
+### 用户对 App 评分时
+```java
+/**
+ * 用户对 App 评分时
+ *
+ * @param value 用户给出的评分值
+ */
+public void reportRateApp(float value)
+
+// 调用示例
+GDTSdkWrapper.getInstance().reportRateApp(1.0f);
+```
+
+### 查看内容/商品详情时
+```java
+/**
+ * 查看内容/商品详情时
+ *
+ * @param type 内容/商品类型
+ * @param name 内容/商品名称
+ * @param id   内容/商品的 id
+ */
+public void reportViewContent(String type, String name, String id)
+
+// 调用示例
+GDTSdkWrapper.getInstance().reportViewContent("", "", "");
+```
+
+### 加入购物车时
+```java
+/**
+ * 加入购物车时
+ *
+ * @param type    商品类型
+ * @param name    商品名称
+ * @param id      商品 id
+ * @param number  商品数量
+ * @param success 加入购物车是否成功
+ */
+public void reportAddToCart(String type, String name, String id, int number, boolean success)
+
+// 调用示例
+GDTSdkWrapper.getInstance().reportAddToCart("", "", "", 0, true);
+```
+
