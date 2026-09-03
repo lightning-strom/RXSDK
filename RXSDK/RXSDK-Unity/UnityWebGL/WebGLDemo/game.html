@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>UnityWebGL</title>
+    <link rel="shortcut icon" href="TemplateData/favicon.ico">
+    <link rel="stylesheet" href="TemplateData/style.css">
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: 'Microsoft YaHei', Arial, sans-serif;
+            background: #000;
+            color: white;
+            overflow: hidden;
+        }
+        
+        #unity-container {
+            width: 100vw;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            position: relative;
+        }
+        
+        #unity-canvas {
+            width: 100%;
+            height: 100%;
+            display: block;
+        }
+        
+        #unity-loading-bar {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 300px;
+            text-align: center;
+            z-index: 1000;
+        }
+        
+        #unity-logo {
+            width: 80px;
+            height: 80px;
+            margin: 0 auto 20px;
+            background: url('TemplateData/unity-logo-light.png') no-repeat center;
+            background-size: contain;
+        }
+        
+        #unity-progress-bar-empty {
+            width: 100%;
+            height: 20px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            overflow: hidden;
+            margin-bottom: 10px;
+        }
+        
+        #unity-progress-bar-full {
+            width: 0%;
+            height: 100%;
+            background: linear-gradient(90deg, #ff6b6b, #ee5a24);
+            border-radius: 10px;
+            transition: width 0.3s ease;
+        }
+        
+        .loading-text {
+            font-size: 14px;
+            opacity: 0.8;
+        }
+        
+        #unity-warning {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            right: 10px;
+            background: rgba(255, 193, 7, 0.9);
+            color: #000;
+            padding: 10px;
+            border-radius: 5px;
+            display: none;
+            z-index: 1001;
+        }
+        
+        #unity-footer {
+            position: absolute;
+            bottom: 10px;
+            right: 10px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            z-index: 1000;
+        }
+        
+        #unity-fullscreen-button {
+            width: 30px;
+            height: 30px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 5px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: background 0.3s ease;
+        }
+        
+        #unity-fullscreen-button:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+        
+        #unity-build-title {
+            font-size: 12px;
+            opacity: 0.7;
+        }
+        
+        .back-button {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            background: rgba(255, 255, 255, 0.2);
+            border: none;
+            color: white;
+            padding: 10px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 14px;
+            z-index: 1000;
+            transition: background 0.3s ease;
+        }
+        
+        .back-button:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+        
+        /* 移动端适配 */
+        @media (max-width: 768px) {
+            #unity-loading-bar {
+                width: 250px;
+            }
+            
+            .back-button {
+                top: 10px;
+                left: 10px;
+                padding: 8px 12px;
+                font-size: 12px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <button class="back-button" onclick="goBack()">返回首页</button>
+    
+    <div id="unity-container">
+        <canvas id="unity-canvas" tabindex="-1"></canvas>
+        
+        <div id="unity-loading-bar">
+            <div id="unity-logo"></div>
+            <div id="unity-progress-bar-empty">
+                <div id="unity-progress-bar-full"></div>
+            </div>
+            <div class="loading-text">正在加载游戏资源...</div>
+        </div>
+        
+        <div id="unity-warning"></div>
+        
+        <div id="unity-footer">
+            <div id="unity-fullscreen-button" title="全屏"></div>
+            <div id="unity-build-title">UnityWebGL</div>
+        </div>
+    </div>
+    
+    <script>
+        var container = document.querySelector("#unity-container");
+        var canvas = document.querySelector("#unity-canvas");
+        var loadingBar = document.querySelector("#unity-loading-bar");
+        var progressBarFull = document.querySelector("#unity-progress-bar-full");
+        var fullscreenButton = document.querySelector("#unity-fullscreen-button");
+        var warningBanner = document.querySelector("#unity-warning");
+        
+        // 显示警告或错误消息
+        function unityShowBanner(msg, type) {
+            function updateBannerVisibility() {
+                warningBanner.style.display = warningBanner.children.length ? 'block' : 'none';
+            }
+            var div = document.createElement('div');
+            div.innerHTML = msg;
+            warningBanner.appendChild(div);
+            if (type == 'error') div.style = 'background: red; padding: 10px;';
+            else {
+                if (type == 'warning') div.style = 'background: yellow; padding: 10px;';
+                setTimeout(function() {
+                    warningBanner.removeChild(div);
+                    updateBannerVisibility();
+                }, 5000);
+            }
+            updateBannerVisibility();
+        }
+        
+        // 游戏配置
+        var buildUrl = "Build";
+        var loaderUrl = buildUrl + "/WebGLDemo.loader.js";
+        var config = {
+            dataUrl: buildUrl + "/WebGLDemo.data.gz",
+            frameworkUrl: buildUrl + "/WebGLDemo.framework.js.gz",
+            codeUrl: buildUrl + "/WebGLDemo.wasm.gz",
+            streamingAssetsUrl: "StreamingAssets",
+            companyName: "DefaultCompany",
+            productName: "UnityWebGL",
+            productVersion: "0.1",
+            showBanner: unityShowBanner,
+        };
+        
+        // 移动端适配
+        if (/iPhone|iPad|iPod|Android/i.test(navigator.userAgent)) {
+            var meta = document.createElement('meta');
+            meta.name = 'viewport';
+            meta.content = 'width=device-width, height=device-height, initial-scale=1.0, user-scalable=no, shrink-to-fit=yes';
+            document.getElementsByTagName('head')[0].appendChild(meta);
+            container.className = "unity-mobile";
+            canvas.className = "unity-mobile";
+        } else {
+            // 桌面端设置
+            canvas.style.width = "100%";
+            canvas.style.height = "100%";
+        }
+        
+        loadingBar.style.display = "block";
+        
+        // 加载 Unity 游戏
+        var script = document.createElement("script");
+        script.src = loaderUrl;
+        script.onload = () => {
+            createUnityInstance(canvas, config, (progress) => {
+                progressBarFull.style.width = 100 * progress + "%";
+                // 更新加载文本
+                var loadingText = document.querySelector('.loading-text');
+                loadingText.textContent = `正在加载游戏资源... ${Math.round(progress * 100)}%`;
+            }).then((unityInstance) => {
+                loadingBar.style.display = "none";
+                fullscreenButton.onclick = () => {
+                    unityInstance.SetFullscreen(1);
+                };
+                
+                // 游戏加载完成后的回调
+                console.log("RXH5 游戏加载完成");
+            }).catch((message) => {
+                alert("游戏加载失败: " + message);
+                console.error("Unity 加载错误:", message);
+            });
+        };
+        
+        document.body.appendChild(script);
+        
+        // 返回首页功能
+        function goBack() {
+            if (confirm("确定要返回首页吗？")) {
+                window.location.href = 'index.html';
+            }
+        }
+        
+        // 键盘快捷键
+        document.addEventListener('keydown', function(event) {
+            if (event.key === 'Escape') {
+                goBack();
+            }
+        });
+        
+        // 防止页面刷新时丢失游戏状态
+        window.addEventListener('beforeunload', function(event) {
+            event.preventDefault();
+            event.returnValue = '游戏正在进行中，确定要离开吗？';
+        });
+    </script>
+</body>
+</html> 

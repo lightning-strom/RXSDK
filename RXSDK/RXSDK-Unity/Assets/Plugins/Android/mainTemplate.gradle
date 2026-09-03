@@ -1,0 +1,66 @@
+apply plugin: 'com.android.library'
+**APPLY_PLUGINS**
+
+dependencies {
+
+    def rxVersion = "4.0.20"
+
+    implementation "com.ruixue:rxsdk_base:${rxVersion}"
+    // 渠道库互斥；当前 Base Demo 使用雷电渠道
+    implementation "com.ruixue:rxsdk_ld:${rxVersion}"
+    implementation "com.ruixue:rxsdk_base_ui:${rxVersion}"
+
+    // Google Play
+    implementation 'com.google.android.play:asset-delivery:2.3.0'
+    implementation 'com.google.android.play:core-common:2.0.4'
+
+    implementation fileTree(dir: 'libs', include: ['*.jar'])
+**DEPS**}
+
+android {
+	namespace "com.unity3d.player"
+    ndkPath "**NDKPATH**"
+
+    compileSdkVersion 34
+    buildToolsVersion '**BUILDTOOLS**'
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_11
+        targetCompatibility JavaVersion.VERSION_11
+    }
+
+    defaultConfig {
+        minSdkVersion **MINSDKVERSION**
+        targetSdkVersion **TARGETSDKVERSION**
+        ndk {
+            abiFilters **ABIFILTERS**
+        }
+        versionCode **VERSIONCODE**
+        versionName '**VERSIONNAME**'
+        resValue "string", "facebook_app_id", "1688134101629555"
+        resValue "string", "facebook_client_token", "140aaab9e9bebae946b3d242be2bc19d"
+        consumerProguardFiles 'proguard-unity.txt'**USER_PROGUARD**
+
+    }
+
+    lintOptions {
+        abortOnError false
+    }
+   
+
+    aaptOptions {
+        noCompress = **BUILTIN_NOCOMPRESS** + unityStreamingAssets.tokenize(', ')
+        ignoreAssetsPattern = "!.svn:!.git:!.ds_store:!*.scc:!CVS:!thumbs.db:!picasa.ini:!*~"
+    }**PACKAGING_OPTIONS**
+}
+**IL_CPP_BUILD_SETUP**
+**SOURCE_BUILD_SETUP**
+**EXTERNAL_SOURCES**
+
+if (tasks.findByName("testClasses") == null) {
+    tasks.register("testClasses") {
+        group = "verification"
+        description = "Compatibility task for legacy tooling."
+    }
+}
+

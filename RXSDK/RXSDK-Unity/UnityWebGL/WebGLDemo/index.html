@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>UnityWebGL</title>
+    <link rel="shortcut icon" href="TemplateData/favicon.ico">
+    <link rel="stylesheet" href="TemplateData/style.css">
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: 'Microsoft YaHei', Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            overflow: hidden;
+        }
+        
+        .launch-container {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            text-align: center;
+        }
+        
+        .game-logo {
+            width: 200px;
+            height: 200px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 30px;
+            backdrop-filter: blur(10px);
+            border: 2px solid rgba(255, 255, 255, 0.2);
+        }
+        
+        .game-title {
+            font-size: 2.5em;
+            font-weight: bold;
+            margin-bottom: 20px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+        }
+        
+        .game-subtitle {
+            font-size: 1.2em;
+            margin-bottom: 40px;
+            opacity: 0.8;
+        }
+        
+        .start-button {
+            background: linear-gradient(45deg, #ff6b6b, #ee5a24);
+            border: none;
+            color: white;
+            padding: 15px 40px;
+            font-size: 1.2em;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+        }
+        
+        .start-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
+        }
+        
+        .loading-info {
+            margin-top: 20px;
+            font-size: 0.9em;
+            opacity: 0.7;
+        }
+        
+        .version-info {
+            position: absolute;
+            bottom: 20px;
+            right: 20px;
+            font-size: 0.8em;
+            opacity: 0.6;
+        }
+    </style>
+</head>
+<body>
+    <div class="launch-container">
+        <div class="game-logo">
+            <img src="TemplateData/unity-logo-light.png" alt="游戏Logo" style="width: 80px; height: 80px;">
+        </div>
+        
+        <h1 class="game-title">UnityWebGL</h1>
+        <p class="game-subtitle">基于 Unity WebGL 技术开发</p>
+        
+        <button class="start-button" onclick="startGame()">
+            开始游戏
+        </button>
+        
+        <div class="loading-info">
+            点击开始游戏按钮进入游戏世界
+        </div>
+    </div>
+    
+    <div class="version-info">
+        v0.1 | RXH5 Template
+    </div>
+    
+    <script>
+        function startGame() {
+            // 显示加载动画
+            const button = document.querySelector('.start-button');
+            button.textContent = '加载中...';
+            button.disabled = true;
+            
+            // 延迟跳转到游戏页面，模拟加载过程
+            setTimeout(() => {
+                window.location.href = 'game.html';
+            }, 1000);
+        }
+        
+        // 添加键盘事件支持
+        document.addEventListener('keydown', function(event) {
+            if (event.key === 'Enter' || event.key === ' ') {
+                startGame();
+            }
+        });
+        
+        // 添加触摸事件支持
+        document.addEventListener('touchstart', function(event) {
+            if (event.target.classList.contains('start-button')) {
+                startGame();
+            }
+        });
+    </script>
+</body>
+</html> 

@@ -1,0 +1,81 @@
+apply plugin: 'com.android.application'
+// Firebase is not used for this build, so skip google-services plugin application.
+// apply plugin: 'com.google.gms.google-services'
+
+dependencies {
+    implementation project(':unityLibrary')
+    }
+
+android {
+	namespace "com.ruixue.sdkpublic"
+    ndkPath "**NDKPATH**"
+
+    compileSdkVersion 34
+    buildToolsVersion '**BUILDTOOLS**'
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_11
+        targetCompatibility JavaVersion.VERSION_11
+    }
+
+    defaultConfig {
+        minSdkVersion **MINSDKVERSION**
+        targetSdkVersion **TARGETSDKVERSION**
+        applicationId '**APPLICATIONID**'
+        ndk {
+            abiFilters **ABIFILTERS**
+        }
+        versionCode **VERSIONCODE**
+        versionName '**VERSIONNAME**'
+        
+        
+        resValue "string", "facebook_app_id", "1688134101629555"
+        resValue "string", "facebook_client_token", "140aaab9e9bebae946b3d242be2bc19d"
+
+        manifestPlaceholders = [
+            FACEBOOK_APP_ID : "1688134101629555"
+        ]
+
+    }
+
+    aaptOptions {
+        noCompress = **BUILTIN_NOCOMPRESS** + unityStreamingAssets.tokenize(', ')
+        ignoreAssetsPattern = "!.svn:!.git:!.ds_store:!*.scc:!CVS:!thumbs.db:!picasa.ini:!*~"
+    }**SIGN**
+
+    lintOptions {
+        abortOnError false
+    }
+
+    buildTypes {
+        debug {
+            minifyEnabled **MINIFY_DEBUG**
+            proguardFiles getDefaultProguardFile('proguard-android.txt')**SIGNCONFIG**
+            jniDebuggable true
+        }
+        release {
+            minifyEnabled **MINIFY_RELEASE**
+            proguardFiles getDefaultProguardFile('proguard-android.txt')**SIGNCONFIG**
+        }
+    }**PACKAGING_OPTIONS****PLAY_ASSET_PACKS****SPLITS**
+**BUILT_APK_LOCATION**
+    bundle {
+        language {
+            enableSplit = false
+        }
+        density {
+            enableSplit = false
+        }
+        abi {
+            enableSplit = true
+        }
+    }
+}**SPLITS_VERSION_CODE****LAUNCHER_SOURCE_BUILD_SETUP**
+
+if (tasks.findByName("testClasses") == null) {
+    tasks.register("testClasses") {
+        group = "verification"
+        description = "Compatibility task for legacy tooling."
+    }
+}
+

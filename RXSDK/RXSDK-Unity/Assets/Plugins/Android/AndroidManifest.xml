@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    package="com.ruixue.sdkpublic"
+    xmlns:tools="http://schemas.android.com/tools">
+    
+    <application
+            android:extractNativeLibs="true"
+            android:name="com.ruixue.openapi.RXApplication">
+
+        <meta-data
+                android:name="com.facebook.sdk.ApplicationId"
+                android:value="@string/facebook_app_id" />
+        <meta-data
+                android:name="com.facebook.sdk.ClientToken"
+                android:value="@string/facebook_client_token" />
+
+        <!-- 雷电渠道配置；SUN_CHANNEL_ID 对应雷电后台的 sub_channel_id -->
+        <meta-data android:name="ld_app_key" android:value="8e0ec4a1f3e941bfbf5c7f6b483e79cf" />
+        <meta-data android:name="GAME_ID" android:value="3747" />
+        <meta-data android:name="CHANNEL_ID" android:value="100000" />
+        <meta-data android:name="SUN_CHANNEL_ID" android:value="100714" />
+
+        <activity 
+            android:name="com.ruixue.sdkpublic.UnityPlayerActivity"
+            android:theme="@style/UnityThemeSelector">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+            <meta-data android:name="unityplayer.UnityActivity" android:value="true" />
+        </activity>
+        
+
+        <!--    微信回调activity 可继承重写    -->
+        <!--  android:taskAffinity  activity归属默认使用自己应用的包名   -->
+        <activity
+                android:name="com.ruixue.wechat.WXEntryActivity"
+                android:enabled="true"
+                android:exported="true"
+                android:taskAffinity="com.ruixue.sdkpublic"
+                android:launchMode="singleTask"
+                android:theme="@android:style/Theme.Translucent.NoTitleBar" />
+
+        <!--    微信回调activity别名类，因为微信需要回调到指定包名指定类名，所以设置别名     -->
+        <activity-alias
+                android:name="${applicationId}.wxapi.WXEntryActivity"
+                android:enabled="true"
+                android:exported="true"
+                android:targetActivity="com.ruixue.wechat.WXEntryActivity" />
+        
+        
+    </application>
+</manifest>
