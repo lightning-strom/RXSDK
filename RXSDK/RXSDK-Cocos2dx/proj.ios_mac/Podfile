@@ -1,0 +1,31 @@
+# iOS 平台配置
+platform :ios, '12.0'
+
+# ========== CocoaPods 源配置 ==========
+# 请联系瑞雪技术支持获取私有源地址，然后取消下面的注释
+# source 'https://瑞雪私有源地址'
+source 'https://github.com/CocoaPods/Specs.git'
+
+target 'RXCocosGame-mobile' do
+  use_frameworks!
+
+  # ========== 瑞雪 SDK 依赖（国内环境）==========
+  # 核心库
+  pod 'RXSDK_Pure', '4.0.8'
+  # GDT 转化归因
+  pod 'RXGDTSDK', '1.0.2'
+  # UI 组件库
+  pod 'RXUIKit'  # 国内 UI 组件库
+  # 海外环境使用：
+  # pod 'RXOSUIKit'  # UI 组件库（海外）
+  # ========== 瑞雪 SDK 依赖 END ==========
+
+end
+
+post_install do |installer|
+  installer.pods_project.targets.each do |target|
+    target.build_configurations.each do |config|
+      config.build_settings['IPHONEOS_DEPLOYMENT_TARGET'] = '12.0'
+    end
+  end
+end
