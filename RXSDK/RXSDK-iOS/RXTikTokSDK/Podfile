@@ -1,0 +1,31 @@
+platform :ios, '12.0'
+source 'https://github.com/CocoaPods/Specs.git'
+
+workspace 'RXTikTokSDK.xcworkspace'
+
+def commonPods
+    ##公共Pod项目
+    use_frameworks!
+    pod 'TikTokOpenSDK', '~> 5.0.15'
+#    pod 'RXSDK_Pure'
+  pod 'RXLanguageKit'
+#    pod 'RXPublicToolKit'
+    
+    pod 'TikTokOpenSDKCore', '~> 2.4.0'
+    pod 'TikTokOpenAuthSDK', '~> 2.4.0'
+    pod 'TikTokOpenShareSDK', '~> 2.4.0'
+
+end
+
+target 'RXTikTokSDKDemo' do
+  project 'RXTikTokSDKDemo/RXTikTokSDKDemo.xcodeproj'
+  commonPods
+end
+
+target 'RXTikTokSDK' do
+  # Comment the next line if you don't want to use dynamic frameworks
+  project 'RXTikTokSDK.xcodeproj'
+
+  commonPods
+
+end

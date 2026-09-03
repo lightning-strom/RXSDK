@@ -1,0 +1,152 @@
+// swift-interface-format-version: 1.0
+// swift-compiler-version: Apple Swift version 6.2 effective-5.10 (swiftlang-6.2.0.19.9 clang-1700.3.19.1)
+// swift-module-flags: -target x86_64-apple-ios12.0-simulator -enable-objc-interop -enable-library-evolution -swift-version 5 -enforce-exclusivity=checked -O -enable-experimental-feature DebugDescriptionMacro -enable-bare-slash-regex -module-name VKCaptchaSDK
+// swift-module-flags-ignorable:  -formal-cxx-interoperability-mode=off -interface-compiler-version 6.2
+import CoreMotion
+import Foundation
+import OSLog
+import SafariServices
+import Swift
+import UIKit
+import WebKit
+import _Concurrency
+import _StringProcessing
+import _SwiftConcurrencyShims
+@_hasMissingDesignatedInitializers final public class Logger {
+  @objc deinit
+}
+public enum VKCaptchaResultError : Swift.Error {
+  case unknown
+  case cancel
+  case connection
+  public static func == (a: VKCaptchaSDK.VKCaptchaResultError, b: VKCaptchaSDK.VKCaptchaResultError) -> Swift.Bool
+  public func hash(into hasher: inout Swift.Hasher)
+  public var hashValue: Swift.Int {
+    get
+  }
+}
+public enum CaptchaHandlingError : Swift.Error {
+  case failedToCreateCaptchaData
+  case noCaptcha
+  case captchaError(any Swift.Error)
+}
+public enum VKCaptchaType {
+  case domain(Swift.String)
+  case `default`
+}
+public struct VKCaptchaData {
+  public let type: VKCaptchaSDK.VKCaptchaType
+}
+public struct VKCaptchaToken {
+  public let value: Swift.String
+  public let type: VKCaptchaSDK.VKCaptchaType
+}
+public enum VKCaptchaConstants {
+  public static let domainCaptchaHeaderName: Swift.String
+  public static let defaultCaptchaParamName: Swift.String
+}
+final public class VKCaptchaHandler {
+  public init()
+  #if compiler(>=5.3) && $NonescapableTypes
+  public static func getDomainToken(for domain: Swift.String) -> VKCaptchaSDK.VKCaptchaToken?
+  #endif
+  #if compiler(>=5.3) && $NonescapableTypes
+  final public func handleCaptcha(from response: Foundation.Data?, responseHeaders: [Swift.AnyHashable : Any]?, domain: Swift.String, with presenter: any VKCaptchaSDK.VKCaptchaPresenter = VKCaptchaNewUIWindowPresenter(), completion: @escaping (Swift.Result<VKCaptchaSDK.VKCaptchaToken, VKCaptchaSDK.CaptchaHandlingError>) -> Swift.Void)
+  #endif
+  #if compiler(>=5.3) && $NonescapableTypes
+  final public func handleCaptchaData(from response: Foundation.Data?, responseHeaders: [Swift.AnyHashable : Any]?, domain: Swift.String) -> Swift.Result<VKCaptchaSDK.VKCaptchaData, VKCaptchaSDK.CaptchaHandlingError>
+  #endif
+  #if compiler(>=5.3) && $NonescapableTypes
+  final public func openCaptcha(captchaData: VKCaptchaSDK.VKCaptchaData, presenter: any VKCaptchaSDK.VKCaptchaPresenter = VKCaptchaNewUIWindowPresenter(), completion: @escaping (Swift.Result<VKCaptchaSDK.VKCaptchaToken, VKCaptchaSDK.CaptchaHandlingError>) -> Swift.Void)
+  #endif
+  #if compiler(>=5.3) && $NonescapableTypes
+  final public func getCaptchaViewController(captchaData: VKCaptchaSDK.VKCaptchaData, completion: @escaping (Swift.Result<VKCaptchaSDK.VKCaptchaToken, VKCaptchaSDK.CaptchaHandlingError>) -> Swift.Void) -> UIKit.UIViewController?
+  #endif
+  @objc deinit
+}
+extension Foundation.URLRequest {
+  public enum AddingCaptchaTokenError : Swift.Error {
+    case urlError
+    public static func == (a: Foundation.URLRequest.AddingCaptchaTokenError, b: Foundation.URLRequest.AddingCaptchaTokenError) -> Swift.Bool
+    public func hash(into hasher: inout Swift.Hasher)
+    public var hashValue: Swift.Int {
+      get
+    }
+  }
+  public mutating func addCaptchaToken(token: VKCaptchaSDK.VKCaptchaToken) throws
+  public mutating func addDomainCaptcha(token: Swift.String)
+  public mutating func addDefaultCaptcha(token: Swift.String) throws
+}
+public enum VKCaptchaPresentationStyle : Swift.Int {
+  case modal
+  case push
+  #if compiler(>=5.3) && $NonescapableTypes
+  public init?(rawValue: Swift.Int)
+  #endif
+  public typealias RawValue = Swift.Int
+  public var rawValue: Swift.Int {
+    get
+  }
+}
+public protocol VKCaptchaPresenter : AnyObject {
+  #if compiler(>=5.3) && $NonescapableTypes
+  var presentingViewController: UIKit.UIViewController? { get }
+  #endif
+  func navigate(viewController: UIKit.UIViewController, presentationStyle: VKCaptchaSDK.VKCaptchaPresentationStyle)
+  #if compiler(>=5.3) && $NonescapableTypes
+  func dismiss(viewController: UIKit.UIViewController, animated: Swift.Bool, completion: (() -> Swift.Void)?)
+  #endif
+}
+extension VKCaptchaSDK.VKCaptchaPresenter {
+  #if compiler(>=5.3) && $NonescapableTypes
+  public func dismiss(viewController: UIKit.UIViewController, animated: Swift.Bool, completion: (() -> Swift.Void)?)
+  #endif
+}
+@objc public class VKCaptchaPresenterDefault : ObjectiveC.NSObject, VKCaptchaSDK.VKCaptchaPresenter {
+  public var presentingViewController: UIKit.UIViewController?
+  public init(presentingViewController: UIKit.UIViewController)
+  public func navigate(viewController: UIKit.UIViewController, presentationStyle: VKCaptchaSDK.VKCaptchaPresentationStyle)
+  @objc deinit
+}
+@objc @_inheritsConvenienceInitializers public class VKCaptchaNewUIWindowPresenter : ObjectiveC.NSObject, VKCaptchaSDK.VKCaptchaPresenter {
+  public var presentingViewController: UIKit.UIViewController?
+  @objc override dynamic public init()
+  public func navigate(viewController: UIKit.UIViewController, presentationStyle: VKCaptchaSDK.VKCaptchaPresentationStyle)
+  #if compiler(>=5.3) && $NonescapableTypes
+  public func dismiss(viewController: UIKit.UIViewController, animated: Swift.Bool, completion: (() -> Swift.Void)?)
+  #endif
+  @objc deinit
+}
+public struct VKCaptchaConfiguration {
+  public init(url: Foundation.URL)
+}
+@objc final public class VKCaptcha : ObjectiveC.NSObject {
+  public init(configuration: VKCaptchaSDK.VKCaptchaConfiguration)
+  #if compiler(>=5.3) && $NonescapableTypes
+  public static func getHitmanToken(for domain: Swift.String) -> Swift.String?
+  #endif
+  #if compiler(>=5.3) && $NonescapableTypes
+  final public func getCaptchaViewController(completion: @escaping (Swift.Result<Swift.String, any Swift.Error>) -> Swift.Void) -> UIKit.UIViewController
+  #endif
+  #if compiler(>=5.3) && $NonescapableTypes
+  final public func openCaptcha(presenter: any VKCaptchaSDK.VKCaptchaPresenter, completion: @escaping (Swift.Result<Swift.String, any Swift.Error>) -> Swift.Void)
+  #endif
+  #if compiler(>=5.3) && $NonescapableTypes
+  final public func passChallenge(presenter: any VKCaptchaSDK.VKCaptchaPresenter, completion: @escaping (Swift.Result<Swift.String, any Swift.Error>) -> Swift.Void)
+  #endif
+  #if compiler(>=5.3) && $NonescapableTypes
+  final public func passChallenge(completion: @escaping (Swift.Result<Swift.String, any Swift.Error>) -> Swift.Void) -> UIKit.UIViewController
+  #endif
+  #if compiler(>=5.3) && $NonescapableTypes
+  final public func closeCaptcha(animated: Swift.Bool = true, completion: (() -> Swift.Void)?)
+  #endif
+  @_spi(VKCaptchaDebug) final public func openDebug(presenter: any VKCaptchaSDK.VKCaptchaPresenter)
+  @objc deinit
+}
+extension VKCaptchaSDK.VKCaptchaResultError : Swift.Equatable {}
+extension VKCaptchaSDK.VKCaptchaResultError : Swift.Hashable {}
+extension Foundation.URLRequest.AddingCaptchaTokenError : Swift.Equatable {}
+extension Foundation.URLRequest.AddingCaptchaTokenError : Swift.Hashable {}
+extension VKCaptchaSDK.VKCaptchaPresentationStyle : Swift.Equatable {}
+extension VKCaptchaSDK.VKCaptchaPresentationStyle : Swift.Hashable {}
+extension VKCaptchaSDK.VKCaptchaPresentationStyle : Swift.RawRepresentable {}

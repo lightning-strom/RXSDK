@@ -1,0 +1,49 @@
+//
+//  RXNotificationCenter.h
+//  RXSDK-Pure
+//
+//  Created by 陈汉 on 2025/9/24.
+//
+
+#import <Foundation/Foundation.h>
+#import "RXPublicHeader.h"
+
+NS_ASSUME_NONNULL_BEGIN
+
+static NSString *const rxUserDefault_aliDNS = @"rxUserDefault_aliDNS";
+static NSString *const rxUserDefault_tencentDNS = @"rxUserDefault_tencentDNS";
+
+static NSString *const rxUserDefault_adjust_init = @"rxUserDefault_adjust_init";
+static NSString *const rxUserDefault_adjust_event = @"rxUserDefault_adjust_event";
+static NSString *const rxUserDefault_adjust_session = @"rxUserDefault_adjust_session";
+static NSString *const rxUserDefault_adjust_phone = @"rxUserDefault_adjust_phone";
+static NSString *const rxUserDefault_adjust_email = @"rxUserDefault_adjust_email";
+
+static NSString *const rxUserDefault_firebase_instanceid = @"rxUserDefault_firebase_instanceid";
+
+static NSString *const rxUserDefault_share_w = @"rxUserDefault_share_w";
+static NSString *const rxUserDefault_share_fb = @"rxUserDefault_share_fb";
+static NSString *const rxUserDefault_share_messenger = @"rxUserDefault_share_messenger";
+static NSString *const rxUserDefault_share_line = @"rxUserDefault_share_line";
+static NSString *const rxUserDefault_share_tiktok = @"rxUserDefault_share_tiktok";
+static NSString *const rxUserDefault_share_zalo = @"rxUserDefault_share_zalo";
+static NSString *const rxUserDefault_share_snapchat = @"rxUserDefault_share_snapchat";
+static NSString *const rxUserDefault_share_reddit = @"rxUserDefault_share_reddit";
+
+static NSString *const rxUserDefault_asa = @"rxUserDefault_asa";
+
+typedef void(^DNSRequestSuccessBlock)(NSURLSessionDataTask * _Nonnull, id _Nullable);
+typedef void(^DNSRequestFailBlock)(NSURLSessionDataTask * _Nullable, NSError * _Nonnull);
+typedef void(^ShareBlock)(NSURLSessionDataTask * _Nullable, NSError * _Nonnull);
+
+@interface RXNotificationCenter : NSObject
+
++ (void)postNoti:(NSString *)name object:(nullable id)anObject userInfo:(nullable NSDictionary *)aUserInfo;
+
+@property (nonatomic, copy) DNSRequestSuccessBlock dnsSuccessBlock;
+@property (nonatomic, copy) DNSRequestFailBlock dnsFailBlock;
+@property (nonatomic, copy) RequestComplete shareDNSBlock;
+
+@end
+
+NS_ASSUME_NONNULL_END

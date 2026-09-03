@@ -1,0 +1,29 @@
+##工作台名称
+platform :ios, '11.0'
+source 'https://github.com/CocoaPods/Specs.git'
+
+workspace 'RXSnapChatSDK.xcworkspace'
+
+def commonPods
+    ##公共Pod项目
+    use_frameworks!
+    pod 'SnapSDK'
+    pod 'RXLanguageKit'
+
+end
+
+target 'RXSnapChatSDKDemo' do
+    ##项目在工作台下的目录名称
+    project 'RXSnapChatSDKDemo/RXSnapChatSDKDemo.xcodeproj'
+    
+    commonPods
+
+end
+
+target 'RXSnapChatSDK' do
+    ##项目在工作台下的目录名称
+    project 'RXSnapChatSDK.xcodeproj'
+
+    commonPods
+    
+end
