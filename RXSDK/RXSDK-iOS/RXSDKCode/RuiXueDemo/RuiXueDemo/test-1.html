@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html>
+<head lang="zh-cmn-Hans">
+<meta charset="UTF-8">
+<title>DWebviewJavaScriptdsBridge Test</title>
+<meta name="renderer" content="webkit">
+<meta http-equiv="X-UA-Compatible" content="IE=Edge,chrome=1">
+<meta name="viewport" content="width=device-width,initial-scale=0.5,user-scalable=no"/>
+</head>
+<style>
+    .btn {
+        text-align: center;
+        background: dodgerblue;
+        color: white;
+        padding: 20px;
+        margin: 30px;
+        font-size: 24px;
+        border-radius: 4px;
+        box-shadow: 4px 2px 10px #999;
+    }
+    .btn:active {
+        opacity: .7;
+        box-shadow: 4px 2px 10px #555;
+    }
+</style>
+<body>
+<div class="btn" onclick="callCloseH5()">兼容ulemobile://协议，测试关闭H5</div>
+<div class="btn" onclick="callSetNativeTitle()">更改原生标题</div>
+<div class="btn" onclick="callQRCode()">二维码并直接得到扫码结果</div>
+<div class="btn" onclick="callShare()">分享</div>
+<div class="btn" onclick="callJumpNative()">跳转界面</div>
+<div class="btn" onclick="callJsFunc()">主动回调js</div>
+<div class="btn" onclick="callRegistNotify()">注册通知</div>
+<div class="btn" onclick="callSendNotify()">发送通知</div>
+<div class="btn" onclick="window.ule.getTomShareInfo('title','content', 'imgUrl', 'linkUrl')">tom新闻更改右上角分享</div>
+<div class="btn" onclick="callSetNativeSearchBar()">设置搜索条</div>
+<div class="btn" onclick="callNativePayWX()">callNativePayWX</div>
+<div class="btn" onclick="callNativePayAli()">callNativePayAli</div>
+<div class="btn" onclick="callNativePayUnion()">银联支付</div>
+<div class="btn" onclick="callYLSJType()">获得手机支付类型</div>
+</body>
+<script>
+    console.log("test.html dsBridge is " + dsBridge);
+    // 扫码
+    var scanOperation = { "iconTitle": "扫码", "imgUrl": "https://i0.ule.com/ulewap/i/store_search.png", "type": "1", "ios_action": "", "android_action": "", "maxversion": "999&999", "minversion": "366&366", "needlogin": "false", "logTitle": "" };
+    // 分享
+    var shareObj = {"title":"四川3.8女神节 - 秒杀尖货的你来！","imageUrl":"http://pic.ule.com/item/user_0102/desc20160307/8344cfbec6f8d8dd_-1x-1.jpg","linkUrl":"https://www.beta.ule.com/event/2017/0304/womenDay.html?adid=event_uleapp_womenDay","content":"四川3.8女神节，天天秒杀不断，9.9元尖货立即购买！","shareType":"110","logTitle":"四川三八活动0306-0308","listImage":["http://pic.ule.com/item/user_0102/desc20160307/8344cfbec6f8d8dd_-1x-1.jpg","http://pic.ule.com/item/user_0102/desc20160307/8344cfbec6f8d8dd_-1x-1.jpg"],"isOldShareMode":"0"}
+    var shareOperation = {"type":"2","ios_action":JSON.stringify(shareObj),"android_action":JSON.stringify(shareObj)};
+
+    // 页面跳转 方式有两种
+    // type 0 旧版本方式(返回 ulePopView)
+    // type 3 新版本方式
+    var skipOperation = {"type":"3","ios_action": "DetailWebViewController::1&&key::https://www.beta.ule.com/ulewap/testa.html", "android_action": "ProductActivity&&wgt.StoreWgt&&storeId::7687","iconTitle": "跳转new", "imgUrl": "https://ss2.baidu.com/6ONYsjip0QIZ8tyhnq/it/u=3567402401,1657995782&fm=58"};
+    // 首页
+    var homepageOperation = {"type":"0","ios_action": "uleHomepage","android_action":"uleHomepage","iconTitle": "首页", "imgUrl": "https://ss2.baidu.com/6ONYsjip0QIZ8tyhnq/it/u=3567402401,1657995782&fm=58"};
+    // 分类
+    var categoryOperation = { "type": "0", "ios_action": "uleClassesPage", "android_action": "action_ProductActivity#wgt.ProductDetail&url|http://m.ule.com/app/category/all.html?uleNeedNativeTitle=false", "maxversion": "999&999", "minversion": "366&366", "needlogin": "false", "logTitle": "","iconTitle": "分类", "imgUrl": "https://ss2.baidu.com/6ONYsjip0QIZ8tyhnq/it/u=3567402401,1657995782&fm=58"};
+    // 动态
+    var ProductActivity = { "type": "0", "ios_action": "uleActivityPage", "android_action": "action_ProductActivity#wgt.ProductDetail&url|http://youle.tom.com/ule/index.html?uleNeedNativeTitle=true#title|动态#needLogin|false#needTitle|true", "maxversion": "999&999", "minversion": "366&366", "needlogin": "false", "logTitle": "","iconTitle": "动态", "imgUrl": "https://ss2.baidu.com/6ONYsjip0QIZ8tyhnq/it/u=3567402401,1657995782&fm=58"};
+    // 购物车
+    var uleShopCart = { "type": "0", "ios_action": "uleShopCartPage", "android_action": "action_ShoppingActivity#wgt.Cart&", "maxversion": "999&999", "minversion": "366&366", "needlogin": "false", "logTitle": "","iconTitle": "购物车", "imgUrl": "https://i0.ule.com/ulewap/i/store_search.png"};
+    //我的邮乐
+    var uleUserCenter = { "type": "0", "ios_action": "uleUserCenterPage", "android_action": "action_WorkingActivity#wgt.PersonalCenterV4&", "maxversion": "999&999", "minversion": "366&366", "needlogin": "false", "logTitle": "","iconTitle": "我的邮乐", "imgUrl": "https://i0.ule.com/ulewap/i/store_search.png"};
+
+    //menu type7 下拉菜单
+    var menu = { "iconTitle": "", "imgUrl": "https://i0.ule.com/ulewap/i/store_search.png","type": "7", "ios_action": [scanOperation,shareOperation,skipOperation,categoryOperation,homepageOperation,ProductActivity,uleShopCart,uleUserCenter], "android_action":[scanOperation,shareOperation,skipOperation,categoryOperation,homepageOperation,ProductActivity,uleShopCart,uleUserCenter], "maxversion": "999&999", "minversion": "366&366", "needlogin": "false", "logTitle": "" };
+
+    var leftIcon = { "type":"3","ios_action": "","android_action": "WorkingActivity&&wgt.Index&&ExitAfterJump::true"}
+    function callSetNativeTitle() {
+        console.log("callSetNativeTitle");
+        // dsBridge.call("setNativeTitle", { "title": "页面b标题", "rightIcon": [shareOperation,menu] })
+        dsBridge.call("setNativeTitle", { "title": "页面b标题", "rightIcon": [shareOperation,menu] ,"leftIcon":leftIcon})
+    }
+
+    function callSetNativeSearchBar(){
+        dsBridge.call("setNativeSearchBar", { "title": "页面b标题", "rightIcon": []})
+    }
+
+
+    function callCloseH5(){
+        console.log("callCloseH5");
+        dsBridge.call("generalAction",{"type":"0","ios_action":"ulemobile://ulePopView","android_action":"ulePopView"})
+    }
+
+    //扫码的方法
+    function QrcodeResult(result){
+
+        alert(result);
+    }
+
+    function callQRCode() {
+        console.log("callQRCode");
+        dsBridge.call("generalAction", { "type": "1","ios_action":"QrcodeResult","android_action":"QrcodeResult" })
+    }
+
+    function callShare() {
+        console.log("callShare");
+        dsBridge.call("generalAction", shareOperation)
+    }
+    function callJumpNative() {
+        console.log("callJumpNative");
+        //dsBridge.call("generalAction", { "type": "3", "ios_action": "DetailWebViewController::1&&key::https://www.beta.ule.com/ulewap/testa.html", "android_action": "ProductActivity&&wgt.StoreWgt&&storeId::7687", "maxversion": "999&999", "minversion": "366&366", "needlogin": "false", "logTitle": "" })
+        dsBridge.call("generalAction", { "type": "3", "ios_action": "DetailWebViewController::1&&key::https://www.beta.ule.com/ulewap/testa.html", "android_action": "ProductActivity&&wgt.ProductDetail&&url::file:///android_asset/test.html", "maxversion": "999&999", "minversion": "366&366", "needlogin": "false", "logTitle": "" })
+    }
+    function callJsFunc() {
+        console.log("callJsFunc");
+        dsBridge.call("generalAction", { "type": "4", "ios_action": "testJsCall", "android_action": "testJsCall", "maxversion": "999&999", "minversion": "100&100", "needlogin": "false", "logTitle": "" })
+    }
+    function callRegistNotify() { // NotifyTest 发送修改
+        console.log("callRegistNotify");
+        dsBridge.call("generalAction", { "type": "5", "ios_action": "{\"functionName\":\"NotifyTest\"}", "android_action": "{\"functionName\":\"NotifyTest\"}", "maxversion": "999&999", "minversion": "366&366", "needlogin": "false", "logTitle": "" })
+    }
+
+
+    function callSendNotify() {
+        console.log("callSendNotify");
+        dsBridge.call("generalAction", { "type": "6", "ios_action": "{\"functionName\":\"NotifyTest\",\"functionParams\":\"callNotify param\"}", "android_action": "{\"functionName\":\"NotifyTest\",\"functionParams\":\"callNotify param\"}", "maxversion": "999&999", "minversion": "366&366", "needlogin": "false", "logTitle": "" });
+        callCloseH5();
+    }
+
+    function QrcodeResult(barCode){
+        console.log("barCode is " + barCode)
+    }
+    function NotifyTest(paramStr) {
+        console.log("paramStr is " + paramStr)
+        dsBridge.call("generalAction",{"type":"0","ios_action":"ulePopView","android_action":"ulePopView"})
+    }
+    function testJsCall() {
+        console.log("testJsCall");
+        callCloseH5();
+    }
+
+    var alipayParams = {"secretKey":"5d9426e3dfa4456b8f73e84548cd37c5","payModelCode":"SDKAliPay","payInfo":"wVSwar2Lt4DFRgDly6TIDv8jX7VEhaLPsbOnmdainFREVLiJUBvet1KEMdQVv5PsdPuiZE\/xgudvRkxfADApEcoHae9nhF+MtBAPeTUc4nU9iaKbl9lKVzOI6xd0UDgQ6XvAxvDi8GkcDOGj4wSso+SXughaxahMxQ6gpxjPZpke3uG2X3k66fPzXqIbB\/uYikwNECiBnsRY9Cs4GL+EgSmgEv2BvUdMzTIj\/EC9AUFsbzNWfaOUdFJlx1mvsCO2HVtYNxaHxFsyoIaKVXKwNegs331Ae7v67bbUOlBSE9ncZq7EA8waj1Vj+rmHbbZMqnZlrE6S15RHPaJuyeel50S2r1oT4F3eNUhWxheSrvm9xYP5eo\/f3fSuq64sfQvobcxzi0pAuLFosGuYuiU6Gmj4vMxbdEBPUdPMqGCCimPCmH5y1yg2p4\/qTDhROkuuWoUjdx2SQvXzUf8Zmy+3fsgqc3s9r5I9zNADztcr2+tGJNWvt7pFDChw48Z4PjJPApsAUCL4ivzUMA1D49dee\/lVq198V+mlhnqrJx69MkeDbqqN5NiI6Z68UoYg08z1geK08kZScxT\/29yJR6c6T8txYYesrWxIWlsD178cYlJ9lFAkGCiFq7J9k4zVqTjfGB+N530w8M2VufnVVB93lFNH9Fywk36IiKzrg2NzcQXmOUhbxMRAeQ4iPV6LTPgAaEeFPZUC6jRNOPagbY1QLjZQ7GQmfD6sZQ7+i7wFXh+wtamRr0ySx75eTQEMsn7f"};
+    var wxpayParams = {"secretKey":"c08943959daa4302a6910438e6dd1864","payModelCode":"SDKWechatPay","payInfo":"ZNwAxlMXibRB\/ZcDwqQfiMqIaV17nppB1DAimLU0BvieGYBDQPSS1OEO0fMYHgSsmazpt+Z1f1gGvcarKK6k8sPFbF6R7EenBA8KGGqgtCFRIAYMatXEsz2FPUgBCfZJDPsgum+FUGL0y9WM0\/BMyOV72R2Ri1DTZMqhWptgLFZqEyIDHQpJ9GFOHrPRexC40+FsdvpGCztabtaQPBcru24epWsEab1fE+Hu\/u8ktxuklATsJLtN4hr0k8yIIs\/yi2v+M2YFR1tjJhBeCmUw7tau\/mTefFHTaa3gl3JbuEqltV4CdI7e5Jy9m5cdPqc1CpCQQr+BY8Y6Pcvq52ttDt1UwBSSh82vi735\/TeKxtUEYw6z2bd3CXM5bYsn8XXse9mIk498wkkDKBt\/uuEJnXSDVlkq8BJqOwsN9pRMqT4="};
+    function callNativePayWX(){
+        dsBridge.call("uleNativePay",wxpayParams,function (ret){
+            alert(ret)
+         });
+    }
+
+    function callNativePayAli(){
+        dsBridge.call("uleNativePay",alipayParams,function (ret){
+            alert(ret)
+         });
+    }
+
+    var unionPayParams = {"payInfo":"NLTo0bMMUKoyZUw81Nkj7RH1RF9fpG4cWFgIzUqXSC4oSRdcKjLCIt23/VlQz9qa","secretKey":"2ab41d788b594de98ac478e54ecaf259","payModelCode":"SDKUnionPay"};
+
+    function callNativePayUnion(){
+        dsBridge.call("uleNativePay",unionPayParams,function (ret){
+            alert(ret)
+         });
+    }
+
+    function callYLSJType(){
+        dsBridge.call("getSEPayInfo",function (ret){
+            alert(ret)
+         });
+    }
+</script>
+</html>
