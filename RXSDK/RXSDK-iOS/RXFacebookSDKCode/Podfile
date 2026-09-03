@@ -1,0 +1,36 @@
+platform :ios, '12.0'
+source 'https://github.com/CocoaPods/Specs.git'
+
+workspace 'RXFacebookSDK.xcworkspace'
+
+def commonPods
+    ##公共Pod项目
+    use_frameworks!
+    pod 'FBSDKLoginKit', '18.0.0'
+    pod 'FBSDKShareKit', '18.0.0'
+#    pod 'RXPublicToolKit'
+#    pod 'RXLanguageKit'
+#    pod 'RXSDK_Pure'
+
+#    pod 'TwitterKit'
+#    pod 'GoogleAPIClientForREST/YouTube', '~> 1.2.1'
+
+end
+
+target 'RXFacebookSDKDemo' do
+  project 'RXFacebookSDKDemo/RXFacebookSDKDemo.xcodeproj'
+  commonPods
+end
+
+#target 'RXFacebookSDKDemo1' do
+#  project 'RXFacebookSDKDemo1/RXFacebookSDKDemo1.xcodeproj'
+#  commonPods
+#end
+
+target 'RXFacebookSDK' do
+  # Comment the next line if you don't want to use dynamic frameworks
+  project 'RXFacebookSDK.xcodeproj'
+
+  commonPods
+
+end
