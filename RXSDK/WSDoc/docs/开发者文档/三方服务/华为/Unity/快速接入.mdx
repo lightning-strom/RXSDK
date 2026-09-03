@@ -1,0 +1,102 @@
+---
+sidebar_position: 1
+title: 快速接入
+description: "望舒SDK 三方服务 快速接入 Unity 接入文档，提供完整的接口调用说明与示例。"
+---
+
+## SDK集成
+
+配置 SDK 依赖：在 Player Settings 中勾选 Custom Launcher Gradle Template, 打开 launcherTemplate.gradle, 在 dependencies 引入第三方依赖:
+
+
+:::tip[版本说明]
+`version` 为 SDK 版本号（替换为实际版本号），最新版本请从 [更新日志](/docs/开发者文档/入门指南/更新日志/Unity) 中查看。
+:::
+
+```groovy
+ //华为渠道库
+ implementation 'com.ruixue:rxsdk_huawei:${version}'
+```
+
+注意是 launcherTemplate.gradle 中引入。
+
+## 配置说明
+
+需要在华为开发者平台 AppGallery Connect 中在 ` 项目设置>常规>` 下载 `agconnect-services.json` 文件并将其放在 Assets/Plugins/Android 目录下。
+
+在 Assets/Plugins/Android 目录下 `launcherTemplate.gradle` 添加 AGC 插件配置。
+
+```groovy
+apply plugin: 'com.huawei.agconnect'
+```
+
+在 Assets/Plugins/Android 目录下 `baseProjectTemplate.gradle` dependencies 中添加：
+
+```groovy
+buildscript {
+ dependencies {
+ classpath "com.huawei.agconnect:agcp:1.6.0.300"
+ classpath "com.android.tools.build:gradle:7.0.1"
+ }
+}
+```
+
+在 Assets/Plugins/Android 目录下 `settingsTemplate.gradle` 添加以下存储库：
+
+```groovy
+pluginManagement {
+ repositories {
+ .....
+ maven {
+ allowInsecureProtocol true
+ url 'https://developer.huawei.com/repo/'
+ }
+ }
+}
+
+dependencyResolutionManagement {
+ repositoriesMode.set(RepositoriesMode.PREFER_SETTINGS)
+ repositories {
+ ......
+ maven {
+ allowInsecureProtocol true
+ url 'https://developer.huawei.com/repo/'
+ }
+ ......
+
+ }
+}
+
+```
+
+**为满足监管要求，集成 SDK 后要求用户在未同意访问网络前不能发送任何网络请求，如何处理？**
+
+用户在未同意访问网络前请不要调用 登录接口
+
+提供了设置能否发送网络请求的能力，在 AndroidManifest.xml 的 Application 中增加如下 meta-data 配置， value 配置为 false ，表示未同意协议前不发送网络请求。
+
+```plaintext
+
+```
+
+## 混淆配置
+
+[参考链接](https://developer.huawei.com/consumer/cn/doc/development/HMSCore-Guides/config-obfuscation-scripts-0000001050166287)
+
+在 Assets/Plugins/Android 目录下打开混淆配置文件 `proguard-user.txt` ，加入排除 SDK 的混淆配置
+
+```plaintext
+-ignorewarnings
+-keepattributes *Annotation*
+-keepattributes Exceptions
+-keepattributes InnerClasses
+-keepattributes Signature
+-keepattributes SourceFile,LineNumberTable
+-keep class com.huawei.hianalytics.**{*;}
+-keep class com.huawei.updatesdk.**{*;}
+-keep class com.huawei.hms.**{*;}
+-keep interface com.huawei.hms.analytics.type.HAEventType{*;}
+-keep interface com.huawei.hms.analytics.type.HAParamType{*;}
+-keep class com.huawei.hms.analytics.HiAnalyticsInstance{*;}
+-keep class com.huawei.hms.analytics.HiAnalytics{*;}
+```

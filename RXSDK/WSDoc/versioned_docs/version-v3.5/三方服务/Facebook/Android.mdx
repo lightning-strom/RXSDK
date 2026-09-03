@@ -1,0 +1,55 @@
+---
+title: "Android"
+---
+
+重要：请先查看渠道接入说明！[快速入口](/docs/v3.5/入门指南/快速开始/Android初始化/快速接入) 
+
+## SDK集成
+
+```json
+//海外渠道引用此库
+  implementation 'com.ruixue:rxsdk_overseas:${version}'
+```
+
+## 参数说明
+
+| 参数                    | 类型   | 说明                                    |
+| ----------------------- | ------ | --------------------------------------- |
+| facebook_app_id       | Long   | strings.xml 内配置　FACEBOOK_APP_ID　值 |
+| facebook_client_token | String | strings.xml 内配置                      |
+
+## 配置说明
+
+- 在 `src/mian/res/values/strings` 文件下
+
+```xml
+268619981955495
+0799c45bcb03a3153cbfba1920dee0e8
+```
+
+- 在 AndroidManifest.xml 配置
+
+```xml
+
+    
+    
+
+```
+
+`注`：由于 meta-data 不支持 long 数据类型，如果配置的值为数字类型，则默认为 int 值，导致无法参数错误，所以参数需要配置在 `strings.xml` 文件内。
+
+- 在您的项目中，打开 your_app | Gradle Scripts | build.gradle (Module: app) 并将以下语句添加到 defaultConfig{'{'}{'}'} 部分：
+
+```groovy
+manifestPlaceholders = [
+    FACEBOOK_APP_ID    : "xxxxxxx"
+]
+```
+
+## 三方 SDK 版本信息
+
+使用 `14.1.1` 版本
+
+## 测试
+测FB登录需要加FB开发者后台的开发者权限，需要自行先注册下FB开发者，然后按这个方式，通过FB ID，提供给管理员添加权限。
+![img_v3_02gb_f6b83a4a-b659-441f-88a2-f98aecea98eg.jpg](https://haiqi-ruixue-test.oss-cn-beijing.aliyuncs.com/docOnline/img_v3_02gb_f6b83a4a-b659-441f-88a2-f98aecea98eg-1730773276644.jpg)

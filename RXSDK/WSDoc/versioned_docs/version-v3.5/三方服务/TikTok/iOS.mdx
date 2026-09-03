@@ -1,0 +1,124 @@
+---
+title: "iOS"
+---
+
+## 准备工作
+
+::: tip
+接入请前先做好准备工作。
+可通过 **pod** 方式接入 **RXTikTokSDK** 组件，并使用 **RXTikTokSDK** 相关功能。
+在需要使用功能的类中引用头文件 <code>#import  </code>
+在 [TikTok开发者](https://developers.tiktok.com/) 中创建项目项目，并获取相关参数。
+:::
+
+## SDK 集成
+- **RXTikTokSDK 版本 1.0.6**
+- **RXSDK_Pure 版本 3.4.32**
+- **RXOSUIKit 版本 3.4.18**
+
+- 编辑 Podfile 文件，添加如下配置：
+
+```objectivec
+pod 'RXTikTokSDK'
+```
+
+## 工程配置
+
+- 在 **info.plist->Queried URL Schemes** 中添加 <code>**tiktokopensdk**</code>、<code>**tiktoksharesdk**</code>、<code>**snssdk1180**</code>、<code>**snssdk1233**</code> 配置。
+
+![](https://guanwangyun.oss-cn-beijing.aliyuncs.com/document/tripartite/tiktok1.jpeg)
+
+- 在 **info.plist** 中添加 **TikTokAppID** 配置并填入 **TikTok** 后台中对应的 **AppID**；
+
+![](https://guanwangyun.oss-cn-beijing.aliyuncs.com/document/tripartite/tiktok2.png)
+
+- 在 **Xcode > Info > URL Types** 中添加 **TikTokAppID**。
+
+![](https://guanwangyun.oss-cn-beijing.aliyuncs.com/document/tripartite/toktok3.png)
+
+## 初始化
+
+:::tip
+在调用 TikTok 相关功能前必须要在 <code>- (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions</code> 中先进行初始化。
+:::
+
+**接口原型**
+
+```objectivec
+/**
+ * 注册TikTok
+ */
+- (void)TTRegistWithApplication:(UIApplication *)application
+                  launchOptions:(NSDictionary *)launchOptions
+```
+
+**调用示例**
+
+```objectivec
+- (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions {
+    // Override point for customization after application launch.
+    
+    self.window = [[UIWindow alloc] initWithFrame:[[UIScreen mainScreen] bounds]];
+    self.window.backgroundColor = [UIColor blackColor];
+    
+    ViewController *rootVC = [[ViewController alloc] init];
+
+    UINavigationController *naVC = [[UINavigationController alloc] initWithRootViewController:rootVC];
+    self.window.rootViewController = naVC;
+    [self.window makeKeyAndVisible];
+    
+    [[RXTikTokService sharedSDK] TTRegistWithApplication:application launchOptions:launchOptions];
+    
+    [[RXService sharedSDK] initWithProductId:@"your productId"
+                                   channelId:@"your channelId"
+                                        cpid:@"your cpid"
+                                 baseUrlList:@[@"https:xxx"]
+                                    complete:^(NSDictionary * _Nullable response, RX_CommonRequestError * _Nullable error) {
+        if (!error) {
+            NSLog(@"初始化成功");
+        } else {
+            NSLog(@"初始化失败");
+        }
+    }];    
+    
+    return YES;
+}
+```
+
+## 跳转 openURL
+
+::: tip
+<code>- (BOOL)application:(UIApplication *)app openURL:(NSURL *)url options:(NSDictionary *)options; </code>
+此系统方法用于处理app之间跳转的参数传递，在此添加SnapChat跳转url用于接收SnapChat跳转回客户端所携带的参数。必须实现此方法，否则无法正常使用SnapChat登录或分享功能。
+:::
+
+**接口原型**
+
+```objectivec
+/**
+ * openUrl 处理跳转信息
+ */
+- (BOOL)application:(UIApplication *)application
+            openURL:(NSURL *)url
+            options:(NSDictionary *)options;
+```
+
+**调用示例**
+
+```objectivec
+- (BOOL)application:(UIApplication *)app openURL:(NSURL *)url options:(NSDictionary *)optionsns {
+    if ([[RXTikTokService sharedSDK] TTApplication:app openURL:url options:optionsns]) {
+        return YES;
+    }
+    return NO;
+}
+```
+
+## 登录
+
+[点此跳转到 UI 登录方式](/docs/v3.5/三方服务/Instagram/iOS)
+[点此跳转到 API 登录方式](/docs/v3.5/三方服务/Reddit/iOS)
+
+## 分享
+
+[点此跳转到分享 API](/docs/v3.5/三方服务/Instagram/iOS)

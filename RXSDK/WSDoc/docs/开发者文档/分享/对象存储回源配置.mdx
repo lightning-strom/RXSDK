@@ -1,0 +1,52 @@
+---
+sidebar_position: 26
+title: 对象存储回源配置
+description: "望舒SDK 对象存储回源配置文档，提供详细的功能说明与接入指引。"
+---
+
+## 功能介绍
+
+去除分享落地页的 queryString 和 短链接，改从阿里/腾讯的 oss 中取（当文件不存在时回源获取数据）， oss 路径为 landing/query/`{year}`/`{month}`/`{day}`/`{uuid}`.json。
+
+## OSS配置
+
+### 阿里云镜像回源
+
+```plaintext
+配置如下：
+回源类型：镜像
+回源条件：
+（1）HTTP 状态码 404
+（2）文件名前缀：landing/query/
+（3）文件名后缀：.json
+替换或截取前缀：是
+回源地址: https: {望舒apiDomain} /v1/operationapi/callback
+```
+
+![](https://haiqi-ruixue-test.oss-cn-beijing.aliyuncs.com/docOnline/image-1755482336761.png)
+
+![](https://haiqi-ruixue-test.oss-cn-beijing.aliyuncs.com/docOnline/image-1755482341694.png)
+
+### 腾讯云镜像回源
+
+```plaintext
+回源模式：同步回源
+回源条件：
+（1）HTTP状态码 404
+（2）文件名前缀 landing/query/
+回源协议：跟随请求协议
+请求参数：不透传
+请求头部：透传指定请求头部
+回源地址：{望舒apiDomain}
+地址设置：
+（1）前后缀设置
+（2）指定前缀：v1/operationapi/callback/
+3xx跟随：开启
+源站回包：透传
+```
+
+![](https://haiqi-ruixue-test.oss-cn-beijing.aliyuncs.com/docOnline/image-1755482490676.png)
+
+![](https://haiqi-ruixue-test.oss-cn-beijing.aliyuncs.com/docOnline/image-1755482494741.png)
+
+![](https://haiqi-ruixue-test.oss-cn-beijing.aliyuncs.com/docOnline/image-1755482499228.png)

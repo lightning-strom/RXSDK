@@ -1,0 +1,80 @@
+---
+sidebar_position: 6
+title: "红包账号管理"
+description: "望舒帮助中心 红包账号管理 文档"
+---
+
+## 准备工作
+::: tip
+微信开放平台：[https://open.weixin.qq.com/](https://open.weixin.qq.com/)<br/>
+微信支付平台：[https://pay.weixin.qq.com/](https://pay.weixin.qq.com/)
+微信公众平台：[https://mp.weixin.qq.com/](https://mp.weixin.qq.com/)
+:::
+## 微信支付平台获取信息
+### 微信支付平台关键信息绑定
+1.申请AppID
+2.申请mchid
+3.绑定AppID及mchid。进入**微信支付平台-产品中心**进行绑定
+AppID和mchid全部申请完毕后，需要建立两者之间的绑定关系。
+普通商户模式下，AppID与mchid之间的关系为多对多，即一个AppID下可以绑定多个mchid，而一个mchid也可以绑定多个AppID。
+### 微信支付平台关键信息获取
+##### 微信支付平台申请证书
+1. 登录 [微信支付平台](https://pay.weixin.qq.com/) ,申请商户号证书。【账户中心】->【API安全】->【申请API证书】目录下载证书。![image.png](http://haiqi-ruixue-test.oss-cn-beijing.aliyuncs.com/1720248544973-image.png)
+2. 在弹出窗口内点击“下载证书工具”按钮下载证书工具。
+![image.png](http://haiqi-ruixue-test.oss-cn-beijing.aliyuncs.com/1720248592166-image.png)
+3. 安装证书工具并打开，选择证书需要存储的路径后点击“申请证书”。
+![image.png](http://haiqi-ruixue-test.oss-cn-beijing.aliyuncs.com/1720248645469-image.png)
+4. 在证书工具中，将复制的商户信息粘贴并点击“下一步”。
+![image.png](http://haiqi-ruixue-test.oss-cn-beijing.aliyuncs.com/1720248667250-image.png)
+5. 获取请求串
+![image.png](http://haiqi-ruixue-test.oss-cn-beijing.aliyuncs.com/1720248715239-image.png)
+![image.png](http://haiqi-ruixue-test.oss-cn-beijing.aliyuncs.com/1720248723221-image.png)
+![image.png](http://haiqi-ruixue-test.oss-cn-beijing.aliyuncs.com/1720248737810-image.png)
+6. 生成证书串
+步骤1：在【商户平台】-“复制证书串”环节，点击“复制证书串”按钮后；
+步骤2：在【证书工具】-“复制请求串”环节，点击“下一步”按钮进入“粘贴证书串”环节；
+步骤3：在【证书工具】-“粘贴证书串”环节，点击“粘贴”按钮后；
+步骤4：点击“下一步”按钮，进入【证书工具】-“生成证书”环节
+![image.png](http://haiqi-ruixue-test.oss-cn-beijing.aliyuncs.com/1720248764457-image.png)
+![image.png](http://haiqi-ruixue-test.oss-cn-beijing.aliyuncs.com/1720248772924-image.png)
+![image.png](http://haiqi-ruixue-test.oss-cn-beijing.aliyuncs.com/1720248781526-image.png)
+7. 在【证书工具】-“生成证书”环节，已完成申请证书流程，点击“查看证书文件夹”，查看已生成的证书文件。**可以在【账户中心】->【API安全】->【API证书】查看已申请证书的有效期以及证书序列号.**
+8. 附件中的包含三份文件（证书pkcs12格式、证书pem格式、证书密钥pem格式） 。其中**apiclient_key.pem**文件为商户 API 证书私钥。**apiclient_cert.pem**为商户 Api 证书   
+![image.png](https://haiqi-ruixue-test.oss-cn-beijing.aliyuncs.com/docOnline/image-1767859048990.png)
+
+::: tip
+文件使用文本编辑器打开,全选复制。其中-----BEGIN PRIVATE KEY-----开头,结尾-----END PRIVATE KEY-----也需包含在内。
+:::
+#### 微信支付平台配置APIv3密钥
+1.登录微信商户平台，进入【账户中心 > 账户设置 > API安全】目录，点击【APIv3密钥】。
+![image.png](http://haiqi-ruixue-test.oss-cn-beijing.aliyuncs.com/1720248428990-image.png)
+#### 微信支付后台设置接口安全IP
+1. 该功能微信侧有安全限制，所以需要将瑞雪后台首页的项目出口IP配置到微信支付后台。设置路径：**商户平台 > 产品中心 > 运营工具 > 商家转账 > 前往功能 >安全能力**。
+![c0c5ed0a4ecb7d779616250f66b9f5fa.png](https://haiqi-ruixue-test.oss-cn-beijing.aliyuncs.com/docOnline/c0c5ed0a4ecb7d779616250f66b9f5fa-1767606303313.png)
+![31577a20083cff951aece208e6a9ac11.png](https://haiqi-ruixue-test.oss-cn-beijing.aliyuncs.com/docOnline/31577a20083cff951aece208e6a9ac11-1767606309244.png)
+![e958f369872e9812ae65a314e55d6112.png](https://haiqi-ruixue-test.oss-cn-beijing.aliyuncs.com/docOnline/e958f369872e9812ae65a314e55d6112-1767606317198.png)
+
+
+### 瑞雪系统中配置红包账号
+
+#### IP白名单配置
+:::tip
+配置白名单请注意。请把所有请求瑞雪CPSign接口的IP都加在该配置中（不只是请求转账的IP地址），否则瑞雪的CPSign接口会拒绝未配置IP的请求。
+:::
+1.根据转账流程需要用户服务器发起流程，所以需要把游戏服务器的出口IP在瑞雪进行加白处理。配置位置：**项目创建/部署>集群管理/部署>项目配置初始化配置>IP白名单**。
+![image.png](https://haiqi-ruixue-test.oss-cn-beijing.aliyuncs.com/docOnline/image-1767854043464.png)
+#### 添加红包账号
+
+1. 瑞雪后台管理系统，位置：**渠道管理 > 三方账号管理 > 红包账号管理**。
+2. 根据要求把相关配置信息填入后台
+![image.png](https://haiqi-ruixue-test.oss-cn-beijing.aliyuncs.com/docOnline/image-1767838866225.png)
+
+::: tip
+**商户 Api 证书 和证书私钥** 如果用手动粘贴的方式 ，开头的-----BEGIN PRIVATE KEY-----,结尾-----END PRIVATE KEY-----也一定要包含在内。
+:::
+#### 可以使用的包配置
+:::tip
+此配置仅代表当前配置可以在那些包中可以使用,但是并不代表已开启,如需要开启需要在[渠道包管理](https://doc.ruixueyun.com/main/#/view?viewPath=d6ff206e-7b1f-458f-bdf3-b1e4f952aaae&title=%E7%BA%A2%E5%8C%85%E9%85%8D%E7%BD%AE&tab=&index=1)中操作开启。
+:::
+选择要配置包的项目，在添加指定/不限 渠道包到配置列表。 
+![image.png](https://haiqi-ruixue-test.oss-cn-beijing.aliyuncs.com/docOnline/image-1767839056367.png)

@@ -1,0 +1,98 @@
+---
+title: "快速接入"
+---
+
+### 接入方式
+* Package Manager 导入 RuiXue.Pay
+
+## SDK集成
+
+* ( ) iOS::payinit1
+* ( ) Android::payinit2
+
+## 支付
+
+::: tip
+补单机制：
+由于app在上传凭证给服务器时发生了网络或各种原因，造成了凭证没有上传成功，产生了掉单，SDK 提供自动和客户端手动补单两种补偿机制。具体如下：
+
+自动补单流程：
+
+1. 客户端调用下单接口时 SDK 会优先判断上次支付是否掉单，如有掉单则先进行补单，补单成功后再次调用下单接口则恢复正常支付流程。补单失败后再次调用下单接口则继续补单。
+2. 登录成功后SDK会自动进行5次补单，使用斐波那契数列5秒间隔计算，减少掉单率。
+
+手动补单流程：
+
+1. 订单验证失败 SDK 会将订单号及支付凭证回调给客户端，客户端可自行上报。
+2. SDK 提供查询是否需要补单和补单功能，客户端可配合使用。
+   :::
+
+**接口原型**
+
+```csharp
+
+public void Pay(Dictionary dic, RequestResponseDelegate onResponse, RequestErrorDelegate onError);
+
+```
+
+### 参数说明
+
+> Map 结构说明
+
+| **字段**      | **类型** | **是否必填** | **说明**                                                                                                                                         |
+| ------------- | -------- | ------------ | ------------------------------------------------------------------------------------------------------------------------------------------------ |
+| hq_type      | string   | 否           | 支付类型                                                                                       |
+| goods_tag     | string   | 是           | 望舒计费点标识                                                                                                                     |
+| trade_no      | string   | 是           | 商户订单号                                                                                                                                       |
+| transmit_args | string   | 否           | 透传参数                                                                                                                                         |
+| notify_url    | string   | 否           | 支付成功通知 CP 发货地址                                                                                                                         |
+| currency      | string   | 是           | 币种 全大写 国内传: CNY，参考 [国家编码 币种字典](/docs/v3.5/支付/功能介绍)|
+| game_info     | object    | 否           | 游戏自定义数据， 上报区服和角色需要在 game_info 中传入属性，具体使用方式参考下方 game_info 字段说明  |
+| ext           | object   | 否           | 支付下单扩展信息，不同渠道具体对接                                                                                                               |
+| indulge_auth  | int      | 否           | 默认(自运营渠道默认值 1 ,三方渠道默认值 0 )， 是否进行防沉迷验证 ，0 不验证、1 验证。                                                            |
+| age           | int      | 否           | 默认取登录返回 age 字段                                                                                                                          |
+| env           | int      | 否           | 是否测试环境，1 测试环境  0 正式环境，默认 1 正式环境                                                                                                                          |
+
+> `game_info` 字段说明
+
+| **字段**  | **类型** | **是否必填** | **备注** |
+| --------- | ------  | ----------- |---------|
+| cp_game_character_id| NSString| 否             | 角色 id                           |
+| cp_game_area_id     | NSString| 否            | 区服 id                           |
+
+* ( ) IOS::IOS
+
+* ( ) Android::Android
+
+**调用示例**
+
+```csharp
+
+    private void Wechath5()
+    {
+        Dictionary dic = new();
+        
+        dic.Add("hq_type", "wch");
+        dic.Add("goods_tag", "weile_cat_gift2");
+        dic.Add("indulge_auth", 1);
+        dic.Add("trade_no", "2312125686062680");
+        dic.Add("currency", "CNY");
+        dic.Add("age", 30);
+        RXPay.Pay(dic, PayResponseDelegate, PayErrorDelegate);
+    }
+
+    private void PayResponseDelegate(string data)
+    {
+        LogUtil.Log("EventManager", $"Pay Response : {data}");
+    }
+
+    private void PayErrorDelegate(string error)
+    {
+        LogUtil.Log("EventManager", $"Pay Error : {error}");
+    }
+
+```
+
+::: tip
+具体每种支付的调用示例，请参考 Demo。
+:::

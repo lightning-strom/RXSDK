@@ -1,0 +1,199 @@
+---
+title: "客户端接入"
+---
+
+## 后台接入配置
+- [登录配置说明](/docs/v3.5/三方服务/抖音/客户端/客户端接入)
+- [支付配置说明](/docs/v3.5/三方服务/抖音/客户端/客户端接入)
+
+## 望舒快速接入（必接）
+- [快速接入文档](/docs/v3.5/登录（通行证）/Android 登录API/快速接入)
+
+## 三方渠道接入说明（必读）
+- [三方渠道接入说明](/docs/v3.5/入门指南/快速开始/Android初始化/快速接入)
+
+## SDK集成
+
+```json
+implementation 'com.ruixue:rxsdk_douyin_gb:${version}'
+```
+
+## 参数说明
+
+| 参数                    | 类型 | 说明           |
+| ----------------------- | ---- | -------------- |
+| app_id |  String    | config.json 中配置 |
+
+## 配置说明
+
+- 在 build.gradle 文件的 allprojects{'{'}repositories{'{'}{'}'}{'}'} 块中引用中需要添加配置
+
+```groovy
+maven {
+    url 'https://jitpack.io'
+}
+maven {
+    url 'https://artifact.bytedance.com/repository/ttgamesdk/'
+}
+```
+
+- 需要在app根目录下src/mian/assets目录将config.json放在当中
+
+```json
+{
+    "app_id": "游戏的appid",
+    "screen_orientation": "sensorPortrait",
+    "union_mode": 1,
+    "is_necessary_permission": false,
+    "login_fail_style": 0
+}
+```
+
+## 三方 SDK 版本信息
+
+使用 `2.1.6.3` 版本
+
+## 初始化(必接)
+```java
+Map params = new HashMap<>();
+
+// 这里使用方填写自己的 appid
+params.put("appid", "");
+RuiXueSdk.getApi().initThirdSdk(this, params, new RXJSONCallback() {
+    @Override
+    public void onSuccess(@Nullable JSONObject jsonObject) {
+        Log.d(TAG, "init third sdk success");
+    }
+
+    @Override
+    public void onFailed(@NonNull JSONObject jsonObject) {
+        Log.d(TAG, "init third sdk failed " + jsonObject);
+    }
+});
+```
+
+## 登录 (必须接入) 请一定确保要初始化成功再调用登录
+请参考 [Android端登录API](/docs/v3.5/登录（通行证）/Android 登录API/快速接入)
+参考代码
+```java
+String username = null;
+String loginType = LoginMethod.DOUYIN;
+String captchaCode = null;
+String loginOpenId = null;
+Map ext = null;
+String[] signFields = null;
+Object migrateArgs = null;
+RuiXueSdk.getApi().login(DemoActivity.this, loginType, username, password, captchaCode, loginOpenId, ext, signFields, migrateArgs, new RXJSONCallback() {
+    @Override
+    public void onSuccess(@Nullable JSONObject data) {
+        Toast.makeText(DemoActivity.this, "登录成功", Toast.LENGTH_SHORT).show();
+    }
+
+    @Override
+    public void onFailed(@NonNull JSONObject cause) {
+        Toast.makeText(DemoActivity.this, "登录失败", Toast.LENGTH_SHORT).show();
+    }
+});
+```
+
+## 支付 (必须接入)
+请参考 [Android端支付API](/docs/v3.5/三方服务/抖音/客户端/客户端接入)
+
+## 退出
+参考代码
+```java
+ RuiXueSdk.exitApp(this, new OnAppExitCallback() {
+    @Override
+    public void onExitConfirm(@Nullable String res) {
+        Toast.makeText(QuickDemoActivity.this, "退出游戏成功", Toast.LENGTH_SHORT).show();
+    }
+
+    @Override
+    public void onExitCancel() {
+        Toast.makeText(QuickDemoActivity.this, "退出游戏取消", Toast.LENGTH_SHORT).show();
+    }
+});
+```
+
+## 登出
+- 在游戏需要登出的地方调用如下代码
+```java
+ RuiXueSdk.getApi().logout(new OnLogoutCallback() {
+    @Override
+    public void onSuccess(@Nullable String data) {
+        Toast.makeText(DemoActivity.this, "登出成功", Toast.LENGTH_SHORT).show();
+    }
+
+    @Override
+    public void onFailed(int code, String msg) {
+        RXLogger.d("logout failed code = " + code + " msg = " + msg);
+        Toast.makeText(DemoActivity.this, "登出失败", Toast.LENGTH_SHORT).show();
+    }
+});
+```
+
+## 切换账号
+```java
+ GBSdkHelper.switchLogin(this, new ISwitchCallback() {
+    @Override
+    public void onSuccess(UserInfoResult userInfoResult) {
+        
+    }
+
+    @Override
+    public void onFailed(UserInfoResult userInfoResult) {
+
+    }
+
+    @Override
+    public void onLogout(UserInfoResult userInfoResult) {
+
+    }
+});
+```
+
+##  logout 全局监听
+参考代码 
+```java 
+RuiXueSdk.setRuiXueSdkCallback(new RuiXueSdkCallback() {
+    
+    // ... 省略了一些无关代码
+    
+    @Override
+    public void onLogout(int code, String msg) {
+        // code 0: 登出成功 
+        // code -1: 登录出失败
+        RXLogger.d(TAG, "onLogout code = " + code + " msg = " + msg);
+    }
+});
+```
+
+## 触发实名认证 如果用户未实名，在合适的场景，可以调用以下接口，触发一次实名弹窗
+```java
+// RealNameType 定义了常量 实名认证类型(走网络配置，实名认证可关闭，实名认证不可关闭)
+GBSdkHelper.realNameVerify(this, RealNameType.NETWORK_TYPE, new IAccountCallback() {
+    @Override
+    public void onSuccess(UserInfoResult userInfoResult) {
+        
+    }
+
+    @Override
+    public void onFailed(UserInfoResult userInfoResult) {
+
+    }
+});
+```
+
+## 判断用户是否实名
+```java
+boolean ret = GBSdkHelper.isVerify()
+```
+
+## 年龄枚举
+```java
+/**
+ * 年龄枚举 -1:未实名 8:0-8岁
+ * 16:8-16岁 18:16-18岁 100:大于18岁 左闭右开
+ */
+int ret = GBSdkHelper.getAgeType();
+```

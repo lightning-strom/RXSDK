@@ -1,0 +1,548 @@
+---
+title: "Go SDK"
+---
+
+## Go 项目设置依赖
+
+[接口依赖设置和初始化](/docs/v3.5/入门指南/快速开始/Go SDK 初始化)
+
+---
+
+## 用户登陆
+
+**接口原型**
+
+```go
+// IMSLogin ims 登陆接口
+func (c *Client) IMSLogin(req *IMSLoginReq) (*IMSLoginResp, error) 
+```
+
+### 参数说明
+
+| **字段** | **类型**                                  | **是否必填** | **备注** |
+| --- |-----------------------------------------| --- | --- |
+| req | [IMSLoginReq](/docs/v3.5/即时通讯/服务端接入/服务端 API) | 是   | 消息结构 |
+
+##### IMSLoginReq
+
+| **字段** | **类型**            | **是否必填** | **备注**                                                 |
+| --- |-------------------| --- |--------------------------------------------------------|
+| UserID | string            | 是  | CP 下的唯一标识符                                             |
+| ProductID | string             | 是   | 产品 ID                                                  |
+| ChannelID | string             | 是   | 渠道 ID                                                  |
+| DeviceCode | string             | 否   | 设备码                                                    |
+| CPID | uint32            | 是   | CPID                                                   |
+| ClientType | int32            | 是   | 客户端类型 |
+
+**调用示例**
+
+```go
+ack, err := ruixuego.GetDefaultClient().IMSLogin(&ruixuego.IMSLoginReq {
+    UserID:       "cpuserid-123456"
+    ClientType:   256,
+    ProductID:    testAppID,   
+    ChannelID:    testChannelID,
+    DeviceCode:   "aaaaaaaaaa",
+    CPID:         1001,
+    })
+if err != nil { panic(err) }
+```
+
+### 响应结构
+
+| **字段** | **类型**                                    | **是否必填** | **备注**         |
+| --- |-------------------------------------------| --- |----------------|
+| ack | [IMSLoginResp](/docs/v3.5/即时通讯/服务端接入/服务端 API) | 是   | 登陆信息           |
+| err | error                                     | 是   | 成功时 nil, 其他为错误 |
+
+##### IMSLoginResp
+
+| **字段** | **类型** | **是否必填** | **备注**     |
+| --- |--------| --- |------------|
+| AccessToken | string | 是   | 连接令牌       |
+| AccessTokenExpire | int64  | 是   | 过期时间，毫秒    |
+| RefreshToken | string | 是   |  刷新令牌  |
+| RefreshTokenExpire | int64  | 是   | 刷新令牌过期时间，毫秒     |
+| AESKey | string | 是   | AES 密钥，返回格式为 16 进制 64 位字符串，需解析成 32 Byte 密钥使用     |
+
+---
+
+## 发送消息
+
+**接口原型**
+
+```go
+// IMSSendMessage 发送消息
+func (c *Client) IMSSendMessage(req *IMSMessage) (*IMSMessageAck, error)
+```
+
+### 参数说明
+
+| **字段** | **类型**                                | **是否必填** | **备注** |
+| --- |---------------------------------------| --- | --- |
+| req | [IMSMessage](/docs/v3.5/即时通讯/服务端接入/服务端 API) | 是   | 消息结构 |
+
+##### IMSMessage
+
+| **字段** | **类型** | **是否必填** | **备注** |
+| --- | --- | --- | --- |
+| Option | int64 | 否   | [消息选项](/docs/v3.5/即时通讯/服务端接入/消息定义)（位运算组合） |
+| ClientType | int32 | 是   | [客户端类型](/docs/v3.5/即时通讯/功能介绍)，其是一个位运算结果值 |
+| Type | int32 | 是   | [消息类型](/docs/v3.5/即时通讯/服务端接入/消息定义) |
+| SubType | int32 | 否   | 消息子类型，当 type 为 CP 自定义消息时有效， CP 请使用 [ 1 , 1亿 ] |
+| UUID | string | 是   | 消息发送者在发送时生成的唯一ID，用于去重 |
+| Sender | string | 是   | 发送人 UserID
+注意：服务端发送消息时，该值应尽量为空，否则对于群聊或频道聊天要保证其已加入会话 |
+| Receivers | []string | 否   | 接收人列表，单聊必须为空；群聊表示 @ 用户列表；自定义单聊表示实际接收人 UserID 清单； |
+| ConversationID | string | 是   | [会话 ID](/docs/v3.5/即时通讯/功能介绍) |
+| ConvType | int32 | 是   | 会话类型，即会话 ID 两个 $ 中间的值 |
+| ProductID | string | 是   | 产品 ID |
+| ChannelID | string | 是   | 渠道 ID |
+| Content | string | 是   | 消息内容 JSON 字符串。需要满足各个[消息格式](/docs/v3.5/即时通讯/服务端接入/消息定义) |
+| Ext | map[string]string | 否   | CP 扩展字段 |
+
+**调用示例**
+
+```go
+ack, err := ruixuego.GetDefaultClient().IMSSendMessage(&ruixuego.IMSMessage{   
+    Option:         3,   
+    Type:           2,   
+    Sender:         "testkk2012",   
+    UUID:           "34567890991",   
+    ClientType:     256,   
+    ConversationID: "$4$worldChannel",   
+    ConvType:       4,   
+    ProductID:      testAppID,   
+    ChannelID:      testChannelID,   
+    Content:        "{\"text\":\"22222\"}",   
+    Ext:            map[string]string{"userData": "{\"game\" : \"22222\"}"},
+    })
+if err != nil { panic(err) }
+```
+
+### 响应结构
+
+| **字段** | **类型**                                      | **是否必填** | **备注** |
+| --- |---------------------------------------------| --- | --- |
+| ack | [IMSMessageAck](/docs/v3.5/即时通讯/服务端接入/服务端 API) | 是   | 用户排行榜信息 |
+| err | error                                       | 是   | 成功时 nil, 其他为错误 |
+
+##### IMSMessageAck
+
+| **字段** | **类型** | **是否必填** | **备注** |
+| --- | --- | --- | --- |
+| MsgID | string | 是   | 消息id |
+| UUID | string | 是   | 发消息时的 UUID |
+| InboxID | int64 | 是   | 邮件在发消息玩家邮箱里的 id |
+| MilliTS | int64 | 是   | 发消息时间戳 |
+
+---
+
+## 获取历史记录
+
+**接口原型**
+
+```go
+// IMSGetHistory 获取历史记录
+func (c *Client) IMSGetHistory(req *IMSHistoryReq) (*IMSHistoryResp, error) 
+```
+
+### 参数说明
+
+| **字段** | **类型** | **是否必填** | **备注** |
+| --- | --- | --- | --- |
+| ConversationID | string | 是   | 会话 ID |
+| StartMsgID | string | 是   | 开始的 msgid |
+| FetchCount | int32 | 是   | 抓取条数 |
+
+**调用示例**
+
+```go
+messages, err := ruixuego.GetDefaultClient().IMSGetHistory(&IMSHistoryReq{        
+    ConversationID : "$1$testA:testB",        
+    StartMsgID: "123456.$1$testA:testB",       
+    FetchCount: 50    })
+if err != nil { panic(err) }
+```
+
+### 响应结构
+
+| **字段** | **类型**                                          | **是否必填** | **备注** |
+| --- |-------------------------------------------------| --- | --- |
+| messages | [][IMSHistoryResp](/docs/v3.5/即时通讯/服务端接入/服务端 API) | 是   | 用户排行榜信息 |
+| err | error                                           | 是   | 成功时 nil, 其他为错误 |
+
+##### IMSHistoryResp
+
+| **字段** | **类型**                                  | **是否必填** | **备注** |
+| --- |-----------------------------------------| --- | --- |
+| Messages | [][IMSMessage](/docs/v3.5/即时通讯/服务端接入/服务端 API) | 否   | 返回的消息 |
+| Count | int32                                   | 是   | 个数  |
+| Done | bool                                    | 是   | 是否已拉取结束 |
+
+---
+
+## 创建会话
+
+**接口原型**
+
+```go
+// IMSCreateConversation 创建会话
+func (c *Client) IMSCreateConversation(req *IMSCreateConvReq) error
+```
+
+### 参数说明
+
+| **字段** | **类型**                                            | **是否必填** | **备注** |
+| --- |---------------------------------------------------| --- | --- |
+| req | [IMSCreateConvReq](/docs/v3.5/即时通讯/服务端接入/服务端 API) | 是   | 会话 ID |
+
+##### IMSCreateConvReq
+
+| **字段** | **类型**                                  | **是否必填** | **备注** |
+| --- |-----------------------------------------| --- | --- |
+| ConversationID | string                                  | 是   | 会话 ID |
+| Option | int64                                   | 否   | [消息选项](/docs/v3.5/即时通讯/服务端接入/消息定义)（位运算组合） |
+| ConvType | int32                                   | 是   | 会话类型 |
+| Creator | string                                  | 是   | 会话创建者，即单聊的发起者或群的创建者。应为CP 侧 玩家 id |
+| Members | [][MemberInfo](/docs/v3.5/即时通讯/服务端接入/服务端 API) | 否   | 会话的参与者，可以包括创建者 |
+| Ext | map[string]string                       | 否   | 该会话 CP 自定义扩展信息 |
+
+##### memberinfo
+
+| **字段** | **类型** | **是否必填** | **备注** |
+| --- | --- | --- | --- |
+| UserID | string | 是   | 用户id。 应为CP 侧 玩家 id |
+| Option | int64 | 否   | 用户的 [会话选项](/docs/v3.5/即时通讯/服务端接入/消息定义)（位运算组合） |
+| Ext | map[string]string | 否   | 该用户在会话内的自定义扩展信息 |
+
+**调用示例**
+
+```go
+messages, err := ruixuego.GetDefaultClient().IMSCreateConversation(&IMSCreateConvReq{        
+    ConversationID : "$1$testA:testB",        
+    Option: 3,        
+    ConvType: 1,        
+    Creator: "creator",        
+    Members: []*MemberInfo{            
+        {                
+            UserID: "CP 用户 userid",               
+            Option: 3,               
+            Ext: map[string]string{"自定义key" : "user 自定义参数"},           
+        }       
+    },        
+    Ext: map[string]string{"自定义key" : "会话自定义参数"}    })
+    
+if err != nil {   panic(err)}
+```
+
+### 响应结构
+
+| **字段** | **类型** | **是否必填** | **备注** |
+| --- | --- | --- | --- |
+| err | error | 是   | 成功时 nil, 其他为错误 |
+
+---
+
+## 更新会话信息
+
+**接口原型**
+
+```go
+// IMSUpdateConversation 更新会话信息
+func (c *Client) IMSUpdateConversation(req *IMSUpdateConvReq) error
+```
+
+### 参数说明
+
+| **字段** | **类型**                                            | **是否必填** | **备注** |
+| --- |---------------------------------------------------| --- | --- |
+| req | [IMSUpdateConvReq](/docs/v3.5/即时通讯/服务端接入/服务端 API) | 是   | 会话 ID |
+
+##### IMSUpdateConvReq
+
+| **字段** | **类型** | **是否必填** | **备注** |
+| --- | --- | --- | --- |
+| ConversationID | string | 是   | 会话 ID |
+| Option | int64 | 否   | 会话选项 |
+| Creator | string | 否   | 更换 会话的创建者。 |
+| Ext | map[string]string | 否   | 该会话 CP 自定义扩展信息 |
+
+**调用示例**
+
+```go
+err := ruixuego.GetDefaultClient().IMSUpdateConversation(&IMSUpdateConvReq{        
+    ConversationID : "$1$testA:testB",        
+    Option: 3,        
+    Creator: "creator",        
+    Ext: map[string]string{"自定义key" : "会话自定义参数"}    })
+if err != nil { panic(err) }
+```
+
+### 响应结构
+
+| **字段** | **类型** | **是否必填** | **备注** |
+| --- | --- | --- | --- |
+| err | error | 是   | 成功时 nil, 其他为错误 |
+
+---
+
+## 删除会话
+
+**接口原型**
+
+```go
+// IMSDeleteConversation 删除会话
+func (c *Client) IMSDeleteConversation(req *IMSConvDeleteReq) error
+```
+
+### 参数说明
+
+| **字段** | **类型**                                            | **是否必填** | **备注** |
+| --- |---------------------------------------------------| --- | --- |
+| req | [IMSConvDeleteReq](/docs/v3.5/即时通讯/服务端接入/服务端 API) | 是   | 会话 ID |
+
+##### IMSConvDeleteReq
+
+| **字段** | **类型** | **是否必填** | **备注** |
+| --- | --- | --- | --- |
+| ConversationID | string | 是   | 会话 ID |
+| UserID | string | 否   | 操作人。会校验是否可以删除会话，只有创建者能删除会话 |
+
+**调用示例**
+
+```go
+err := ruixuego.GetDefaultClient().IMSDeleteConversation(&IMSConvDeleteReq{        
+ConversationID : "$1$testA:testB",        
+UserID: "creator"    })
+if err != nil { panic(err) }
+```
+
+### 响应结构
+
+| **字段** | **类型** | **是否必填** | **备注** |
+| --- | --- | --- | --- |
+| err | error | 是   | 成功时 nil, 其他为错误 |
+
+---
+
+## 获取会话信息
+
+**接口原型**
+
+```go
+// IMSGetConversation 获取会话信息
+func (c *Client) IMSGetConversation(req *IMSGetConversationReq) (*IMSConversation, error) 
+```
+
+### 参数说明
+
+| **字段** | **类型**                                                      | **是否必填** | **备注** |
+| --- |-------------------------------------------------------------| --- | --- |
+| req | [IMSGetConversationReq](/docs/v3.5/即时通讯/服务端接入/服务端 API) | 是   | 会话 ID |
+
+##### IMSGetConversationReq
+
+| **字段** | **类型** | **是否必填** | **备注** |
+| --- | --- | --- | --- |
+| ConversationID | string | 是   | 会话 ID |
+| UserID | string | 否   | 操作人。此玩家应该在会话中 |
+
+**调用示例**
+
+```go
+err := ruixuego.GetDefaultClient().IMSGetConversation(&IMSGetConversationReq{        
+    ConversationID : "$1$testA:testB",       
+    UserID: "testA"    })
+if err != nil { panic(err) }
+```
+
+### 响应结构
+
+| **字段** | **类型**                                          | **是否必填** | **备注** |
+| --- |-------------------------------------------------| --- | --- |
+| resp | [IMSConversation](/docs/v3.5/即时通讯/服务端接入/服务端 API) |     |     |
+| err | error                                           | 是   | 成功时 nil, 其他为错误 |
+
+###### IMSConversation
+
+| **字段** | **类型** | **是否必填** | **备注** |
+| --- | --- | --- | --- |
+| ConversationID | string | 是   | 会话id |
+| Attr | int64 | 否   | 会话属性扩展值 |
+| Option | int64 | 否   | 会话选项 |
+| UserAttr | int64 | 否   | 用户在会话中的 属性扩展值 |
+| UserOption | int64 | 否   | 用户在会话中的 选项值 |
+| CreateMilliTS | int64 | 是   | 会话创建时间 |
+| UpdateMilliTS | int64 | 否   | 会话数据更新时间 |
+| JoinMilliTS | int64 | 是   | 玩家加入会话时间 |
+| Creator | string | 是   | 会话创建者 |
+| UserExt | map[string]string | 否   | 用户在会话中的 自定义数据 |
+| Ext | map[string]string | 否   | 会话本身的自定义数据 |
+| Members | []string | 否   | 会话中所有用户 |
+| Type | int8 | 否   | 会话类型 |
+| ~~Status~~ | ~~int8~~ | ~~是~~ | ~~会话状态 1 为正常~~ |
+
+---
+
+## 加入会话
+
+**接口原型**
+
+```go
+// IMSJoinConversation 加入会话
+func (c *Client) IMSJoinConversation(req *IMSJoinConversationReq) error  
+```
+
+### 参数说明
+
+| **字段** | **类型** | **是否必填** | **备注** |
+| --- | --- | --- | --- |
+| req | IMSJoinConversationReq | 是   |     |
+
+**调用示例**
+
+```go
+err := ruixuego.GetDefaultClient().IMSJoinConversation(&IMSJoinConversationReq{        
+    ConversationID : "$2$testgroup",        
+    UserID: "testA"    })
+if err != nil { panic(err) }
+```
+
+### 响应结构
+
+| **字段** | **类型** | **是否必填** | **备注** |
+| --- | --- | --- | --- |
+| err | error | 是   | 成功时 nil, 其他为错误 |
+
+---
+
+## 离开会话
+
+**接口原型**
+
+```go
+// IMSLeaveConversation 离开会话
+func (c *Client) IMSLeaveConversation(req *IMSLeaveConversationReq) error 
+```
+
+### 参数说明
+
+| **字段** | **类型** | **是否必填** | **备注** |
+| --- | --- | --- | --- |
+| req | IMSLeaveConversationReq | 是   |     |
+
+**调用示例**
+
+```go
+err := ruixuego.GetDefaultClient().IMSLeaveConversation(&IMSLeaveConversationReq{        
+    ConversationID : []string{"$2$testgroup"},        
+    UserID: "testA"    })
+if err != nil { panic(err) }
+```
+
+### 响应结构
+
+| **字段** | **类型** | **是否必填** | **备注** |
+| --- | --- | --- | --- |
+| err | error | 是   | 成功时 nil, 其他为错误 |
+
+---
+
+## 更新会话内用户信息
+
+**接口原型**
+
+```go
+// IMSUpdateConversationUserData 更新会话内用户信息
+func (c *Client) IMSUpdateConversationUserData(req *IMSUpdateConvUserDataReq) error
+```
+
+### 参数说明
+
+| **字段** | **类型** | **是否必填** | **备注** |
+| --- | --- | --- | --- |
+| req | IMSUpdateConvUserDataReq | 是   |     |
+
+**调用示例**
+
+```go
+err := ruixuego.GetDefaultClient().IMSUpdateConversationUserData(&IMSUpdateConvUserDataReq{
+    ConversationID : "$2$testgroup",        
+    UserID: "testA",        
+    Option: 3, // 这个值是位运算的值        
+    Ext: map[string]string{"自定义key":"用户在会话中的参数"}    
+    })
+if err != nil { panic(err) }
+```
+
+### 响应结构
+
+| **字段** | **类型** | **是否必填** | **备注** |
+| --- | --- | --- | --- |
+| err | error | 是   | 成功时 nil, 其他为错误 |
+
+---
+
+## 获取玩家会话列表
+
+**接口原型**
+
+```go
+// IMSConversationUserList 获取会话中成员列表
+func (c *Client) IMSConversationUserList(req *IMSConversationUserListReq) ([]*IMSConversation, error)
+```
+
+### 参数说明
+
+| **字段** | **类型** | **是否必填** | **备注** |
+| --- | --- | --- | --- |
+| req | IMSConversationUserListReq | 是   |     |
+
+**调用示例**
+
+```go
+conversations, err := ruixuego.GetDefaultClient().IMSConversationUserList(&IMSConversationUserListReq{        
+    UserID: "testA"    })
+if err != nil { panic(err) }
+```
+
+### 响应结构
+
+| **字段** | **类型**                                            | **是否必填** | **备注** |
+| --- |---------------------------------------------------| --- | --- |
+| conversations | [][IMSConversation](/docs/v3.5/即时通讯/服务端接入/服务端 API) | 否   | 会话列表 |
+| err | error                                             | 是   | 成功时 nil, 其他为错误 |
+
+---
+
+## 获取频道会话中玩家数量
+
+**接口原型**
+
+```go
+// IMSChannelUsersCount 获取频道会话中玩家数量
+func (c *Client) IMSChannelUsersCount(channelConvIds []string) (map[string]int64, error)
+```
+
+### 参数说明
+
+| **字段** | **类型** | **是否必填** | **备注** |
+| --- | --- | --- | --- |
+| channelConvIds | []string | 是   | 频道会话id 列表。批量获取接口
+会话 id 必须是 频道会话 |
+
+**调用示例**
+
+```go
+info, err := ruixuego.GetDefaultClient().IMSChannelUsersCount(    
+    []string{"$4$world1", "$4$world2"})
+if err != nil { panic(err) }
+```
+
+### 响应结构
+
+| **字段** | **类型** | **是否必填** | **备注** |
+| --- | --- | --- | --- |
+| info | map[string]int64 | 否   | 频道会话 对应 人数 |
+| err | error | 是   | 成功时 nil, 其他为错误 |

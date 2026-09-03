@@ -1,0 +1,734 @@
+---
+sidebar_position: 1
+title: 快速接入
+description: "望舒SDK 社交 快速接入 iOS 接入文档，提供完整的接口调用说明与示例。"
+---
+
+## 定位
+
+### 获取附近的人
+
+**接口原型**
+
+```objectivec
+/**
+ * 获取附近的人
+ * @param radius 半径（米）
+ * @param count 查询数量，（默认0，0为全部）非必传
+ * @param page 页数，从1开始
+ * @param page_size 每页数量
+ * @param type 查询类型
+ */
+- (void)getRadiusAccount:(NSInteger)radius
+ count:(NSInteger)count
+ page:(NSInteger)page
+ page_size:(NSInteger)page_size
+ type:(NSString *)type
+ complete:(RequestComplete)complete;
+```
+
+#### 参数说明
+
+| 字段 | 类型 | 是否必填 | 备注 |
+| --- | --- | --- | --- |
+| radius | NSInteger | 是 | 半径（米） |
+| count | NSInteger | 否 | 查询数量，（默认 0 ， 0 为全部） |
+| page | NSInteger | 是 | 页数，从 1 开始 |
+| page_size | NSInteger | 是 | 每页数量 |
+| type | NSString | 是 | 查询类型 |
+
+**调用示例**
+
+```objectivec
+[[RXSDK sharedSDK] getRadiusAccount:1000 count:100 page:1 page_size:10 type:@"boy" complete:^(NSDictionary * _Nullable response, RX_CommonRequestError * _Nullable error) {
+
+}];
+```
+
+#### 响应参数（JSON)
+
+**HTTP 状态码：**`200 OK`
+
+| 字段 | 类型 | 是否必填 | 说明 | 示例 |
+| --- | --- | --- | --- | --- |
+| code | Number | 是 | 响应状态码， 0 为成功，非 0 表示出错 | 0 |
+| msg | String | 否 | 响应信息，仅在 code 非 0 时返回 | data |
+| [DataNode](/docs/开发者文档/社交/JavaScript-接入) | 否 | 结果数据集 |  |  |
+
+##### DataNode
+
+
+| 字段 | 类型 | 是否必填 | 说明 |
+| --- | --- | --- | --- |
+| openid | String | 是 | 用户望舒 OpenID |
+| nickname | String | 否 | 用户昵称 |
+| birthday | String | 否 | 用户生日日期 |
+| remarks | String | 否 | 当前用户对其的备注 |
+| avatar | String | 否 | 用户头像 |
+| custom | String | 否 | CP 自定义信息 |
+| dist | Float64 | 是 | 距离当前用户的距离（米） |
+| sex | Number | 否 | 用户性别， 1:男； 0:女 |
+| cp_userid | Number | 否 | CP 侧 用户 id |
+
+
+**响应示例**
+
+```json
+{
+ "data": [
+ {
+ "openid": "rxuSl4QZoNk0G1HY2-Za6GlO7wO-p_ej",
+ "nickname": "xdh"
+ }
+ ],
+ "code": 0
+}
+```
+
+### 获取位置信息
+
+请参考 [定位功能](/docs/开发者文档/社交/JavaScript-接入) 。
+
+### 设置用户自定义信息
+
+**接口原型**
+
+```objectivec
+/**
+ * 设置用户自定义信息
+ * @param custom 自定义信息，最大长度为 512 字节
+ */
+- (void)setUserCustomWithCustom:(NSString *)custom
+ complete:(RequestComplete)complete
+```
+
+#### 参数说明
+
+| 字段 | 类型 | 是否必填 | 备注 |
+| --- | --- | --- | --- |
+| custom | NSString | 是 | 自定义信息，最大长度为 512 字节 |
+
+**调用示例**
+
+```objectivec
+[[RXSDK sharedSDK] setUserCustomWithCustom:@"" complete:^(NSDictionary * _Nullable response, RX_CommonRequestError * _Nullable error) {
+
+}];
+```
+
+#### 响应参数结构（JSON)
+
+**HTTP 状态码：**`200 OK`
+
+| 字段 | 类型 | 是否必填 | 说明 | 示例 |
+| --- | --- | --- | --- | --- |
+| code | Number | 是 | 响应状态码， 0 为成功，非 0 表示出错 | 0 |
+| msg | String | 否 | 响应信息，仅在 code 非 0 时返回 |  |
+
+**响应示例**
+
+```json
+{
+ "code": 0
+}
+```
+
+### 上报/更新经纬度坐标
+
+**接口原型**
+
+```objectivec
+/**
+ * 上报/更新经纬度坐标
+ * @param lon 经度
+ * @param lat 纬度
+ * @param types 自定义坐标分组类型，字符串数组[@"type1", @"type2"] 必传
+ */
+- (void)lbsUpdateWithLon:(double)lon
+ lat:(double)lat
+ types:(NSArray * __nonnull)types
+ complete:(RequestComplete)complete;
+```
+
+#### 参数说明
+
+| 字段 | 类型 | 是否必填 | 备注 |
+| --- | --- | --- | --- |
+| lon | double | 是 | 经度 |
+| lat | double | 是 | 纬度 |
+| types | NSArray | 是 | 自定义坐标分组类型，字符串数组[@"type1", @"type2"] |
+
+**调用示例**
+
+```objectivec
+[[RXSDK sharedSDK] lbsUpdateWithLon:1.11 lat:1.11 types:@[@""] complete:^(NSDictionary * _Nullable response, RX_CommonRequestError * _Nullable error) {
+
+}];
+```
+
+#### 响应参数（JSON）
+
+**HTTP 状态码：**`200 OK`
+
+| 字段 | 类型 | 是否必填 | 说明 | 示例 |
+| --- | --- | --- | --- | --- |
+| code | Number | 是 | 响应状态码， 0 为成功，非 0 表示出错 | 0 |
+| msg | String | 否 | 响应信息，仅在 code 非 0 时返回 |  |
+
+**响应示例**
+
+```json
+{
+ "code": 0
+}
+```
+
+### 删除经纬度坐标
+
+**接口原型**
+
+```objectivec
+/**
+ * 删除位置信息
+ * @param types 用户类型定义
+ */
+- (void)deleteLocationWithTypes:(NSArray *)types
+ complete:(RequestComplete)complete;
+```
+
+#### 参数说明
+
+| 字段 | 类型 | 是否必填 | 备注 |
+| --- | --- | --- | --- |
+| types | NSArray | 是 | 用户类型定义 |
+
+**调用示例**
+
+```objectivec
+[[RXSDK sharedSDK] deleteLocationWithTypes:@[@""] complete:^(NSDictionary * _Nullable response, RX_CommonRequestError * _Nullable error) {
+
+}];
+```
+
+#### 响应参数（JSON）
+
+**HTTP 状态码：**`200 OK`
+
+| 字段 | 类型 | 是否必填 | 说明 | 示例 |
+| --- | --- | --- | --- | --- |
+| code | Number | 是 | 响应状态码， 0 为成功，非 0 表示出错 | 0 |
+| msg | String | 否 | 响应信息，仅在 code 非 0 时返回 |  |
+
+**响应示例**
+
+```json
+{
+ "code": 0
+}
+```
+
+## 设置自定义关系
+
+### 添加自定义关系
+
+**接口原型**
+
+```objectivec
+/**
+ * 添加自定义关系
+ * @param target 目标openId 必须
+ * @param types 自定义关系类型列表，value必须为BOOL 必须
+ * @param target_remarks 用户给Target设置的备注信息（最长512字符） 非必须
+ * @param user_remarks Target给用户设置的备注信息（最长512字符） 非必须
+ */
+- (void)addRelationWithTarget:(NSString *)target
+ types:(NSDictionary *)types
+ target_remarks:(NSString * _Nullable)target_remarks
+ user_remarks:(NSString * _Nullable)user_remarks
+ complete:(RequestComplete)complete;
+```
+
+#### 参数说明
+
+| 字段 | 类型 | 是否必填 | 备注 |
+| --- | --- | --- | --- |
+| target | NSString | 是 | 目标 openId |
+| types | NSDictionary | 是 | 自定义关系类型列表， value 必须为 BOOL |
+| target_remarks | NSString | 否 | 用户给 Target 设置的备注信息（最长 512 字符） |
+| user_remarks | NSString | 否 | Target 给用户设置的备注信息（最长 512 字符） |
+
+**调用示例**
+
+```objectivec
+[[RXSDK sharedSDK] addRelationWithTarget:@"" types:@{} target_remarks:@"" user_remarks:@"" complete:^(NSDictionary * _Nullable response, RX_CommonRequestError * _Nullable error) {
+
+}];
+```
+
+#### 响应参数（JSON)
+
+**HTTP 状态码：**`200 OK`
+
+| 字段 | 类型 | 是否必填 | 说明 | 示例 |
+| --- | --- | --- | --- | --- |
+| code | Number | 是 | 响应状态码， 0 为成功，非 0 表示出错 | 0 |
+| msg | String | 否 | 响应信息，仅在 code 非 0 时返回 |  |
+
+**响应示例**
+
+```json
+{
+ "code":
+}
+```
+
+### 删除自定义关系
+
+**接口原型**
+
+```objectivec
+/**
+ * 删除自定义关系
+ * @param target 目标openId 必须
+ * @param types 自定义关系类型列表，value必须为BOOL 必须
+ */
+- (void)deleteRelationWithTarget:(NSString *)target
+ types:(NSDictionary *)types
+ complete:(RequestComplete)complete;
+```
+
+#### 参数说明
+
+| 字段 | 类型 | 是否必填 | 备注 |
+| --- | --- | --- | --- |
+| target | NSString | 是 | 目标 openId |
+| types | NSDictionary | 是 | 自定义关系类型列表， value 必须为 BOOL |
+
+**调用示例**
+
+```objectivec
+[[RXSDK sharedSDK] deleteRelationWithTarget:@"" types:@{} complete:^(NSDictionary * _Nullable response, RX_CommonRequestError * _Nullable error) {
+
+}];
+```
+
+#### 响应参数（JSON）
+
+**HTTP 状态码：**`200 OK`
+
+| 字段 | 类型 | 是否必填 | 说明 | 示例 |
+| --- | --- | --- | --- | --- |
+| code | Number | 是 | 响应状态码， 0 为成功，非 0 表示出错 | 0 |
+| msg | String | 否 | 响应信息，仅在 code 非 0 时返回 |  |
+
+**响应示例**
+
+```json
+{
+ "code": 0
+}
+```
+
+### 更新用户自定义关系备注
+
+**接口原型**
+
+```objectivec
+/**
+ * 更新用户自定义关系备注
+ * @param target 目标openId 必须
+ * @param target_remarks 用户给Target设置的备注信息（最长512字符） 必须
+ * @param type 自定义关系类型 必须
+ */
+- (void)updateRemarksWithTarget:(NSString *)target
+ target_remarks:(NSString *)target_remarks
+ type:(NSString *)type
+ complete:(RequestComplete)complete;
+```
+
+#### 参数说明
+
+| 字段 | 类型 | 是否必填 | 备注 |
+| --- | --- | --- | --- |
+| target | NSString | 是 | 目标 openId |
+| target_remarks | NSString | 是 | 用户给 Target 设置的备注信息（最长 512 字符） |
+| type | NSString | 是 | 自定义关系类型 |
+
+**调用示例**
+
+```objectivec
+[[RXSDK sharedSDK] updateRemarksWithTarget:@"" target_remarks:@"" type:@"" complete:^(NSDictionary * _Nullable response, RX_CommonRequestError * _Nullable error) {
+
+}];
+```
+
+#### 响应参数（JSON）
+
+**HTTP 状态码：**`200 OK`
+
+| 字段 | 类型 | 是否必填 | 说明 | 示例 |
+| --- | --- | --- | --- | --- |
+| code | Number | 是 | 响应状态码， 0 为成功，非 0 表示出错 | 0 |
+| msg | String | 否 | 响应信息，仅在 code 非 0 时返回 |  |
+
+**响应示例**
+
+```json
+{
+ "code": 0
+}
+```
+
+### 获取自定义关系列表
+
+**接口原型**
+
+```objectivec
+/**
+ * 获取自定义关系列表
+ * @param type 自定义关系类型 必须
+ */
+- (void)getRelationListWithType:(NSString *)type
+ complete:(RequestComplete)complete;
+```
+
+#### 参数说明
+
+| 字段 | 类型 | 是否必填 | 备注 |
+| --- | --- | --- | --- |
+| type | NSString | 是 | 自定义关系类型 |
+
+**调用示例**
+
+```objectivec
+[[RXSDK sharedSDK] getRelationListWithType:@"" complete:^(NSDictionary * _Nullable response, RX_CommonRequestError * _Nullable error) {
+
+}];
+```
+
+#### 响应参数（JSON）
+
+**HTTP 状态码：**`200 OK`
+
+| 字段 | 类型 | 是否必填 | 说明 | 示例 |
+| --- | --- | --- | --- | --- |
+| code | Number | 是 | 响应状态码， 0 为成功，非 0 表示出错 | 0 |
+| msg | String | 否 | 响应信息，仅在 code 非 0 时返回 | data |
+| [Node](/docs/开发者文档/社交/JavaScript-接入) | 否 | 结果数据集 |  |  |
+
+##### Node
+
+
+| 字段 | 类型 | 是否必填 | 说明 |
+| --- | --- | --- | --- |
+| openid | String | 是 | 用户望舒 OpenID |
+| nickname | String | 否 | 用户昵称 |
+| birthday | String | 否 | 用户生日日期 |
+| remarks | String | 否 | 当前用户对其的备注 |
+| avatar | String | 否 | 用户头像 |
+| custom | String | 否 | CP 自定义信息 |
+| time | Number | 否 | 关系形成时间戳（单位：秒） |
+| sex | Number | 否 | 用户性别， 1:男； 0:女 |
+| cp_userid | Number | 否 | CP 侧 用户 id |
+
+
+**响应示例**
+
+```json
+{
+ "data": [
+ {
+ "openid": "rxuSl4QZoNk0G1HY2-Za6GlO7wO-p_ej",
+ "nickname": "xdh"
+ }
+ ],
+ "code": 0
+}
+```
+
+### 判断两用户是否存在某自定义关系
+
+**接口原型**
+
+```objectivec
+/**
+ * 判断两用户是否存在某自定义关系
+ * @param target 目标openId 必须
+ * @param type CP自定义关系类型 必须
+ */
+- (void)requestHasRelationWithTarget:(NSString *)target
+ type:(NSString *)type
+ complete:(RequestComplete)complete;
+```
+
+#### 参数说明
+
+| 字段 | 类型 | 是否必填 | 备注 |
+| --- | --- | --- | --- |
+| target | NSString | 是 | 目标 openId |
+| type | NSString | 是 | 自定义关系类型 |
+
+**调用示例**
+
+```objectivec
+[[RXSDK sharedSDK] requestHasRelationWithTarget:@"" type:@"" complete:^(NSDictionary * _Nullable response, RX_CommonRequestError * _Nullable error) {
+
+}];
+```
+
+#### 响应参数（JSON）
+
+**HTTP 状态码：**`200 OK`
+
+
+| 字段 | 类型 | 是否必填 | 说明 |
+| --- | --- | --- | --- |
+| code | Number | 是 | 响应状态码， 0 为成功，非 0 表示出错 |
+| msg | String | 否 | 响应信息，仅在 code 非 0 时返回 |
+| data | Bool | 是 | 存在关系时为 true ；否则为 false |
+| Bool | 是 | 存在关系时为 true ；否则为 false |  |
+
+
+**响应示例**
+
+```json
+{
+ "code": 0,
+ "data": true
+}
+```
+
+## 设置好友关系
+
+### 添加好友
+
+**接口原型**
+
+```objectivec
+/**
+ * 添加好友
+ * @param target 目标openId 必须
+ * @param target_remarks 用户给Target设置的备注信息（最长512字符） 非必须
+ * @param user_remarks Target给用户设置的备注信息（最长512字符） 非必须
+ */
+- (void)addFriendWithTarget:(NSString *)target
+ target_remarks:(NSString * _Nullable)target_remarks
+ user_remarks:(NSString * _Nullable)user_remarks
+ complete:(RequestComplete)complete;
+```
+
+#### 参数说明
+
+| 字段 | 类型 | 是否必填 | 备注 |
+| --- | --- | --- | --- |
+| target | NSString | 是 | 目标 openId |
+| target_remarks | NSString | 否 | 用户给 Target 设置的备注信息（最长 512 字符） |
+| user_remarks | NSString | 否 | Target 给用户设置的备注信息（最长 512 字符） |
+
+**调用示例**
+
+```objectivec
+[[RXSDK sharedSDK] addFriendWithTarget:@"" target_remarks:@"" user_remarks:@"" complete:^(NSDictionary * _Nullable response, RX_CommonRequestError * _Nullable error) {
+
+}];
+```
+
+#### 响应参数（JSON）
+
+**HTTP 状态码：**`200 OK`
+
+| 字段 | 类型 | 是否必填 | 说明 | 示例 |
+| --- | --- | --- | --- | --- |
+| code | Number | 是 | 响应状态码， 0 为成功，非 0 表示出错 | 0 |
+| msg | String | 否 | 响应信息，仅在 code 非 0 时返回 |  |
+
+**响应示例**
+
+```json
+{
+ "code": 0
+}
+```
+
+### 删除好友
+
+**接口原型**
+
+```objectivec
+/**
+ * 删除好友
+ * @param target 目标openId 必须
+ */
+- (void)deleteFriendWithTarget:(NSString *)target
+ complete:(RequestComplete)complete;
+```
+
+#### 参数说明
+
+| 字段 | 类型 | 是否必填 | 备注 |
+| --- | --- | --- | --- |
+| target | NSString | 是 | 目标 openId |
+
+**调用示例**
+
+```objectivec
+[[RXSDK sharedSDK] deleteFriendWithTarget:@"" complete:^(NSDictionary * _Nullable response, RX_CommonRequestError * _Nullable error) {
+
+}];
+```
+
+#### 响应参数（JSON）
+
+**HTTP 状态码：**`200 OK`
+
+| 字段 | 类型 | 是否必填 | 说明 | 示例 |
+| --- | --- | --- | --- | --- |
+| code | Number | 是 | 响应状态码， 0 为成功，非 0 表示出错 | 0 |
+| msg | String | 否 | 响应信息，仅在 code 非 0 时返回 |  |
+
+**响应示例**
+
+```json
+{
+ "code": 0
+}
+```
+
+### 更新好友备注
+
+**接口原型**
+
+```objectivec
+/**
+ * 更新好友备注
+ * @param target 目标openId 必须
+ * @param target_remarks 用户给Target设置的备注信息（最长512字符） 必须
+ */
+- (void)updateFriendRemarkWithTarget:(NSString *)target
+ target_remarks:(NSString *)target_remarks
+ complete:(RequestComplete)complete;
+```
+
+#### 参数说明
+
+| 字段 | 类型 | 是否必填 | 备注 |
+| --- | --- | --- | --- |
+| target | NSString | 是 | 目标 openId |
+| target_remarks | NSString | 否 | 用户给 Target 设置的备注信息（最长 512 字符） |
+
+**调用示例**
+
+```objectivec
+[[RXSDK sharedSDK] updateFriendRemarkWithTarget:@"" target_remarks:@"" complete:^(NSDictionary * _Nullable response, RX_CommonRequestError * _Nullable error) {
+
+}];
+```
+
+#### 响应参数（JSON）
+
+**HTTP 状态码：**`200 OK`
+
+| 字段 | 类型 | 是否必填 | 说明 | 示例 |
+| --- | --- | --- | --- | --- |
+| code | Number | 是 | 响应状态码， 0 为成功，非 0 表示出错 | 0 |
+| msg | String | 否 | 响应信息，仅在 code 非 0 时返回 |  |
+
+**响应示例**
+
+```json
+{
+ "code": 0
+}
+```
+
+### 获取好友列表
+
+**接口原型**
+
+```objectivec
+/**
+ * 获取好友列表
+ */
+- (void)getFriendListWithComplete:(RequestComplete)complete;
+```
+
+**调用示例**
+
+```objectivec
+[[RXSDK sharedSDK] getFriendListWithComplete:^(NSDictionary * _Nullable response, RX_CommonRequestError * _Nullable error) {
+
+}];
+```
+
+#### 响应参数（JSON）
+
+**HTTP 状态码：**`200 OK`
+
+| 字段 | 类型 | 是否必填 | 说明 | 示例 |
+| --- | --- | --- | --- | --- |
+| code | Number | 是 | 响应状态码， 0 为成功，非 0 表示出错 | 0 |
+| msg | String | 否 | 响应信息，仅在 code 非 0 时返回 | data |
+| [Node](/docs/开发者文档/社交/JavaScript-接入) | 否 | 结果数据集 |  |  |
+
+**响应示例**
+
+```json
+{
+ "data": [
+ {
+ "openid": "rxuSl4QZoNk0G1HY2-Za6GlO7wO-p_ej",
+ "nickname": "xdh"
+ }
+ ],
+ "code": 0
+}
+```
+
+### 判断两用户是否为好友
+
+**接口原型**
+
+```objectivec
+/**
+ * 判断两用户是否为好友
+ * @param target 目标openId 必须
+ */
+- (void)requestIsFriendWithTarget:(NSString *)target
+ complete:(RequestComplete)complete;
+```
+
+#### 参数说明
+
+| 字段 | 类型 | 是否必填 | 备注 |
+| --- | --- | --- | --- |
+| target | NSString | 是 | 对方 OpenID |
+
+**调用示例**
+
+```objectivec
+[[RXSDK sharedSDK] requestIsFriendWithTarget:@"" complete:^(NSDictionary * _Nullable response, RX_CommonRequestError * _Nullable error) {
+
+}];
+```
+
+#### 响应参数（JSON）
+
+**HTTP 状态码：**`200 OK`
+
+
+| 字段 | 类型 | 是否必填 | 说明 |
+| --- | --- | --- | --- |
+| code | Number | 是 | 响应状态码， 0 为成功，非 0 表示出错 |
+| msg | String | 否 | 响应信息，仅在 code 非 0 时返回 |
+| data | Bool | 是 | 存在关系时为 true ；否则为 false |
+| Bool | 是 | 存在关系时为 true ；否则为 false |  |
+
+
+**响应示例**
+
+```json
+{
+ "code": 0,
+ "data": true
+}
+```

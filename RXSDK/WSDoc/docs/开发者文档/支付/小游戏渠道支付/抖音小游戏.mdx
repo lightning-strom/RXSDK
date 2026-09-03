@@ -1,0 +1,354 @@
+---
+sidebar_position: 18
+title: 抖音小游戏
+description: "望舒SDK 支付 抖音小游戏 小游戏 接入文档，提供完整的接口调用说明与示例。"
+---
+
+## IM 2.0 支付
+
+# 准备
+
+## 绑定抖音IM客服
+
+操作路径：访问 [指定链接 ](https://microapp.bytedance.com/game/tt05f973449ac0036302/traffic-other/customer)→ 运营 → 功能 → 客服管理 → 抖音 IM 客服。
+
+作用：用户充值相关问题将统一通过此客服咨询。
+
+注意：请勿用绑定的抖音号进行支付测试，否则无法拉起客服界面。
+
+未配置报错： fail im disable。
+
+## 测试账号与环境
+
+测试账号：用户已全量，无需加白测试 UID。建议使用有历史游玩记录的账号。
+
+新账号规则：若使用新账号，需先游玩 20 分钟以上，次日再进行测试。
+
+进入方式：使用侧边栏等入口进入，不要使用搜索功能进入。
+
+测试设备：建议使用手机或平板， Mac/PC 端暂无此功能。
+
+## 望舒配置
+
+金额必须大于 1 元。
+
+![](https://haiqi-ruixue-test.oss-cn-beijing.aliyuncs.com/docOnline/%E5%9B%BE%E7%89%87-1776345390304.png)
+
+### 问题原因及处理
+
+**报错 fail im disable ：** 未完成抖音 IM 客服的绑定配置。    按照【一、配置】中的步骤完成客服绑定。
+
+**出现“苹果系统支付不可用”或“钻石支付收银台”提示：**    该用户 UID 被策略排除。    1. 不从搜索场景进入，改用常规复访场景（如侧边栏）进入测试。
+
+2. 若钻石余额充足，展示钻石支付是正常现象，可尝试更换更大金额的订单测试。
+
+3. 请勿使用 VPN 等网络代理工具访问。
+
+**无法拉起客服界面：**    使用了绑定的抖音号进行支付测试。    更换其他非绑定的抖音号进行测试。
+
+**支付后游戏币未到账：**    充值存在延迟到账情况。    按照【一、配置】中的“延迟到账处理”方法，轮询查询余额直至确认到账。
+
+**支付回调成功但实际未充值：**    回调仅表示拉起客服界面成功，与实际支付结果无关。    支付是否成功，需通过服务端接口查询余额自行确认。
+
+### 支付逻辑
+
+#### 1、支持IM2.0
+
+```plaintext
+当支付金额大于0.6元时
+开启后符合条件的账号走客服支付， 否则走钻石支付
+未开启走钻石支付
+```
+
+#### 2、小额支持IM2.0
+
+```plaintext
+当支付金额小于0.6元时
+开启后符合条件的账号走客服支付， 否则走小额支付
+未开启走小额支付
+```
+
+---
+
+## Untiy 快速接入
+
+## 下单支付
+
+### 参数说明
+
+| 字段 | 类型 | 是否必填 | 备注 |
+| --- | --- | --- | --- |
+| pay_type | string | 是 | 支付的类型 |
+| platform | string | 否 | 支付的平台 android ios ，不传默认 android |
+| goods_tag | string | 是 | 计费点标识 |
+| trade_no | string | 是 | CP 订单号 |
+| indulge_auth | number | 是 | 是否进行防沉迷支付验证 ， 0 不验证 1 验证，默认不验证 |
+| age | number | 否 | 用户年龄 |
+
+如果为 1 age 必传
+
+indulge_auth 为 1 时必传该字段
+| 字段 | 类型 | 是否必填 | 说明 |
+| --- | --- | --- | --- |
+| notify_url | string | 否 | 支付成功通知 CP 发货地址 |
+| transmit_args | string | 否 | 客户端透传参数， key1=val1&key2=val2 的格式 |
+| is_debug | number | 否 | 是否测试订单， 0 正式 1 为测试订单，默认为 0 |
+| env | number | 否 | 是否使用沙盒环境支付， 0 正式 1 沙盒，默认为 0 |
+| game_info | object | 否 | 游戏自定义数据， 上报区服和角色需要在 game_info 中传入属性，具体使用方式参考下方 game_info 字段说明 |
+
+
+> `bigdata_report` 字段说明
+
+| 字段 | 类型 | 是否必填 | 备注 |
+| --- | --- | --- | --- |
+| scene_identifier | string | 否 | 场景标识 |
+| scene_name | string | 否 | 场景名称 |
+| trigger_button_identifier | string | 否 | 触发按钮标识 |
+| trigger_button_name | string | 否 | 触发按钮名称 |
+| window_identifier | string | 否 | 窗口标识 |
+| window_name | string | 否 | 窗口名称 |
+| window_sequence | string | 否 | 窗口展示顺序 |
+| gift_package | object | 否 | 礼包 |
+
+> `gift_package` 字段说明
+
+| 字段 | 类型 | 是否必填 | 备注 |
+| --- | --- | --- | --- |
+| identifier | string | 否 | 礼包标识 |
+| name | string | 否 | 礼包名称 |
+| purchase_medium | string | 否 | 购买礼包介质 |
+| price | number | 否 | 礼包价格 |
+| billing_point | string | 否 | 礼包计费点 |
+
+> `game_info` 字段说明
+
+| 字段 | 类型 | 是否必填 | 备注 |
+| --- | --- | --- | --- |
+| cp_game_character_id | string | 否 | 角色 id |
+| cp_game_area_id | string | 否 | 区服 id |
+
+> pay_type 说明
+
+| 字段 | 备注 |
+| --- | --- |
+| douyinh5 | 抖音支付 |
+
+### 示例代码
+
+```csharp
+
+Dictionarystring, object> dic = new();
+// dic.Add("pay_type", "douyinh5");
+// dic.Add("platform", "ios");
+// dic.Add("goods_tag", "bytest"); // 计费点
+// dic.Add("trade_no", "1212"); // 订单号，根据业务自己填写
+// 参数根据需求填写
+RXPay.Pay(dic, onResponse, onError)
+
+```
+
+---
+
+## 快速接入
+
+## 望舒支付配置
+
+[小游戏支付配置](/docs/开发者文档/支付/功能介绍)
+
+[小游戏付费礼包配置](/docs/开发者文档/三方服务/抖音/小游戏/小游戏付费礼包配置)
+
+[小额支付说明](/docs/开发者文档/支付/功能介绍)
+
+## 下单支付
+
+### 参数说明
+
+| 字段 | 类型 | 是否必填 | 备注 |
+| --- | --- | --- | --- |
+| params | IPay | 是 | 参数 |
+| callback | IMethodParams | 是 | 回调函数集合 |
+
+> IPay 说明
+
+| 字段 | 类型 | 是否必填 | 备注 |
+| --- | --- | --- | --- |
+| pay_type | string | 是 | 支付的类型 |
+| isGift | boolean | 否 | 是否为付费礼包支付，默认为 false |
+| platform | string | 否 | 支付的平台 android ios ，不传默认 android。钻石支付时必须传 ios |
+| goods_tag | string | 是 | 计费点标识 |
+| trade_no | string | 是 | CP 订单号 |
+| indulge_auth | number | 是 | 是否进行防沉迷支付验证 ， 0 不验证 1 验证，默认不验证 |
+| age | number | 否 | 用户年龄 |
+
+如果为 1 age 必传
+
+indulge_auth 为 1 时必传该字段
+| 字段 | 类型 | 是否必填 | 说明 |
+| --- | --- | --- | --- |
+| notify_url | string | 否 | 支付成功通知 CP 发货地址 |
+| transmit_args | string | 否 | 客户端透传参数， key1=val1&key2=val2 的格式 |
+| is_debug | number | 否 | 是否测试订单， 0 正式 1 为测试订单，默认为 0 |
+| env | number | 否 | 是否使用沙盒环境支付， 0 正式 1 沙盒，默认为 0 |
+| game_info | object | 否 | 游戏自定义数据， 上报区服和角色需要在 game_info 中传入属性，具体使用方式参考下方 game_info 字段说明 |
+| custom_ext | CustomExt | 否 | 自定义透传参数 |
+
+
+> `CustomExt` 字段说明
+
+| 字段 | 类型 | 是否必填 | 备注 |
+| --- | --- | --- | --- |
+| bigdata_ext | object | 否 | 大数据预置事件透传参数 |
+
+> `bigdata_report` 字段说明
+
+| 字段 | 类型 | 是否必填 | 备注 |
+| --- | --- | --- | --- |
+| scene_identifier | string | 否 | 场景标识 |
+| scene_name | string | 否 | 场景名称 |
+| trigger_button_identifier | string | 否 | 触发按钮标识 |
+| trigger_button_name | string | 否 | 触发按钮名称 |
+| window_identifier | string | 否 | 窗口标识 |
+| window_name | string | 否 | 窗口名称 |
+| window_sequence | string | 否 | 窗口展示顺序 |
+| gift_package | object | 否 | 礼包 |
+
+> `gift_package` 字段说明
+
+| 字段 | 类型 | 是否必填 | 备注 |
+| --- | --- | --- | --- |
+| identifier | string | 否 | 礼包标识 |
+| name | string | 否 | 礼包名称 |
+| purchase_medium | string | 否 | 购买礼包介质 |
+| price | number | 否 | 礼包价格 |
+| billing_point | string | 否 | 礼包计费点 |
+
+> `game_info` 字段说明
+
+| 字段 | 类型 | 是否必填 | 备注 |
+| --- | --- | --- | --- |
+| cp_game_character_id | string | 否 | 角色 id |
+| cp_game_area_id | string | 否 | 区服 id |
+
+> pay_type 说明
+
+| 字段 | 备注 |
+| --- | --- |
+| douyinh5 | 抖音支付 |
+
+> IMethodParams 说明
+
+| 字段 | 备注 |
+| --- | --- |
+| complete | (data) => void |
+
+complete ：为函数且必传， data 为结果数据
+
+**调用示例**
+
+```javascript
+sdk.pay(
+ {
+ pay_type: "douyinh5",
+ goods_tag: "goods1",
+ platform: 'ios',
+ trade_no: "" + new Date().getTime(), // cp 订单号
+ transmit_args: "a=1&b=2",
+ indulge_auth: 1,
+ age: 18,
+
+ // 商业化下单参数示例
+ // 'bigdata_report': {
+ // 'scene_identifier': 'xxx',
+ // 'scene_name': 'xxx',
+ // 'trigger_button_identifier': 'xxx',
+ // 'trigger_button_name': 'xxx',
+ // 'window_identifier': 'xxx',
+ // 'window_name': 'xxx',
+ // 'window_sequence': 'xxx',
+ // 'gift_package': {
+ // 'identifier': 'xxx',
+ // 'name': 'xxx',
+ // 'purchase_medium': 'xxx',
+ // 'price': 100,
+ // 'billing_point': 'xxx',
+ // },
+ // }
+
+ // 游戏自定义数据示例
+ // 'game_info': {
+ // 'cp_game_character_id': 'test',
+ // 'cp_game_area_id': 'testarea',
+ // }
+
+ // 大数据预置事件透传参数示例
+ // 'custom_ext': {
+ // 'bigdata_ext': { 'test': 'test' },
+ // }
+ },
+ {
+ complete: (data) => {
+ console.log(data);
+ },
+ }
+);
+
+// 付费礼包示例，在登录之后监听
+
+if (!tt.canIUse('onBuyGift')) {
+        console.log('不支持调用 tt.onBuyGift')
+        return
+}
+
+console.log('start buy gift')
+tt.onBuyGift((param) => {
+    console.log('onBuyGift param: ', param)
+    sdk.pay({
+            pay_type: 'douyinh5',
+            goods_tag: param.giftId,
+            goods_name: param.name,
+            orderAmount: param.orderAmount,
+            trade_no: `${new Date().getTime()}`, // cp 订单号
+            isGift: true
+            }, {
+                complete(res){
+                    console.log('onBuyGift', res)
+             }
+            })
+})
+```
+
+### 响应结构
+
+| 字段 | 类型 | 备注 |
+| --- | --- | --- |
+| code | number | 0 : 表示成功 |
+
+## 支付错误码
+
+| 错误码 | 含义 |
+| --- | --- |
+| 0 | 成功,无错误 |
+| 142601 | 服务内部错误 |
+| 142602 | 服务内部错误 2 |
+| 152403 | 服务内部错误 3 |
+| 152404 | 服务内部错误 4 |
+| 312605 | 望舒内部下单失败 |
+| 152406 | 客户端支付回调请求验单失败 |
+| 152407 | 客户端支付回调望舒失败（客户端需重新发起重试） |
+| 152408 | 客户端望舒回调金额错误 |
+| 152409 | 获取订单失败（订单不存在） |
+| 152410 | 望舒请求三方 HTTP 请求失败 |
+| 152411 | 望舒解析三方请求失败 |
+| 152412 | 防沉迷提示语不存在 望舒后台未配置 |
+| 152413 | 微信小游戏 sessionkey 过期 SDK 需重新同步用户信息刷新 sessionkey 在重试一次下单 |
+| 302402 | SDK 请求参数错误 |
+| 302403 | SDK 请求支付类型字段 pay_type 未传 |
+| 302404 | SDK 请求非法商品(检查 goods_tag 请求参数和望舒后台计费点配置) |
+| 302405 | SDK 请求用户 openid 未传 |
+| 302406 | SDK 请求支付类型未配置 |
+| 302407 | SDK 支付回调 order_no 订单号未传 |
+| 302408 | SDK 支付重复回调订单(订单已处理过) |
+| 302409 | SDK 支付回调支付凭证错误 |
+| 302410 | SDK 支付回调用户三方余额不足(扣款失败) |
+| 302411 | SDK 支付回调支付凭证解析结果状态为未支付 |
+| 302412 | 用户触发防沉迷充值机制 不可充值 |

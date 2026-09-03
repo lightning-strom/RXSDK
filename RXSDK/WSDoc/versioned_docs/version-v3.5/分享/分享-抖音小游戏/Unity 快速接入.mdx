@@ -1,0 +1,209 @@
+---
+title: "Unity 快速接入"
+---
+
+## 配置分享信息
+[抖音小游戏分享配置](/docs/v3.5/分享/分享-抖音小游戏/Unity 快速接入)
+### 发起分享
+
+```csharp
+public void Share(RXShareConfig shareConfig, RequestResponseDelegate onResponse, RequestErrorDelegate onError);
+```
+
+### 参数说明
+
+> RXShareConfig
+
+| **字段**         | **类型** | **是否必填** | **说明**                                                          |
+| ---------------- | -------- | ------------ | ----------------------------------------------------------------- |
+| func
+         | string
+                              | 否
+           | 埋点标记，如果不填，会走自定义分享，参数下面有描述
+                                              | 
+| platform | string | 是 | 这里抖音小游戏传 douyinh5  |
+| channel
+      | string
+                              | 否
+           | 转发内容类型
+                                              |
+| templateId
+   | string
+                              | 否
+           | 分享素材模板 id，指定通过平台审核的 templateId 来选择分享内容，需在平台设置且通过审核      （自定义分享用）                                                                                                                    |
+| transmits
+    | string
+                              | 否
+           | 透传参数，原样返回， 请使用 key1=val1&key2=val2 的形式(querystring)，并对值使用 urlencode，返回时会原样返回，当key为use_url_param=true时， 将不使用短链接返回，而是将所有参数拼接到url中 
+ |
+| query
+        | string
+                              | 否
+           | 查询字符串，必须是 key1=val1&key2=val2 的格式。从这条转发消息进入后，可通过 tt.getLaunchOptionsSync 或 tt.onShow 获取启动参数中的 query用来实现信息透传（自定义分享用）
+    |
+| title | string | 否 | 抖音自定义分享使用标题 |
+| desc | string | 否 | 抖音自定义分享使用描述 |
+| imageUrl | string | 否 | 转发显示图片的链接，支持本地沙盒目录（ttfile://）或 相对代码包根目录的图片路径，不支持网络图片路径。显示图片长宽比推荐 5:4，不传或使用网络图片路径则默认使用小游戏 icon 当 channel = video 或者 picture 时，该字段不生效 |
+| extra
+    | ShareExtraVideo / ShareExtraPicture 对应的字典数据结构 
+ | 否
+           | 附加信息       
+
+> channel 参数说明
+ 
+| **值** | **说明** | **支持环境** | 
+| ---------------- | -------- | ------------ |
+|  空值 | 默认分享方式 channel 为空字符串或者不传| 通用 |
+| invite | 拉起邀请面板分享游戏给好友 | 仅抖音 20.6 及以上版本 |
+| video | 发布视频内容 | 通用 | 
+| picture | 发布图文内容，内容由接口参数直接传入 | 仅抖音、抖音极速版、抖音火山版 25.9 及以上版本 |
+
+> ShareExtraVideo 数据结构
+
+| **字段**
+       | **类型**
+ | **是否必填**
+ | **备注**
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                   |
+|------------------|------------|--------------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| withVideoId
+         | boolean
+ | 否
+        | 是否支持跳转到播放页， 以及支持获取视频信息等接口 （为 true 时会在 success 回调中带上 videoId）
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                     |
+| videoPath
+         | string
+ | 否
+        | 视频地址 ，分享一个本地视频。如果 videoPath 不传入会拉起摄像头拍摄界面
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                     |
+| videoTopics
+         | string[]
+ | 否
+        | 视频话题(仅抖音支持) ，目前由 hashtag_list 代替即将废弃，为保证兼容性，建议同时设置hashtag_list
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                     |
+| createChallenge
+         | boolean
+ | 否
+        | 是否分享为挑战视频 ( 仅头条支持 )
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                     |
+| video_title
+         | string
+ | 否
+        | 生成输入的默认文案
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                     |
+| hashtag_list
+         | string[]
+ | 否
+        | 视频话题，字符串中间包含空格会取第一个空格前内容作为话题(仅抖音支持)
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                     |
+| videoTag
+         | string
+ | 否
+        | 分享视频的标签，可以结合获取抖音视频排行榜使用
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                     |
+| defaultBgm
+         | string
+ | 否
+        | 抖音 pgc 音乐的短链(仅抖音支持，需要基础库版本大于 1.90) 。形如https://v.douyin.com/JmcxWo8/， 参考 抖音小游戏录屏带配乐能力
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                     |
+| cutTemplateId
+         | string
+ | 否
+        | 抖音上可用的剪映模板 ID， 参考 录屏添加剪映视频模板能力
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                     |
+| abortWhenCutTemplateUnavailable
+         | boolean
+ | 否
+        | 剪映模板不可用或者剪映模板 ID 无效的时候是否直接回调失败
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                     |
+
+> ShareExtraPicture 数据结构
+
+| **字段**
+       | **类型**
+ | **备注**
+ |                                                                                                                                                                                                                                                                                                                                                                                                                                                            |
+|------------------|------------|--------------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| picturePath
+         | string[]
+ |  发布的图片地址，仅支持本地图片路径（即游戏包内路径和ttfile://路径）channel=picture时，本参数必传。
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                     |
+| contentTitle
+         | string
+ |  作品标题
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                     |
+| contentDescription
+         | string
+ | 作品描述信息
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                     |
+| hashtag_list
+         | string[]
+ |  视频话题，字符串中间包含空格会取第一个空格前内容作为话题
+                                                                                                                                                                                                                                                                                                                                                                                                          
+
+**调用示例**
+
+```csharp
+
+    public void Share()
+    {
+        RXShareConfig rxShareConfig = new RXShareConfig();
+        rxShareConfig.platform = "douyinh5";
+        rxShareConfig.func = "dytest"; // 埋点标识
+        rxShareConfig.channel = "video";
+        rxShareConfig.extra = new Dictionary();
+        
+        // 如果是 ShareExtraVideo 对应的数据
+        //rxShareConfig.extra["videoPath"] = "test";
+        
+        //string[] videoTopics = { "test", "test2" };
+        //rxShareConfig.extra["videoTopics"] = videoTopics;
+        // 其它参考文档根据需要填写
+        
+        // 如果是 ShareExtraPicture 对应数据
+        //string[] picturePath = { "test", "test2" };
+        // rxShareConfig.extra["picturePath"] = picturePath;
+        // 其它参考文档根据需要填写
+        
+        RXShare.Share(rxShareConfig, ShareResponseDelegate, ShareErrorDelegate);
+        
+    }
+
+```
+
+### 分享/广告结果上报
+
+**接口原型**
+
+```csharp
+public void ShareSchedulingReport(string func, string platform, string region, bool scheduling_event, 
+            string scheduling_type, string transmits, Dictionary properties, 
+            RequestResponseDelegate onResponse, RequestErrorDelegate onError);
+```
+
+### 参数说明
+
+> RXShareConfig
+
+| **字段**         | **类型** | **是否必填** | **说明**                                                          |
+| ---------------- | -------- | ------------ | ----------------------------------------------------------------- |
+| func             | string   | 是           | 埋点标识数组                                                      |
+| platform         | string   | 否           | 枚举，支持 wechat ，facebook                                      |
+| region           | string   | 否           | 地区码。 [望舒地区码列表](https://pan.jiaxianghudong.com/s/pdEzbPRkDS9)                                                            |
+| scheduling_event | bool   | 否           | 分享结果 true false 布尔值                                            |
+| scheduling_type | string   | 否           | 上报类型  share 分享 ad 广告                                         |
+| transmits        | string   | 否           | 透传参数，原样返回， 请使用 key=value 形式，并使用 urlencode 编码 |
+| properties        | Dictionary   | 否           | 自定义属性 |
+
+**调用示例**
+
+```csharp
+
+    public void OnShareSchedulingReport()
+    {
+        RXShare.ShareSchedulingReport("wake_game_honor_1", "wechat", "220101", true,
+            "share", "", null, 
+            ShareSchedulingReportResponseDelegate, ShareSchedulingReportErrorDelegate);
+    }
+
+```

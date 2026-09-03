@@ -1,0 +1,415 @@
+---
+title: "服务端 API"
+---
+
+## 文本检测（增强）
+
+> **POST: **  `/v1/risk/content/text/scan`
+> **认证方式:** [CPSign](/docs/v3.5/入门指南/服务端接入须知)
+
+### CURL 示例
+
+```bash
+curl --location --request POST '{{接口域名}}/v1/risk/content/text/scan' \
+--header 'ruixue-language: {{语言}}' \
+--header 'ruixue-cpid: {{CPID}}' \
+--header 'ruixue-productid: {{产品标识}}' \
+--header 'ruixue-cpts: {{时间戳}}' \
+--header 'ruixue-traceid: {{TraceID}}' \
+--header 'ruixue-cpsign: {{请求签名}}' \
+--header 'ruixue-devicecode: {{设备码}}' \
+--header 'ruixue-channelid: {{渠道标识}}' \
+--header 'ruixue-platformid: {{平台标识}}' \
+--data-raw '{
+    "open_id": "xyz_S5HwLxeRIkTEMBuwh6oYwULM",
+    "scene": "public_chat",
+    "content": "文本内容"
+}'
+```
+
+**请求头 Header 参数**
+
+| **参数**          | **类型** | **备注**         |
+| ----------------- | -------- | ---------------- |
+| ruixue-language   | String   | zh-CN            |
+| Content-Type      | String   | application/json |
+| ruixue-cpid       | String   | 内容提供商 CPID  |
+| ruixue-productid  | String   | 产品 ID          |
+| ruixue-channelid  | String   | 渠道 ID          |
+| ruixue-platformid | String   | 平台 platformid  |
+| ruixue-devicecode | String   | 设备码           |
+| ruixue-cpsign     | String   | CP 签名          |
+| ruixue-cpts       | String   | CP 签名时间戳    |
+| ruixue-traceid    | String   | TraceID          |
+
+**请求示例**
+
+```json
+{
+     "open_id": "xyz_S5HwLxeRIkTEMBuwh6oYwULM",
+     "scene": "public_chat",
+     "content": "文本内容",
+     "data_id":"rxuRKdm68wYPAV3DJv0t4mC-XtEjJZoxpeNlkQ4M"
+ }
+```
+
+### 请求参数（JSON）
+
+| **参数** | **类型** | **是否必填** | **备注**   |
+| -------- | -------- | ------------ | ---------- |
+| open_id  | String   | 否           | 微信小程序openid（如果开启了小游戏检测，需要传递） |
+| scene    | String   | 是           | 场景与产品内容检测对应
+ nick_name（昵称）
+private_chat（私聊）
+public_chat（公聊） |
+| content  | String   | 是           | 文本内容 |
+| data_id  | String   | 否           | 唯一标识， 最好是望舒OpenID |
+
+**响应示例**
+
+```json
+{
+    "data": {
+        "suggestion": "pass",
+        "words": ["abc"],
+        "content": "**x**"
+    },
+    "msg": "success",
+    "code": 0
+}
+```
+
+### 响应结构(JSON)
+
+| **参数** | **类型**                                             | **备注** |
+| -------- | ---------------------------------------------------- | -------- |
+| code     | Number                                               | 0 为成功 |
+| msg      | String                                               | 失败信息 |
+| data     | [][Data](/docs/v3.5/内容安全/功能介绍)            |          |
+
+##### 文本检测增强data
+
+| **参数**   | **类型**  | **说明** |
+| ---------- | ----------| -------- |
+| suggestion | String    | 审核结果 pass: 通过；risky: 风险|
+| words      | []String    | 敏感词 |
+| content    | String    | 替换后的文本内容|
+
+## 图片检测（增强）
+
+> **POST: **  `/v1/risk/content/image/scan`
+> **认证方式:** [CPSign](/docs/v3.5/入门指南/服务端接入须知)
+
+### CURL 示例
+
+```bash
+curl --location --request POST '{{接口域名}}/v1/risk/content/image/scan' \
+--header 'ruixue-language: {{语言}}' \
+--header 'ruixue-cpid: {{CPID}}' \
+--header 'ruixue-productid: {{产品标识}}' \
+--header 'ruixue-cpts: {{时间戳}}' \
+--header 'ruixue-traceid: {{TraceID}}' \
+--header 'ruixue-cpsign: {{请求签名}}' \
+--header 'ruixue-devicecode: {{设备码}}' \
+--header 'ruixue-channelid: {{渠道标识}}' \
+--header 'ruixue-platformid: {{平台标识}}' \
+--data-raw '{
+    "url": "https://ruixue-file.oss-cn-beijing.aliyuncs.com/ruixue/launch/00d20b36b634f96d967d39ea7f0f05dd"
+}'
+```
+
+**请求头 Header 参数**
+
+| **参数**          | **类型** | **备注**         |
+| ----------------- | -------- | ---------------- |
+| ruixue-language   | String   | zh-CN            |
+| Content-Type      | String   | application/json |
+| ruixue-cpid       | String   | 内容提供商 CPID  |
+| ruixue-productid  | String   | 产品 ID          |
+| ruixue-channelid  | String   | 渠道 ID          |
+| ruixue-platformid | String   | 平台 platformid  |
+| ruixue-devicecode | String   | 设备码           |
+| ruixue-cpsign     | String   | CP 签名          |
+| ruixue-cpts       | String   | CP 签名时间戳    |
+| ruixue-traceid    | String   | TraceID          |
+
+**请求示例**
+
+```json
+{
+     "url": "https://ruixue-file.oss-cn-beijing.aliyuncs.com/ruixue/launch/00d20b36b634f96d967d39ea7f0f05dd",
+     "open_id": "xyz_S5HwLxeRIkTEMBuwh6oYwULM",
+     "data_id":"rxuRKdm68wYPAV3DJv0t4mC-XtEjJZoxpeNlkQ4M"
+}
+```
+
+### 请求参数（JSON）
+
+| **参数** | **类型** | **是否必填** | **备注**   |
+| -------- | -------- | ------------ | ---------- |
+| url  | String   | 是           | 图片地址 |
+| open_id  | String   | 否           | 微信小程序openid，配置微信小游戏审核时使用 |
+| data_id  | String   | 否           | 唯一标识， 最好是望舒OpenID |
+
+**响应示例**
+
+```json
+{
+    "data": {
+        "url": "https://ruixue-file.oss-cn-beijing.aliyuncs.com/ruixue/launch/00d20b36b634f96d967d39ea7f0f05dd",
+        "suggestion": "risky",
+        "results": [
+            {
+                "label": "contraband_gamble",
+                "confidence": 92.17
+            }
+        ]
+    },
+    "msg": "success",
+    "code": 0
+}
+```
+
+### 响应结构(JSON)
+
+| **参数** | **类型**                                             | **备注** |
+| -------- | ---------------------------------------------------- | -------- |
+| code     | Number                                               | 0 为成功，返回 152920 时为三方接口限流 |
+| msg      | String                                               | 失败信息 |
+| data     | [][Data](/docs/v3.5/内容安全/功能介绍)            |          |
+
+##### 图片检测增强data
+
+| **参数**   | **类型**                                                         | **说明** |
+| ---------- | -----------------------------------------------------------------| -------- |
+| suggestion | String                                                           | 审核结果 pass: 通过；risky: 风险|
+| url        | String                                                           | 图片地址 |
+| results    | [][ScanImageDetail](/docs/v3.5/内容安全/功能介绍) | 检测结果详情|
+
+##### 图片检测增强详情数据ScanImageDetail
+
+| **参数**   | **类型**                        | **说明** |
+| ---------- | --------------------------------| -------- |
+| label      | String                          | 标签     |
+| confidence | Float                           | 置信分值，0到100分; 部分标签无置信分，仅支持腾讯和阿里 |
+
+## 批量图片检测（增强）
+
+> **POST: **  `/v1/risk/content/images/scan`
+> **认证方式:** [CPSign](/docs/v3.5/入门指南/服务端接入须知)
+
+:::tip
+接口单次请求图片数量上限为9。
+:::
+
+### CURL 示例
+
+```bash
+curl --location --request POST '{{接口域名}}/v1/risk/content/images/scan' \
+--header 'ruixue-language: {{语言}}' \
+--header 'ruixue-cpid: {{CPID}}' \
+--header 'ruixue-productid: {{产品标识}}' \
+--header 'ruixue-cpts: {{时间戳}}' \
+--header 'ruixue-traceid: {{TraceID}}' \
+--header 'ruixue-cpsign: {{请求签名}}' \
+--header 'ruixue-devicecode: {{设备码}}' \
+--header 'ruixue-channelid: {{渠道标识}}' \
+--header 'ruixue-platformid: {{平台标识}}' \
+--data-raw '{
+    "images": [
+        {
+            "url": "https://ruixue-file.oss-cn-beijing.aliyuncs.com/ruixue/launch/00d20b36b634f96d967d39ea7f0f05dd"
+        },
+        {
+            "url": "https://ruixue-file.oss-cn-beijing.aliyuncs.com/ruixue/launch/00d20b36b634f96d967d39ea7f0f05dd"
+        }
+    ]
+}'
+```
+
+**请求头 Header 参数**
+
+| **参数**          | **类型** | **备注**         |
+| ----------------- | -------- | ---------------- |
+| ruixue-language   | String   | zh-CN            |
+| Content-Type      | String   | application/json |
+| ruixue-cpid       | String   | 内容提供商 CPID  |
+| ruixue-productid  | String   | 产品 ID          |
+| ruixue-channelid  | String   | 渠道 ID          |
+| ruixue-platformid | String   | 平台 platformid  |
+| ruixue-devicecode | String   | 设备码           |
+| ruixue-cpsign     | String   | CP 签名          |
+| ruixue-cpts       | String   | CP 签名时间戳    |
+| ruixue-traceid    | String   | TraceID          |
+
+**请求示例**
+
+```json
+{
+    "images": [
+        {
+            "url": "https://ruixue-file.oss-cn-beijing.aliyuncs.com/ruixue/launch/00d20b36b634f96d967d39ea7f0f05dd"
+        },
+        {
+            "url": "https://ruixue-file.oss-cn-beijing.aliyuncs.com/ruixue/launch/00d20b36b634f96d967d39ea7f0f05dd"
+        }
+    ]
+}
+```
+
+### 请求参数（JSON）
+
+| **参数** | **类型** | **是否必填** | **备注**   |
+| -------- | -------- | ------------ | ---------- |
+| images | [][image](/docs/v3.5/内容安全/功能介绍) |  是  | 图片对象数组 |
+#### image 
+| **参数** | **类型** | **是否必填** | **备注**   |
+| -------- | -------- | ------------ | ---------- |
+| url | String |  是  | 图片地址 |
+
+**响应示例**
+
+```json
+{
+    "data": [
+        {
+            "service": "ali",
+            "url": "https://ruixue-file.oss-cn-beijing.aliyuncs.com/ruixue/launch/00d20b36b634f96d967d39ea7f0f05dd",
+            "suggestion": "risky",
+            "results": [
+                {
+                    "label": "contraband_gamble",
+                    "confidence": 92.17
+                }
+            ],
+            "request_id": "65805260-2CB0-5510-A162-3250B38BD6A1",
+            "data_id": "7b379773-0c88-42dc-99ff-2874eab22f95"
+        },
+        {
+            "service": "ali",
+            "url": "https://ruixue-file.oss-cn-beijing.aliyuncs.com/ruixue/launch/00d20b36b634f96d967d39ea7f0f05dd",
+            "suggestion": "pass",
+            "results": [],
+            "request_id": "8820EDB9-B992-58D7-A925-7E48502EE90B",
+            "data_id": "73b8ed2a-4e89-44d8-a8d9-50ccf67d925e"
+        }
+    ],
+    "msg": "success",
+    "code": 0
+}
+```
+
+### 响应结构(JSON)
+
+| **参数** | **类型**                                             | **备注** |
+| -------- | ---------------------------------------------------- | -------- |
+| code     | Number                                               | 0 为成功 |
+| msg      | String                                               | 失败信息 |
+| data     | [][Data](/docs/v3.5/内容安全/功能介绍)            | 审核结果         |
+
+##### Data
+
+| **参数**   | **类型**                                                         | **说明** |
+| ---------- | -----------------------------------------------------------------| -------- |
+| service | String                                                           | 审核服务商：ali-阿里|
+| url        | String                                                           | 图片地址 |
+| suggestion | String                                                           | 审核结果：pass-通过，risky-风险|
+| results    | [][ScanImageDetail](/docs/v3.5/内容安全/功能介绍) | 检测结果详情|
+| request_id | String                                                           | 三方审核请求ID |
+| data_id | String                                                           | 图片唯一标识 |
+| status_code | Number                                            | 0 为成功，返回 152920 时为三方接口限流 |
+
+##### ScanImageDetail
+
+| **参数**   | **类型**                        | **说明** |
+| ---------- | --------------------------------| -------- |
+| label      | String                          | 标签     |
+| confidence | Float                           | 置信分值，0到100分；部分标签无置信分，仅支持腾讯和阿里 |
+
+## 实名检测
+
+> **POST: **  `/v1/risk/auth_check`
+> **认证方式:** [CPSign](/docs/v3.5/入门指南/服务端接入须知)
+
+### CURL 示例
+
+```bash
+curl --location --request POST '{{接口域名}}/v1/risk/auth_check' \
+--header 'ruixue-language: {{语言}}' \
+--header 'ruixue-cpid: {{CPID}}' \
+--header 'ruixue-productid: {{产品标识}}' \
+--header 'ruixue-cpts: {{时间戳}}' \
+--header 'ruixue-traceid: {{TraceID}}' \
+--header 'ruixue-cpsign: {{请求签名}}' \
+--header 'ruixue-devicecode: {{设备码}}' \
+--header 'ruixue-channelid: {{渠道标识}}' \
+--header 'ruixue-platformid: {{平台标识}}' \
+--data-raw '{
+    "cpid":{{CPID}},
+    "product_id":"1002",
+    "id_card": "220122199901011234",
+    "real_name": "姓名"
+}'
+```
+
+**请求头 Header 参数**
+
+| **参数**          | **类型** | **备注**         |
+| ----------------- | -------- | ---------------- |
+| ruixue-language   | String   | zh-CN            |
+| Content-Type      | String   | application/json |
+| ruixue-cpid       | String   | 内容提供商 CPID  |
+| ruixue-productid  | String   | 产品 ID          |
+| ruixue-channelid  | String   | 渠道 ID          |
+| ruixue-platformid | String   | 平台 platformid  |
+| ruixue-devicecode | String   | 设备码           |
+| ruixue-cpsign     | String   | CP 签名          |
+| ruixue-cpts       | String   | CP 签名时间戳    |
+| ruixue-traceid    | String   | TraceID          |
+
+**请求示例**
+
+```json
+{
+    "cpid":1000000,
+    "product_id":"1002",
+    "id_card": "220122199901011234",
+    "real_name": "姓名"
+}
+```
+
+### 请求参数（JSON）
+
+| **参数** | **类型** | **是否必填** | **备注**   |
+| -------- | -------- | ------------ | ---------- |
+| cpid  | Number   | 是           | CPID |
+| product_id  | String   | 是           | 产品ID |
+| id_card  | String   | 是           | 身份证 |
+| real_name  | String   | 是           | 真实姓名 |
+
+**响应示例**
+
+```json
+{
+    "data": {
+       
+        "verified":1
+    },
+    "msg": "success",
+    "code": 0
+}
+```
+
+### 响应结构(JSON)
+
+| **参数** | **类型**                                             | **备注** |
+| -------- | ---------------------------------------------------- | -------- |
+| code     | Number                                               | 0 为成功 |
+| msg      | String                                               | 失败信息 |
+| data     | [Data](/docs/v3.5/内容安全/功能介绍)            |          |
+
+##### 实名检测data
+
+| **参数**   | **类型**                                                         | **说明** |
+| ---------- | -----------------------------------------------------------------| -------- |
+| verified | Number                                                           | 审核结果 1: 通过；其它: 未通过|

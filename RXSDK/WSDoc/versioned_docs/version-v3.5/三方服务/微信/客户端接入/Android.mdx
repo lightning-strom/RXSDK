@@ -1,0 +1,152 @@
+---
+title: "Android"
+---
+
+## SDK集成
+
+```groovy
+//二选一
+//不包含支付功能
+implementation " com.ruixue:rxsdk_weixin:${version}"
+//包含支付功能
+implementation " com.ruixue:rxsdk_weixin_withpay:${version}"
+
+```
+
+### 参数说明
+
+| **参数** | **类型** | **说明**     |
+| -------- | -------- | ------------ |
+| appid    | String   | 初始化时传入,如微信分享和支付不是一个appid 需要重新初始化 |
+
+## 配置说明
+
+**接收微信回调**
+**注意**：路径规范 分享`应用的包名.wxapi.WXEntryActivity` ，支付`应用的包名.wxapi.WXPayEntryActivity` 为微信硬性要求
+
+如果你的 app 接入微信组件，需要接收微信发送的请求，或者接收发送到微信请求的响应结果.
+- 分享回调创建 .wxapi.WXEntryActivity 类继承自com.ruixue.wechat.WXEntryActivity
+- 支付回调创建 .wxapi.WXPayEntryActivity 类继承自com.ruixue.wechat.WXEntryActivity
+
+```xml
+<!--  android:taskAffinity  activity归属默认使用自己应用的包名   -->
+
+<!--  使用微信支付功能 ，接入支付回调 添加此配置   -->
+
+```
+
+回调类文件示例
+注意：cp 创建的WXEntryActivity 、WXPayEntryActivity 类必须在`应用包名.wxapi`包下，类名也不允许随意命名，同时继承SDK的 ` com.ruixue.wechat.WXEntryActivity`类。
+```
+//WXEntryActivity.java
+public class WXEntryActivity extends com.ruixue.wechat.WXEntryActivity {
+}
+
+//WXPayEntryActivity.java
+public class WXPayEntryActivity extends com.ruixue.wechat.WXEntryActivity {
+}
+
+```
+
+**`或` 采用别名方式在 manifest 添加如下配置:**
+
+```xml
+<!--    微信回调activity 可继承重写    -->
+<!--  android:taskAffinity  activity归属默认使用自己应用的包名   -->
+
+<!--    微信回调activity别名类，因为微信需要回调到指定包名指定类名，所以设置别名     -->
+
+<!--   使用微信支付功能 ，接入支付回调 ，添加此配置-->
+
+```
+
+**微信错误码**
+
+| 错误码 | 错误描述                                   |
+| ------ | ------------------------------------------ |
+| -1     | 一般错误                                   |
+| -2     | 用户取消                                   |
+| -3     | 发送失败                                   |
+| -4     | 认证被否决                                 |
+| -5     | 不支持                                     |
+| -6     | 被屏蔽所有操作，可能由于签名不正确或无权限 |
+| -7     | 未知错误                                   |
+| -8     | 用户直接通过后台切换返回 app 产生的错误码  |
+
+## 商家转账
+**接口原型**
+``` java
+
+void openBusinessView(Context context, String appId,String businessType, String query, RXJSONCallback callback);
+
+```
+
+### 参数说明
+
+| **参数** | **类型** | **说明**     |
+| -------- | -------- | ------------ |
+| appId | String |  微信 appid |
+| businessType | String | 【业务类型】固定配置：requestMerchantTransfer |
+| query | String | 【查询参数】使用URL的query string方式传递参数，格式为key=value&key2=value2，其中value、value2需要进行UrlEncode处理。 |
+
+> query 说明
+
+| **参数** | **类型** | **说明**     |
+| -------- | -------- | ------------ |
+| mchId | String | 【商户号】商户号，由微信支付生成并下发，和发起转账传入的mchid必须是同一个 |
+| appId | String | 【商户AppID】微信开放平台审核通过的移动应用appid，和发起转账传入的appid必须是同一个 |
+| package | String | 【package信息】对应发起转账接口应答参数中的package_info（仅当转账单据状态为WAIT_USER_CONFIRM: 待收款用户确认时才返回），用于唤起用户确认收款页面。|
+
+**调用示例**
+``` java
+String businessType = "requestMerchantTransfer";
+String query = "mchId=1230000000&appId=wx8888888888888888&package=affffddafdfafddffda%3D%3D"; // 示例，根据实际情况填写
+
+WXSdkWrapper.getInstance().openBusinessView(context,"微信 appid", businessType, query, new RXJSONCallback() {
+            @Override
+            public void onSuccess(@Nullable JSONObject data) {
+                
+            }
+
+            @Override
+            public void onFailed(@NonNull JSONObject cause) {
+
+            }
+        });
+
+```
+
+## 跳转到微信并打开小程序
+
+::: tip
+[小程序跳转APP开发指南](https://developers.weixin.qq.com/miniprogram/dev/framework/open-ability/launchApp.html)
+:::
+
+**接口原型**
+
+```java
+    /**
+     * @param context      应用上下文
+     * @param hashMap      {@link ShareObject}
+     *                     username 填小程序原始id
+     *                     path  拉起小程序页面的可带参路径
+     *                     miniprogramType  可选打开 开发版，体验版和正式版
+     * @param openCallback 回调
+     *                     code  {@link  WXErrCode}
+     *                     msg 对应小程序组件  中的 app-parameter 属性
+     * @return 请求是发送否成功
+     */
+    public static boolean openMiniProgram(Context context, Map hashMap, @NonNull RXJSONCallback openCallback) 
+```
+
+**调用示例**
+
+```java
+ 
+Map share = new HashMap<>();
+share.put("appid", this.mWxAppid);
+share.put("username", this.mWxAppid);
+share.put("path", 拉起小程序页面的可带参路径);
+
+WXSdkWrapper.openMiniProgram(this, share, callback);
+```

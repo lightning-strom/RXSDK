@@ -1,0 +1,176 @@
+---
+title: "隐私合规"
+---
+
+## 海外隐私配置-通用数据保护条例GDPR
+ 自2018年5月25日起，欧盟《一般数据保护条例》将正式生效。为了保护我们的开发人员和您的用户的利益和隐私，我们更新了我们的"TopOn privacy Policy"。同时，我们在SDK添加了隐私权限设置。请检查以下配置并完成SDK集成：[海外隐私配置](https://help.toponad.com/cn/docs/MWsWVm)
+
+## Google UMP 适配使用指南
+自 2024 年 1 月 16 日起，使用 Google AdSense、Ad Manager 或 AdMob 的发布商和开发者在面向欧洲经济区或英国的用户投放广告时，必须使用通过 Google 认证且已与 IAB 的透明度和用户意见征求框架 (TCF) 相集成的意见征求管理平台 (CMP)
+
+TopOn SDK从6.2.87开始提供兼容UMP SDK方式配置GDPR等级，TopOn SDK内部根据该等级去设置第三方广告平台GDPR上报等级。具体使用流程如下：[Google UMP 适配使用指南](https://help.toponad.com/cn/docs/Google-UMP-shi-pei-shi-yong-zhi-nan-IKqd)
+
+## 通过TopOn SDK API设置TopOn GDPR等级
+
+- 设置之后，内部根据该等级去设置第三方广告平台GDPR上报等级
+
+**接口原型**
+
+```java
+    public static void setGDPRUploadDataLevel(Context context, int level);
+```
+
+**调用示例**
+
+```java
+    int level= { //level有以下选择
+      ATSDK.PERSONALIZED //设备数据允许上报 
+      ATSDK.NONPERSONALIZED //设备数据不允许上报
+      ATSDK.UNKNOWN //未知等级，只能通过getGDPRDataLevel方法获取，不能用setGDPRUploadDataLevel方法设置
+    }
+    TopOnHelper.setGDPRUploadDataLevel(context, level);
+```
+
+## 通过TopOn提供的授权的页面设置TopOn GDPR等级
+
+**接口原型**
+
+```java
+    public static void showGdprAuth(Activity activity)；
+```
+
+**调用示例**
+
+```java
+    TopOnHelper.showGdprAuth(activity, new ATGDPRAuthCallback() {
+        @Override
+        public void onAuthResult(int level) {
+            //其中level的数值为ATSDK.PERSONALIZED或者是ATSDK.NONPERSONALIZED
+            ATSDK.setGDPRUploadDataLevel(context, level);
+            RuiXueSdk.getApi().initThirdSdk(activity, map, new RXJSONCallback());
+        }
+    });
+```
+
+## 通过Ogury SDK设置GDPR等级
+
+- 当您集成Ogury时，请通过以下代码进行GDPR的设置。因为Ogury没有提供设置GDPR等级的API，只能通过他们的弹窗进行设置。
+
+**调用示例**
+
+```java
+    ConsentManager.ask(context, "YourAssetKey", new ConsentListener() {
+        @Override
+        public void onComplete(final ConsentManager.Answer answer) {
+                runOnUiThread(new Runnable() {
+        @Override
+        public void run() {
+                if(ConsentManager.gdprApplies()) {
+                    TopOnHelper.setGDPRUploadDataLevel(context, ATSDK.PERSONALIZED);
+                } else {
+                    TopOnHelper.setGDPRUploadDataLevel(context, ATSDK.NONPERSONALIZED);
+                }
+
+        RuiXueSdk.getApi().initThirdSdk(activity, map, new RXJSONCallback() {
+            @Override
+            public void onSuccess(@Nullable JSONObject data) {
+                    RXLogger.e("demo rx third init success: " + data.toString());
+                    }
+            
+            @Override
+            public void onFailed(@NonNull JSONObject cause) {
+                    RXLogger.e("rx third init failed :" + cause);
+            }
+        });
+```
+
+## 不使用TopOn SDK提供的欧盟判断API
+
+流程说明：
+
+1、APP启动后，开发者判断用户是否在欧盟(开发者自行实现是否在欧盟的判断方法）
+- 不在欧盟，跳到第4步
+- 在欧盟，下一步
+
+2、判断TopOn SDK的Dataconsent是否为Unknown
+- 为Unknown（未设置过GDPR等级），下一步
+- 不为Unknown（设置过GDPR等级），跳到第4步
+
+3、调用TopOn SDk的showGdprAuth方法(由用户设置GDPR等级）
+4、初始化SDK
+
+**调用示例**
+
+```java
+public void initTopOnSDK() {
+        if (App. isEU() )  //App. isEU() 为开发者自行实现的欧盟地区判断方法 
+        {
+            if (TopOnHelper.getGDPRDataLevel(applicationContext) == ATSDK.UNKNOWN) {
+                TopOnHelper.showGdprAuth(activity, new ATGDPRAuthCallback() {
+                @Override
+                public void onAuthResult(int level) {
+                    TopOnHelper.setGDPRUploadDataLevel(applicationContext, level);
+                    RuiXueSdk.getApi().initThirdSdk(activity, map, new RXJSONCallback());
+                }
+                });
+            }
+        return;
+        }
+        RuiXueSdk.getApi().initThirdSdk(activity, map, new RXJSONCallback() {
+        @Override
+        public void onSuccess(@Nullable JSONObject data) {
+                RXLogger.e("demo rx third init success: " + data.toString());
+                }
+        
+        @Override
+        public void onFailed(@NonNull JSONObject cause) {
+                RXLogger.e("rx third init failed :" + cause);
+                }
+        });
+}
+```
+
+## 使用TopOn SDK提供的欧盟判断API
+
+1、App启动后，执行ATSDK.checkIsEuTraffic 方法动态去获取当前的欧盟信息，同时去初始化ATSDK
+2、接收到检测结果的回调之后：
+- True，则执行下一步
+- False，则不再处理
+
+3、判断TopOn SDK的Dataconsent是否为Unknown
+- 为Unknown（未设置过GDPR等级），下一步
+- 不为Unknown（设置过GDPR等级），则不再处理
+
+4、调用TopOn SDk的showGdprAuth方法(由用户设置GDPR等级）
+
+**调用示例**
+
+```java
+        TopOnHelper.checkIsEuTraffic(this, new NetTrafficeCallback() {
+        
+                    @Override
+                    public void onResultCallback(boolean isEU) {
+                        if (isEU && TopOnHelper.getGDPRDataLevel(DemoApplicaion.this) == ATSDK.UNKNOWN) {
+                            TopOnHelper.showGdprAuth(DemoApplicaion.this);
+                        }
+        
+                    }
+        
+                    @Override
+                    public void onErrorCallback(String errorMsg) {
+                        Log.i("Demoapplication", "onErrorCallback:" + errorMsg);
+                    }
+                });
+
+        RuiXueSdk.getApi().initThirdSdk(activity, map, new RXJSONCallback() {
+        @Override
+        public void onSuccess(@Nullable JSONObject data) {
+                RXLogger.e("demo rx third init success: " + data.toString());
+                }
+        
+        @Override
+        public void onFailed(@NonNull JSONObject cause) {
+                RXLogger.e("rx third init failed :" + cause);
+                }
+        });
+```

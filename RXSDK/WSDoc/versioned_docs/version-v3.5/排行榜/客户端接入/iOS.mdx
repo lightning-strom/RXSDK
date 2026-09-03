@@ -1,0 +1,337 @@
+---
+title: "iOS"
+---
+
+## SDK 集成
+
+- 编辑 Podfile 文件，添加如下配置：
+
+```objectivec
+pod 'RXContactSDK'
+```
+
+## 增加用户分数
+
+**接口原型**
+
+```objectivec
+/**
+ * 增加用户分数
+ * @param rank_id  字符串本身带有类型信息，格式为：Flag_榜单容量_重置周期_自定义标识（flag是一个int64位标记，用以扩展和规定绑定属性）  必须
+ * @param source 增加的分数值  必须
+ */
+- (void)addscoreWithRank_id:(NSString *)rank_id
+                      score:(NSInteger)source
+                   complete:(RequestComplete)complete;
+```
+
+### 参数说明
+
+| **字段** | **类型** | **是否必填** | **备注**     |
+| -------- | -------- | ------------ | ------------ |
+| rank_id  | NSString | 是           | 排行榜 ID    |
+| score    | int      | 是           | 增加的分数值 |
+
+**调用示例**
+
+```objectivec
+[[RXContactService sharedSDK] addscoreWithRank_id:@"" score:0 complete:^(NSDictionary * _Nullable response, RX_CommonRequestError * _Nullable error) {
+            
+}];
+```
+
+### 响应结构
+
+**响应参数（****JSON****）**
+
+**HTTP 状态码：**`200 OK`
+
+| **字段** | **类型** | **是否必填** | **说明** | **示例** |
+| --- | --- | --- | --- | --- |
+| code | Number | 是   | 响应状态码，0为成功，非0表示出错 | 0   |
+| msg | String | 否   | 响应信息，仅在status为非0时不为空 |     |
+
+**响应示例**
+
+```json
+{"code": 0}
+```
+
+## 设置用户分数
+
+**接口原型**
+
+```objectivec
+/**
+ * 设置用户分数
+ * @param rank_id  字符串本身带有类型信息，格式为：Flag_榜单容量_重置周期_自定义标识（flag是一个int64位标记，用以扩展和规定绑定属性）  必须
+ * @param source 增加的分数值  必须
+ */
+- (void)setScoreWithRank_id:(NSString *)rank_id
+                      score:(NSInteger)source
+                   complete:(RequestComplete)complete;
+```
+
+### 参数说明
+
+| **字段** | **类型** | **是否必填** | **备注**     |
+| -------- | -------- | ------------ | ------------ |
+| rank_id  | NSString | 是           | 排行榜 ID    |
+| score    | int      | 是           | 增加的分数值 |
+
+**调用示例**
+
+```objectivec
+[[RXContactService sharedSDK] setScoreWithRank_id:@"" score:0 complete:^(NSDictionary * _Nullable response, RX_CommonRequestError * _Nullable error) {
+            
+}];
+```
+
+### 响应结构
+
+**响应参数（****JSON****）**
+
+**HTTP 状态码：**`200 OK`
+
+| **字段** | **类型** | **是否必填** | **说明** | **示例** |
+| --- | --- | --- | --- | --- |
+| code | Number | 是   | 响应状态码，0为成功，非0表示出错 | 0   |
+| msg | String | 否   | 响应信息，仅在status为非0时不为空 |     |
+
+**响应示例**
+
+```json
+{"code": 0}
+```
+
+## 查询用户分数
+
+**接口原型**
+
+```objectivec
+/**
+ * 查询用户分数
+ * @param target 目标openId  必须
+ * @param rank_id  字符串本身带有类型信息，格式为：Flag_榜单容量_重置周期_自定义标识（flag是一个int64位标记，用以扩展和规定绑定属性）  必须
+ */
+- (void)queryUserRankWithRank_id:(NSString *)rank_id
+                          target:(NSString *)target
+                       complete:(RequestComplete)complete;
+```
+
+### 参数说明
+
+| **字段** | **类型** | **是否必填** | **备注**                                                                                                              |
+| -------- | -------- | ------------ | --------------------------------------------------------------------------------------------------------------------- |
+| rank_id  | NSString | 是           | 字符串本身带有类型信息，格式为：Flag_榜单容量_重置周期_自定义标识（flag 是一个 int64 位标记，用以扩展和规定绑定属性） |
+| target   | NSString | 是           | 目标用户 OpenID                                                                                                       |
+
+**调用示例**
+
+```objectivec
+[[RXContactService sharedSDK] queryUserRankWithRank_id:@"" target:@"" complete:^(NSDictionary * _Nullable response, RX_CommonRequestError * _Nullable error) {
+            
+}];
+```
+
+### 响应结构
+
+**响应参数（****JSON****）**
+
+**HTTP 状态码：**`200 OK`
+
+| **字段** | **类型**                         | **是否必填** | **说明** | **示例** |
+| --- |--------------------------------| --- | --- | --- |
+| code | Number                         | 是   | 响应状态码，0为成功，非0表示出错 | 0   |
+| msg | String                         | 否   | 响应信息，仅在status为非0时不为空 |     |
+| data | [DataO](/docs/v3.5/排行榜/服务端接入/服务端 API) | 否   | 结果数据集 |     |
+
+##### DataO
+
+| **字段** | **类型**                         | **是否必填** | **说明** | **示例** |
+| --- |--------------------------------| --- | --- | --- |
+| score | Number                         | 是   | 排行榜分数 |     |
+| rank | Number                         | 是   | 排行榜排名 |     |
+| user | [UserO](/docs/v3.5/排行榜/服务端接入/服务端 API) | 是   | 用户信息数据集 |     |
+
+##### UserO
+
+| **字段** | **类型** | **是否必填** | **说明** | **示例** |
+| --- | --- | --- | --- | --- |
+| openid | String | 是   | 用户望舒 OpenID |     |
+| nickname | String | 是   | 用户昵称 |     |
+| birthday | String | 否   | 用户生日日期 |     |
+| remarks | String | 否   | 当前用户对其的备注 |     |
+| avatar | String | 否   | 用户头像 |     |
+| custom | String | 否   | CP 自定义信息 |     |
+| time | Number | 否   | 关系形成时间戳（单位：秒） |     |
+| sex | Number | 否   | 用户性别，1:男；0:女 |     |
+
+**响应示例**
+
+```json
+{    
+    "data": {        
+        "score": 100,        
+        "rank": 1,        
+        "user": {            
+            "OpenID": "rxuSl4QZoNk0G1HY2-Za6GlO7wO-p_ej",            
+            "NickName": "user"        
+        }   
+    },    
+    "code": 0
+}
+```
+
+## 获取排行榜列表
+
+**接口原型**
+
+```objectivec
+/**
+ * 获取排行榜列表
+ * @param rank_id  字符串本身带有类型信息，格式为：Flag_榜单容量_重置周期_自定义标识（flag是一个int64位标记，用以扩展和规定绑定属性）  必须
+ * @param start_rank 获取排行榜开始排名。取值[1,榜单容量)。可以用于分页加载  必须
+ * @param end_rank 获取排行榜结束排名。取值[1,榜单容量]。可以用于分页加载  必须
+ */
+- (void)getRankListWithRank_id:(NSString *)rank_id
+                    start_rank:(NSInteger)start_rank
+                      end_rank:(NSInteger)end_rank
+                      complete:(RequestComplete)complete;
+```
+
+### 参数说明
+
+| **字段**   | **类型** | **是否必填** | **备注**                                                                                                              |
+| ---------- | -------- | ------------ | --------------------------------------------------------------------------------------------------------------------- |
+| rank_id    | NSString | 是           | 字符串本身带有类型信息，格式为：Flag_榜单容量_重置周期_自定义标识（flag 是一个 int64 位标记，用以扩展和规定绑定属性） |
+| start_rank | NSString | 是           | 获取排行榜开始排名。取值[1,榜单容量)。可以用于分页加载                                                                |
+| end_rank   | NSString | 是           | 获取排行榜结束排名。取值[1,榜单容量]。可以用于分页加载                                                                |
+
+**调用示例**
+
+```objectivec
+[[RXContactService sharedSDK] getRankListWithRank_id:@"" start_rank:1 end_rank:1 complete:^(NSDictionary * _Nullable response, RX_CommonRequestError * _Nullable error) {
+            
+}];
+```
+
+### 响应结构
+
+**响应参数（****JSON****）**
+
+**HTTP 状态码：**`200 OK`
+
+| **字段** | **类型**                         | **是否必填** | **说明** | **示例** |
+| --- |--------------------------------| --- | --- | --- |
+| code | Number                         | 是   | 响应状态码，0为成功，非0表示出错 | 0   |
+| msg | String                         | 否   | 响应信息，仅在status为非0时不为空 |     |
+| data | [][Node](/docs/v3.5/排行榜/服务端接入/服务端 API) | 否   | 结果 数组结构 |     |
+
+##### Node
+
+| **字段** | **类型**                         | **是否必填** | **说明** | **示例** |
+| --- |--------------------------------| --- | --- | --- |
+| score | Number                         | 是   | 排行榜分数 |     |
+| rank | Number                         | 是   | 排行榜排名 |     |
+| user | [UserO](/docs/v3.5/排行榜/服务端接入/服务端 API) | 是   | 用户信息数据集 |     |
+
+**响应示例**
+
+```json
+{   
+  "data": [        
+    {            
+      "score": 100,            
+      "rank": 1,            
+      "user": {                
+        "OpenID": "rxuSl4QZoNk0G1HY2-Za6GlO7wO-p_ej",                
+        "NickName": "user1"
+      }
+    },    
+    {            
+      "score": 90,            
+      "rank": 2,            
+      "user": {                
+        "OpenID": "rxuSl4QZoNk0G1HY2-Za6GlO7wO-p_ej",                
+        "NickName": "user2"
+      }
+    }    
+  ],    
+  "code": 0
+}
+```
+
+## 获取好友排行榜列表
+
+**接口原型**
+
+```objectivec
+/**
+ * 获取好友排行榜列表
+ * @param rank_id  字符串本身带有类型信息，格式为：Flag_榜单容量_重置周期_自定义标识（flag是一个int64位标记，用以扩展和规定绑定属性）  必须
+ */
+- (void)getFriendRankListWithRank_id:(NSString *)rank_id
+                            complete:(RequestComplete)complete;
+```
+
+### 参数说明
+
+| **字段** | **类型** | **是否必填** | **备注**                                                                                                              |
+| -------- | -------- | ------------ | --------------------------------------------------------------------------------------------------------------------- |
+| rank_id  | NSString | 是           | 字符串本身带有类型信息，格式为：Flag_榜单容量_重置周期_自定义标识（flag 是一个 int64 位标记，用以扩展和规定绑定属性） |
+
+**调用示例**
+
+```objectivec
+[[RXContactService sharedSDK] getFriendRankListWithRank_id:@"" complete:^(NSDictionary * _Nullable response, RX_CommonRequestError * _Nullable error) {
+            
+}];
+```
+
+### 响应结构
+
+### 响应参数（****JSON****）
+
+**HTTP 状态码：**`200 OK`
+
+| **字段** | **类型**                                 | **是否必填** | **说明** | **示例** |
+| --- |----------------------------------------| --- | --- | --- |
+| code | Number                                 | 是   | 响应状态码，0为成功，非0表示出错 | 0   |
+| msg | String                                 | 否   | 响应信息，仅在status为非0时不为空 |     |
+| data | [][ListNode](/docs/v3.5/排行榜/服务端接入/服务端 API) | 否   | 结果 数组结构 |     |
+
+##### ListNode
+
+| **字段** | **类型**                         | **是否必填** | **说明** | **示例** |
+| --- |--------------------------------| --- | --- | --- |
+| score | Number                         | 是   | 排行榜分数 |     |
+| rank | Number                         | 是   | 排行榜排名 |     |
+| user | [UserO](/docs/v3.5/排行榜/服务端接入/服务端 API) | 是   | 用户信息数据集 |     |
+
+**响应示例**
+
+```json
+{    
+    "data": [        
+            {            
+                "score": 100,            
+                "rank": 1,            
+                "user": {                
+                    "OpenID": "rxuSl4QZoNk0G1HY2-Za6GlO7wO-p_ej",                
+                    "NickName": "user1"           
+                    }       
+            },        
+            {            
+                "score": 0,            
+                "rank": 2,            
+                "user": {                
+                    "OpenID": "rxuSl4QZoNk0G1HY2-Za6GlO7wO-p_ej",                
+                    "NickName": "user2"           
+                }       
+            }
+        
+    ],    
+    "code": 0
+}
+```

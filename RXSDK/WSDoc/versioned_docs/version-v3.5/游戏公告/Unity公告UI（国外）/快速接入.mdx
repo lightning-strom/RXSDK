@@ -1,0 +1,170 @@
+---
+title: "快速接入"
+---
+
+## UI示例
+
+![](https://haiqi-ruixue-test.oss-cn-beijing.aliyuncs.com/docOnline/announce_mutiple_ui-1725619282374.png)
+
+![](https://haiqi-ruixue-test.oss-cn-beijing.aliyuncs.com/docOnline/announce_single_ui-1725619336078.png)
+## 显示公告UI
+
+**接口原型**
+
+```csharp
+/// <summary>
+/// 显示公告UI
+/// </summary>
+///  显示条数，limit > 0
+/// 
+/// 
+public static void ShowAnnounceView(int limit, OnLink onLink, HsAnnounceUI hsAnnounceUI)
+```
+
+**调用示例**
+
+```csharp
+RXLoginUIOverSeas.ShowAnnounceView(100, Onlink, HsAnnounceUI);
+
+/// <summary>
+/// 返回图片配置link或者url
+/// </summary>
+/// 
+public void Onlink(String data)
+{
+    LogUtil.Log("EventManager", "Announce Onlink: " + data);
+}
+/// <summary>
+/// 当前UI是否显示了
+/// </summary>
+/// 
+public void HsAnnounceUI(bool isHas)
+{
+    LogUtil.Log("EventManager", "Announce HsAnnounceUI: " + isHas);
+}
+```
+
+## 产品包版本检查公告UI（通用）
+
+**接口原型**
+
+```csharp
+/// <summary>
+/// 产品包版本检查公告UI（通用）
+/// </summary>
+///  客户端版本号，3段或4段
+///  地区码
+///  type 脚本类型 默认json， 可选 lua， u3d format 输出文件后缀，默认json，可选lua
+///  isShowUI 是否显示UI
+/// 
+/// 
+/// 
+/// 
+public static void ShowUpdateAppView(string version, string region, Dictionary queryMap,
+    bool isShowUI, OnLink onLink, HsAnnounceUI hsAnnounceUI,
+    RequestResponseDelegate responseDelegate, RequestErrorDelegate errorDelegate)
+```
+
+**调用示例**
+
+```csharp
+Dictionary queryMap = new Dictionary();
+queryMap.Add("format", "json");
+RXLoginUIOverSeas.ShowUpdateAppView("1", "150000", queryMap, true, Onlink, 
+    HsAnnounceUI, AnnounceResponseDelegate, AnnounceErrorDelegate);
+            
+/// <summary>
+/// 返回图片配置link或者url
+/// </summary>
+/// 
+public void Onlink(String data)
+{
+    LogUtil.Log("EventManager", "Announce Onlink: " + data);
+}
+/// <summary>
+/// 当前UI是否显示了
+/// </summary>
+/// 
+public void HsAnnounceUI(bool isHas)
+{
+    LogUtil.Log("EventManager", "Announce HsAnnounceUI: " + isHas);
+}
+/// <summary>
+/// 成功返回 版本检查数据
+/// </summary>
+/// 
+public void AnnounceResponseDelegate(string data)
+{
+    LogUtil.Log("EventManager", $"UserCenterUI RequestResponseDelegate: {data}");
+}
+/// <summary>
+/// 失败返回 版本检查数据
+/// </summary>
+/// 
+public void AnnounceErrorDelegate(string data)
+{
+    LogUtil.Log("EventManager", $"UserCenterUI RequestErrorDelegate: {data}");
+}
+```
+
+## 产品包版本检查UI（自定义）
+
+**接口原型**
+
+```csharp
+/// <summary>
+/// 产品包版本检查公告UI（自定义）
+/// </summary>
+///  客户端版本号， 3段或4段
+///  地区码， 默认0
+///  脚本类型 默认js， 可选lua， u3d
+///  queryMap games {"games:{"游戏id": 客户端游戏版本}"}activities {"activities":{"活动别名": 客户端活动版本}}
+///  是否显示UI
+/// 
+/// 
+/// 
+/// 
+public static void ShowCheckUpdateAppView(string version, string region, string type,
+    Dictionary queryMap, bool isShowUI, OnLink onLink, HsAnnounceUI hsAnnounceUI,
+    RequestResponseDelegate responseDelegate, RequestErrorDelegate errorDelegate)
+```
+
+**调用示例**
+
+```csharp
+RXLoginUIOverSeas.ShowCheckUpdateAppView("1.0.1", "150000", "js", null, true, 
+            Onlink, HsAnnounceUI, AnnounceResponseDelegate, AnnounceErrorDelegate);
+            
+/// <summary>
+/// 返回图片配置link或者url
+/// </summary>
+/// 
+public void Onlink(String data)
+{
+    LogUtil.Log("EventManager", "Announce Onlink: " + data);
+}
+/// <summary>
+/// 当前UI是否显示了
+/// </summary>
+/// 
+public void HsAnnounceUI(bool isHas)
+{
+    LogUtil.Log("EventManager", "Announce HsAnnounceUI: " + isHas);
+}
+/// <summary>
+/// 成功返回 版本检查数据
+/// </summary>
+/// 
+public void AnnounceResponseDelegate(string data)
+{
+    LogUtil.Log("EventManager", $"UserCenterUI RequestResponseDelegate: {data}");
+}
+/// <summary>
+/// 失败返回 版本检查数据
+/// </summary>
+/// 
+public void AnnounceErrorDelegate(string data)
+{
+    LogUtil.Log("EventManager", $"UserCenterUI RequestErrorDelegate: {data}");
+}
+```

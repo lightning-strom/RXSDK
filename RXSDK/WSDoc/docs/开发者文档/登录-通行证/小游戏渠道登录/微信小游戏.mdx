@@ -1,0 +1,1127 @@
+---
+sidebar_position: 1
+title: 微信小游戏
+description: "望舒SDK 登录通行证 微信小游戏 小游戏 接入文档，提供完整的接口调用说明与示例。"
+unlisted: true
+---
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
+
+## 登录
+
+**启动路径参数注意事项**
+:::tip
+SDK 登录内部会从启动路径上获取参数，用于裂变和导量效果的数据分析，所以 CP 如果需要自定义分享需要拼接以下参数，分享参数来自 `getShareData` 接口，并且注意
+除了 CP 自定义分享场景，不要使用以下参数！！！
+:::
+
+| **字段**    | **类型** | **备注**                                     |
+| ----------- | -------- | -------------------------------------------- |
+| type        | string   | rx                                           |
+| user_source | string   | share ｜ guide ｜ transmits 
+`share` 分享 `guide` 导量 `transmits` 自定义透传参数 |
+
+> 分享相关字段
+
+| **字段**             | **类型** | **备注**                                                            |
+| -------------------- | -------- | ------------------------------------------------------------------- |
+| landing_id           | string   | 广告推广来源信息                                                    |
+| trigger_id           | string   | 埋点 ID                                                             |
+| trigger_tag          | string   | 埋点唯一标识                                                        |
+| trigger_type         | string   | 埋点类型                                                            |
+| material_type        | string   | 分享素材类型                                                        |
+| material_id          | string   | 分享素材类型                                                        |
+| strategy_type        | string   | 策略类型                                                            |
+| strategy_id          | string   | 策略唯一 ID                                                         |
+| share_time           | string   | 分享时间                                                            |
+| share_type           | string   | mini，游戏客户端自定义的分享类型                                    |
+| inviter_region       | string   | 分享者所在地区编码                                                  |
+| inviter_openid       | string   | 分享者的望舒 openid                                                 |
+| inviter_productid    | string   | 分享者的产品 ID, 若为空, 则通行证通过 inviter_openid 获取关联信息   |
+| inviter_channelid    | string   | 分享者的渠道 ID, 若为空, 则通行证通过 inviter_openid 获取关联信息   |
+| inviter_subchannelid | string   | 分享者的子渠道 ID, 若为空, 则通行证通过 inviter_openid 获取关联信息 |
+
+> 导量相关字段
+
+| **字段**       | **类型** | **备注**              |
+| -------------- | -------- | --------------------- |
+| guide_platform | string   | 导量来源游戏平台      |
+| guide_app      | string   | 导量来源游戏 app 标识 |
+
+> transmits 字段
+
+transmits 的数据为透传参数，规则需要满足user_source=transmits，除user_source=transmits外其他拼接的参数登录后将原样返回。
+示例：`https://xxx.html?user_source=transmits&a=b&c=d`  
+登录成功数据会新增字段`user_transmits:{"a":"b", "c":"d"}`
+
+### 首次登录
+
+<Tabs groupId="platform">
+
+<TabItem value="js" label="JS">
+
+#### 参数说明
+
+| **字段** | **类型**      | **是否必填** | **备注**     |
+| ------------ | ----------------- | ---------------- | ---------------- |
+| params   | ILogin        | 是           | 参数         |
+| callback | IMethodParams | 是           | 回调函数集合 |
+
+> ILogin 说明
+
+| **字段**            | **类型**    | **是否必填** | **备注**                                                                                                                                                                                                                                          |
+| ----------------------- | --------------- | ---------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| version         | string  | 是       | 是否拉起用户信息授权`base` 不拉起用户授权弹窗`normal` 拉起用户授权弹窗==💡：base 不会拉起用户授权所以不会传递加密值可能获得不到头像等数据，如果需要获取头像建议传递 normal==                                                      |
+| method              | string      | 是           | 'minigame'，登录账号的类型                                                                                                                                                                                                                        |
+| sign_fields         | string[]    | 否           | 指定对登录成功后返回的特定字段, 使用 CPKEY 计算签名. CP 服务器可重新计算签名并与登录返回的签名比对, 作为对望舒登录数据的校验. 支持的字段包括: nickname, avatar, openid, region, sex, age, 计算签名的逻辑会对指定字段进行排序, 此处传参与顺序无关. |
+| reconnect_login | boolean | 否           | 否是【断线重连】，用于区分 SDK 内部是否需要处理登录后的逻辑（拉取商业化数据）`true` 不拉取商业化数据==SDK v3.5.0 版本开始支持==                                                                                                       |
+| ext | Ext | 否           |扩展字段 |
+
+> ext 结构说明
+
+| **字段**     | **类型** | **是否必填** | **备注**                                                                                                                                             |
+| ------------ | -------- | ------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------- |
+| custom_ext        |    CustomExt  | 否           | 自定义透传参数 |
+
+> CustomExt  结构说明
+
+| **字段**     | **类型** | **是否必填** | **备注**                                                                                                                                             |
+| ------------ | -------- | ------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------- |
+| bigdata_ext |    object | 否           | 大数据预置事件透传参数  |
+
+> IMethodParams 说明
+
+| **字段** | **备注**                                                  |
+| ------------ | ------------------------------------------------------------- |
+| complete | (data) => voidcomplete：为函数且必传，data 为结果数据 |
+
+#### 调用示例
+```javascript
+sdk.login(
+  {
+    version: "base",
+    method: "minigame",
+    ext: {
+        custom_ext: {
+          // 大数据预置事件透传参数
+          bigdata_ext: {
+            test: `test`
+          }
+        }
+    }
+  },
+  {
+    complete: (data) => {
+      console.log(data);
+    },
+  }
+);
+```
+
+</TabItem>
+
+<TabItem value="unity" label="Unity">
+
+#### 参数说明
+
+| **字段**              | **类型**    | **是否必填** | **备注**                                                                                                                                                                                                                                          |
+|-------------------------| --------------- | ---------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| version         | string  | 是       | 是否拉起用户信息授权`base` 不拉起用户授权弹窗`normal` 拉起用户授权弹窗==💡：base 不会拉起用户授权所以不会传递加密值可能获得不到头像等数据，如果需要获取头像建议传递 normal==                                                      |
+| loginType           | string      | 是           | 'minigame'，登录账号的类型                                                                                                                                                                                                                        |
+
+#### 调用示例
+
+```csharp
+using System;
+using System.Collections.Generic;
+using UnityEngine;
+using UnityEngine.UI;
+using RuiXue;
+using RuiXue.Login;
+
+#if UNITY_WEBGL
+using RuiXue.MiniGame.WeiXin;
+#endif
+
+public class RuiXueWeiXinMiniGameDemo : MonoBehaviour {
+    private void OnLogin()
+    {
+        LogUtil.Log("RXDemo", "点击登录");
+        
+        LoginConfig loginConfig = new LoginConfig();
+        loginConfig.loginType = LoginMethod.Minigame;
+        loginConfig.version = "base";
+        
+        RXLogin.Login(loginConfig, OnResponse, OnError);
+    }
+    
+    public void OnResponse(string data)
+    {
+        LogUtil.Log("RXDemo",$"Response: {data}");
+    }
+    
+    public void OnError(string data)
+    {
+        LogUtil.Log("RXDemo", $"Error: {data}");
+    }
+}
+```
+
+</TabItem>
+
+</Tabs>
+
+#### 响应结构
+请参考 服务端登录API响应结构
+
+### 二次登录
+
+:::tip
+用户完成首次登录之后，为了降低三方账号授权导致的延迟，后续可以使用登录接口返回的 login_openid 进行登录。
+:::
+
+<Tabs groupId="platform-1">
+
+<TabItem value="js" label="JS">
+
+#### 参数说明
+
+| **字段** | **类型**      | **是否必填** | **备注**     |
+| ------------ | ----------------- | ---------------- | ---------------- |
+| params   | ILogin        | 是           | 参数         |
+| callback | IMethodParams | 是           | 回调函数集合 |
+
+> ILogin 说明
+
+| **字段**            | **类型**    | **是否必填** | **备注**                                                                                                                                                                                                                                          |
+| ----------------------- | --------------- | ---------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| version         | string  | 是       | 是否拉起用户信息授权`base` 不拉起用户授权弹窗`normal` 拉起用户授权弹窗==💡：base 不会拉起用户授权所以不会传递加密值可能获得不到头像等数据，如果需要获取头像建议传递 normal==                                                      |
+| method              | string      | 是           | 'minigame'，登录账号的类型                                                                                                                                                                                                                        |
+| login_openid        | string      | 是           | 首次登录返回的 login_openid 数据，用于二次登录                                                                                                                                                                                                    |
+| sign_fields         | string[]    | 否           | 指定对登录成功后返回的特定字段, 使用 CPKEY 计算签名. CP 服务器可重新计算签名并与登录返回的签名比对, 作为对望舒登录数据的校验. 支持的字段包括: nickname, avatar, openid, region, sex, age, 计算签名的逻辑会对指定字段进行排序, 此处传参与顺序无关. |
+| reconnect_login | boolean | 否           | 否是【断线重连】，用于区分 SDK 内部是否需要处理登录后的逻辑（拉取商业化数据）`true` 不拉取商业化数据==SDK v3.5.0 版本开始支持==                                                                                                       |
+
+> IMethodParams 说明
+
+| **字段** | **备注**                                                  |
+| ------------ | ------------------------------------------------------------- |
+| complete | (data) => voidcomplete：为函数且必传，data 为结果数据 |
+
+#### 调用示例
+```javascript
+sdk.login(
+  {
+    version: "base",
+    method: "minigame",
+    login_openid:
+      "PHD7PmiZjsSVmFq5hDjxxmo6TgkNhgYe8MIjMc2kEfhHQbL2Y+BVNj97TGgFK/LNtxoRcTWaX47grVvVUwS/84FWrU3MoD1HnFo4P/Imn3pEFnhnJpV+XUFzg1eptZTTJH8CArYFg0s5Ux2X2C3hnFtjIRoUu44eLtrhR2Y7jCbqPl3ohddWJExFBsRXe40CQdEt5ECBGprtqpT3u5WWzzo+LmHJHiIckGv2Ox2EkAgR0vcYgfCCtANPzSZydNDDFCIpwWbW09vuzyZLvccJDsTp27FF6L0fk9ZVvnm9OBl3hlnE6CPrEFMF4wArNjuu",
+  },
+  {
+    complete: (data) => {
+      console.log(data);
+    },
+  }
+);
+```
+
+</TabItem>
+
+<TabItem value="unity" label="Unity">
+
+#### 参数说明
+
+| **字段**            | **类型**    | **是否必填** | **备注**                                                                                                                                                                                                                                          |
+| ----------------------- | --------------- | ---------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| version         | string  | 是       | 是否拉起用户信息授权`base` 不拉起用户授权弹窗`normal` 拉起用户授权弹窗==💡：base 不会拉起用户授权所以不会传递加密值可能获得不到头像等数据，如果需要获取头像建议传递 normal==                                                      |
+| login_openid        | string      | 是           | 首次登录返回的 login_openid 数据，用于二次登录                                                                                                                                                                                                    |
+
+#### 调用示例
+
+```csharp
+using System;
+using System.Collections.Generic;
+using UnityEngine;
+using UnityEngine.UI;
+using RuiXue;
+using RuiXue.Login;
+
+#if UNITY_WEBGL
+using RuiXue.MiniGame.WeiXin;
+#endif
+
+public class RuiXueWeiXinMiniGameDemo : MonoBehaviour {
+    private void OnSecondLogin()
+    {
+        LoginConfig loginConfig = new LoginConfig();
+        loginConfig.loginType = LoginMethod.Minigame;
+        loginConfig.loginOpenId =
+            "Hjyr7natPbngkaFnQd6M24lpPeyEcbIZzX4RSclZ4N65W8P3cL2C2kBbdPHKbp3XrOUaFn87mrMxC/62XKJGxCA1eebrH4IeNN+zGcqDbS6pdWcTQjM7k5rTVq2d/RFoIJeVzQGCcX3RsrUD+72N19rtM8YDGk+FI2Vb56+1uKF1wytzK+tyeGwlwIa3tfOIqiTd6Jm4MrjVVYbMVPdqTw2ZBoKYOZJWSMwUqQGyJehCev9v1BGgjEx2Fc7n2F0uc2tH3aDrrxURBSotC72er+B/rAWzIUQT7yD69MY/czRS1NNYyyhS8mpeUlDRvhcgb+eUgJhA3ZL1Fv8Xcs4/Ff/t9A2O5+i2DQilkWcsQtqmRwshe54FplHfUJdmtIUZSNRX9IKm6zTNXN6XMYWtTsIsMclZtJZ6iztE5YRp7IJ01/EczOY54xGxXovNak7D+yaUoG0pKDTURc4TZcuB30myVqaw/1Omc7U6KTD0sLK9mYaE6FC+MiHO64u+XzkApHHIRc4EhDdgXbZTzX8UZe1EgjyothcUp6+wxOAKTZHPAkMX+wRibtF1Gfei3BVxk+nzEeXleHg/rGIJfB761ZQf50BzDSjRkikVgRmaQyLvCEeiQHcyzhAKxaokV0C/sjwfHLSP1WUybDduOcijLVEx8H2Pz08mwnmLPiYsTAy/nG30P/qFhCznM+a6b3MQY3BuBOEs7r+Ma3c0NtpsSglJVXJFqqD7cW4YU/q3T+uCBCw+XHFHPiSlhWnzzG8STQ+ZX8ZlG3doRmjz+SVsz/pj67yhXNCWflkT3O5IH+/xlpfD842b/jsuNpOAYdNlWGWovBH1l7DtJahDoe05v21aJs8XiqGWgiwGlvxpHX2v1OTZW6Ff79oIqkdWT2R0Y7o82rXbTbHSlA66UrkMnTXvq6tzTWbqEme+MPqbPo8BVzWh5ZXpQ4pV9IFEAhRejT+pkpTWlS4xC3YNApKynntiHJool5ga0Qc9OgGCOJwpxGUcEZ2EdYf/NCoCesQG5dtDNPceocCMyh7vISFzRo0NWBAxSMKgudLx9Wvpr7U=";
+        
+        RXLogin.Login(loginConfig, OnResponse, OnError);
+    }
+}
+```
+
+</TabItem>
+
+</Tabs>
+
+#### 响应结构
+请参考 服务端登录API响应结构
+
+### 同步用户信息
+
+使用三方账号授权信息，重新同步三方账号用户信息，每次调用都会弹出授权窗口
+
+<Tabs groupId="platform-2">
+
+<TabItem value="js" label="JS">
+
+#### 参数说明
+
+| **字段** | **类型**      | **是否必填** | **备注**     |
+| ------------ | ----------------- | ---------------- | ---------------- |
+| params   | ISyncUserInfo | 是           | 参数         |
+| callback | IMethodParams | 是           | 回调函数集合 |
+
+> ISyncUserInfo 说明
+
+| **字段** | **类型**   | **是否必填** | **备注**                                                      |
+| ------------ | -------------- | ---------------- | ----------------------------------------------------------------- |
+| info | object | 否       | 同步用户信息参数`info.desc`: 拉起用户授权弹框时的提示文字 |
+
+> IMethodParams 说明
+
+| **字段** | **备注**                                                  |
+| ------------ | ------------------------------------------------------------- |
+| complete | (data) => voidcomplete：为函数且必传，data 为结果数据 |
+
+#### 调用示例
+```javascript
+sdk.infoSync(
+  {
+    complete: (data) => {
+      console.log(data);
+    },
+  },
+  {
+    info: {
+      desc: "",
+    },
+  }
+);
+```
+
+</TabItem>
+
+<TabItem value="unity" label="Unity">
+
+#### 调用示例
+
+```csharp
+using System;
+using System.Collections.Generic;
+using UnityEngine;
+using UnityEngine.UI;
+using RuiXue;
+using RuiXue.Login;
+
+#if UNITY_WEBGL
+using RuiXue.MiniGame.WeiXin;
+#endif
+
+public class RuiXueWeiXinMiniGameDemo : MonoBehaviour {
+    public void OnUserInfoSync()
+    {
+        RXLogin.WebGL_UserInfoSync(OnResponse, OnError);
+    }
+}
+```
+
+</TabItem>
+
+</Tabs>
+
+#### 响应结构
+
+```json
+{
+  "code": 0,
+  "data": {
+    
+  }
+}
+```
+
+### 静默同步用户信息
+
+使用三方账号授权信息，重新同步三方账号用户信息，已授权过用户信息的不会出现授权弹窗（小游戏未删除过）
+
+<Tabs groupId="platform-3">
+
+<TabItem value="js" label="JS">
+
+#### 参数说明
+
+| **字段** | **类型**      | **是否必填** | **备注**     |
+| ------------ | ----------------- | ---------------- | ---------------- |
+| params   | ISyncUserInfo | 是           | 参数         |
+| callback | IMethodParams | 是           | 回调函数集合 |
+
+> ISyncUserInfo 说明
+
+| **字段** | **类型**   | **是否必填** | **备注**                                                      |
+| ------------ | -------------- | ---------------- | ----------------------------------------------------------------- |
+| info | object | 否       | 同步用户信息参数`info.desc`: 拉起用户授权弹框时的提示文字 |
+
+> IMethodParams 说明
+
+| **字段** | **备注**                                                  |
+| ------------ | ------------------------------------------------------------- |
+| complete | (data) => voidcomplete：为函数且必传，data 为结果数据 |
+
+#### 调用示例
+```javascript
+sdk.userInfoSilentSync(
+  {
+    complete: (data) => {
+      console.log(data);
+    },
+  },
+  {
+    info: {
+      desc: "",
+    },
+  }
+);
+```
+
+</TabItem>
+
+<TabItem value="unity" label="Unity">
+
+#### 调用示例
+
+```csharp
+using System;
+using System.Collections.Generic;
+using UnityEngine;
+using UnityEngine.UI;
+using RuiXue;
+using RuiXue.Login;
+
+#if UNITY_WEBGL
+using RuiXue.MiniGame.WeiXin;
+#endif
+
+public class RuiXueWeiXinMiniGameDemo : MonoBehaviour {
+    public void OnUserInfoSilentSync()
+    {
+        RXLogin.WebGL_UserInfoSilentSync(OnResponse, OnError);
+    }
+}
+```
+
+</TabItem>
+
+</Tabs>
+
+#### 响应结构
+
+```json
+{
+  "code": 0,
+  "data": {
+
+  }
+}
+```
+
+## 用户中心
+
+### 申请注销账号
+
+<Tabs groupId="platform-4">
+
+<TabItem value="js" label="JS">
+
+#### 参数说明
+
+| **字段** | **类型**      | **是否必填** | **备注**     |
+| ------------ | ----------------- | ---------------- | ---------------- |
+| params   | IDeregister   | 是           | 参数         |
+| callback | IMethodParams | 是           | 回调函数集合 |
+
+> IDeregister 说明
+
+| **字段** | **类型** | **是否必填** | **备注**       |
+| ------------ | ------------ | ---------------- | ------------------ |
+| idcard   | string   | 否           | 身份证号码，已实名用户必传，未实名用户可不传     |
+| realname | string   | 否           | 真实姓名，已实名用户必传，未实名用户可不传       |
+| cpdata   | string   | 否           | CP 自定义数据，建议传 game_user_id=用户的游戏 id，不传在望舒后台不会账号注销页面不显示游戏侧的用户id |
+
+> IMethodParams 说明
+
+| **字段** | **备注**                                                  |
+| ------------ | ------------------------------------------------------------- |
+| complete | (data) => voidcomplete：为函数且必传，data 为结果数据 |
+
+#### 调用示例
+```javascript
+sdk.deregister(
+  {
+    idcard: "220123198905030033",
+    realname: "真名",
+    cpdata: "abc",
+  },
+  {
+    complete: (data) => {
+      console.log(data);
+    },
+  }
+);
+```
+
+</TabItem>
+
+<TabItem value="unity" label="Unity">
+
+#### 参数说明
+
+| **字段** | **类型** | **是否必填** | **备注**       |
+| ------------ | ------------ | ---------------- | ------------------ |
+| idcard   | string   | 否           | 身份证号码，已实名用户必传，未实名用户可不传     |
+| realname | string   | 否           | 真实姓名，已实名用户必传，未实名用户可不传       |
+| cpdata   | string   | 否           | CP 自定义数据，建议传 game_user_id=用户的游戏 id，不传在望舒后台不会账号注销页面不显示游戏侧的用户id |
+
+#### 调用示例
+
+```csharp
+using System;
+using System.Collections.Generic;
+using UnityEngine;
+using UnityEngine.UI;
+using RuiXue;
+using RuiXue.Login;
+
+#if UNITY_WEBGL
+using RuiXue.MiniGame.WeiXin;
+#endif
+
+public class RuiXueWeiXinMiniGameDemo : MonoBehaviour {
+    private void OnDeregister()
+    {
+        RXDeregisterConfig deregisterConfig = new RXDeregisterConfig();
+        deregisterConfig.idcard = "220281199103162215";
+        deregisterConfig.realname = "真名";
+        deregisterConfig.cpdata = "111";
+        
+        RXLogin.Deregister(deregisterConfig, OnResponse, OnError);
+    }
+}
+```
+
+</TabItem>
+
+</Tabs>
+
+#### 响应结构
+
+```json
+{
+  "code": 0
+}
+```
+
+### 撤销注销申请
+
+<Tabs groupId="platform-5">
+
+<TabItem value="js" label="JS">
+
+#### 参数说明
+
+| **字段** | **类型**      | **是否必填** | **备注**     |
+| ------------ | ----------------- | ---------------- | ---------------- |
+| callback | IMethodParams | 是           | 回调函数集合 |
+
+> IMethodParams 说明
+
+| **字段** | **备注**                                                  |
+| ------------ | ------------------------------------------------------------- |
+| complete | (data) => voidcomplete：为函数且必传，data 为结果数据 |
+
+#### 调用示例
+```javascript
+sdk.deregisterCancel({
+  complete: (data) => {
+    console.log(data);
+  },
+});
+```
+
+</TabItem>
+
+<TabItem value="unity" label="Unity">
+
+#### 调用示例
+
+```csharp
+using System;
+using System.Collections.Generic;
+using UnityEngine;
+using UnityEngine.UI;
+using RuiXue;
+using RuiXue.Login;
+
+#if UNITY_WEBGL
+using RuiXue.MiniGame.WeiXin;
+#endif
+
+public class RuiXueWeiXinMiniGameDemo : MonoBehaviour {
+    public void OnDeregisterCancel()
+    {
+        RXLogin.DeregisterCancel(OnResponse, OnError);
+    }
+}
+```
+
+</TabItem>
+
+</Tabs>
+
+#### 响应结构
+
+```json
+{
+  "code": 0
+}
+```
+
+### 获取验证码
+
+:::tip
+优先根据指定 email 或 phone 发送验证码；
+否则根据当前登录的手机或者邮箱账号发送验证码。
+:::
+
+<Tabs groupId="platform-6">
+
+<TabItem value="js" label="JS">
+
+#### 参数说明
+
+| **字段** | **类型**      | **是否必填** | **备注**     |
+| ------------ | ----------------- | ---------------- | ---------------- |
+| params   | ISendCaptcha  | 是           | 参数         |
+| callback | IMethodParams | 是           | 回调函数集合 |
+
+> ISendCaptcha 说明
+
+| **字段** | **类型** | **是否必填** | **备注**             |
+| ------------ | ------------ | ---------------- | ------------------------ |
+| email    | string   | 否           | 接收验证码的邮箱地址 |
+| phone    | string   | 否           | 接收验证码的手机号   |
+| purpose  | string   | 是           | 验证码的用途         |
+| auth  | string   | 否           | 是否使用小游戏登录鉴权，默认false，建议设置为true         |
+
+> purpose 说明
+
+| **字段**    | **备注** |
+| --------------- | ------------ |
+| register    | 注册     |
+| bindphone   | 绑定手机 |
+| unbindphone   | 解绑手机 |
+| resetpwd    | 重置密码 |
+| bindemail   | 绑定邮箱 |
+| unbindemail   | 解绑邮箱 |
+| login       | 登录     |
+| setpwd      | 设置密码 |
+
+> IMethodParams 说明
+
+| **字段** | **备注**                                                  |
+| ------------ | ------------------------------------------------------------- |
+| complete | (data) => voidcomplete：为函数且必传，data 为结果数据 |
+
+#### 调用示例
+```javascript
+sdk.sendCaptcha(
+  {
+    phone: "18626656376",
+    purpose: "bindphone",
+    auth: true
+  },
+  {
+    complete: (data) => {
+      console.log(data);
+    },
+  }
+);
+```
+
+</TabItem>
+
+<TabItem value="unity" label="Unity">
+
+#### 参数说明
+
+> CaptchaType 说明
+
+| **字段** | **类型** | **是否必填** | **备注**             |
+| ------------ | ------------ | ---------------- | ------------------------ |
+| email    | string   | 否           | 接收验证码的邮箱地址 |
+| phone    | string   | 否           | 接收验证码的手机号   |
+| purpose  | string   | 是           | 验证码的用途         |
+
+> purpose 说明
+
+| **字段**    | **备注** |
+| --------------- | ------------ |
+| register    | 注册     |
+| bindphone   | 绑定手机 |
+| unbindphone   | 解绑手机 |
+| resetpwd    | 重置密码 |
+| bindemail   | 绑定邮箱 |
+| unbindemail   | 解绑邮箱 |
+| login       | 登录     |
+| setpwd      | 设置密码 |
+
+#### 调用示例
+
+```csharp
+using System;
+using System.Collections.Generic;
+using UnityEngine;
+using UnityEngine.UI;
+using RuiXue;
+using RuiXue.Login;
+
+#if UNITY_WEBGL
+using RuiXue.MiniGame.WeiXin;
+#endif
+
+public class RuiXueWeiXinMiniGameDemo : MonoBehaviour {
+    public void OnSendCaptcha()
+    {
+        RXLogin.SendCaptcha(CaptchaType.CaptchaType_phone, "18614001864", "login",
+             OnResponse, OnError);
+    }
+}
+```
+
+</TabItem>
+
+</Tabs>
+
+#### 响应结构
+
+```json
+{
+  "code": 0,
+  "data": {
+    "interval": 60,
+    "surplus": 60
+  }
+}
+```
+
+### 绑定邮箱
+
+<Tabs groupId="platform-7">
+
+<TabItem value="js" label="JS">
+
+#### 参数说明
+
+| **字段** | **类型**      | **是否必填** | **备注**     |
+| ------------ | ----------------- | ---------------- | ---------------- |
+| params   | IBindEmail    | 是           | 参数         |
+| callback | IMethodParams | 是           | 回调函数集合 |
+
+> IBindEmail 说明
+
+| **字段**     | **类型** | **是否必填** | **备注**                                      |
+| ---------------- | ------------ | ---------------- | ------------------------------------------------- |
+| email        | string   | 是           | 邮箱地址                                      |
+| password     | string   | 是           | 密码                                          |
+| captcha_code | string   | 是           | 发送到 email 邮箱地址的，用于绑定邮箱的验证码 |
+
+> IMethodParams 说明
+
+| **字段** | **备注**                                                  |
+| ------------ | ------------------------------------------------------------- |
+| complete | (data) => voidcomplete：为函数且必传，data 为结果数据 |
+
+#### 调用示例
+```javascript
+sdk.bindEmail(
+  {
+    email: "abc@qq.com",
+    captcha_code: "123456",
+    password: "123456",
+  },
+  {
+    complete: (data) => {
+      console.log(data);
+    },
+  }
+);
+```
+
+</TabItem>
+
+<TabItem value="unity" label="Unity">
+
+#### 参数说明
+
+| **字段**     | **类型** | **是否必填** | **备注**                                      |
+| ---------------- | ------------ | ---------------- | ------------------------------------------------- |
+| email        | string   | 是           | 邮箱地址                                      |
+| password     | string   | 是           | 密码                                          |
+| captcha_code | string   | 是           | 发送到 email 邮箱地址的，用于绑定邮箱的验证码 |
+
+#### 调用示例
+```csharp
+using System;
+using System.Collections.Generic;
+using UnityEngine;
+using UnityEngine.UI;
+using RuiXue;
+using RuiXue.Login;
+
+#if UNITY_WEBGL
+using RuiXue.MiniGame.WeiXin;
+#endif
+
+public class RuiXueWeiXinMiniGameDemo : MonoBehaviour {
+    public void OnBindEmail()
+    {
+        RXLogin.BindEmail("liyubo3603237@126.com", "12345qwert", "2816", null, 
+            OnResponse, OnError);
+    }
+}
+```
+
+</TabItem>
+
+</Tabs>
+
+#### 响应结构
+
+```json
+{
+  "code": 0
+}
+```
+
+### 绑定手机号
+
+#### 调用示例
+
+<Tabs groupId="platform-8">
+
+<TabItem value="js" label="JS">
+
+#### 参数说明
+
+| **字段** | **类型**      | **是否必填** | **备注**     |
+| ------------ | ----------------- | ---------------- | ---------------- |
+| params   | IBindPhone    | 是           | 参数         |
+| callback | IMethodParams | 是           | 回调函数集合 |
+
+> IBindPhone 说明
+
+| **字段**     | **类型** | **是否必填** | **备注** |
+| ---------------- | ------------ | ---------------- | ------------ |
+| phone        | string   | 是           | 手机号   |
+| password     | string   | 是           | 密码     |
+| captcha_code | string   | 是           | 验证码   |
+
+> IMethodParams 说明
+
+| **字段** | **备注**                                                  |
+| ------------ | ------------------------------------------------------------- |
+| complete | (data) => voidcomplete：为函数且必传，data 为结果数据 |
+
+#### 调用示例
+::: tabs#platform
+@tab JS
+```javascript
+sdk.bindPhone(
+  {
+    phone: "18888888888",
+    captcha_code: "123456",
+    password: "123456",
+  },
+  {
+    complete: (data) => {
+      console.log(data);
+    },
+  }
+);
+```
+
+</TabItem>
+
+<TabItem value="unity" label="Unity">
+
+#### 参数说明
+
+| **字段**     | **类型** | **是否必填** | **备注** |
+| ---------------- | ------------ | ---------------- | ------------ |
+| phone        | string   | 是           | 手机号   |
+| password     | string   | 是           | 密码     |
+| captcha_code | string   | 是           | 验证码   |
+
+#### 调用示例
+```csharp
+using System;
+using System.Collections.Generic;
+using UnityEngine;
+using UnityEngine.UI;
+using RuiXue;
+using RuiXue.Login;
+
+#if UNITY_WEBGL
+using RuiXue.MiniGame.WeiXin;
+#endif
+
+public class RuiXueWeiXinMiniGameDemo : MonoBehaviour {
+    public void OnBindPhone()
+    {
+        RXLogin.BindPhone("18614001864", "12345qwert", "2816", null, 
+            OnResponse, OnError);
+    }
+}
+```
+
+</TabItem>
+
+</Tabs>
+
+#### 响应结构
+
+```json
+{
+  "code": 0
+}
+```
+
+### 获取用户信息
+
+<Tabs groupId="platform-9">
+
+<TabItem value="js" label="JS">
+
+#### 参数说明
+
+| **字段** | **类型**      | **是否必填** | **备注**     |
+| ------------ | ----------------- | ---------------- | ---------------- |
+| callback | IMethodParams | 是           | 回调函数集合 |
+
+> IMethodParams 说明
+
+| **字段** | **备注**                                                  |
+| ------------ | ------------------------------------------------------------- |
+| complete | (data) => voidcomplete：为函数且必传，data 为结果数据 |
+
+#### 调用示例
+```javascript
+sdk.getInfo({
+  complete: (data) => {
+    console.log(data);
+  },
+});
+```
+
+</TabItem>
+
+<TabItem value="unity" label="Unity">
+
+#### 调用示例
+
+```csharp
+using System;
+using System.Collections.Generic;
+using UnityEngine;
+using UnityEngine.UI;
+using RuiXue;
+using RuiXue.Login;
+
+#if UNITY_WEBGL
+using RuiXue.MiniGame.WeiXin;
+#endif
+
+public class RuiXueWeiXinMiniGameDemo : MonoBehaviour {
+    public void OnGetUserInfo()
+    {
+        RXLogin.GetUserInfo(OnResponse, OnError);
+    }
+}
+```
+
+</TabItem>
+
+</Tabs>
+
+#### 响应结构
+
+| **字段**         | **类型**          | **说明**                                                                                                                                                                                                                                                       |
+| ---------------- |-----------------| -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| age              | Number          | 用户年龄，根据实名信息获取。                                                                                                                                                                                                                                   |
+| sex              | Number          | 性别。0 表示女性，1 表示男性。                                                                                                                                                                                                                                 |
+| user_state       | Number          | 用户状态定义, 0 为正常用户。为正数时，使用各位编码用户的不同状态（以下表述中，第 0 位表示最低位）:第 0 位: 为 1 表示玩家已提交注销申请第 1 位: 为 1 表示已注销。可以是客服同意玩家的注销申请，也可以是客服直接在后台操作将账号注销。第 2 位: 为 1 表示已封停。 |
+| attr             | Number | 账号状态标记，使用位运算构成。参考下文 attr 标记说明                                                                                                             |
+| openid           | String          | 望舒用户 OpenID。                                                                                                                                                                                                                                              |
+| external_openid  | String          | 三方 openid                                                                                                                                                                                                                                                    |
+| external_unionid | String          | 三方 unionid                                                                                                                                                                                                                                                   |
+| wx_unionid       | String          | [DEPRECATED] 三方 unionid                                                                                                                                                                                                                                      |
+| mobile_phone     | String          | 手机号                                                                                                                                                                                                                                                         |
+| nickname         | String          | 昵称                                                                                                                                                                                                                                                           |
+| avatarurl        | String          | 头像                                                                                                                                                                                                                                                           |
+| idCard           | String          | 身份证号                                                                                                                                                                                                                                                       |
+| realName         | String          | 姓名                                                                                                                                                                                                                                                           |
+
+##### attr标记
+attr 标记，由以下标记位构成
+
+| **标识** | **备注**                                       |
+| -------- | ---------------------------------------------- |
+| 0        | 是否已通过望舒完成实名认证，1 表示已实名。     |
+| 1        | 用户当前是否有绑定手机号，1 表示有绑定。       |
+| 2        | 用户当前是否有绑定邮箱，1 表示有绑定。         |
+| 3        | 用户当前是否有已设置密码的登录凭证，1 表示有。 |
+| 4        | 用户是否通过望舒完成实名认证，1 表示是。       |
+
+#### 响应结构
+
+```json
+{
+    "code": 0,
+    "data": {
+        "avatarurl": "",
+        "mobile_phone": "159****7520",
+        "nickname": "rssllyn",
+        "openid": "rxuWFnlHRbTZ5ED5TkwAG5XVQ==",
+        "sex": 0,
+        "user_state": 0,
+        "attr": 0
+    }
+}
+```
+
+### 修改用户信息
+:::tip
+由于部分项目的 **用户信息（头像、昵称、性别）** 没有直接使用**望舒通行证数据**，而是采用由**望舒通知游戏服务器同步方式**，在网络不好时可能会通知失败，导致游戏服务器存储的用户信息和望舒通行证信息不一致的情况。
+
+每次调用修改用户信息时望舒会重新通知游戏服务器，为 **降低通知频率 减少服务器压力** 每次调用 **updateUserInfo** 时可将**旧用户信息传入 ext 中**，望舒对信息进行比对后将未修改的用户信息通知给游戏服务器，已修改的用户信息不会同步。
+:::
+
+<Tabs groupId="platform-10">
+
+<TabItem value="js" label="JS">
+
+#### 参数说明
+
+| **字段** | **类型**        | **是否必填** | **备注**     |
+| ------------ | ------------------- | ---------------- | ---------------- |
+| params   | IUpdateUserInfo | 是           | 参数         |
+| callback | IMethodParams   | 是           | 回调函数集合 |
+
+> IUpdateUserInfo 说明
+
+| **字段**  | **类型** | **是否必填** | **备注**                     |
+| ------------- | ------------ | ---------------- | -------------------------------- |
+| nickname  | string   | 是           | 昵称                         |
+| avatarurl | string   | 是           | 头像地址                     |
+| region    | string   | 是           | 用户所在地区编码             |
+| sex       | string   | 是           | 性别，0 表示女性，1 表示男性 |
+| ext    | NSDictionary | 否           | 透出参数，目前仅作为数据校验使用 |
+
+> **ext 说明**
+
+| **字段**  | **类型** | **是否必填** | **备注**        |
+| --------- | -------- | ------------ | --------------- |
+| old_avatarurl | NSString | 否           | 旧头像 url        |
+| old_nickname  | NSString | 否           | 旧用户昵称        |
+| old_sex       | NSString | 是           | 旧性别，1 男 0 女，无改动传-1，不传会默认修改为女性 |
+
+> IMethodParams 说明
+
+| **字段** | **备注**                                                  |
+| ------------ | ------------------------------------------------------------- |
+| complete | (data) => voidcomplete：为函数且必传，data 为结果数据 |
+
+#### 调用示例
+```javascript
+sdk.updateInfo(
+  {
+    nickname: "我的狼",
+    avatarurl: "xxx",
+    region: "xxx",
+    sex: 0,
+  },
+  {
+    complete: (data) => {
+      console.log(data);
+    },
+  }
+);
+```
+
+</TabItem>
+
+<TabItem value="unity" label="Unity">
+
+#### 参数说明
+
+| **字段**  | **类型** | **是否必填** | **备注**                     |
+| ------------- | ------------ | ---------------- | -------------------------------- |
+| nickname  | string   | 是           | 昵称                         |
+| avatarurl | string   | 是           | 头像地址                     |
+| region    | string   | 是           | 用户所在地区编码             |
+| sex       | string   | 是           | 性别，0 表示女性，1 表示男性 |
+| ext    | NSDictionary | 否           | 透出参数，目前仅作为数据校验使用 |
+
+> **ext 说明**
+
+| **字段**  | **类型** | **是否必填** | **备注**        |
+| --------- | -------- | ------------ | --------------- |
+| old_avatarurl | NSString | 否           | 旧头像 url        |
+| old_nickname  | NSString | 否           | 旧用户昵称        |
+| old_sex       | NSString | 是           | 旧性别，1 男 0 女，无改动传-1，不传会默认修改为女性 |
+
+#### 调用示例
+
+```csharp
+using System;
+using System.Collections.Generic;
+using UnityEngine;
+using UnityEngine.UI;
+using RuiXue;
+using RuiXue.Login;
+
+#if UNITY_WEBGL
+using RuiXue.MiniGame.WeiXin;
+#endif
+
+public class RuiXueWeiXinMiniGameDemo : MonoBehaviour {
+    public void OnUpdateUserInfo()
+    {
+        RXLogin.UpdateUserInfo("yyyyy", "www.baidu.com", "1", 1, OnResponse, OnError);
+    }
+}
+```
+
+</TabItem>
+
+</Tabs>
+
+#### 响应结构
+
+```json
+{
+    "code": 0
+}
+```

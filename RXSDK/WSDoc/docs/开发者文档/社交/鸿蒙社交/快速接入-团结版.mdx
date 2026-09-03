@@ -1,0 +1,732 @@
+---
+sidebar_position: 1
+title: 快速接入-团结版
+description: "望舒SDK 社交 快速接入-团结版 鸿蒙 接入文档，提供完整的接口调用说明与示例。"
+---
+
+**接口原型**
+
+```csharp
+/// summary>
+/// 上报/更新经纬度坐标
+/// summary>
+/// param name="types">坐标分组，由 CP 自定义param>
+/// param name="lon">WGS84 经度param>
+/// param name="lat">WGS84 纬度param>
+/// param name="radius">限定半径距离，单位：米param>
+/// param name="count">获取数量，0 表示获取全部param>
+/// param name="page">获取第几页的数据 从 1 开始param>
+/// param name="page_size">每页数量param>
+/// param name="callback">param>
+void LbsRadius(string types, float lon, float lat, float radius, int count, int page, int page_size, Actionint, object, string> callback);
+```
+
+#### 参数说明
+
+| 字段 | 类型 | 是否必填 | 备注 | 其他信息 |
+| --- | --- | --- | --- | --- |
+| lon | number | 是 | WGS84 经度 | mock: 125.36970905364038 |
+| lat | number | 是 | WGS84 纬度 | mock: 43.814125235156496 |
+| radius | integer | 是 | 限定半径距离，单位：米 | mock: @integer(100, 10000) |
+| count | integer | 否 | 获取数量， 0 表示获取全部 | mock: @integer(1, 100) |
+| page | integer | 是 | 获取第几页的数据 从 1 开始 | mock: 1 |
+| page_size | integer | 是 | 每页数量 | mock: 10 |
+| type | string | 是 | 坐标分组，由 CP 自定义 |  |
+
+**调用示例**
+
+```csharp
+float lon = 118.19646377354036f;
+float lat = 24.4837108022851f;
+var radius = 20000;
+var count = 0;
+var page = 1;
+var page_size = 10;
+var type = "friend";
+RuiXueSdk.SocialAPI.LbsRadius(type, lon, lat, radius, count, page, page_size, RXCallback);
+```
+
+#### 响应结构
+
+**HTTP 状态码：**`200 OK`
+
+| 字段 | 类型 | 是否必填 | 说明 | 示例 |
+| --- | --- | --- | --- | --- |
+| code | Number | 是 | 响应状态码， 0 为成功，非 0 表示出错 | 0 |
+| msg | String | 否 | 响应信息，仅在 code 非 0 时返回 | data |
+| DataNode | 否 | 结果数据集 |  |  |
+
+##### DataNode
+
+
+| 字段 | 类型 | 是否必填 | 说明 |
+| --- | --- | --- | --- |
+| openid | String | 是 | 用户望舒 OpenID |
+| nickname | String | 否 | 用户昵称 |
+| birthday | String | 否 | 用户生日日期 |
+| remarks | String | 否 | 当前用户对其的备注 |
+| avatar | String | 否 | 用户头像 |
+| custom | String | 否 | CP 自定义信息 |
+| dist | Float64 | 是 | 距离当前用户的距离（米） |
+| sex | Number | 否 | 用户性别， 1:男； 0:女 |
+| cp_userid | Number | 否 | CP 侧 用户 id |
+
+
+**响应示例**
+
+```json
+{
+ "data": [
+ {
+ "openid": "rxuSl4QZoNk0G1HY2-Za6GlO7wO-p_ej",
+ "nickname": "xdh"
+ }
+ ],
+ "code": 0
+}
+```
+
+### 获取位置信息
+
+请参考 [定位功能](/docs/开发者文档/定位/Android-定位/快速接入) 。
+
+### 设置用户自定义信息
+
+**接口原型**
+
+```csharp
+/// summary>
+/// 设置用户自定义信息
+/// summary>
+/// param name="custom">用户自定义信息param>
+/// param name="callback">param>
+void UserSetCustom(string custom, Actionint, object, string> callback);
+```
+
+#### 参数说明
+
+| 字段 | 类型 | 是否必填 | 备注 |
+| --- | --- | --- | --- |
+| custom | string | 是 | 最大长度为 512 字节 |
+
+**调用示例**
+
+```csharp
+var custom = "custom info 最大长度为 512 字节";
+RuiXueSdk.SocialAPI.UserSetCustom(custom, RXCallback);
+```
+
+#### 响应结构
+
+**HTTP 状态码：**`200 OK`
+
+| 字段 | 类型 | 是否必填 | 说明 | 示例 |
+| --- | --- | --- | --- | --- |
+| code | Number | 是 | 响应状态码， 0 为成功，非 0 表示出错 | 0 |
+| msg | String | 否 | 响应信息，仅在 code 非 0 时返回 |  |
+
+**响应示例**
+
+```json
+{
+ "code": 0
+}
+```
+
+### 上报/更新经纬度坐标
+
+**接口原型**
+
+```csharp
+/// summary>
+/// 上报/更新经纬度坐标
+/// summary>
+/// param name="types">坐标分组，由 CP 自定义param>
+///
+param>
+/// param name="lat">纬度param>
+/// param name="callback">param>
+void LbsUpdate(string[] types, float lon, float lat, Actionint, object, string> callback);
+```
+
+#### 参数说明
+
+| **字段**
+
+| 类型 | 是否必填 | 备注 | 其他信息 |
+| --- | --- | --- | --- |
+| lon | number | 是 | WGS84 经度 |
+| mock: @float(0,180,14,14) | lat | number | 是 |
+| WGS84 纬度 | mock: @float(0,90,14,14) | types | string [] |
+| 是 | 坐标分组，由 CP 自定义。 | item 类型: string |  |
+
+**调用示例**
+
+```csharp
+float lon = 118.19646377354036f;
+float lat = 24.4837108022851f;
+var types = new string[] { "sss" };
+RuiXueSdk.SocialAPI.LbsUpdate(types, lon, lat, RXCallback);
+```
+
+**响应结构**
+
+**HTTP 状态码：**`200 OK`
+
+| 字段 | 类型 | 是否必填 | 说明 | 示例 |
+| --- | --- | --- | --- | --- |
+| code | Number | 是 | 响应状态码， 0 为成功，非 0 表示出错 | 0 |
+| msg | String | 否 | 响应信息，仅在 code 非 0 时返回 |  |
+
+**响应示例**
+
+```json
+{
+ "code": 0
+}
+```
+
+### 删除经纬度坐标
+
+**接口原型**
+
+```csharp
+/// summary>
+/// 删除经纬度坐标
+/// summary>
+/// param name="types">坐标分组，由 CP 自定义param>
+/// param name="callback">param>
+void LbsDelete(string[] types, Actionint, object, string> callback);
+
+```
+
+#### 参数说明
+
+| 字段 | 类型 | 是否必填 | 备注 | 其他信息 |
+| --- | --- | --- | --- | --- |
+| types | string[] | 是 | 坐标分组，由 CP 自定义。 |  |
+
+**调用示例**
+
+```csharp
+
+var types = new string[] { "sss" };
+RuiXueSdk.SocialAPI.LbsDelete(types, RXCallback);
+```
+
+#### 响应结构
+
+**HTTP 状态码：**`200 OK`
+
+| 字段 | 类型 | 是否必填 | 说明 | 示例 |
+| --- | --- | --- | --- | --- |
+| code | Number | 是 | 响应状态码， 0 为成功，非 0 表示出错 | 0 |
+| msg | String | 否 | 响应信息，仅在 code 非 0 时返回 |  |
+
+**响应示例**
+
+```json
+{
+ "code": 0
+}
+```
+
+## 设置自定义关系
+
+### 添加自定义关系
+
+**接口原型**
+
+```csharp
+/// summary>
+/// 添加自定义关系
+/// summary>
+/// param name="target">对方 OpenIDparam>
+/// param name="types">CP 自定义关系类型列表，其值是一个 map 键值对列表，value 必须为 boolparam>
+/// param name="target_remarks">用户给 Target 设置的备注信息（最长 512 字符）param>
+/// param name="user_remarks">param>
+/// param name="callback">Target 给用户设置的备注信息（最长 512 字符）param>
+void RelationAdd(string target, Dictionarystring, object> types, string target_remarks, string user_remarks, Actionint, object, string> callback);
+```
+
+#### 参数说明
+
+
+| 字段 | 类型 | 是否必填 | 说明 |
+| --- | --- | --- | --- |
+| target | string | 是 | 对方 OpenID |
+| test | types | object | 是 |
+| CP 自定义关系类型列表，其值是一个 map 键值对列表， value 必须为 bool | target_remarks | string | 否 |
+| 用户给 Target 设置的备注信息（最长 512 字符） | aaaa | user_remarks | string |
+| 否 | Target 给用户设置的备注信息（最长 512 字符） | bbbb |  |
+
+
+**调用示例**
+
+```csharp
+string target = "";
+Dictionarystring, object> types = new Dictionarystring, object>();
+string target_remarks = "";
+string user_remarks = "";
+RuiXueSdk.SocialAPI.RelationAdd(target, types, target_remarks, user_remarks, RXCallback);
+
+```
+
+#### 响应结构
+
+**HTTP 状态码：**`200 OK`
+
+| 字段 | 类型 | 是否必填 | 说明 | 示例 |
+| --- | --- | --- | --- | --- |
+| code | Number | 是 | 响应状态码， 0 为成功，非 0 表示出错 | 0 |
+| msg | String | 否 | 响应信息，仅在 code 非 0 时返回 |  |
+
+**响应示例**
+
+```json
+{
+ "code":
+}
+```
+
+### 删除自定义关系
+
+**接口原型**
+
+```csharp
+/// summary>
+/// 删除自定义关系
+/// summary>
+/// param name="target">对方 OpenIDparam>
+/// param name="types">
+/// param name="callback">param>
+void RelationDelete(string target, Dictionarystring, object> types, Actionint, object, string> callback);
+```
+
+#### 参数说明
+
+| 字段 | 类型 | 是否必填 | 备注 | 其他信息 |
+| --- | --- | --- | --- | --- |
+| target | string | 是 | 对方 OpenID | test |
+| types | object | 是 | CP 自定义关系类型列表，其值是一个 map 键值对列表， value 必须为 bool |  |
+
+**调用示例**
+
+```csharp
+string target = "";
+Dictionarystring, object> types = new Dictionarystring, object>();
+RuiXueSdk.SocialAPI.RelationDelete(target, types, RXCallback);
+```
+
+#### 响应结构
+
+**HTTP 状态码：**`200 OK`
+
+| 字段 | 类型 | 是否必填 | 说明 | 示例 |
+| --- | --- | --- | --- | --- |
+| code | Number | 是 | 响应状态码， 0 为成功，非 0 表示出错 | 0 |
+| msg | String | 否 | 响应信息，仅在 code 非 0 时返回 |  |
+
+**响应示例**
+
+```json
+{
+ "code": 0
+}
+```
+
+### 更新用户自定义关系备注
+
+**接口原型**
+
+```csharp
+/// summary>
+/// 更新用户自定义关系备注
+/// summary>
+/// param name="target">对方 OpenID param>
+/// param name="type">CP 自定义关系类型param>
+/// param name="target_remarks">用户给 Target 设置的备注信息（最长 512 字符）param>
+/// param name="callback">param>
+void UpdateRemarks(string target, string type, string target_remarks, Actionint, object, string> callback);
+```
+
+#### 参数说明
+
+| 字段 | 类型 | 是否必填 | 备注 | 其他信息 |
+| --- | --- | --- | --- | --- |
+| target | string | 是 | 对方 OpenID | test |
+| type | string | 是 | CP 自定义关系类型 | test |
+| target_remarks | string | 否 | 用户给 Target 设置的备注信息（最长 512 字符） | xxxxx |
+
+**调用示例**
+
+```csharp
+string target = "test";
+string target_remarks = "test";
+string type = "xxx";
+RuiXueSdk.SocialAPI.UpdateRemarks(target, type, target_remarks, RXCallback);
+```
+
+#### 响应结构
+
+**HTTP 状态码：**`200 OK`
+
+| 字段 | 类型 | 是否必填 | 说明 | 示例 |
+| --- | --- | --- | --- | --- |
+| code | Number | 是 | 响应状态码， 0 为成功，非 0 表示出错 | 0 |
+| msg | String | 否 | 响应信息，仅在 code 非 0 时返回 |  |
+
+**响应示例**
+
+```json
+{
+ "code": 0
+}
+```
+
+### 获取自定义关系列表
+
+**接口原型**
+
+```csharp
+/// summary>
+/// 获取自定义关系列表
+/// summary>
+/// param name="type">CP 自定义关系类型param>
+/// param name="callback">param>
+void RelationList(string type, Actionint, object, string> callback);
+```
+
+#### 参数说明
+
+| 字段 | 类型 | 是否必填 | 备注 | 其他信息 |
+| --- | --- | --- | --- | --- |
+| type | string | 是 | CP 自定义关系类型 |  |
+
+**调用示例**
+
+```csharp
+string type = "cptypexxx";
+RuiXueSdk.SocialAPI.RelationList(type, RXCallback);
+```
+
+#### 响应结构
+
+**HTTP 状态码：**`200 OK`
+
+| 字段 | 类型 | 是否必填 | 说明 | 示例 |
+| --- | --- | --- | --- | --- |
+| code | Number | 是 | 响应状态码， 0 为成功，非 0 表示出错 | 0 |
+| msg | String | 否 | 响应信息，仅在 code 非 0 时返回 | data |
+| Node | 否 | 结果数据集 |  |  |
+
+##### Node
+
+
+| 字段 | 类型 | 是否必填 | 说明 |
+| --- | --- | --- | --- |
+| openid | String | 是 | 用户望舒 OpenID |
+| nickname | String | 否 | 用户昵称 |
+| birthday | String | 否 | 用户生日日期 |
+| remarks | String | 否 | 当前用户对其的备注 |
+| avatar | String | 否 | 用户头像 |
+| custom | String | 否 | CP 自定义信息 |
+| time | Number | 否 | 关系形成时间戳（单位：秒） |
+| sex | Number | 否 | 用户性别， 1:男； 0:女 |
+| cp_userid | Number | 否 | CP 侧 用户 id |
+
+
+**响应示例**
+
+```json
+{
+ "data": [
+ {
+ "openid": "rxuSl4QZoNk0G1HY2-Za6GlO7wO-p_ej",
+ "nickname": "xdh"
+ }
+ ],
+ "code": 0
+}
+```
+
+### 判断两用户是否存在某自定义关系
+
+**接口原型**
+
+```csharp
+/// summary>
+/// 判断两用户是否存在某自定义关系
+/// summary>
+/// param name="target">对方 OpenID param>
+/// param name="type">CP 自定义关系类型param>
+/// param name="callback">param>
+void HasRelation(string target, string type, Actionint, object, string> callback);
+```
+
+#### 参数说明
+
+| 字段 | 类型 | 是否必填 | 备注 | 其他信息 |
+| --- | --- | --- | --- | --- |
+| target | string | 是 | 对方 OpenID | test |
+| type | string | 是 | CP 自定义关系类型 | test |
+
+**调用示例**
+
+```csharp
+string target = "test";
+string type = "cptypexxx";
+RuiXueSdk.SocialAPI.HasRelation(target, type, RXCallback);
+```
+
+#### 响应结构
+
+**HTTP 状态码：**`200 OK`
+
+
+| 字段 | 类型 | 是否必填 | 说明 |
+| --- | --- | --- | --- |
+| code | Number | 是 | 响应状态码， 0 为成功，非 0 表示出错 |
+| msg | String | 否 | 响应信息，仅在 code 非 0 时返回 |
+| data | Bool | 是 | 存在关系时为 true ；否则为 false |
+| Bool | 是 | 存在关系时为 true ；否则为 false |  |
+
+
+**响应示例**
+
+```json
+{
+ "code": 0,
+ "data": true
+}
+```
+
+## 设置好友关系
+
+### 添加好友
+
+**接口原型**
+
+```csharp
+/// summary>
+/// 设置好友关系
+/// summary>
+/// param name="target">param>
+/// param name="target_remarks">param>
+/// param name="user_remarks">param>
+/// param name="callback">param>
+void AddFriends(string target, string target_remarks, string user_remarks, Actionint, object, string> callback);
+```
+
+#### 参数说明
+
+| 字段 | 类型 | 是否必填 | 备注 | 其他信息 |
+| --- | --- | --- | --- | --- |
+| target | string | 是 | 对方 OpenID | test |
+| target_remarks | string | 否 | 用户给 Target 设置的备注信息（最长 512 字符） | aaaa |
+| user_remarks | string | 否 | Target 给用户设置的备注信息（最长 512 字符） | bbbb |
+
+**调用示例**
+
+```csharp
+string target = "test";
+string target_remarks = "test";
+string user_remarks = "test";
+RuiXueSdk.SocialAPI.AddFriends(target, target_remarks, user_remarks, RXCallback);
+```
+
+#### 响应结构
+
+**HTTP 状态码：**`200 OK`
+
+| 字段 | 类型 | 是否必填 | 说明 | 示例 |
+| --- | --- | --- | --- | --- |
+| code | Number | 是 | 响应状态码， 0 为成功，非 0 表示出错 | 0 |
+| msg | String | 否 | 响应信息，仅在 code 非 0 时返回 |  |
+
+**响应示例**
+
+```json
+{
+ "code": 0
+}
+```
+
+### 删除好友
+
+**接口原型**
+
+```csharp
+/// summary>
+/// 删除好友
+/// summary>
+/// param name="target">对方 OpenID param>
+/// param name="callback">param>
+void RemoveFriends(string target, Actionint, object, string> callback);
+```
+
+#### 参数说明
+
+| 字段 | 类型 | 是否必填 | 备注 | 其他信息 |
+| --- | --- | --- | --- | --- |
+| target | string | 是 | 对方 OpenID |  |
+
+**调用示例**
+
+```csharp
+string target = "test";
+RuiXueSdk.SocialAPI.RemoveFriends(target, RXCallback);
+```
+
+#### 响应结构
+
+**HTTP 状态码：**`200 OK`
+
+| 字段 | 类型 | 是否必填 | 说明 | 示例 |
+| --- | --- | --- | --- | --- |
+| code | Number | 是 | 响应状态码， 0 为成功，非 0 表示出错 | 0 |
+| msg | String | 否 | 响应信息，仅在 code 非 0 时返回 |  |
+
+**响应示例**
+
+```json
+{
+ "code": 0
+}
+```
+
+### 更新好友备注
+
+**接口原型**
+
+```csharp
+/// summary>
+/// 更新好友备注
+/// summary>
+/// param name="target">对方 OpenIDparam>
+/// param name="target_remarks">用户给 Target 设置的备注信息（最长 512 字符）param>
+/// param name="callback">param>
+void UpdateFriendRemarks(string target, string target_remarks, Actionint, object, string> callback);
+```
+
+#### 参数说明
+
+| 字段 | 类型 | 是否必填 | 备注 | 其他信息 |
+| --- | --- | --- | --- | --- |
+| target | string | 是 | 对方 OpenID | test |
+| target_remarks | string | 否 | 用户给 Target 设置的备注信息（最长 512 字符） | xxxxx |
+
+**调用示例**
+
+```csharp
+string target = "test";
+string target_remarks = "target_remarks";
+RuiXueSdk.SocialAPI.UpdateFriendRemarks(target,target_remarks, RXCallback);
+```
+
+#### 响应结构
+
+**HTTP 状态码：**`200 OK`
+
+| 字段 | 类型 | 是否必填 | 说明 | 示例 |
+| --- | --- | --- | --- | --- |
+| code | Number | 是 | 响应状态码， 0 为成功，非 0 表示出错 | 0 |
+| msg | String | 否 | 响应信息，仅在 code 非 0 时返回 |  |
+
+**响应示例**
+
+```json
+{
+ "code": 0
+}
+```
+
+### 获取好友列表
+
+**接口原型**
+
+```csharp
+/// summary>
+/// 获取好友列表
+/// summary>
+/// param name="callback">param>
+void RelationFriends(Actionint, object, string> callback);
+```
+
+**调用示例**
+
+```csharp
+RuiXueSdk.SocialAPI.RelationFriends( RXCallback);
+```
+
+#### 响应结构
+
+**HTTP 状态码：**`200 OK`
+
+| 字段 | 类型 | 是否必填 | 说明 | 示例 |
+| --- | --- | --- | --- | --- |
+| code | Number | 是 | 响应状态码， 0 为成功，非 0 表示出错 | 0 |
+| msg | String | 否 | 响应信息，仅在 code 非 0 时返回 | data |
+| Node | 否 | 结果数据集 |  |  |
+
+**响应示例**
+
+```json
+{
+ "data": [
+ {
+ "openid": "rxuSl4QZoNk0G1HY2-Za6GlO7wO-p_ej",
+ "nickname": "xdh"
+ }
+ ],
+ "code": 0
+}
+```
+
+### 判断两用户是否为好友
+
+**接口原型**
+
+```csharp
+/// summary>
+/// 判断两用户是否为好友
+/// summary>
+/// param name="target">对方 OpenID param>
+/// param name="callback">param>
+void IsFriend(string target, Actionint, object, string> callback);
+```
+
+#### 参数说明
+
+| 字段 | 类型 | 是否必填 | 备注 | 其他信息 |
+| --- | --- | --- | --- | --- |
+| target | string | 是 | 对方 OpenID | test |
+
+**调用示例**
+
+```csharp
+string target = "test";
+RuiXueSdk.SocialAPI.IsFriend(target, RXCallback);
+```
+
+#### 响应结构
+
+**HTTP 状态码：**`200 OK`
+
+
+| 字段 | 类型 | 是否必填 | 说明 |
+| --- | --- | --- | --- |
+| code | Number | 是 | 响应状态码， 0 为成功，非 0 表示出错 |
+| msg | String | 否 | 响应信息，仅在 code 非 0 时返回 |
+| data | Bool | 是 | 存在关系时为 true ；否则为 false |
+| Bool | 是 | 存在关系时为 true ；否则为 false |  |
+
+
+**响应示例**
+
+```json
+{
+ "code": 0,
+ "data": true
+}
+```

@@ -1,0 +1,35 @@
+---
+title: "支付配置说明"
+---
+
+## 准备工作
+::: tip
+* Google云平台地址：[https://console.cloud.google.com/apis/credentials](https://console.cloud.google.com/apis/credentials?project=fishing-game-zone&hl=fi&supportedpurview=project)
+* Google开发者后台地址:[https://play.google.com/console](https://play.google.com/console)
+* 望舒系统地址：[企业管理后台中获取望舒地址](/docs/v3.5/入门指南/准备工作)。
+:::
+
+## 获取配置
+登录 [Google开发者后台](https://play.google.com/console)，位置：**管理中心 >变现 > 创收设置 > 许可**，复制`公钥`信息。
+![image.png](https://haiqi-ruixue-test.oss-cn-beijing.aliyuncs.com/docOnline/image-1729047563425.png)
+#### serverAccount文件JSON：
+登录 [Google云平台](https://console.cloud.google.com/apis/credentials?project=fishing-game-zone&hl=fi&supportedpurview=project)
+![image.png](https://haiqi-ruixue-test.oss-cn-beijing.aliyuncs.com/image-1721891629950.png)
+![image.png](https://haiqi-ruixue-test.oss-cn-beijing.aliyuncs.com/image-1721891652378.png)
+![image.png](https://haiqi-ruixue-test.oss-cn-beijing.aliyuncs.com/image-1721891667282.png)
+创建后会自动下载json文件。下载完成后打开文件将信息复制到望舒。
+#### 支付相关回调配置
+使用谷歌服务端回调/退款回调时参考下方配置：
+![20241016-095349.jpg](https://haiqi-ruixue-test.oss-cn-beijing.aliyuncs.com/docOnline/20241016-095349-1729044449083.jpg)
+在已创建 Cloud Pub/Sub 主题后，在Google配置发布通知所需的主题和权限。
+![image.png](https://haiqi-ruixue-test.oss-cn-beijing.aliyuncs.com/docOnline/image-1740550204669.png)
+:::tip
+支付回调：api域名/v1/ke/callback/f_channel/产品id/渠道id/google
+
+退款回调 :api 域名/v1/ke/refund/产品 ID/渠道ID/google
+:::
+### 望舒系统中配置信息
+#### 支付配置
+通过获取到的`密钥`和`serverAccount文件JSON`复制到望舒系统,填写到支付账号的密钥中。位置：**运维资源管理> 三方账号管理 > 支付账号管理 > 新建支付账号**。
+
+![image.png](https://haiqi-ruixue-test.oss-cn-beijing.aliyuncs.com/image-1721891777320.png)

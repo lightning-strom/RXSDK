@@ -1,0 +1,75 @@
+---
+title: "快速接入"
+---
+
+## 实名认证
+::: warning
+调用防沉迷弹框前，必需接入实名认证 [国内](/docs/v3.5/三方服务/Android 渠道接入说明)  [国外](/docs/v3.5/防沉迷/功能介绍)
+:::
+
+### 实名认证效果
+
+![](https://guanwangyun.oss-cn-beijing.aliyuncs.com/document/passportUI/EqUpbAcX4oLppCxVjmucUDhXnbf.png)
+
+![](https://guanwangyun.oss-cn-beijing.aliyuncs.com/document/passportUI/DQnIbSsRboq8Cmx67JLcSK4vnCd.png)
+
+### 调用接口
+
+客户端调用[<strong>实名认证接口</strong>](/docs/v3.5/登录（通行证）/鸿蒙登录/快速接入-原生版)
+
+**接口说明**
+```typescript
+/**
+ * 显示实名认证界面
+ * 引导用户完成实名认证流程，支持自定义奖励和回调通知
+ * 
+ * @param uiContext - UI上下文对象，用于指定界面显示位置和生命周期
+ *                    通常为当前页面或组件的上下文
+ * 
+ * @param callback - 可选回调函数，用于接收实名认证结果
+ *                   回调参数格式：{ code: number, message: string, data?: RealNameResult }
+ *                   - code: 状态码（0表示成功，非0表示失败）
+ *                   - message: 操作消息（如"认证成功"、"用户取消"）
+ *                   - data: 认证结果数据，包含用户实名信息
+ * 
+ * @returns 返回对话框控制器实例，可用于控制对话框行为
+ *          支持方法：
+ *          - show(): 显示对话框
+ *          - hide(): 隐藏对话框
+ *          - onClose(callback): 设置关闭回调
+ */
+showRealNameUI(uiContext: UIContext, callback?: RCallback): IBaseDialog
+```
+  
+**调用示例**
+```typescript
+RXApi.getInstance().showRealNameUI(this.uicontext, (result) => {
+    if (result.code === 0) {
+      console.log("实名认证成功:", result.data);
+      refreshUserInfo(); // 刷新用户信息
+    } else {
+      console.error("实名认证失败:", result.message);
+    }
+  });
+```
+
+  
+## 获取剩余时长（单位：秒）
+::: tip
+登录成功后，返回结构体中包含玩家游戏剩余时长。
+参数：`aas`，说明用户剩余游戏时长 xx 秒。
+:::
+
+| **字段** | **类型** | **说明** |
+| --- | --- | --- |
+| aas | number | 当 flag 有防沉迷标记时，表示用户剩余游戏时间（秒）。 |
+
+客户端调用[登录通行证接口](/docs/v3.5/登录（通行证）/Android 登录API/快速接入)；
+
+## 消费限制
+::: tip
+调用瑞需下单支付接口时，参数 `indulge_auth = 1` （防沉迷支付验证开启）。
+返回错误码为 `302412` 时，说明用户触发防沉迷充值机制不可充值！！！
+:::
+
+客户端调用 参考 `下单支付接口`；

@@ -1,0 +1,876 @@
+---
+sidebar_position: 1
+title: 快速接入
+description: "望舒SDK 社交 快速接入 Unity 接入文档，提供完整的接口调用说明与示例。"
+---
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
+
+
+### 平台支持状态
+
+Package Manager 导入 RuiXue.Social
+
+<Tabs groupId="platform">
+<TabItem value="ios" label="iOS" default>
+
+iOS依赖的相关SDK已通过脚本自动引用到工程中，您无需手动引用。受网络环境等因素影响，相关SDK有可能引用失败，所以在生成iOS工程后，您需要检查工程中的Podfile文件中的SDK名称，在Podfile.lock文件中是否存在，如果Podfile中的SDK名称在Podfile.lock中未存在，说明SDK未完全下载成功，您需要进入Podfile文件所在路径，执行以下命令安装SDK：
+```objectivec
+pod install 
+```
+
+</TabItem>
+<TabItem value="android" label="Android">
+
+Android 无需配置
+
+</TabItem>
+</Tabs>
+
+### 接入方式
+* Package Manager 导入 RuiXue.Social
+
+
+## 定位
+
+### 获取附近人
+
+**接口原型**
+
+```csharp
+
+public void LbsRadius(string type, float lon, float lat, float radius, int count, int page, int page_size,
+            RequestResponseDelegate onResponse, RequestErrorDelegate onError);
+
+```
+
+#### 参数说明
+
+| **字段**  | **类型** | **是否必填** | **备注**                   | **其他信息**               |
+| --------- | -------- | ------------ | -------------------------- | -------------------------- |
+| lon       | number   | 是           | WGS84 经度                 | mock: 125.36970905364038   |
+| lat       | number   | 是           | WGS84 纬度                 | mock: 43.814125235156496   |
+| radius    | integer  | 是           | 限定半径距离，单位：米     | mock: @integer(100, 10000) |
+| count     | integer  | 否           | 获取数量，0 表示获取全部   | mock: @integer(1, 100)     |
+| page      | integer  | 是           | 获取第几页的数据 从 1 开始 | mock: 1                    |
+| page_size | integer  | 是           | 每页数量                   | mock: 10                   |
+| type      | string   | 是           | 坐标分组，由 CP 自定义     |                            |
+
+**调用示例**
+
+```csharp
+
+    private void OnLbsRadius()
+    {
+        RXSocial.LbsRadius("friend", 118.19646377354036f, 24.483710802285128f, 1000, 10, 1, 10, 
+            SocialResponseDelegate, RegisterErrorDelegate);
+    }
+
+```
+
+#### 响应结构
+
+**HTTP 状态码：**`200 OK`
+
+| **字段** | **类型**                                  | **是否必填** | **说明** | **示例** |
+| --- |-----------------------------------------| --- | --- | --- |
+| code | Number                                  | 是   | 响应状态码，0为成功，非0表示出错 | 0   |
+| msg | String                                  | 否   | 响应信息，仅在status为非0时不为空 |     |
+| data | `DataNode` | 否   | 结果数据集 |     |
+
+##### DataNode
+
+| **字段** | **类型** | **是否必填** | **说明** | **示例** |
+| --- | --- | --- | --- | --- |
+| openid | String | 是   | 用户望舒 OpenID |     |
+| nickname | String | 否   | 用户昵称 |     |
+
+
+## 定位
+### 获取附近人
+
+**接口原型**
+
+```csharp
+
+public void LbsRadius(string type, float lon, float lat, float radius, int count, int page, int page_size,
+ RequestResponseDelegate onResponse, RequestErrorDelegate onError);
+
+```
+
+#### 参数说明
+
+| 字段 | 类型 | 是否必填 | 备注 | 其他信息 |
+| --- | --- | --- | --- | --- |
+| lon | number | 是 | WGS84 经度 | mock: 125.36970905364038 |
+| lat | number | 是 | WGS84 纬度 | mock: 43.814125235156496 |
+| radius | integer | 是 | 限定半径距离，单位：米 | mock: @integer(100, 10000) |
+| count | integer | 否 | 获取数量， 0 表示获取全部 | mock: @integer(1, 100) |
+| page | integer | 是 | 获取第几页的数据 从 1 开始 | mock: 1 |
+| page_size | integer | 是 | 每页数量 | mock: 10 |
+| type | string | 是 | 坐标分组，由 CP 自定义 |  |
+
+**调用示例**
+
+```csharp
+
+ private void OnLbsRadius()
+ {
+ RXSocial.LbsRadius("friend", 118.19646377354036f, 24.483710802285128f, 1000, 10, 1, 10,
+ SocialResponseDelegate, RegisterErrorDelegate);
+ }
+
+```
+
+#### 响应结构
+
+**HTTP 状态码：**`200 OK`
+
+| 字段 | 类型 | 是否必填 | 说明 | 示例 |
+| --- | --- | --- | --- | --- |
+| code | Number | 是 | 响应状态码， 0 为成功，非 0 表示出错 | 0 |
+| msg | String | 否 | 响应信息，仅在 code 非 0 时返回 | data |
+| DataNode | 否 | 结果数据集 |  |  |
+
+##### DataNode
+
+
+| 字段 | 类型 | 是否必填 | 说明 |
+| --- | --- | --- | --- |
+| openid | String | 是 | 用户望舒 OpenID |
+| nickname | String | 否 | 用户昵称 |
+| birthday | String | 否 | 用户生日日期 |
+| remarks | String | 否 | 当前用户对其的备注 |
+| avatar | String | 否 | 用户头像 |
+| custom | String | 否 | CP 自定义信息 |
+| dist | Float64 | 是 | 距离当前用户的距离（米） |
+| sex | Number | 否 | 用户性别， 1:男； 0:女 |
+| cp_userid | Number | 否 | CP 侧 用户 id |
+
+
+**响应示例**
+
+```json
+{
+ "data": [
+ {
+ "openid": "rxuSl4QZoNk0G1HY2-Za6GlO7wO-p_ej",
+ "nickname": "xdh"
+ }
+ ],
+ "code": 0
+}
+```
+
+### 获取位置信息
+
+请参考 定位功能。
+
+### 设置用户自定义信息
+
+**接口原型**
+
+```csharp
+
+ public void UserSetCustom(string custom, RequestResponseDelegate onResponse,
+ RequestErrorDelegate onError);
+
+```
+
+#### 参数说明
+
+| 字段 | 类型 | 是否必填 | 备注 |
+| --- | --- | --- | --- |
+| custom | string | 是 | 最大长度为 512 字节 |
+
+**调用示例**
+
+```csharp
+
+ public void OnUserSetCustom()
+ {
+ RXSocial.UserSetCustom("1111", SocialResponseDelegate, RegisterErrorDelegate);
+ }
+
+```
+
+#### 响应结构
+
+**HTTP 状态码：**`200 OK`
+
+| 字段 | 类型 | 是否必填 | 说明 | 示例 |
+| --- | --- | --- | --- | --- |
+| code | Number | 是 | 响应状态码， 0 为成功，非 0 表示出错 | 0 |
+| msg | String | 否 | 响应信息，仅在 code 非 0 时返回 |  |
+
+**响应示例**
+
+```json
+{
+ "code": 0
+}
+```
+
+### 上报/更新经纬度坐标
+
+**接口原型**
+
+```csharp
+
+ public void LbsUpdate(string[] types, float lon, float lat,
+ RequestResponseDelegate onResponse, RequestErrorDelegate onError);
+
+```
+
+#### 参数说明
+
+| 字段 | 类型 | 是否必填 | 备注 | 其他信息 |
+| --- | --- | --- | --- | --- |
+| lon | number | 是 | WGS84 经度 | mock: @float(0,180,14,14) |
+| lat | number | 是 | WGS84 纬度 | mock: @float(0,90,14,14) |
+| types | string [] | 是 | 坐标分组，由 CP 自定义。 | item 类型: string |
+
+**调用示例**
+
+```csharp
+
+ public void OnLbsUpdate()
+ {
+ string[] arr = {"1111"};
+ RXSocial.LbsUpdate(arr, 118.19646377354036f, 24.483710802285128f,
+ SocialResponseDelegate, RegisterErrorDelegate);
+ }
+
+```
+
+**响应结构**
+
+**HTTP 状态码：**`200 OK`
+
+| 字段 | 类型 | 是否必填 | 说明 | 示例 |
+| --- | --- | --- | --- | --- |
+| code | Number | 是 | 响应状态码， 0 为成功，非 0 表示出错 | 0 |
+| msg | String | 否 | 响应信息，仅在 code 非 0 时返回 |  |
+
+**响应示例**
+
+```json
+{
+ "code": 0
+}
+```
+
+### 删除经纬度坐标
+
+**接口原型**
+
+```csharp
+
+ public void LbsDelete(string[] types, RequestResponseDelegate onResponse, RequestErrorDelegate onError);
+
+```
+
+#### 参数说明
+
+| 字段 | 类型 | 是否必填 | 备注 | 其他信息 |
+| --- | --- | --- | --- | --- |
+| types | string [] | 是 | 坐标分组，由 CP 自定义。 | item 类型: string |
+| 否 | mock: friend |  |  |  |
+
+**调用示例**
+
+```csharp
+
+ public void OnLbsDelete()
+ {
+ string[] arr = {""};
+ RXSocial.LbsDelete(arr, SocialResponseDelegate, RegisterErrorDelegate);
+ }
+
+```
+
+#### 响应结构
+
+**HTTP 状态码：**`200 OK`
+
+| 字段 | 类型 | 是否必填 | 说明 | 示例 |
+| --- | --- | --- | --- | --- |
+| code | Number | 是 | 响应状态码， 0 为成功，非 0 表示出错 | 0 |
+| msg | String | 否 | 响应信息，仅在 code 非 0 时返回 |  |
+
+**响应示例**
+
+```json
+{
+ "code": 0
+}
+```
+
+## 设置自定义关系
+
+### 添加自定义关系
+
+**接口原型**
+
+```csharp
+
+ public void RelationAdd(string target, Dictionarystring, object> types, string target_remarks,
+ string user_remarks, RequestResponseDelegate onResponse, RequestErrorDelegate onError);
+
+```
+
+#### 参数说明
+
+
+| 字段 | 类型 | 是否必填 | 说明 |
+| --- | --- | --- | --- |
+| target | string | 是 | 对方 OpenID |
+| test | types | object | 是 |
+| CP 自定义关系类型列表，其值是一个 map 键值对列表， value 必须为 bool | target_remarks | string | 否 |
+| 用户给 Target 设置的备注信息（最长 512 字符） | aaaa | user_remarks | string |
+| 否 | Target 给用户设置的备注信息（最长 512 字符） | bbbb |  |
+
+
+**调用示例**
+
+```csharp
+
+ public void OnRelationAdd()
+ {
+ string[] arr =
+ {
+ "rxuN4ZOvlnP2_16wmj3Lfz3FYiej5xMk07yNKJAz",
+ "rxuN4ZOvlnP2_16wmj3Lfz3FYiej5xMk07yNKJAz"
+ };
+ Dictionarystring, object> dic = new();
+ dic.Add("test", true);
+ RXSocial.RelationAdd(arr[1], dic, null, null,
+ SocialResponseDelegate, RegisterErrorDelegate);
+ }
+
+```
+
+#### 响应结构
+
+**HTTP 状态码：**`200 OK`
+
+| 字段 | 类型 | 是否必填 | 说明 | 示例 |
+| --- | --- | --- | --- | --- |
+| code | Number | 是 | 响应状态码， 0 为成功，非 0 表示出错 | 0 |
+| msg | String | 否 | 响应信息，仅在 code 非 0 时返回 |  |
+
+**响应示例**
+
+```json
+{
+ "code":
+}
+```
+
+### 删除自定义关系
+
+**接口原型**
+
+```csharp
+
+ public void RelationDelete(string target, Dictionarystring, object> types, RequestResponseDelegate onResponse,
+ RequestErrorDelegate onError);
+
+```
+
+#### 参数说明
+
+| 字段 | 类型 | 是否必填 | 备注 | 其他信息 |
+| --- | --- | --- | --- | --- |
+| target | string | 是 | 对方 OpenID | test |
+| types | object | 是 | CP 自定义关系类型列表，其值是一个 map 键值对列表， value 必须为 bool |  |
+
+**调用示例**
+
+```csharp
+
+ public void OnRelationDelete()
+ {
+ Dictionarystring, object> dic = new();
+ dic.Add("test", true);
+ RXSocial.RelationDelete(arr[1], dic, SocialResponseDelegate, RegisterErrorDelegate);
+ }
+
+```
+
+#### 响应结构
+
+| 字段 | 类型 | 是否必填 | 说明 | 示例 |
+| --- | --- | --- | --- | --- |
+| code | Number | 是 | 响应状态码， 0 为成功，非 0 表示出错 | 0 |
+| msg | String | 否 | 响应信息，仅在 code 非 0 时返回 |  |
+
+**响应示例**
+
+```json
+{
+ "code": 0
+}
+```
+
+### 更新用户自定义关系备注
+
+**接口原型**
+
+```csharp
+
+ public void UpdateRemarks(string target, string type, string target_remarks,
+ RequestResponseDelegate onResponse, RequestErrorDelegate onError);
+
+```
+
+#### 参数说明
+
+| 字段 | 类型 | 是否必填 | 备注 | 其他信息 |
+| --- | --- | --- | --- | --- |
+| target | string | 是 | 对方 OpenID | test |
+| type | string | 是 | CP 自定义关系类型 | test |
+| target_remarks | string | 否 | 用户给 Target 设置的备注信息（最长 512 字符） | xxxxx |
+
+**调用示例**
+
+```csharp
+
+ public void OnUpdateRemarks()
+ {
+ string targetRemarks = _customRelationKey + " 关系备注";
+ RXSocial.UpdateRemarks(_openID, "", targetRemarks, SocialResponseDelegate, RegisterErrorDelegate);
+ }
+
+```
+
+#### 响应结构
+
+**HTTP 状态码：**`200 OK`
+
+| 字段 | 类型 | 是否必填 | 说明 | 示例 |
+| --- | --- | --- | --- | --- |
+| code | Number | 是 | 响应状态码， 0 为成功，非 0 表示出错 | 0 |
+| msg | String | 否 | 响应信息，仅在 code 非 0 时返回 |  |
+
+**响应示例**
+
+```json
+{
+ "code": 0
+}
+```
+
+### 获取自定义关系列表
+
+**接口原型**
+
+```csharp
+
+ public void RelationList(string type, RequestResponseDelegate onResponse,
+ RequestErrorDelegate onError);
+
+```
+
+#### 参数说明
+
+| 字段 | 类型 | 是否必填 | 备注 | 其他信息 |
+| --- | --- | --- | --- | --- |
+| type | string | 是 | CP 自定义关系类型 |  |
+
+**调用示例**
+
+```csharp
+
+ public void OnRelationList()
+ {
+ RXSocial.RelationList("test", SocialResponseDelegate, RegisterErrorDelegate);
+ }
+
+```
+
+#### 响应结构
+
+**HTTP 状态码：**`200 OK`
+
+| 字段 | 类型 | 是否必填 | 说明 | 示例 |
+| --- | --- | --- | --- | --- |
+| code | Number | 是 | 响应状态码， 0 为成功，非 0 表示出错 | 0 |
+| msg | String | 否 | 响应信息，仅在 code 非 0 时返回 | data |
+| Node | 否 | 结果数据集 |  |  |
+
+##### Node
+
+
+| 字段 | 类型 | 是否必填 | 说明 |
+| --- | --- | --- | --- |
+| openid | String | 是 | 用户望舒 OpenID |
+| nickname | String | 否 | 用户昵称 |
+| birthday | String | 否 | 用户生日日期 |
+| remarks | String | 否 | 当前用户对其的备注 |
+| avatar | String | 否 | 用户头像 |
+| custom | String | 否 | CP 自定义信息 |
+| time | Number | 否 | 关系形成时间戳（单位：秒） |
+| sex | Number | 否 | 用户性别， 1:男； 0:女 |
+| cp_userid | Number | 否 | CP 侧 用户 id |
+
+
+**响应示例**
+
+```json
+{
+ "data": [
+ {
+ "openid": "rxuSl4QZoNk0G1HY2-Za6GlO7wO-p_ej",
+ "nickname": "xdh"
+ }
+ ],
+ "code": 0
+}
+```
+
+### 判断两用户是否存在某自定义关系
+
+**接口原型**
+
+```csharp
+
+ public void HasRelation(string target, string type,
+ RequestResponseDelegate onResponse, RequestErrorDelegate onError);
+
+```
+
+#### 参数说明
+
+| 字段 | 类型 | 是否必填 | 备注 | 其他信息 |
+| --- | --- | --- | --- | --- |
+| target | string | 是 | 对方 OpenID | test |
+| type | string | 是 | CP 自定义关系类型 | test |
+
+**调用示例**
+
+```csharp
+
+ public void OnHasRelation()
+ {
+ RXSocial.HasRelation(arr[1], "test", SocialResponseDelegate, RegisterErrorDelegate);
+ }
+
+```
+
+#### 响应结构
+
+**HTTP 状态码：**`200 OK`
+
+
+| 字段 | 类型 | 是否必填 | 说明 |
+| --- | --- | --- | --- |
+| code | Number | 是 | 响应状态码， 0 为成功，非 0 表示出错 |
+| msg | String | 否 | 响应信息，仅在 code 非 0 时返回 |
+| data | Bool | 是 | 存在关系时为 true ；否则为 false |
+| Bool | 是 | 存在关系时为 true ；否则为 false |  |
+
+
+**响应示例**
+
+```json
+{
+ "code": 0,
+ "data": true
+}
+```
+
+## 设置好友关系
+
+### 添加好友
+
+**接口原型**
+
+```csharp
+
+ public void AddFriends(string target, string target_remarks, string user_remarks,
+ RequestResponseDelegate onResponse, RequestErrorDelegate onError);
+
+```
+
+#### 参数说明
+
+| 字段 | 类型 | 是否必填 | 备注 | 其他信息 |
+| --- | --- | --- | --- | --- |
+| target | string | 是 | 对方 OpenID | test |
+| target_remarks | string | 否 | 用户给 Target 设置的备注信息（最长 512 字符） | aaaa |
+| user_remarks | string | 否 | Target 给用户设置的备注信息（最长 512 字符） | bbbb |
+
+**调用示例**
+
+```csharp
+
+ public void OnAddFriends()
+ {
+ RXSocial.AddFriends(arr[1], null, null, SocialResponseDelegate, RegisterErrorDelegate);
+ }
+
+```
+
+#### 响应结构
+
+**HTTP 状态码：**`200 OK`
+
+| 字段 | 类型 | 是否必填 | 说明 | 示例 |
+| --- | --- | --- | --- | --- |
+| code | Number | 是 | 响应状态码， 0 为成功，非 0 表示出错 | 0 |
+| msg | String | 否 | 响应信息，仅在 code 非 0 时返回 |  |
+
+**响应示例**
+
+```json
+{
+ "code": 0
+}
+```
+
+### 删除好友
+
+**接口原型**
+
+```csharp
+
+ public void RemoveFriends(string target, RequestResponseDelegate onResponse,
+ RequestErrorDelegate onError);
+
+```
+
+#### 参数说明
+
+| 字段 | 类型 | 是否必填 | 备注 | 其他信息 |
+| --- | --- | --- | --- | --- |
+| target | string | 是 | 对方 OpenID |  |
+
+**调用示例**
+
+```csharp
+
+ public void OnRemoveFriends()
+ {
+ RXSocial.RemoveFriends(arr[1], SocialResponseDelegate, RegisterErrorDelegate);
+ }
+
+```
+
+#### 响应结构
+
+**HTTP 状态码：**`200 OK`
+
+| 字段 | 类型 | 是否必填 | 说明 | 示例 |
+| --- | --- | --- | --- | --- |
+| code | Number | 是 | 响应状态码， 0 为成功，非 0 表示出错 | 0 |
+| msg | String | 否 | 响应信息，仅在 code 非 0 时返回 |  |
+
+**响应示例**
+
+```json
+{
+ "code": 0
+}
+```
+
+### 更新好友备注
+
+**接口原型**
+
+```csharp
+
+ public void UpdateFriendRemarks(string target, string target_remarks, RequestResponseDelegate onResponse,
+ RequestErrorDelegate onError);
+
+```
+
+#### 参数说明
+
+| 字段 | 类型 | 是否必填 | 备注 | 其他信息 |
+| --- | --- | --- | --- | --- |
+| target | string | 是 | 对方 OpenID | test |
+| target_remarks | string | 否 | 用户给 Target 设置的备注信息（最长 512 字符） | xxxxx |
+
+**调用示例**
+
+```csharp
+
+ public void OnUpdateFriendRemarks()
+ {
+ RXSocial.UpdateFriendRemarks(arr[1], "", SocialResponseDelegate, RegisterErrorDelegate);
+ }
+
+```
+
+#### 响应结构
+
+**HTTP 状态码：**`200 OK`
+
+| 字段 | 类型 | 是否必填 | 说明 | 示例 |
+| --- | --- | --- | --- | --- |
+| code | Number | 是 | 响应状态码， 0 为成功，非 0 表示出错 | 0 |
+| msg | String | 否 | 响应信息，仅在 code 非 0 时返回 |  |
+
+**响应示例**
+
+```json
+{
+ "code": 0
+}
+```
+
+### 获取好友列表
+
+**接口原型**
+
+```csharp
+
+ public void RelationFriends(RequestResponseDelegate onResponse, RequestErrorDelegate onError);
+
+```
+
+**调用示例**
+
+```csharp
+
+ public void OnRelationFriends()
+ {
+ RXSocial.RelationFriends(SocialResponseDelegate, RegisterErrorDelegate);
+ }
+
+```
+
+#### 响应结构
+
+**HTTP 状态码：**`200 OK`
+
+| 字段 | 类型 | 是否必填 | 说明 | 示例 |
+| --- | --- | --- | --- | --- |
+| code | Number | 是 | 响应状态码， 0 为成功，非 0 表示出错 | 0 |
+| msg | String | 否 | 响应信息，仅在 code 非 0 时返回 | data |
+| Node | 否 | 结果数据集 |  |  |
+
+**响应示例**
+
+```json
+{
+ "data": [
+ {
+ "openid": "rxuSl4QZoNk0G1HY2-Za6GlO7wO-p_ej",
+ "nickname": "xdh"
+ }
+ ],
+ "code": 0
+}
+```
+
+### 判断两用户是否为好友
+
+**接口原型**
+
+```csharp
+
+ public void IsFriend(string target, RequestResponseDelegate onResponse, RequestErrorDelegate onError);
+
+```
+
+#### 参数说明
+
+| 字段 | 类型 | 是否必填 | 备注 | 其他信息 |
+| --- | --- | --- | --- | --- |
+| target | string | 是 | 对方 OpenID | test |
+
+**调用示例**
+
+```csharp
+
+ public void IsFriend()
+ {
+ RXSocial.IsFriend(arr[1], SocialResponseDelegate, RegisterErrorDelegate);
+ }
+
+```
+
+#### 响应结构
+
+**HTTP 状态码：**`200 OK`
+
+
+| 字段 | 类型 | 是否必填 | 说明 |
+| --- | --- | --- | --- |
+| code | Number | 是 | 响应状态码， 0 为成功，非 0 表示出错 |
+| msg | String | 否 | 响应信息，仅在 code 非 0 时返回 |
+| data | Bool | 是 | 存在关系时为 true ；否则为 false |
+| Bool | 是 | 存在关系时为 true ；否则为 false |  |
+
+
+**响应示例**
+
+```json
+{
+ "code": 0,
+ "data": true
+}
+```
+
+### iOS
+
+### 接入方式
+* Package Manager 导入 RuiXue.Social
+
+
+## 定位
+
+### 获取附近人
+
+**接口原型**
+
+```csharp
+
+public void LbsRadius(string type, float lon, float lat, float radius, int count, int page, int page_size,
+            RequestResponseDelegate onResponse, RequestErrorDelegate onError);
+
+```
+
+#### 参数说明
+
+| **字段**  | **类型** | **是否必填** | **备注**                   | **其他信息**               |
+| --------- | -------- | ------------ | -------------------------- | -------------------------- |
+| lon       | number   | 是           | WGS84 经度                 | mock: 125.36970905364038   |
+| lat       | number   | 是           | WGS84 纬度                 | mock: 43.814125235156496   |
+| radius    | integer  | 是           | 限定半径距离，单位：米     | mock: @integer(100, 10000) |
+| count     | integer  | 否           | 获取数量，0 表示获取全部   | mock: @integer(1, 100)     |
+| page      | integer  | 是           | 获取第几页的数据 从 1 开始 | mock: 1                    |
+| page_size | integer  | 是           | 每页数量                   | mock: 10                   |
+| type      | string   | 是           | 坐标分组，由 CP 自定义     |                            |
+
+**调用示例**
+
+```csharp
+
+    private void OnLbsRadius()
+    {
+        RXSocial.LbsRadius("friend", 118.19646377354036f, 24.483710802285128f, 1000, 10, 1, 10, 
+            SocialResponseDelegate, RegisterErrorDelegate);
+    }
+
+```
+
+#### 响应结构
+
+**HTTP 状态码：**`200 OK`
+
+| **字段** | **类型**                                  | **是否必填** | **说明** | **示例** |
+| --- |-----------------------------------------| --- | --- | --- |
+| code | Number                                  | 是   | 响应状态码，0为成功，非0表示出错 | 0   |
+| msg | String                                  | 否   | 响应信息，仅在status为非0时不为空 |     |
+| data | `DataNode` | 否   | 结果数据集 |     |
+
+##### DataNode
+
+| **字段** | **类型** | **是否必填** | **说明** | **示例** |
+| --- | --- | --- | --- | --- |
+| openid | String | 是   | 用户望舒 OpenID |     |
+| nickname | String | 否   | 用户昵称 |     |
+

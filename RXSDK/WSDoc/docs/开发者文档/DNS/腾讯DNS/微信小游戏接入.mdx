@@ -1,0 +1,47 @@
+---
+sidebar_position: 3
+title: 微信小游戏接入
+description: "望舒SDK DNS 微信小游戏接入文档，提供详细的功能说明与接入指引。"
+---
+
+## 环境要求
+
+基础库最低版本： 2.11.2 ，最高版本请选择稳定版本
+
+## SDK 初始化
+
+初始化 SDK 时需传入 `httpDNSServiceId` 参数则请求开启支持使用 HttpDNS 处理请求
+
+当微信请求返回错误信息包含 `ERR_CONNECTION_TIMED_OUT` `ERR_NAME_NOT_RESOLVED` 时开启使用 HttpDNS 处理重新进行请求
+
+
+| 字段 | 类型 | 是否必填 | 说明 |
+| --- | --- | --- | --- |
+| productId | string | 是 | 产品 id，望舒游戏发行平台创建产品，[查看使用说明](/docs/开发者文档/入门指南/准备工作)。 |
+| channelId | string | 是 | 渠道 id，望舒游戏发行平台创建渠道，[查看使用说明](/docs/开发者文档/入门指南/准备工作)。 |
+| cpid | string | 是 | CP id，望舒企业管理后台创建项目，[查看使用说明](/docs/开发者文档/入门指南/准备工作)。 |
+| httpDNSServiceId | string | 否 | HttpDNS 服务商 Id（为空代表不使用 HttpDNS，不为空则使用 HttpDNS 处理请求） |
+| baseUrlList | string[] | 是 | 请求域名队列，望舒企业管理后台创建项目，[查看使用说明](/docs/开发者文档/入门指南/准备工作)。 |
+| complete | function | 是 | 初始化回调函数 |
+
+
+接口实例：
+
+```javascript
+// 路径仅为示例，需要传入SDK在项目中的真实路径，如出现引用错误请检查路径是否正确
+const channelSdk = require("your path/channelSDK/index.js")
+//以下参数为测试参数，需要更换为接入方对应的参数
+const sdk = new channelSdk({
+ productId: '1', //产品 id
+ channelId: '818', //渠道id
+ cpid: '1000049', //CP id
+ httpDNSServiceId: 'wxa410372c837a5f26'， // HttpDNS 服务商 Id
+ baseUrlList: ['https://ruixue.weiletest.com'],//请求域名队列
+ complete: (data) => {
+ console.log('init complete: ', data)
+ if (data.code === 0) {
+ // 初始化成功
+ }
+ },
+})
+```

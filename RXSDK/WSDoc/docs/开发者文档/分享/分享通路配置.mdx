@@ -1,0 +1,95 @@
+---
+sidebar_position: 2
+title: 分享通路配置
+description: 望舒分享功能 iOS / Android 端分享通路配置说明。
+---
+
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
+
+获取各平台分享通路配置，返回每个平台对不同分享类型（好友、朋友圈、动态等）的限制策略。
+
+<Tabs groupId="platform">
+
+<TabItem value="ios" label="iOS">
+
+## 接口原型
+
+```objectivec
+/**
+ * 获取通路配置
+ */
+- (void)getSharePlatformsWithComplete:(RequestComplete)complete;
+```
+
+## 调用示例
+
+```objectivec
+[[RXShareService sharedSDK] getSharePlatformsWithComplete:^(NSDictionary * _Nullable response, RX_CommonRequestError * _Nullable error) {
+
+}];
+```
+
+</TabItem>
+
+<TabItem value="android" label="Android">
+
+## 接口原型
+
+```java
+void getSharePlatforms(RXJSONCallback callback)
+```
+
+## 调用示例
+
+```java
+RuiXueSdk.getRXSdkApi().getSharePlatforms(callback)
+```
+
+</TabItem>
+
+</Tabs>
+
+## 响应结构（JSON）
+
+| 字段 | 类型 | 说明 |
+| --- | --- | --- |
+| code | Number | 状态码 0 为成功 |
+| msg | String | 失败时的错误信息 |
+| data | Map[String][Data](/docs/开发者文档/意见反馈/Unity-接入) | 返回信息, key 为平台名， 例如 wechat 值参考 [API](/docs/开发者文档/意见反馈/Unity-接入) |
+
+### 通路配置 Data
+
+| 字段 | 类型 | 说明 |
+| --- | --- | --- |
+| lure | Number | 诱导类 值参考 [API](/docs/开发者文档/意见反馈/Unity-接入) |
+| achievement | Number | 成就类 值参考 [API](/docs/开发者文档/意见反馈/Unity-接入) |
+| special | Number | 返回信息 值参考 [API](/docs/开发者文档/意见反馈/Unity-接入) |
+
+### 各平台配置
+
+| 平台 | 值 |
+| --- | --- |
+| wechat | 1:好友 2:朋友圈 -1:不限制 |
+| facebook | 128 动态 -1:不限制 |
+| qq | 4:QQ 通讯录 8: 快速转发列表 16:QQ 空间 32: 微信好友 64: 微信朋友圈 -1: 不限制 |
+| messenger | 1:好友 -1:不限制 |
+| line | 1:好友 |
+| tiktok | 1:好友 |
+| twitter | 128:动态 |
+| system | -1: 不限制 |
+
+**响应示例**
+
+```json
+{
+ "data": {
+ "wechat": {
+ "lure": -1,
+ "achievement": 1,
+ "special": 2
+ }
+ },
+ "code": 0
+}
+```

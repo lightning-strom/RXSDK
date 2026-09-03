@@ -1,0 +1,464 @@
+---
+title: "快速接入"
+---
+
+## 准备工作
+
+::: tip
+接入请前先做好准备工作。
+可通过 pod 方式接入**推送**组件，并使用**推送**相关功能。
+在需要使用功能的类中引用头文件<code>#import </code>
+:::
+
+## SDK 集成
+
+- 编辑 Podfile 文件，添加如下配置：
+
+```objectivec
+pod 'RXPushSDK'
+```
+
+## 推送配置
+
+### 创建推送证书
+
+在 [Apple Developer](https://developer.apple.com/account/#!/overview/W6R94596BT) 中创建推送证书
+
+- 点击 **Certificates**
+
+![](https://guanwangyun.oss-cn-beijing.aliyuncs.com/document/push/IZL4bX0RroKks3xwPEncIAF9nDo.png)
+
+- 选择 **Apple ****Push**** Notification service ****SSL**** (Sandbox & Production)**
+
+![](https://guanwangyun.oss-cn-beijing.aliyuncs.com/document/push/KvuFbYfL3oOVhvxNaX7cCg87nLc.png)
+
+- 选择项目对应的 **App ID**
+
+![](https://guanwangyun.oss-cn-beijing.aliyuncs.com/document/push/D7fcb3WpJoUH6DxrJWMcZXH9nUb.png)
+
+- 选择从证书颁发机构请求的证书
+
+![](https://guanwangyun.oss-cn-beijing.aliyuncs.com/document/push/VsdgbqMXSoD1KSx0g8PcwgbYnFc.png)
+
+- 将生成的证书下载到本地并双击安装
+
+![](https://guanwangyun.oss-cn-beijing.aliyuncs.com/document/push/WvWwbBOoco2bfXxQmAxcCIf1n0c.png)
+
+### 从证书颁发机构请求的证书
+
+- 打开**钥匙串**点击左上角**钥匙串访问 > 证书助理 > 从证书颁发机构请求证书**
+
+![](https://guanwangyun.oss-cn-beijing.aliyuncs.com/document/push/Y4ufb6zfDoEv6xxHBqAcCiYKn0f.png)
+
+- 选择**存储到磁盘**，点击继续，将证书保存到磁盘中
+
+![](https://guanwangyun.oss-cn-beijing.aliyuncs.com/document/push/DHGqbduQMoTTwAxh5J3c7DLmn5c.png)
+
+### 创建 Notification Service Extension
+
+::: tip
+如不需要推送统计可忽略此配置。
+**Notification Service Extension** 支持的系统版本需要与主工程target一致，并将 **Build Setting 中的 Bitcode 设置为 NO**。
+:::
+
+- 通过 **Xcode > File > New > Target** 创建 **Notification Service Extension**
+
+![](https://guanwangyun.oss-cn-beijing.aliyuncs.com/document/push/DMSZbKiSHoLNAaxSjcOcHDtwnFf.png)
+
+![](https://guanwangyun.oss-cn-beijing.aliyuncs.com/document/push/LwNGbCXfaoLPHBxcfejc06Ypnrd.png)
+
+### 工程配置
+
+- 在 **Xcode > General > Signing & Capabilities** 中添加 **Push Notifications**
+
+![](https://guanwangyun.oss-cn-beijing.aliyuncs.com/document/push/CmyCbO43YoNL7fxK5Dlc1Eb9nme.png)
+
+- 在 **Xcode > General > Signing & Capabilities** 中添加 **Keychanin Sharing** 并将主工程 target 和 NotificationService 的 target 的 bundleId 填入。
+
+::: tip
+持有数据的target和NotificationService target都需要操作此流程，否则数据统计会有异常。
+:::
+
+![](https://guanwangyun.oss-cn-beijing.aliyuncs.com/document/push/PELfb3GYcocjnzxln3nchPf8n28.png)
+
+![](https://guanwangyun.oss-cn-beijing.aliyuncs.com/document/push/N9o4b7T9coBiRzxLObBccqmBnQb.png)
+
+#### 证书创建
+
+::: tip
+如您的证书为手动配置请参考如何创建 NotifationService 证书。
+如您的证书为自动配置请忽略此步骤。
+:::
+
+- 在证书管理中创建一个 NotificationService 的 Appid，操作步骤如下图所示；
+
+![](https://guanwangyun.oss-cn-beijing.aliyuncs.com/document/push/DjUdbeIhwokTunxeA0gcW9Hpntf.png)
+
+- Appid 创建成功后再创建 Profiles（描述文件），操作步骤如下图所示；
+
+![](https://guanwangyun.oss-cn-beijing.aliyuncs.com/document/push/Zrwvbp4KJoHxjyxUbabceKJgnsd.png)
+
+- 将创建好的描述文件加入到工程配置中；
+
+## 初始化 SDK
+
+::: tip
+productId、channelId、cpid、baseUrlList 同SDK 初始化参数一致。
+:::
+
+**接口原型**
+
+```objectivec
+/**
+ * 初始化SDK
+ * @param productId 产品id
+ * @param channelId 渠道id
+ * @param cpid 客户端id
+ * @param baseUrlList 请求域名队列
+ */
+- (void)initWithProductId:(NSString *)productId
+                channelId:(NSString *)channelId
+                     cpid:(NSString *)cpid
+              baseUrlList:(NSArray *)baseUrlList;
+```
+
+### 参数说明
+
+| **字段**    | **类型** | **是否必填** | **备注**     |
+| ----------- | -------- | ------------ | ------------ |
+| productId   | NSString | 是           | 产品 id      |
+| channelId   | NSString | 是           | 渠道 id      |
+| cpid        | NSString | 是           | cpid         |
+| baseUrlList | NSArray  | 是           | 请求域名队列 |
+
+**调用示例**
+
+```objectivec
+[[RXPushService sharedSDK] initWithProductId:@"1002"
+                                   channelId:@"weile"
+                                        cpid:@"1000049"
+                                 baseUrlList:@[@"http://ruixue.weiletest.com/"]];
+```
+
+## 注册通知
+
+::: tip
+不实现注册通知方法不会询问是否开启通知权限！！！
+:::
+
+:::tip
+使用望舒 **推送自定义透传参数（deeplink）** 功能需要实现 **点击通知栏进入app** `- (void)UserNotificationCenter:(UNUserNotificationCenter *)center willPresentNotification:(UNNotification *)notification withCompletionHandler:(void (^)(UNNotificationPresentationOptions))completionHandler API_AVAILABLE(ios(10.0))` 代理方法，获取参数参考下方调用示例。
+:::
+
+- 注册通知后以下两个系统通知方法将被 SDK 拦截。
+
+```objectivec
+/**
+ * 点击通知栏进入app
+ */
+- (void)UserNotificationCenter:(UNUserNotificationCenter *)center
+  didReceiveNotificationResponse:(UNNotificationResponse *)response
+           withCompletionHandler:(void(^)(void))completionHandler
+                                 API_AVAILABLE(ios(10.0));
+ 
+/**
+ * app在前台接到通知
+ */
+- (void)UserNotificationCenter:(UNUserNotificationCenter *)center
+         willPresentNotification:(UNNotification *)notification
+           withCompletionHandler:(void (^)(UNNotificationPresentationOptions))completionHandler
+                                 API_AVAILABLE(ios(10.0));
+```
+
+- 如需使用在调用的类中添加 **RXPushDelegate** 代理，并将方法替换为 SDK 提供通知方法。
+
+![](https://guanwangyun.oss-cn-beijing.aliyuncs.com/document/push/Ed35bEm5ooPTX0xbslCcyxxqnOc.png)
+
+**接口原型**
+
+```objectivec
+/**
+ * 注册通知
+ */
+- (void)initUserNotificationCenter:(id)delegate;
+
+#pragma mark -- delegate
+/**
+ * 点击通知栏进入app
+ */
+- (void)RXUserNotificationCenter:(UNUserNotificationCenter *)center
+  didReceiveNotificationResponse:(UNNotificationResponse *)response
+           withCompletionHandler:(void(^)(void))completionHandler
+                                 API_AVAILABLE(ios(10.0));
+ 
+/**
+ * app在前台接到通知
+ */
+- (void)RXUserNotificationCenter:(UNUserNotificationCenter *)center
+         willPresentNotification:(UNNotification *)notification
+           withCompletionHandler:(void (^)(UNNotificationPresentationOptions))completionHandler
+                                 API_AVAILABLE(ios(10.0));
+```
+
+**调用示例**
+
+```objectivec
+[[RXPushService sharedSDK] initUserNotificationCenter:self];
+
+#pragma mark -- delegate
+- (void)RXUserNotificationCenter:(UNUserNotificationCenter *)center willPresentNotification:(UNNotification *)notification withCompletionHandler:(void (^)(UNNotificationPresentationOptions))completionHandler
+{
+    NSLog(@"");
+}
+ 
+- (void)RXUserNotificationCenter:(UNUserNotificationCenter *)center didReceiveNotificationResponse:(UNNotificationResponse *)response withCompletionHandler:(void (^)(void))completionHandler
+{
+    // 获取所有推送内容
+    NSDictionary *pushUserInfo = response.notification.request.content.userInfo;
+    // 获取 deeplink 参数
+    NSString *payload = pushUserInfo[@"payload"];
+}
+```
+
+## 上传 deviceToken
+
+- 用户授权后通过注册 **APNS** 获取 **deviceToken**，将 **deviceToken** 保存到本地，登录后调用上传接口。
+
+```objectivec
+#pragma mark - 注册APNS
+- (void)application:(UIApplication *)application didRegisterForRemoteNotificationsWithDeviceToken:(NSData *)deviceToken {
+    [[NSUserDefaults standardUserDefaults] setValue:deviceToken forKey:@"deciceToken"];
+}
+```
+
+**接口原型**
+
+```objectivec
+/**
+ * 上传deviceToken
+ * 登录后调用
+ * @param deviceToken APNS返回的设备码  必须
+ */
+- (void)registerDeviceToken:(NSData *)deviceToken;
+```
+
+### 参数说明
+
+| **字段**    | **类型** | **是否必填** | **备注**          |
+| ----------- | -------- | ------------ | ----------------- |
+| deviceToken | NSString | 是           | APNS 返回的设备码 |
+
+**调用示例**
+
+```objectivec
+- (void)rx_LoginCallBackWithResponse:(NSDictionary *)response error:(RXCommonRequestError *)error
+{
+    NSData *devicetoken = [[NSUserDefaults standardUserDefaults] valueForKey:@"deciceToken"];
+    [[RXPushService sharedSDK] registerDeviceToken:devicetoken];
+}
+```
+
+## 绑定别名
+
+开发者可以针对不同的用户绑定别名，然后对该别名进行推送。
+
+::: tip
+别名只能绑定一个，多次调用别名将被覆盖！如需绑定多个请使用增加用户标签功能。
+:::
+
+**接口原型**
+
+```objectivec
+/**
+ * 绑定别名
+ * 登录后调用
+ * @param alias 别名  必须
+ */
+- (void)bindingAlias:(NSString *)alias;
+```
+
+### 参数说明
+
+| **字段** | **类型** | **是否必填** | **备注** |
+| -------- | -------- | ------------ | -------- |
+| alias    | NSString | 是           | 别名     |
+
+**调用示例**
+
+```objectivec
+[[RXPushService sharedSDK] bindingAlias:@"alias"];
+```
+
+## 解绑别名
+
+**接口原型**
+
+```objectivec
+/**
+ * 解绑别名
+ * 登录后调用
+ */
+- (void)reliveBinding;
+```
+
+**调用示例**
+
+```objectivec
+[[RXPushService sharedSDK] reliveBinding];
+```
+
+## 增加用户标签
+
+开发者可以针对不同的用户绑定标签，然后对该标签进行推送。
+
+::: tip
+一个用户最多可绑定 10 个标签，超出则取前 10 个。
+:::
+
+**接口原型**
+
+```objectivec
+/**
+ * 增加用户标签
+ * 登录后调用
+ * **@param **tags 标签数组 一个用户最多绑定10个标签  必须
+ */
+- (void)addTags:(NSArray *)tags;
+```
+
+#### 参数说明
+
+| **字段** | **类型** | **是否必填** | **备注**                            |
+| -------- | -------- | ------------ | ----------------------------------- |
+| tags     | NSArray  | 是           | 标签数组 一个用户最多绑定 10 个标签 |
+
+**调用示例**
+
+```objectivec
+[[RXPushService sharedSDK] addTags:@[tags]];
+```
+
+## 移除用户标签
+
+**接口原型**
+
+```objectivec
+/**
+ * 移除用户标签
+ * 登录后调用
+ * **@param **tags 标签数组
+ */
+- (void)deleteTags:(NSArray *)tags;
+```
+
+#### 参数说明
+
+| **字段** | **类型** | **是否必填** | **备注**                            |
+| -------- | -------- | ------------ | ----------------------------------- |
+| tags     | NSArray  | 是           | 标签数组 一个用户最多绑定 10 个标签 |
+
+**调用示例**
+
+```objectivec
+[[RXPushService sharedSDK] deleteTags:@[tags]];
+```
+
+## 解绑用户与渠道 SDK 的关联
+
+::: tip
+解绑后用户将不再收到推送内容！
+:::
+
+**接口原型**
+
+```objectivec
+/**
+ * 解绑用户与渠道SDK的关联
+ * 登录后调用
+ */
+- (void)reliveBindingPushDevice;
+```
+
+**调用示例**
+
+```objectivec
+[[RXPushService sharedSDK] reliveBindingPushDevice];
+```
+
+## 消息统计
+
+::: tip
+未实现注册通知功能将无法正常使用统计功能。
+:::
+
+### 点击统计
+
+- 实现**注册通知**后 SDK 将自动实现点击统计，无需开发者配置。
+
+### 消息接收统计
+
+- app 在前台时由 SDK 自动统计。
+- app 在后台或退出状态下需在 **NotificationService** 中添加统计功能。如何创建 **NotificationService** 请查看[推送配置](快速接入#推送配置)
+
+**接口原型**
+
+```objectivec
+/**
+ * 消息接收统计
+ * 登录后调用
+ * @param userInfo 推送参数
+ */
+- (void)pushReceivedWithUserInfo:(NSDictionary *)userInfo;
+```
+
+#### 参数说明
+
+| **字段** | **类型** | **是否必填** | **备注** |
+| -------- | -------- | ------------ | -------- |
+| userInfo | NSArray  | 是           | 推送参数 |
+
+**调用示例**
+
+```objectivec
+- (void)didReceiveNotificationRequest:(UNNotificationRequest *)request withContentHandler:(void (^)(UNNotificationContent * _Nonnull))contentHandler {
+    self.contentHandler = contentHandler;
+    self.bestAttemptContent = [request.content mutableCopy];
+    
+    // Modify the notification content here...
+    self.bestAttemptContent.title = [NSString stringWithFormat:@"%@", self.bestAttemptContent.title];
+    
+    /**
+     * 推送提示音，不设置或传 nil 则没有提示音
+     * [UNNotificationSound defaultSound] 为系统默认提示音
+     */    
+    // self.bestAttemptContent.sound = [UNNotificationSound defaultSound];
+
+    [[RXPushService sharedSDK] pushReceivedWithUserInfo:self.bestAttemptContent.userInfo];
+    
+    self.contentHandler(self.bestAttemptContent);
+}
+```
+
+### 设置角标badge数量
+
+**接口原型**
+
+```objectivec
+/**
+ * 设置角标badge数量
+ * @note 0 为清空角标
+ */
+- (void)setApplicationIconBadgeNumber:(NSInteger)badgeNumber;
+```
+
+#### 参数说明
+
+| **字段** | **类型** | **是否必填** | **备注** |
+| -------- | -------- | ------------ | -------- |
+| badgeNumber |  NSInteger  | 是           | 设置角标badge数量，0 为清空角标 |
+
+**调用示例**
+
+```objectivec
+[[RXPushService sharedSDK] setApplicationIconBadgeNumber:0];
+```

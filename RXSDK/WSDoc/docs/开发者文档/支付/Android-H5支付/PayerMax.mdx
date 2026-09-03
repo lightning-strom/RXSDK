@@ -1,0 +1,48 @@
+---
+sidebar_position: 7
+title: PayerMax
+description: "望舒SDK 支付 PayerMax Android 接入文档，提供完整的接口调用说明与示例。"
+---
+
+import H5PayCommon from './_h5pay-common.mdx';
+
+### 望舒支付配置
+
+联系商务获取 PayerMax 支付配置参数，配置至 **资源管理 > 三方账号管理 > 支付账号管理**。
+
+### SDK 集成
+
+
+:::tip[版本说明]
+`version` 为 SDK 版本号（替换为实际版本号），最新版本请从 [更新日志](/docs/开发者文档/入门指南/更新日志/Android) 中查看。
+:::
+
+```groovy
+implementation 'com.ruixue:rxsdk_h5pay:${version}'
+```
+
+### hq_type 值
+
+| hq_type 值 | 说明 |
+| --- | --- |
+| `payermax` | PayerMax 支付 |
+
+:::info[PayerMax ext 扩展参数]
+通过 `ext` 字段传入 PayerMax 特有参数：
+
+| 字段 | 类型 | 是否必填 | 说明 |
+| --- | --- | --- | --- |
+| frontCallbackUrl | String | 是 | 支付完成后跳转地址（http/https 或 scheme） |
+| language | String | 否 | 收银台页面语言 |
+| paymentMethod | String | 否 | 支付方式，参见 [PayerMax 支付方式列表](https://docs.payermax.com/#/30?page_id=665&lang=zh-cn) |
+| targetOrg | String | 否 | 目标机构 |
+| cardOrg | String | 否 | 卡组织（paymentMethod 为 `CARD` 时可指定） |
+| cardOrgType | String | 否 | 卡组织类型（与 cardOrg 二选一） |
+| referralCode | String | 否 | 设备 ID、设备指纹等推荐维度 |
+| paymentTokenID | String | 条件必填 | 卡 token 支付时必填 |
+| tag | String | 否 | 三方子支付方式 |
+
+参考文档：https://docs.payermax.com
+:::
+
+<H5PayCommon />

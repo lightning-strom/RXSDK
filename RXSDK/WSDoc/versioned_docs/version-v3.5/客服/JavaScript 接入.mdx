@@ -1,0 +1,716 @@
+---
+sidebar_position: 2
+title: "JavaScript 接入"
+---
+
+## 帮助中心
+::: tip
+1、适用于 Cocos Creator v3.0 及以上
+
+2、接入帮助中心需要使用 SDK 全量包
+
+:::
+
+### 下载 JSSDK 和 UI SDK
+
+- 微信小游戏全量包：下载 `wegame.full/channelSDK` 文件夹
+- 帮助中心 UI SDK ：下载 `server_ui` 文件夹
+
+请参考 [sdk 集成](/docs/v3.5/客服/功能介绍) 
+
+### 集成 SDK
+
+将 `server_ui` 文件夹放到 `channelSDK` 文件夹 下，与 JSSDK 相关文件保持在同一级
+
+### 注意事项
+
+打开帮助中心需要注意以下几点
+
+1. 初始化 sdk 成功后传入页面才可使用
+2. 本 demo 采用动态加载的方式加载帮助页面
+3. bundleName 为 sdk 所在包名
+4. path 为页面所在包内路径，请根据实际情况配置
+5. isVertical 可选，默认竖屏
+6. init 方法需在 addChild 之前调用
+7. 防连点请自行实现
+
+## Demo 示例
+
+### 目录结构
+
+![](https://guanwangyun.oss-cn-beijing.aliyuncs.com/document/helpcenter/I6R5bZ7GRoEV8yxvVDucekCSnLb.png)
+
+### 调用
+
+```typescript
+import {
+  _decorator,
+  assetManager,
+  Button,
+  Component,
+  find,
+  instantiate,
+  Node,
+  Prefab,
+} from "cc";
+const { ccclass, property } = _decorator;
+import ChannelSDK from "../channelSDK/index.js";
+
+//TODO 改成自己项目的望舒配置
+export const RUIXUE_PRODUCTID: string = "productId"; //望舒产品ID
+export const RUIXUE_CHANNELID: string = "channelId"; //望舒产品渠道ID
+export const RUIXUE_CPID: string = "cpid"; //客户端id
+export const RUIXUE_BADEURL: string = "https://rxtest-api.com"; //请求域名队列
+
+@ccclass("StartScene")
+export class StartScene extends Component {
+  private hasInitSDK = false;
+
+  @property(Button)
+  initChannelBtn!: Button;
+
+  @property(Button)
+  loginBtn!: Button;
+
+  @property(Button)
+  helpButton!: Button;
+  sdk?: ChannelSDK;
+
+  start() {
+    //初始化ChannelSDK
+    this.initChannelBtn.node.on(Node.EventType.TOUCH_END, () => {
+      this.initChannel();
+    });
+    //登录ChannelSDK
+    this.loginBtn.node.on(Node.EventType.TOUCH_END, () => {
+      this.loginChannel();
+    });
+    //打开帮助中心
+    this.helpButton.node.on(Node.EventType.TOUCH_END, () => {
+      this.clickHelpBtn();
+    });
+  }
+
+  //初始化ChannelSDK
+  private initChannel() {
+    this.sdk = new ChannelSDK({
+      productId: RUIXUE_PRODUCTID, //产品 id
+      channelId: RUIXUE_CHANNELID, //渠道id
+      cpid: RUIXUE_CPID, //客户端id
+      baseUrlList: [RUIXUE_BADEURL], //请求域名队列
+      complete: (res: any) => {
+        if (res.code === 0) {
+          this.hasInitSDK = true;
+        }
+      },
+    });
+  }
+
+  /**
+   * 望舒登录
+   * @returns
+   */
+  private loginChannel() {
+    if (!this.hasInitSDK) {
+      console.error("ChannelSDK 没有初始化成功");
+      return;
+    }
+    let params: WegameLogin = {
+      version: "base",
+      method: "minigame",
+    };
+    this.sdk?.login(params, {
+      complete: (res: any) => {
+        // console.log('login =======',res)
+        if (res.code === 0) {
+        } else {
+        }
+      },
+    });
+  }
+
+  //打开帮助中心
+  private clickHelpBtn() {
+    if (!this.hasInitSDK) {
+      console.error("ChannelSDK 没有初始化成功");
+      return;
+    }
+    /**注意:
+     * 1.初始化sdk成功后传入页面才可使用
+     * 2.本demo 采用动态加载的方式加载帮助页面
+     * 3.bundleName 为sdk所在包名
+     * 4.path 为页面所在包内路径,请根据实际情况配置
+     * 5.isVertical 可选,默认竖屏
+     * 6.防连点请自行实现
+     */
+    let bundleName = "channelSDK";
+    let path = "server_ui/HelpLayer";
+    let isVertical = true;
+
+    //加载
+    assetManager.loadBundle(bundleName, (err, bundle) => {
+      if (err) {
+        console.error(err);
+        return;
+      }
+      bundle.load(
+        path,
+        Prefab,
+        (finished: number, total: number) => {
+          //进度
+        },
+        (err, prefab) => {
+          if (err) {
+            console.error(err);
+            return;
+          }
+          //生成页面
+          let helpLayer = instantiate(prefab);
+
+          // 设置横竖屏,可选,默认横屏
+          // 传入望舒对象
+          // Init 方法需在 addChild 之前调用
+          (helpLayer.getComponent("HelpLayer") as any).init({
+            isVertical: isVertical, //设置横竖屏,可选,默认横屏
+            channelSDK: this.sdk, ///传入望舒实例化的对象
+          });
+
+          //添加到窗口
+          find("Canvas")?.addChild(helpLayer);
+        }
+      );
+    });
+  }
+}
+```
+
+## 微信客服
+
+用于 cp 方跳转微信客服
+
+### 参数说明
+
+| **字段**
+ | **类型**
+              | **是否必填**
+ | **备注**
+     |
+| ------------ | ------------------------- | ---------------- | ---------------- |
+| params
+   | ICustomerConversation
+ | 是
+           | 参数
+         |
+| callback
+ | IMethodParams
+         | 是
+           | 回调函数集合
+ |
+
+> ICustomerConversation 说明
+
+| **字段**
+    | **类型**
+ | **是否必填**
+ | **备注**
+                                                                                   |
+| --------------- | ------------ | ---------------- | ---------------------------------------------------------------------------------------------- |
+| sessionFrom
+ | string
+   | 是
+           | 会话来源 腾讯侧需要
+具体数据结构参考[小游戏客服接入文档](/docs/v3.5/三方服务/微信/小游戏配置/虚拟支付2.0支付配置说明)
+ |
+| params
+      | string
+   | 否
+           | 透传参数
+                                                                                   |
+| func
+        | string 
+  | 否
+           | 埋点名称（主要用于获得标题和图片）
+                                                         |
+| desc
+        | string 
+  | 否
+           | 模态弹窗的描述
+                                                                             |
+| title
+       | string
+   | 否
+           | 如果不传递 func 的话，cp 方自定义标题
+                                                      |
+| image
+       | string
+   | 否
+           | 如果不传递 func 的话，cp 方自定义图片
+                                                      |
+| reconfirm
+   | boolean
+  | 否
+           | 如果模态框被关闭是否再次弹起提醒用户跳转客服
+                                               |
+
+> IMethodParams 说明
+
+| **字段**
+ | **备注**
+                                                  |
+| ------------ | ------------------------------------------------------------- |
+| complete
+ | (data) => void
+complete：为函数且必传，data 为结果数据
+ |
+
+**JS 调用示例**
+
+```javascript
+sdk._openCustomerServiceConversation(
+  {
+    complete: (data) => {
+      console.log(data);
+    },
+  },
+  {
+    // 会话来源 腾讯侧需要
+    sessionFrom:JSON.stringify({
+        ruixue_openid:'xxx'， // 用户在望舒系统的 openid
+        ui: 'xxx' // 卡片类型消息关键字 自动推送使用
+    })
+    //params: string //透传参数
+    //func?: string //埋点名称（主要获得标题和图片）
+    //desc?: string //模态弹窗的描述
+    //title?: string //如果不传递func 的话,cp方自定义标题
+    //image?: string //如果不传递func 的话,cp方自定义图片
+    //reconfirm?: boolean //如果模态框被关闭是否再次弹起提醒用户跳转客服
+  }
+);
+```
+
+**Unity 调用示例**
+
+```csharp
+using System;
+using System.Collections.Generic;
+using UnityEngine;
+using UnityEngine.UI;
+using RuiXue;
+
+#if UNITY_WEBGL
+using RuiXue.MiniGame.WeiXin;
+#endif
+
+public class RuiXueWeiXinMiniGameDemo : MonoBehaviour {
+    public void OnOpenCustomerServiceConversation()
+    {
+        Dictionary sessionFrom = new()
+        {
+            { "ruixue_openid", "xxx" },
+        };
+        string sessionFromJson = RXJsonUtil.ToJson(sessionFrom);
+
+        Dictionary dic = new()
+        {
+            { "sessionFrom", sessionFromJson },
+        };
+        RXMiniGameWeiXin.OpenCustomerServiceConversation(dic, OnResponse, OnError);
+    }
+}
+```
+
+## 创建抖音客服按钮（小 6 客服即将下线，该功能即将不支持）
+
+字节的小游戏跳转客服必须创建跳转按钮，点击客服按钮即可跳转至客服
+
+### 参数说明
+
+| **字段**
+ | **类型**
+       | **是否必填**
+ | **备注**
+     |
+| ------------ | ------------------ | ---------------- | ---------------- |
+| params
+   | IContactButton
+ | 是
+           | 参数
+         |
+| callback
+ | IMethodParams
+  | 是
+           | 回调函数集合
+ |
+
+> IContactButton 说明
+
+| **字段**
+ | **类型**
+ | **是否必填**
+ | **备注**
+                                                              |
+| ------------ | ------------ | ---------------- | ------------------------------------------------------------------------- |
+| type
+     | string
+   | 是
+           | 按钮的类型，取值 image 或 text。image 对应图片按钮，text 对应文本按钮
+ |
+| image
+    | string
+   | 否
+           | 按钮的背景图片，type 为 image 时必填。仅支持本地图片
+                  |
+| text
+     | string 
+  | 否
+           | 按钮上的文本内容， type 为 text 时有效
+                                |
+| style
+    | object
+   | 是
+           | 按钮的样式
+                                                            |
+
+> style 说明
+
+| **字段**
+        | **类型**
+ | **是否必填**
+ | **备注**
+                                          |
+| ------------------- | ------------ | ---------------- | ----------------------------------------------------- |
+| left
+            | number
+   | 是
+           | 左上角横坐标
+                                      |
+| top
+             | number
+   | 是
+           | 左上角纵坐标
+                                      |
+| width
+           | number
+   | 是
+           | 宽度
+                                              |
+| height
+          | number
+   | 是
+           | 高度
+                                              |
+| backgroundColor
+ | string
+   | 是
+           | 背景颜色
+                                          |
+| borderColor
+     | string
+   | 是
+           | 边框颜色
+                                          |
+| borderWidth
+     | number
+   | 是
+           | 边框宽度
+                                          |
+| borderRadius
+    | number
+   | 是
+           | 边框圆角
+                                          |
+| textAlign
+       | string
+   | 是
+           | 文本的水平居中方式
+"left" / "center" / "right"
+ |
+| fontSize
+        | number
+   | 是
+           | 字号
+                                              |
+| lineHeight
+      | number
+   | 是
+           | 文本的行高
+                                        |
+| textColor
+       | string
+   | 是
+           | 文本颜色
+                                          |
+
+> IMethodParams 说明
+
+| **字段**
+ | **备注**
+                                                  |
+| ------------ | ------------------------------------------------------------- |
+| complete
+ | (data) => void
+complete：为函数且必传，data 为结果数据
+ |
+
+**调用示例**
+
+```javascript
+sdk.createContactButton(
+  {
+    type: "text", // image | text
+    // image: "./test.jpg", //仅支持本地图片，type为image时生效
+    text: "我是一个按钮", //仅在type等于text时生效
+    style: {
+      //控制按钮的样式
+      left: 20, //左上角横坐标
+      top: 40, //左上角纵坐标
+      width: 150, //宽度
+      height: 150, //高度
+      lineHeight: 40, //文本的行高
+      backgroundColor: "#ffffff", //背景颜色
+      textAlign: "center", //文本的水平居中方式
+      fontSize: 16, //字号
+      borderRadius: 4, //边框圆角
+      borderColor: "#ffffff", //边框颜色
+      borderWidth: 1, //边框宽度
+      textColor: "#ffffff", //文本颜色
+    },
+  },
+  {
+    complete: (btnInstance) => {
+      //返回一个按钮的实例用于控制按钮，
+      btnInstance.show(); //显示按钮，调用sdk.createContactButton会自动显示按钮
+      btnInstance.hide(); //隐藏按钮
+      function listenServiceBtnTap() {
+        //点击客服按钮的回调函数 do something
+      }
+      //监听客服按钮点击
+      btnInstance.onTap(listenServiceBtnTap);
+      //移除客服按钮点击
+      btnInstance.offTap(listenServiceBtnTap);
+    },
+  }
+);
+```
+
+### 响应结构
+
+返回一个 [ContactButton](https://developer.open-douyin.com/docs/resource/zh-CN/mini-game/develop/open-capacity/customer-contact/contact-button) 对象， 方法如下：
+
+| **方法**
+                  | **备注**
+                  |
+| ----------------------------- | ----------------------------- |
+| onTap(function callback)
+  | 监听按钮点击事件
+          |
+| offTap(function callback)
+ | 移除 onTap 绑定的监听函数
+ |
+| destroy()
+                 | 销毁按钮
+                  |
+| show()
+                    | 显示按钮
+                  |
+| hide()
+                    | 隐藏按钮
+                  |
+
+## 抖音客服平台
+
+抖音小游戏的客服平台
+
+### 参数说明
+
+| **字段**
+ | **类型**
+              | **是否必填**
+ | **备注**
+     |
+| ------------ | ------------------------- | ---------------- | ---------------- |
+| params
+   | ICustomerConversation
+ | 是
+           | 参数
+         |
+| callback
+ | IMethodParams
+         | 是
+           | 回调函数集合
+ |
+
+> ICustomerConversation 说明
+
+| **字段**
+    | **类型**
+ | **是否必填**
+ | **备注**
+                                                                                   |
+| --------------- | ------------ | ---------------- | ---------------------------------------------------------------------------------------------- |
+| type
+      | string
+   | 是
+           | 1 ：小 6 客服 2 :  抖音IM 客服（仅支持抖音）3：抖音客服平台（基础库 3.41.0 开始支持）
+      注意： 小 6 客服即将不支持，建议传 3
+                                                                              |
+
+> IMethodParams 说明
+
+| **字段**
+ | **备注**
+                                                  |
+| ------------ | ------------------------------------------------------------- |
+| complete
+ | (data) => void
+complete：为函数且必传，data 为结果数据
+ |
+
+**JS 调用示例**
+
+```javascript
+sdk.openCustomService(
+  {
+      type: 3 // 注意： 小 6 客服即将不支持，建议传 3
+  },
+  {
+    complete: (data) => {
+      console.log(data);
+    },
+  }
+);
+```
+
+## 望舒客服中心（望舒h5 SDK使用）
+
+### 参数说明
+
+| **字段**
+ | **类型**
+              | **是否必填**
+ | **备注**
+     |
+| ------------ | ------------------------- | ---------------- | ---------------- |
+| params
+   | ICustomerConversation
+ | 是
+           | 参数
+         |
+| callback
+ | IMethodParams
+         | 是
+           | 回调函数集合
+ |
+
+> ICustomerConversation 说明
+
+| **字段**
+    | **类型**
+ | **是否必填**
+ | **备注**
+                                                                                   |
+| --------------- | ------------ | ---------------- | ---------------------------------------------------------------------------------------------- |
+| theme
+      | string
+   | 是
+           | light | dark
+                                                                              |
+| game_user_id
+      | string
+   | 是
+           | 客户端传入游戏用户id，注意：如果提前设置了区服角色 即调用sdk.setGameInfo('test_role_id', 'test_region_tag')，则该字段game_user_id传入不生效，会使用设置区服角色传入的role_id
+                                                                              |
+
+> IMethodParams 说明
+
+| **字段**
+ | **备注**
+                                                  |
+| ------------ | ------------------------------------------------------------- |
+| complete
+ | (data) => void
+complete：为函数且必传，data 为结果数据
+ |
+
+**JS 调用示例**
+
+```javascript
+sdk.openService(
+  {
+      theme: 'light',
+      game_user_id: 'xxxx' // 如果提前设置了区服角色 即调用sdk.setGameInfo('test_role_id', 'test_region_tag')，则该字段game_user_id传入不生效，会使用设置区服角色传入的role_id
+  },
+  {
+    complete: (data) => {
+      console.log(data);
+    },
+  }
+);
+```
+
+## 望舒帮助中心（望舒h5 SDK使用）
+
+### 参数说明
+
+| **字段**
+ | **类型**
+              | **是否必填**
+ | **备注**
+     |
+| ------------ | ------------------------- | ---------------- | ---------------- |
+| params
+   | ICustomerConversation
+ | 是
+           | 参数
+         |
+| callback
+ | IMethodParams
+         | 是
+           | 回调函数集合
+ |
+
+> ICustomerConversation 说明
+
+| **字段**
+    | **类型**
+ | **是否必填**
+ | **备注**
+                                                                                   |
+| --------------- | ------------ | ---------------- | ---------------------------------------------------------------------------------------------- |
+| theme
+      | string
+   | 是
+           | light | dark
+                                                                              |
+| game_user_id
+      | string
+   | 是
+           | 客户端传入游戏用户id，注意：如果提前设置了区服角色 即调用sdk.setGameInfo('test_role_id', 'test_region_tag')，则该字段game_user_id传入不生效，会使用设置区服角色传入的role_id
+                                                                              |
+
+> IMethodParams 说明
+
+| **字段**
+ | **备注**
+                                                  |
+| ------------ | ------------------------------------------------------------- |
+| complete
+ | (data) => void
+complete：为函数且必传，data 为结果数据
+ |
+
+**JS 调用示例**
+
+```javascript
+sdk.openHelpCenter(
+  {
+      theme: 'light',
+      game_user_id: 'xxxx' // 如果提前设置了区服角色 即调用sdk.setGameInfo('test_role_id', 'test_region_tag')，则该字段game_user_id传入不生效，会使用设置区服角色传入的role_id
+  },
+  {
+    complete: (data) => {
+      console.log(data);
+    },
+  }
+);
+```

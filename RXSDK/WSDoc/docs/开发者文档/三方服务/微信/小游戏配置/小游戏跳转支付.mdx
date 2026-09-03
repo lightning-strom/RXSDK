@@ -1,0 +1,97 @@
+---
+sidebar_position: 5
+title: 小游戏跳转支付
+description: "望舒SDK 三方服务 小游戏跳转支付 小游戏 接入文档，提供完整的接口调用说明与示例。"
+---
+
+## 准备工作
+
+微信开放平台：[https://open.weixin.qq.com/](https://open.weixin.qq.com/)
+
+微信支付平台：[https://pay.weixin.qq.com/](https://pay.weixin.qq.com/)
+
+微信公众平台：[https://mp.weixin.qq.com/](https://mp.weixin.qq.com/)
+
+望舒系统地址：[企业管理后台中获取望舒地址](/docs/开发者文档/入门指南/准备工作)。
+
+## 微信小程序跳转支付
+
+### 微信支付平台关键信息绑定
+
+1.申请需要跳转的小程序 AppID ，获取小程序 AppID ，小程序 SECRET
+
+2.申请 mchid
+
+3.绑定 AppID 及 mchid。进入**微信支付平台-产品中心**进行绑定
+
+AppID 和 mchid 全部申请完毕后，需要建立两者之间的绑定关系。
+
+普通商户模式下， AppID 与 mchid 之间的关系为多对多，即一个 AppID 下可以绑定多个 mchid ，而一个 mchid 也可以绑定多个 AppID。
+
+### 微信支付平台关键信息获取
+
+#### 微信支付平台申请证书
+
+登录 [微信支付平台](https://pay.weixin.qq.com/) ,申请商户号证书。【账户中心】->【API 安全】->【申请 API 证书】目录下载证书。![](https://haiqi-ruixue-test.oss-cn-beijing.aliyuncs.com/1720248544973-image.png)
+
+在弹出窗口内点击“下载证书工具”按钮下载证书工具。
+
+![](https://haiqi-ruixue-test.oss-cn-beijing.aliyuncs.com/1720248592166-image.png)
+
+安装证书工具并打开，选择证书需要存储的路径后点击“申请证书”。
+
+![](https://haiqi-ruixue-test.oss-cn-beijing.aliyuncs.com/1720248645469-image.png)
+
+在证书工具中，将复制的商户信息粘贴并点击“下一步”。
+
+![](https://haiqi-ruixue-test.oss-cn-beijing.aliyuncs.com/1720248667250-image.png)
+
+获取请求串
+
+![](https://haiqi-ruixue-test.oss-cn-beijing.aliyuncs.com/1720248715239-image.png)
+
+![](https://haiqi-ruixue-test.oss-cn-beijing.aliyuncs.com/1720248723221-image.png)
+
+![](https://haiqi-ruixue-test.oss-cn-beijing.aliyuncs.com/1720248737810-image.png)
+
+生成证书串
+
+步骤 1 ：在【商户平台】-“复制证书串”环节，点击“复制证书串”按钮后；
+
+步骤 2 ：在【证书工具】-“复制请求串”环节，点击“下一步”按钮进入“粘贴证书串”环节；
+
+步骤 3 ：在【证书工具】-“粘贴证书串”环节，点击“粘贴”按钮后；
+
+步骤 4 ：点击“下一步”按钮，进入【证书工具】-“生成证书”环节
+
+![](https://haiqi-ruixue-test.oss-cn-beijing.aliyuncs.com/1720248764457-image.png)
+
+![](https://haiqi-ruixue-test.oss-cn-beijing.aliyuncs.com/1720248772924-image.png)
+
+![](https://haiqi-ruixue-test.oss-cn-beijing.aliyuncs.com/1720248781526-image.png)
+
+在【证书工具】-“生成证书”环节，已完成申请证书流程，点击“查看证书文件夹”，查看已生成的证书文件。**可以在【账户中心】->【API 安全】->【API 证书】查看已申请证书的有效期以及证书序列号.**
+
+附件中的包含三份文件（证书 pkcs12 格式、证书 pem 格式、证书密钥 pem 格式）![](https://guanwangyun.oss-cn-beijing.aliyuncs.com/document/tripartite/wechat/pay/apppay/file.jpg)
+
+其中**apiclient_key.pem**文件为支付配置所需私钥
+
+文件使用文本编辑器打开,全选复制。其中-----BEGIN PRIVATE KEY-----开头,结尾-----END PRIVATE KEY-----也需包含在内。
+
+#### 微信支付平台配置APIv3密钥
+
+1.登录微信商户平台，进入【账户中心 > 账户设置 > API 安全】目录，点击【APIv3 密钥】。
+
+![](https://haiqi-ruixue-test.oss-cn-beijing.aliyuncs.com/1720248428990-image.png)
+
+### 望舒系统中配置支付信息
+
+**添加支付方式**
+
+望舒后台管理系统，位置：**商务管理 > 三方账号管理 > 小游戏跳转支付 > 新建**。
+
+根据要求把相关配置信息填入后台
+
+![](https://haiqi-ruixue-test.oss-cn-beijing.aliyuncs.com/docOnline/image-1727238357489.png)
+
+私钥中的开头-----BEGIN PRIVATE KEY-----,结尾-----END PRIVATE KEY-----也一定要包含在内，否则下单失败。

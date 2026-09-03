@@ -1,0 +1,282 @@
+---
+title: "开放平台对接"
+---
+
+渠道方文档地址: [http://open.heitu.com/Upload/port/#api-User-Role](http://open.heitu.com/Upload/port/#api-User-Role)
+
+## 角色上报接口(获取用户签名)
+
+> **POST：** `/v1/thirdparty/api/channel_gateway/minigame_qunhei/sdk.role.sign`
+> **认证方式：** [CPSign](/docs/v3.5/入门指南/服务端接入须知)
+
+### CURL 示例
+
+```bash
+curl --location --request POST '{{接口域名}}/v1/thirdparty/api/channel_gateway/minigame_qunhei/sdk.role.sign' \
+--header 'ruixue-cpid: {{CPID}}' \
+--header 'ruixue-cpts: {{时间戳}}' \
+--header 'ruixue-traceid: {{TraceID}}' \
+--header 'ruixue-cpsign: {{请求签名}}' \
+```
+
+### 请求参数（POST）
+
+| <strong>字段</strong> | <strong>类型</strong> | <strong>是否必填</strong> | <strong>说明</strong> |
+| --- | --- | ---- | --- | 
+| act| Number | 是 | 	1=创建角色，2=登录角色，3=角色升级  |
+| username | String | 是 | 望舒openid  |
+| serverid | Number | 是 | 区服 ID |
+| servername| String | 是 | 开服时间  |
+| rolename | String | 是 | 角色 ID  |
+| roleid| Number | 是 | 角色名称  |
+| level| Number | 是 |角色等级(没有传0) |
+| power | Number | 是 | 角色战力(没有传0) |
+| vip | Number | 是 | vip等级(没有传0) |
+| rolecreatetime| String | 是 | 角色创建时间戳(没有传0)  |
+| ver| Number | 是 | 版本号固定值1 |
+<strong>响应示例</strong>
+
+```json
+{
+        "code": 0,
+        "data": {
+            "sign":"xxxxxxxxxxxx"
+        }
+}
+```
+
+### 响应结构（JSON）
+
+| 字段名 | 类型 | 描述 |
+| --- | --- | --- |
+| code | Number | 望舒错误码 |
+| data.sign | String | 签名 |
+
+## 提交开服接口
+
+> **POST：** `/v1/thirdparty/api/channel_gateway/minigame_qunhei/serverAdd`
+> **认证方式：** [CPSign](/docs/v3.5/入门指南/服务端接入须知)
+
+### CURL 示例
+
+```bash
+curl --location --request POST '{{接口域名}}/v1/thirdparty/api/channel_gateway/minigame_qunhei/serverAdd' \
+--header 'ruixue-cpid: {{CPID}}' \
+--header 'ruixue-cpts: {{时间戳}}' \
+--header 'ruixue-traceid: {{TraceID}}' \
+--header 'ruixue-cpsign: {{请求签名}}' \
+```
+
+### 请求参数（POST）
+
+| **字段** | **类型** | **是否必填** | **说明** | 
+| --- | --- | ---- | --- | 
+| unid| String|是 |后台登录账号 | 
+| gid| Number|是 |游戏id | 
+| servernum| Number|是 |开服数 | 
+| kftime| String|是 |开服日期(2019-11-08) | 
+| ddtime| String|是 |开服时间(12:00) | 
+
+**响应示例**
+
+```json
+{
+    "code": 0
+}
+```
+
+### 响应结构（JSON）
+
+| 字段名 | 类型 | 描述 |
+| --- | --- | --- |
+| code | Number | 望舒错误码 |
+
+## 角色上下线上报
+
+> **POST：** `/v1/thirdparty/api/channel_gateway/minigame_qunhei/upOnline`
+> **认证方式：** [CPSign](/docs/v3.5/入门指南/服务端接入须知)
+
+### CURL 示例
+
+```bash
+curl --location --request POST '{{接口域名}}/v1/thirdparty/api/channel_gateway/minigame_qunhei/upOnline' \
+--header 'ruixue-cpid: {{CPID}}' \
+--header 'ruixue-cpts: {{时间戳}}' \
+--header 'ruixue-traceid: {{TraceID}}' \
+--header 'ruixue-cpsign: {{请求签名}}' \
+```
+
+### 请求参数（POST）
+
+| **字段** | **类型** | **是否必填** | **说明** | 
+| --- | --- | ---- | --- | 
+| gid| Number|是 |游戏id | 
+| type| Number|是 |1上线，2下线 | 
+| serverid| Number|是 |服务器id | 
+| time| String|是 |行为时间,UnixTime 标准时间，单位秒。示 例：1616918879 | 
+| logintime| String|是 |打开游戏时间,UnixTime 标准时间，单位秒。示 例：1616918879 | 
+| userid| String|是 |登录账号id | 
+
+**响应示例**
+
+```json
+{
+    "code": 0,
+    "data":{
+        "code":0,
+        "msg":""
+    }
+}
+```
+
+### 响应结构（JSON）
+
+| 字段名 | 类型 | 描述 |
+| --- | --- | --- |
+| code | Number | 望舒错误码 |
+| data.code | Number | 业务错误码 1成功,其他失败 |
+| data.msg | String | 业务状态描述 |
+## 排行接口(望舒回调CP)
+
+当最右平台后台配置需要展示该游戏的游戏排行榜时，平均每隔五分钟触发此消息回调通知获取游戏排行榜信
+
+> 类型：异步
+> Action: channel-notify
+> **认证方式：** [CPSign](/docs/v3.5/入门指南/服务端接入须知)
+
+### 请求参数
+
+| <strong>字段</strong> | <strong>类型</strong> | <strong>是否必填</strong> | <strong>说明</strong> |
+| --- | --- | ---- | --- |
+| product_id | String | 是 | 望舒产品标识 |
+| channel_id | String | 是 | 望舒渠道表示 |
+| method| String | 是 | 群黑默认 minigame_qunhei |
+| channel_notify_type | String | 是 | 获取排行榜默认 ranklist |
+| query | String | 否 | url参数 |
+| body | String | 否 | body请求体 |
+#### query字段参数说明
+
+| <strong>字段</strong> | <strong>类型</strong> | <strong>是否必填</strong> | <strong>说明</strong> |
+| --- | --- | ---- | --- |
+| gid | Number | 是 | 游戏id |
+| time | String | 是 | 行为时间,UnixTime 标准时间，单位秒。示 例：1616918879|
+| count| String | 是 | 数量，获取排行榜前 n 名，n = count，n 最大为 100 |
+
+#### 请求示例
+
+```json
+{
+        "product_id": "1002",
+        "channel_id": "100",
+        "method": "minigame_qunhei",
+        "channel_notify_type": "ranklist",
+        "query": "count=xxx&gid=3626&time=1616918879&sign=xxxxx",
+        "body": ""
+}
+```
+
+#### 返回示例
+
+```json
+{
+"code": 0,
+"data":"{\"code\":\"success\",\"json\":\"[{\\\"rx_openid\\\":\\\"3dekrl1==\\\",\\\"nickname\\\":\\\"佚名\\\",\\\"avatar\\\":\\\"xxxx\\\",\\\"score\\\":0,\\\"score_unit\\\":\\\"分\\\",\\\"ranking\\\":1},{\\\"rx_openid\\\":\\\"3dekr22==\\\",\\\"nickname\\\":\\\"佚名\\\",\\\"avatar\\\":\\\"xxx\\\",\\\"score\\\":0,\\\"score_unit\\\":\\\"分\\\",\\\"ranking\\\":2},{\\\"rx_openid\\\":\\\"3dekr33==\\\",\\\"nickname\\\":\\\"佚名\\\",\\\"avatar\\\":\\\"xxx\\\",\\\"score\\\":0,\\\"score_unit\\\":\\\"分\\\",\\\"ranking\\\":3}]\"}"
+}
+```
+
+### 响应要求
+
+| <strong>字段</strong> | <strong>类型</strong> | <strong>说明</strong> |
+| --- | --- | --- |
+| code | Number | 0 成功 |
+| msg | String | 错误信息 |
+| data | String | 响应渠道方数据 |
+
+#### 响应data要求
+
+| <strong>字段</strong> | <strong>类型</strong> | <strong>说明</strong> |
+| --- | --- | --- |
+| code | String | 成功 success |
+| json | String | 响应参数 |
+#### 响应参数要求
+| <strong>字段</strong> | <strong>类型</strong> | <strong>说明</strong> |
+| --- | --- | --- |
+| rx_openid | string | 望舒openid |
+| nickname | string | 角色名称 |
+| avatar | string | 角色头像 |
+| score | int | 	用户游戏内成绩，如多少分，多少楼，多少级等 |
+| score_unit | string | 用户游戏内成绩对应单位，如级，分，楼等 |
+| ranking | int | 游戏内排名 |
+## 游戏角色排行接口(望舒回调CP)
+
+当平台后台配置需要展示该游戏的游戏排行榜时，平均每隔五分钟触发此消息回调通知获取游戏排行榜指定用户信息
+
+> 类型：异步
+> Action: channel-notify
+> **认证方式：** [CPSign](/docs/v3.5/入门指南/服务端接入须知)
+
+### 请求参数
+
+| <strong>字段</strong> | <strong>类型</strong> | <strong>是否必填</strong> | <strong>说明</strong> |
+| --- | --- | ---- | --- |
+| product_id | String | 是 | 望舒产品标识 |
+| channel_id | String | 是 | 望舒渠道表示 |
+| method| String | 是 | 群黑默认 minigame_qunhei |
+| channel_notify_type | String | 是 | 获取排行榜默认 rankuser |
+| query | String | 否 | url参数 |
+| body | String | 否 | body请求体 |
+#### query字段参数说明
+
+| <strong>字段</strong> | <strong>类型</strong> | <strong>是否必填</strong> | <strong>说明</strong> |
+| --- | --- | ---- | --- |
+| game_id | String | 是 | 平台游戏标识，由平台方提供 |
+| app | String | 是 | 平台，最右：zuiyou, 皮皮搞笑：zuiyou_lite。需要返回对应平台的排行榜，如有疑问可以和平台运营同学沟通|
+| rx_openid| String | 是 | 望舒openid |
+|
+
+#### 请求示例
+
+```json
+{
+        "product_id": "1002",
+        "channel_id": "100",
+        "method": "minigame_qunhei",
+        "channel_notify_type": "rankuser",
+        "query": "username=xxx&gid=3626&time=1616918879&sign=xxxxx",
+        "body": ""
+}
+```
+
+#### 返回示例
+
+```json
+{
+"code": 0,
+"data":"{\"code\":\"success\",\"json\":\"{\\\"rx_openid\\\":\\\"3dekrle==\\\",\\\"nickname\\\":\\\"佚名\\\",\\\"avatar\\\":\\\"https://file.izuiyou.com/img/view/id/1110375480\\\",\\\"score\\\":0,\\\"score_unit\\\":\\\"分\\\",\\\"ranking\\\":100}\"}"
+}
+```
+
+### 响应要求
+
+| <strong>字段</strong> | <strong>类型</strong> | <strong>说明</strong> |
+| --- | --- | --- |
+| code | Number | 0 成功 |
+| msg | String | 错误信息 |
+| data | String | 响应渠道方数据 |
+
+#### 响应data要求
+
+| <strong>字段</strong> | <strong>类型</strong> | <strong>说明</strong> |
+| --- | --- | --- |
+| code | String | 成功 success |
+| json | String | 响应参数 |
+#### 响应参数要求
+
+| <strong>字段</strong> | <strong>类型</strong> | <strong>说明</strong> |
+| --- | --- | --- |
+| rx_openid | string | 望舒openid |
+| nickname | string | 角色名称 |
+| avatar | string | 角色头像 |
+| score | int | 用户游戏内成绩，如多少分，多少楼，多少级等 |
+| score_unit | string |用户游戏内成绩对应单位，如级，分，楼等 |
+| ranking | int | 游戏内排名 |

@@ -1,0 +1,768 @@
+---
+title: "快速接入"
+---
+
+{/* v35-v4-banner */}
+:::tip[v3.5 归档文档]
+
+此页为 v3.5 归档文档。新项目请查看 [v4.x 对应文档](/docs/开发者文档/入门指南/快速开始/Android初始化/快速接入)。
+
+:::
+
+
+:::tip
+区服项目必接：[区服接入参考](/docs/v3.5/区服角色/功能介绍)。
+:::
+## 准备工作
+
+请登录望舒系统初始化相关服务，如果还没有望舒账号请[查看准备工作说明](/docs/v3.5/入门指南/准备工作)。
+望舒系统地址，可登录企业管理后台 > 已部署项目中查看。
+
+## 环境要求
+
+- Android 5.0（API level 21）或更高版本
+
+## 隐私权限
+
+:::tip
+SDK 会获取一些设备相关信息，有些信息会涉及到隐私权限。
+部分渠道审核会有限制，请注意相关配置，并在审核模式下进行相关处理。
+:::
+
+获取的设备相关信息在部分渠道可能会有审核问题，请根据情况进行审核模式的配置。
+
+- 设备相关：（imei、androidid、oaid、sn号、主板、系统 boot 版本号、系统定制商、abi、显示屏参数、无线固件版本号、硬件制造商、硬件序列号、硬件名称、主机名、系统用户名、系统编译类型） hash 32 位生成设备码和 oaid。
+  如需在审核模式下禁用隐私权限请查看 [用户隐私协议初始化](/docs/v3.5/入门指南/快速开始/Android初始化/快速接入)。
+  注意：禁用后生成的设备码将会有大概率重复！
+- 隐私相关：获取剪贴板内容、接入了定位功能需要获取定位权限。
+
+#### 用途
+
+| **名称**  | **备注**                                       |
+| --------- | ---------------------------------------------- |
+| 设备码    | 设备唯一标识，用于生成游客账号、大数据筛选条件 |
+| oaid/caid | 广告标识，用于媒体平台投放归因                 |
+
+### 我们如何使用 Cookie 和同类技术
+
+登录前使用客服功能会随机生成了一个字符串用于标识匿名用户，以便该匿名用户下次再使用客服时获取之前的聊天记录。
+
+## SDK 集成
+
+### 自动化集成（推荐）
+
+1. 配置 SDK 依赖：在 `app/build.gradle` 文件的 `dependencies` 块中引用望舒 `SDK` 依赖 `implementation 'com.ruixue:库名称:${ version }'`，此处的 `${version}` 为对应的 SDK 版本号，最新`${version}`版本请从 [更新日志](/docs/v3.5/入门指南/快速开始/Android初始化/快速接入) 中查看。
+3. 渠道库 ，以下库**单选 (必接一个)**
+    参考 [三方服务->渠道接入说明](/docs/v3.5/入门指南/快速开始/Android初始化/快速接入)
+4. 组件库 库可**多选(可接多个)**
+    参考三方服务对应三方组件库。
+
+### 混淆配置
+在应用级根目录下打开混淆配置文件`proguard-rules.pro`，加入排除 SDK 的混淆配置
+```
+-keep class com.ruixue.** { *; }
+```
+### 工程配置
+
+以下配置示例为 gradle 6.7.1 配置示例，gradle 版本非硬性要求，实际版本以项目本身为准。
+
+1. 在您的项目中，打开 `your_app | Gradle Scripts | build.gradle (Project)` 并将以下存储库添加到 `buildscript { dependencies {}}` 部分：
+
+```groovy
+//以当前项目gradle版本对应对应的插件版本为准
+classpath "com.android.tools.build:gradle:4.2.2"
+```
+
+2. 在您的项目中，打开 `your_app | Gradle Scripts | gradle-wrapper.properties` 并替换 `distributionUrl` 值：
+
+```groovy
+distributionUrl=https\://services.gradle.org/distributions/gradle-6.7.1-bin.zip
+```
+
+3. gradle.properties 配置
+
+```groovy
+android.useAndroidX=true
+android.enableJetifier=true
+
+#ysdk 渠道需要添加
+android.useNewApkCreator=false
+
+#vivo oppo 等设备无法调试安装加入此配置，其他无需添加
+android.injected.testOnly=false
+
+#gradle 8.x版本，如果开启混淆功能请添加此属性
+android.enableR8.fullMode=false
+```
+
+4. `SDK` 使用 API 版本信息 build.gradle 下
+
+```groovy
+android {
+    buildToolsVersion = '30.0.3'  // 仅为示例，具体版本根据项目情况自行配置
+    compileSdkVersion = 31        // 仅为示例，具体版本根据项目情况自行配置
+
+    defaultConfig {
+        minSdkVersion 21          // 大于等于21即可
+        targetSdkVersion 28       // 仅为示例，sdk支持28或以上版本，具体版本可根据渠道要求自行升级测试
+    }
+}
+```
+
+5. 配置 Maven 库地址，在 `build.gradle` 文件的 `allprojects{repositories{}}` 块中引用
+
+```groovy
+google()
+mavenCentral()
+jcenter { url 'https://maven.aliyun.com/nexus/content/repositories/jcenter' }
+
+//望舒库地址
+maven {
+   url 'http://60.205.123.114:8081/repository/maven-releases/
+   allowInsecureProtocol = true
+}
+//备用地址[可选]
+maven {
+    credentials {
+      username '600685104fb2132a19e09a29'
+      password '2IfrbLKz50J1'
+    }
+    url 'https://packages.aliyun.com/maven/repository/2168735-release-Zcdy1x/'
+}
+```
+
+6. 在 `build.gradle` 文件的 android `{}` 块中引用中添加,`JavaVersion` 至少 `1.8` 以
+   1. sourceCompatibility 关系到你使用到的 Java 语法特性及库
+   2. sourceCompatibility 不能比 targetCompatibility 大
+   3. targetCompatibility 不能比目标客户端运行环境的 JavaVersion 大
+   4. targetCompatibility 不能比当前 Gradle 使用的 JavaVersion 大
+
+```java
+compileOptions {
+    sourceCompatibility JavaVersion.VERSION_1_8
+    targetCompatibility JavaVersion.VERSION_1_8
+}
+```
+
+7. 【可选】接入三方渠道时，需参照 [Android 渠道接入说明](/docs/v3.5/入门指南/快速开始/Android初始化/快速接入) 对应配置。
+
+### 生命周期
+
+1. 直接继承 Application
+   游戏的 Application 直接继承 `com.ruixue.openapi.RXApplication`，如下：
+
+```java
+import com.ruixue.openapi.RXApplication
+public class GameApplication extends RXApplication{
+        //....
+}
+```
+
+2. 间接调用 Application
+
+```java
+//注意非 Activity 的 onCreate
+@Override
+public void onCreate() {
+    super.onCreate();
+    RuiXueSdk.onApplicationCreate(this);
+}
+
+@Override
+protected void attachBaseContext(Context base) {
+    super.attachBaseContext(base);
+    RuiXueSdk.attachBaseContext(base);
+}
+```
+
+3. 配置 app 启动 application ，在 AndroidManifest.xml 中 application 标签的 `android:name` 属性修改默认 application 关联，例如：
+
+```xml
+ 
+
+  或 游戏没有自定义application，直接使用望舒默认application ，可省去 1、2步配置
+
+   
+```
+
+4. 配置 Activity 生命周期监听
+
+自动监听生命周期， 继成自 LifecycleOwner 接口的 AppCompatActivity 等可使用此方式
+
+```java
+RuiXueSdk.trackingLifecycle(this);
+```
+
+`或` 手动调用继承自 `Activity` 的使用下面方式
+
+```java
+@Override
+public void onCreate() {
+    super.onStart();
+    RuiXueSdk.onCreate(this);
+}
+
+@Override
+public void onStart() {
+    super.onStart();
+    RuiXueSdk.onStart(this);
+}
+
+@Override
+public void onRestart() {
+    super.onRestart();
+    RuiXueSdk.onRestart(this);
+}
+
+@Override
+public void onResume() {
+    super.onResume();
+    RuiXueSdk.onResume(this);
+}
+
+@Override
+public void onPause() {
+    super.onPause();
+    RuiXueSdk.onPause(this);
+}
+
+@Override
+public void onStop() {
+    super.onStop();
+    RuiXueSdk.onStop(this);
+}
+```
+
+5. 配置权限 、设备配置等监听
+
+```java
+@Override
+public void onNewIntent(Intent newIntent) {
+  super.onNewIntent(newIntent);
+  RuiXueSdk.onNewIntent(this, newIntent);
+}
+
+@Override
+public void onActivityResult(int requestCode, int resultCode, Intent data) {
+  super.onActivityResult(requestCode, resultCode, data);
+  RuiXueSdk.onActivityResult(this, requestCode, resultCode, data);
+}
+
+@Override
+public void onConfigurationChanged(Configuration newConfig) {
+  super.onConfigurationChanged(newConfig);
+  RuiXueSdk.onConfigurationChanged(this, newConfig);
+}
+
+@Override
+public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
+  super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+  RuiXueSdk.onRequestPermissionsResult(this, requestCode, permissions, grantResults);
+}
+```
+
+## SDK设置
+### 设置用户隐私相关功能    
+- SDK 初始化会读取 AndroidID、OAID、IMEI、MAC 地址等敏感唯一标识信息。  
+- 主要用途：设备码生成，游客登录，买量归因等接口。
+
+####  设置 SDK敏感信息采集开关  
+
+注意 ：默认为开启采集， 如需关闭采集，请在SDK 初始化接口前调用关闭敏感信息采集开关接口关闭采集
+
+ 关闭敏感信息采集可能导致问题
+
+1. 设备码生成出现大概率重复，禁用后一旦生成设备码再次取消禁用也不会重新生成设备码，需要卸载重装。
+2. 因游客账号使用设备码生成，可能导致游客账号重复(不同设备生成同一账号)或卸载重装产生新游客。
+3. 因无法获取设备唯一标识，媒体买量归因成功率大大降低。
+4. 自 SDK v3.3.9 版本起 ，关闭敏感信息采集无法再使用游客登录。
+
+```json
+/**
+ * @param disabled 是否关闭敏感信息采集， imei mac 地址等，关闭后相关信息不再采集
+ */
+RuiXueSdk.disableReadSensitiveInfo(true);
+```
+
+####   通知 SDK 已同意隐私协议（必须）
+
+- 使用自定义隐私时，请调用此接口通知 sdk 已同意隐私协议， 使用 sdk 内置隐私窗口时无需调用此接口。       
+- 用户需要同意隐私弹窗后，才使用 SDK 权限，在用户同意自定义隐私协议之后调用此接口。
+- 接入三方渠道时，需要每次启动都要调用。
+
+```java
+//通知 SDK 已同意隐私协议
+RuiXueSdk.setPrivacyAgree(new PrivacyCallback() {
+    @Override
+    public void onPrivacyAgree(boolean userClick) {
+       //如果使用 sdk 的隐私，需要在此后再初始化三方 sdk
+    }
+});
+
+ 判断用户是否已经点击同意隐私
+//调用示例
+ＲuiXueSdk.isAgreedPrivacy()
+```
+
+### 设置调试模式
+```java
+/**
+/**
+* 设置是否启用调试模式。
+* 当启用调试模式时，日志工具将在记录日志时输出更多详细信息，
+*
+* @param enabled true 表示启用调试模式，false 表示禁用调试模式。
+*/
+public static void setDebugEnabled(boolean enabled) 
+```
+
+**调用示例**
+```java
+RuiXueSdk.setDebugEnabled(是否启用调试模式);
+```
+
+### 设置子渠道
+
+:::tip
+通行证记录来源（分包）、子渠道参数。
+必须在 登录、注册 前调用。
+:::
+
+**接口原型**
+
+```java
+void setSubChannelId(String subChannelid);
+```
+
+**调用示例**
+
+```java
+RuiXueSdk.setSubChannelId("your sub_channel_id");
+```
+
+### 设置OAID    
+如果需要设置OAID，必须在SDK 初始化前设置OIAD，如何获取 OAID请 [参考文档](/docs/v3.5/入门指南/快速开始/Android初始化/快速接入)
+
+```java
+ /**
+ *  设置oaid
+ * @param oaid 来自移动安全联盟sdk 的oaid
+ */
+public static void setOAID(String oaid)
+```
+
+**调用示例**
+```java
+RuiXueSdk.setOAID(来自移动安全联盟sdk 的oaid);
+```
+### 设置语言
+
+客户端可设置 SDK 语言，在初始化前调用。
+:::tip
+海外项目需要根据发行地区或 App 的语言进行设置，避免出现 SDK 的文案和 App 内语言不一致的情况。
+:::
+
+**接口原型**
+
+```java
+/**
+ * 设置当前语言
+ * @param language  语言需符合标准格式
+ */
+void setLanguage(String language)
+
+/**
+* 禁用 SDK 多语言切换（禁用后 SDK 不会修改应用的 Locale）
+*
+* @param disabled true=禁用多语言，false=启用多语言（默认）
+*/
+public static void disableMultiLanguage(boolean disabled)
+```
+
+**调用示例**
+
+```java
+//设置 SDK 自定义多语言
+RuiXueSdk.setLanguage(this, "zh");
+
+//禁用 SDK 自定义多语言
+RuiXueSdk.disableMultiLanguage(true)
+```
+
+#### 支持语言列表
+
+| **字段** | **备注** |
+| -------- | -------- |
+| zh       | 简体中文 |
+| tc       | 繁体中文 |
+| ja       | 日文     |
+| en       | 英文     |
+| th       | 泰文     |
+| vi       | 越南语   |
+| tl       | 菲律宾语 |
+| id       | 印尼语   |
+| ar       | 阿拉伯语 |
+
+### 设置地区
+
+客户端可设置 SDK 地区,设置后自动在请求头添加 ruixue-area 传给服务器。
+:::tip
+海外项目需要根据发行地区进行设置，查看 [地区码](/docs/v3.5/入门指南/快速开始/Android初始化/快速接入)，默认获取系统设置地区。
+:::
+
+**接口原型**
+
+```java
+/**
+ * 设置当前地区
+ * @param  area  标准地区代码
+ */
+void setArea(String area)
+```
+
+**调用示例**
+
+```java
+RuiXueSdk.setArea("CN");
+```
+
+### 设置自定义错误消息提示
+:::tip
+规则 1：根据设置的错误码直接读取对应提示替换 msg；
+规则 2：如果设置中有 default 的 key，将未配置的错误码 msg 统一替换为 default 的 value；
+规则 3：$code$ $msg$ $thirdcode$ $thirdmsg$ 为模板占位符，使用后将分别被替换为sdk接口默认返回code msg thirdcode thirdmsg
+
+以上规则仅适用于调用了 ***setErrorMsg*** 方法，未调用此方法，则返回sdk默认提示信息，映射键值对中key 对应 value 不能为空字符串，否则该对映射不生效
+:::
+
+**接口原型**
+
+```java
+/**
+*设置自定义错误码信息
+* @param customErrorMsg 设置自定义错误码的字典
+*/
+public static void setErrorMsg(Map> customErrorMsg)
+```
+
+**数据结构**
+错误码设置的参数形式，应按照语言进行分类设置，无需将提示的语言类型配置齐全，为方便未来扩展语言结构，设置的数据结构例如：
+```json
+{
+    en:{
+            "3001":"error1",
+            "3002":"error2"
+        }
+    zh:{
+            "3001":"错误1",
+            "3002":"错误2"
+    }
+}
+```
+
+**调用示例**
+```java
+Map> map = new HashMap<>();
+Map zh = new HashMap<>();
+zh.put("2002", "自定义消息 $code$$thirdcode$$thirdmsg$");
+zh.put("2000", "");
+zh.put("default", "$msg$:$code$");
+
+Map en = new HashMap<>();
+en.put("2002", "custom error $code$$thirdcode$$thirdmsg$");
+en.put("2000", "error demo ");
+en.put("default", "$msg$:$code$");
+map.put("zh", zh);
+map.put("en", en);
+
+RuiXueSdk.setErrorMsg(map);
+```
+
+### 设置是否禁止截屏
+
+**接口原型**
+
+```java
+/**
+ * 设置是否禁止截屏
+ * @param disable  是否禁止
+ */
+void setScreenCaptureDisable(boolean disable)
+```
+
+**调用示例**
+
+```java
+RuiXueSdk.setScreenCaptureDisable(true);
+```
+## SDK 初始化（必须）
+
+::: tip
+初始化 SDK 时需传入 `productId`、`channelId`、`cpid`、`baseUrlList` 参数信息。
+- `productId`、`channelId` 在望舒游戏发行平台获取（创建产品或渠道），[查看使用说明](/docs/v3.5/入门指南/准备工作)。
+- `cpid`、`baseUrlList` 在望舒企业管理后台获取（创建项目），[查看使用说明](/docs/v3.5/入门指南/准备工作)。
+- 初始化为异步调用，失败将不能使用 SDK 功能，请注意处理调用逻辑。
+
+客户端可单独设置初始化参数，不执行 激活、生成设备码、获取隐私权限、获取剪贴板 等操作，可用于调用某些不依赖于隐私的接口（如获取法务信息接口等），此方法为可选，为保证能够正常使用 SDK 功能，原有初始化接口仍需调用；
+:::
+
+**接口原型**
+
+```java
+/**
+* 使用配置初始化sdk
+* @param config {@link RXSdkInitConfig}
+*/
+void initialize(RXSdkInitConfig config)
+```
+ ### RXSdkInitConfig参数说明  
+
+| **字段**    | **类型** | **是否必填** | **备注**     |
+| ----------- | -------- | ----------- | ------------ |
+| productId   | String | 是           | 产品 id      |
+| channelId   | String | 是           | 渠道 id      |
+| cpid        | String | 是           | cpid        |
+| baseUrlList | List  | 是           | 请求域名队列 |
+| initializeCallback    | RXRequestCallback    | 是           | 回调函数 |
+| isLogEnable | boolean  |否            | 日志开关，true默认开启，false默认关闭 |
+| usePrivacy | boolean  | 否           | 首次启动是否展示用户隐私授权页面，true展示，false不展示，默认true展示 |
+| agreementMap | Map  | 否           | 自定义协议键值对，key:00001（00001为示例，实际值是望舒协议key）或链接  value:《用户协议》 |
+| agreementTitle | String  | 否           | 协议标题，默认为 “用户协议和隐私政策” |
+| isUseDNS | boolean  | 否           | 是否打开，true打开，false关闭，默认为false，需配合[阿里DNS SDK](/docs/v3.5/入门指南/快速开始/Android初始化/快速接入)或[腾讯 DNS SDK](/docs/v3.5/入门指南/快速开始/Android初始化/快速接入)使用 |
+| openRacing | boolean  | 否           | 是否开启竞速，true 开启 false 关闭，默认 false，详情查看[openRacing 说明](/docs/v3.5/登录（通行证）/Android 登录API/快速接入) |
+| setActivity | Activity  |是           | 应用的主Activity |
+
+#### openRacing 说明
+baseUrlList 数量为 1 时 不生效。
+开启竞速模式：当 baseUrlList 有多个时，根据网络请求响应速度对数组进行排序，后续 SDK 内部网络请求根据排序后的数组使用对应域名。
+关闭竞速模式：当 baseUrlList 有多个时，SDK 内部网络请求根据数组顺序使用对应域名。
+
+**调用示例**
+
+```java
+String productId = "your_product_id";
+String channelId = "your_channel_id";
+String cpid = "your_cp_id";
+
+// 配置多个备用域名，提高请求可靠性
+List baseUrlList = new ArrayList<>();
+baseUrlList.add("https://api-prod.example.com"); // 主域名
+baseUrlList.add("https://api-backup1.example.com"); // 备用域名1
+baseUrlList.add("https://api-backup2.example.com"); // 备用域名2
+RXSdkInitConfig rxSdkInitConfig = new RXSdkInitConfig(cpid, productid, channelid,baseUrlList, initCallback);
+
+//以下配置为可选参数
+// 使用内置隐私弹窗的功能，默认 false 不使用 sdk 隐私弹窗，设置为 true 时 需要传入隐私协议
+// rxSdkInitConfig.setUsePrivacy(false);
+// rxSdkInitConfig.setActivity(activity);
+// rxSdkInitConfig.setAgreementTitle("设置隐私窗口标题");
+//Map agreementMap = new LinkedHashMap();
+
+//此处可以传个 隐私链接 https://i3ixr7.weilefly.com/static/landing/#/v1/legal/terms/102/100/00001?lang=zh 或 key名称 00001
+//agreementMap.put("00001", "《用户协议》");
+//agreementMap.put("00002", "《隐私政策》");
+ 
+//设置隐私协议key链接和标题
+//rxSdkInitConfig.setAgreementMap(agreementMap);
+
+//设置是否启用sdk日志
+rxSdkInitConfig.setLogEnable(true);
+
+//初始化sdk
+RuiXueSdk.initialize(rxSdkInitConfig);
+
+```
+
+## 接入功能
+
+SDK 提供了众多功能。请在初始化 SDK 后，根据项目需要，参考相应功能的文档，接入相应功能。 绝大多数游戏都会接入望舒登录，所以我们推荐从这一功能开始。
+
+### SDK 通用回调说明
+
+所有接口 `RXJSONCallback` 类型回调提供额外`RXRequestCallback`扩展调用方式,可替换`RXJSONCallback` 使用。
+`RXRequestCallback`回调不区分成功失败, 通过`code` 错误码自行判断成功失败，错误说明参照服务器错误表。
+
+**调用示例**
+
+```java
+RXRequestCallback rxcallback = new RXRequestCallback() {
+    @Override
+    public Map onClickHandle(Map params) {
+        return params;
+    }
+
+    /**
+     *
+     * @param jsonObject code 错误码
+     *                   msg  错误消息 为空时不返回
+     *                   data 响应数据 为空时不返回
+     */
+    @Override
+    public void onResponse(JSONObject jsonObject) {
+            showLog(jsonObject.toString());
+    }
+    @Override
+    public void onError(RXException e) {
+        super.onError(e);
+    }
+};
+```
+
+### 自定义接口请求
+
+::: info 强烈建议
+项目组实现该接口，可以处理一些紧急的线上事故（不依赖发版）。
+:::
+
+**接口原型**
+
+```java
+public interface IRXRequest {
+    IRXRequest addHeaders(Map headerMap);
+    IRXRequest addHeaders(String key, String value);
+
+    IRXRequest setBody(String jsonStr);
+    IRXRequest setBody(JSONObject jsonObject);
+    IRXRequest setBody(Map bodyMap);
+    IRXRequest setRestfulData(boolean restfulData);
+    //接口是否需要登录
+    IRXRequest setNeedLoggedIn(boolean needLoggedIn);
+
+    void getAsync(@NonNull RXRequestCallback callback);
+    void postAsync(@NonNull RXRequestCallback callback);
+}
+
+/**
+ * 自定义接口请求
+ * @param api 接口路径 完整路径或相对路径,注意相对路径不能以/开头 例: v1/operationapi/legal
+ * @param bodyMap 接口map参数
+ * @return RXRequest 请求对象
+ */
+IRXRequest createRequest(String api, Map bodyMap);
+```
+
+**调用示例**
+
+```java
+//示例 1
+Map params = new HashMap<>();
+String apiPath="v1/operationapi/legal";
+RuiXueSdk.getRXSdkApi().createRequest(apiPath, params)
+        .setRestfulData(false)//接收数组data数据,或data需要code值,请传false.
+        .setNeedLoggedIn(true) //设置接口是否需要验证登录
+        .postAsync(new RXRequestCallback() {
+            @Override
+            public void onResponse(JSONObject jsonObject) {
+                int code = jsonObject.optInt("code", -1);
+                if (code == 0) {
+                    //todo 请求成功 时一些逻辑处理
+                }else {
+                    //todo 请求业务出现错误 时一些逻辑处理
+                }
+            }
+        });
+
+//示例 2
+String api="v1/operationapi/legal";
+Map body=new HashMap<>();
+Map headers=new HashMap<>();
+RuiXueSdk.getRXSdkApi().createRequest(api,map)
+        .setMethod(HttpMethod.POST)
+        .setRestfulData(false)//接收数组data数据,或data需要code值,请传false.
+        .setNeedLoggedIn(true) //设置接口是否需要验证登录
+        .addHeaders(headers)
+        .setCallback(new RXRequestCallback() {
+            @Override
+            public void onResponse(JSONObject jsonObject) {
+                int code = jsonObject.optInt("code", -1);
+                if (code == 0) {
+                    //todo 请求成功 时一些逻辑处理
+                }else {
+                    //todo 请求业务出现错误 时一些逻辑处理
+                }
+            }
+        }).execRequestAsync();
+```
+
+### 全局通用回调
+
+:::tip
+一些需要特定条件触发的事件会通过全局通用回调将事件通知给客户端，通过回调的 type 区分事件类型，并处理相应的业务逻辑。
+:::
+
+**接口原型**
+
+```java
+void rxPublicCallback(int type,Map map) ；
+```
+
+**调用示例**
+
+```java
+RuiXueSdk.setRuiXueSdkCallback(new RuiXueSdkCallback() {
+           /**
+            * 通用回调
+            * @param type 回调类型  10001 上报日志
+            * @param map 附加参数
+            */
+           @Override
+           public void rxPublicCallback(int type, Map map) {
+               String paht = activity.getExternalFilesDir(null).getAbsolutePath() + "/rxconfig.json";
+               File file = new File(paht);
+               try {
+                   FileInputStream fis = new FileInputStream(file);
+                   byte[] byteArr = new byte[(int) file.length()];
+                   fis.read(byteArr);
+                   fis.close();
+                   RuiXueSdk.reportFeedbackLog(activity, byteArr, new RXRequestCallback() {
+            @Override
+            public void onResponse(JSONObject jsonObject) {
+                int code = jsonObject.optInt("code", -1);
+                if (code == 0) {
+                    //todo 请求成功 时一些逻辑处理
+                }else {
+                    //todo 请求业务出现错误 时一些逻辑处理
+                }
+            }
+        });
+
+               } catch (IOException e) {
+                   e.printStackTrace();
+               }
+           }
+
+           /**
+            * 切换账号全局回调,如果有游戏内切换账号可关注此回调,渠道包回调为望舒透传回调，实际调用以各渠道为准。
+            * @param code 0
+            * @param data 三方数据
+            */
+           @Override
+           public boolean onSwitchAccount(int code, String data) {
+               return false;
+           }
+
+           /**
+            * 游戏内执行 logout 的通知
+            * @param code 0 成功 目前只有成功情况 ,渠道包回调为望舒透传回调，实际调用以各渠道为准。
+            * @param msg
+            */
+           @Override
+           public void onLogout(int code, String msg) {
+
+           }
+       });
+```
+
+#### type 说明
+
+| **type** | **备注**         |
+| -------- | ---------------- |
+| 10001    | 上报用户反馈日志 |
+
+### 接入三方渠道
+
+参考 [三方服务 ->（Android渠道接入说明）](/docs/v3.5/入门指南/快速开始/Android初始化/快速接入)
+
+### 接入望舒登录
+
+请根据开发者指南，[登录（通行证）](/docs/v3.5/入门指南/快速开始/Android初始化/快速接入) 完成操作。

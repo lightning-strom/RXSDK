@@ -1,0 +1,79 @@
+---
+sidebar_position: 1
+title: iOS
+description: "望舒SDK 商家转账（红包）iOS 收款接入文档，提供接口调用说明与示例。"
+---
+
+---
+sidebar_position: 4
+title: 收款
+description: "望舒SDK 商户发红包 iOS / Android 收款文档，商家转账接入说明。"
+---
+
+
+## 商家转账
+
+
+
+**接口原型**
+
+```objectivec
+/**
+ * business
+ */
+- (void)openBusinessViewWithModel:(RXWXBusinessModel *)model
+ complete:(void(^)(NSDictionary *response, RX_CommonRequestError *error))complete;
+```
+
+### 参数说明
+
+| 参数 | 类型 | 说明 |
+| --- | --- | --- |
+| appid | String | 发起商家转账的微信 appid |
+| businessType | String | 【业务类型】固定配置： requestMerchantTransfer |
+| query | String | 【查询参数】使用 URL 的 query string 方式传递参数，格式为 key=value&key2=value2 ，其中 value、value2 需要进行 UrlEncode 处理。 |
+
+> query 说明
+
+| 参数 | 类型 | 说明 |
+| --- | --- | --- |
+| mchId | String | 【商户号】商户号，由微信支付生成并下发，和发起转账传入的 mchid 必须是同一个 |
+| appId | String | 【商户 AppID】微信开放平台审核通过的移动应用 appid ，和发起转账传入的 appid 必须是同一个 |
+| package | String | 【package 信息】对应发起转账接口应答参数中的 package_info （仅当转账单据状态为 WAIT_USER_CONFIRM: 待收款用户确认时才返回），用于唤起用户确认收款页面。 |
+
+**调用示例**
+
+3.8.3 以上
+
+```objectivec
+RXWXBusinessModel *model = [[RXWXBusinessModel alloc] init];
+model.appid = @"wx8888888888888888";
+model.businessType = @"requestMerchantTransfer";
+model.query = @"mchId=1230000000&appId=wx8888888888888888&package=affffddafdfafddffda%3D%3D";
+[[RXWXService sharedSDK] openBusinessViewWithModel:model complete:^(NSDictionary * _Nonnull response, RX_CommonRequestError * _Nonnull error) {
+ if (!error) {
+ NSLog(@"调用成功");
+ } else {
+ NSLog(@"调用失败");
+ }
+}];
+```
+
+3.8.3 以下
+
+```objectivec
+[[RXWXService sharedSDK] shareToWWithShareInfo:@{@"appid" : @"wx8888888888888888"} complete:^(BOOL success) {
+
+}];
+
+RXWXBusinessModel *model = [[RXWXBusinessModel alloc] init];
+model.businessType = @"requestMerchantTransfer";
+model.query = @"mchId=1230000000&appId=wx8888888888888888&package=affffddafdfafddffda%3D%3D";
+[[RXWXService sharedSDK] openBusinessViewWithModel:model complete:^(NSDictionary * _Nonnull response, RX_CommonRequestError * _Nonnull error) {
+ if (!error) {
+ NSLog(@"调用成功");
+ } else {
+ NSLog(@"调用失败");
+ }
+}];
+```

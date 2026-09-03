@@ -1,0 +1,213 @@
+---
+sidebar_position: 2
+title: 服务端 API
+description: "望舒SDK 数据分析 服务端 API服务端文档，提供接口请求参数与响应说明。"
+---
+
+## 大数据埋点上报
+
+本文档将会为您介绍如何使用 HTTP[s] 的 POST 方式上报日志埋点数据，建议通过 Golang SDK 上报数据。
+
+> **POST：** `/v1/data/api/track`
+>
+> **认证方式：无
+
+### CURL示例
+
+```bash
+curl --location --request POST 'https://ruixue.weiletest.com/v1/data/api/track' \
+--header 'ruixue-language: {{语言}}' \
+--header 'ruixue-cpid: {{CPID}}' \
+--header 'ruixue-productid: {{产品标识}}' \
+--header 'ruixue-cpts: {{时间戳}}' \
+--header 'ruixue-datacount: {{日志条数}}' \
+--header 'ruixue-traceid: {{TraceID}}' \
+--header 'ruixue-devicecode: {{设备码}}' \
+--header 'ruixue-channelid: {{渠道标识}}' \
+--header 'ruixue-platformid: {{平台标识}}'
+--header 'Content-Type: application/json' \
+--data-raw '[{
+ "distinct_id":"rxuN7pYZwn5jJLf1mM_t6k-178lMJ_x4",
+ "devicecode":"cfc1157c-101e-4d7a-8efc-6961589a2d37",
+ "type":"track",
+ "event":"#role_create",
+ "uuid":"21ac0460-01d4-43d7-a5da-9f852a6cbd47",
+ "ip":"127.0.0.1",
+ "cpid":1000106,
+ "product_id":"1001",
+ "platform_id":4,
+ "channel_id":"1001",
+ "sub_channel_id":null
+}]'
+```
+
+### 请求头
+
+
+| 字段 | 类型 | 是否必填 | 说明 |
+| --- | --- | --- | --- |
+| ruixue-traceid | string | 是 | 本次请求的 TraceID ，采用 UUID ，每次请求都要重新生成 |
+| 957fe69f-9138-42ec-890f-e0a33e6706b0 | ruixue-cpid | int | 是 |
+| CP 方 在望舒体系中的 ID | 1000000 | ruixue-language | string |
+| 是 | 用户设备当前语系标志 | zh-CN | ruixue-datacount |
+| int | 是 | 本次上报日志数（必须） | content-type |
+| string | 是 | application/json | content-encoding |
+| string | 否 | 数据压缩格式（空或 gzip 或 zstd ） |  |
+
+
+### 请求参数（JSON）
+
+| 字段 | 类型 |
+| --- | --- |
+| 属性类型 | **是否必填** |
+| **说明** | **示例** |
+| type | string |
+| 预置属性 | 是 |
+| 事件类型： track |  |
+
+用户属性： user
+事件类型： track
+
+用户属性： user
+time
+
+| 字段 | 类型 | 说明 |
+| --- | --- | --- |
+| distinct_id | string | 预置属性 |
+| 是 | 用户唯一标识，一般为用户 ID （由 CP 调用时传入） | openid |
+| devicecode | string | 预置属性 |
+| 是 | 设备码（由 CP 调用时传入） | event |
+| string | 预置属性 | 是 |
+| 埋点标识 | 事件名称样例： played |  |
+
+
+用户属性目前支持类型（全部为小写）：
+
+user_setonce
+
+user_set
+
+user_add
+
+user_min
+
+user_max
+uuid
+| string | 预置属性 | 是 | 必须 36 位字符串 | 957fe69f-9138-42ec-890f-e0a33e6706b0 |
+| --- | --- | --- | --- | --- |
+| ip | string | 预置属性 | 是 | 事件发生 IP ，字符串类型 |
+| product_id | string | 预置属性 | 是 | 产品 ID |
+| channel_id | string | 预置属性 | 是 | 渠道 ID |
+| sub_channel_id | string | 预置属性 | 否 | 子渠道 ID （如有） |
+| cpid | uint | 预置属性 | 是 | cpid |
+| platform_id | int32 | 预置属性 | 是 | 平台 ID, 1 ：安卓； 2 ： iOS ； 3 ： H5 ； 4 ：微信小程序,10:服务端； |
+| properties | object | 自定义属性 | 是 | 自定义属性 map[string]object |
+| 注意： 1、properties 中上传的属性内容，必须与在后台中添加的属性内容保持一致。否则数据无法统计。 2、properties 中上传的属性内容不能与以上字段重复。 |  |  |  |  |
+
+**请求示例**
+
+> 可以仅传递部分请求参数。
+
+```groovy
+[
+ {
+ "distinct_id": "rxufoLM6n4J-0rurOQoSe02P83Ok2ER7",
+ "devicecode": "4e63c98e51cc49c3983f632a3165eaa6",
+ "type": "track",
+ "time": "2022-08-11 14:25:43",
+ "event": "share_report",
+ "uuid": "b0538202-dae3-446d-9927-2b6626a00d4d",
+ "cpid": 1000037,
+ "product_id": "434",
+ "platform_id": 0,
+ "channel_id": "100",
+ "sub_channel_id": "normal",
+ "properties": {
+ "landing_id": 33,
+ "result": "ok",
+ "ad_materialid": 854,
+ "func": "reward_reichgold2",
+ "source": "",
+ "strategy_type": 1,
+ "time": "2022-08-11 14:25:43",
+ "type": "share",
+ "func_type": 1,
+ "share_today": 7,
+ "content_type": 2,
+ "downLoad_link_id": 5,
+ "method": 4,
+ "region": "",
+ "source_channel": "normal",
+ "strategy_id": 55,
+ "ad_material": "url",
+ "ad_today": 0,
+ "user_id": 5885995,
+ "bought": 0,
+ "custom": "",
+ "fusc": 0,
+ "is_new": 0,
+ "action": "Report",
+ "app_type": "APP"
+ }
+ },
+ {
+ "distinct_id": "rxufoLM6n4J-0rurOQoSe02P83Ok2ER7",
+ "devicecode": "4e63c98e51cc49c3983f632a3165eaa6",
+ "type": "track",
+ "time": "2022-08-11 14:25:43",
+ "event": "share_report",
+ "uuid": "b0538202-dae3-446d-9927-2b6626a00d4d",
+ "cpid": 1000037,
+ "app_id": "434",
+ "product_id": "",
+ "platform_id": 0,
+ "channel_id": "100",
+ "sub_channel_id": "normal",
+ "properties": {
+ "landing_id": 33,
+ "result": "ok",
+ "ad_materialid": 854,
+ "func": "reward_reichgold2",
+ "source": "",
+ "strategy_type": 1,
+ "time": "2022-08-11 14:25:43",
+ "type": "share",
+ "func_type": 1,
+ "share_today": 7,
+ "content_type": 2,
+ "downLoad_link_id": 5,
+ "method": 4,
+ "region": "",
+ "source_channel": "normal",
+ "strategy_id": 55,
+ "ad_material": "url",
+ "ad_today": 0,
+ "user_id": 5885995,
+ "bought": 0,
+ "custom": "",
+ "fusc": 0,
+ "is_new": 0,
+ "action": "Report",
+ "app_type": "APP"
+ }
+ }
+]
+```
+
+### 响应结构（JSON）
+
+
+| 字段 | 类型 | 说明 |
+| --- | --- | --- |
+| code | uint64 | 错误码 |
+| msg | string | 错误信息 |
+
+
+**响应示例**
+
+```json
+{
+ "code": 0,
+ "msg": "success"
+}
+```

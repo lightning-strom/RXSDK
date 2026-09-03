@@ -1,0 +1,105 @@
+---
+title: "服务端接入"
+---
+
+## 推荐流消息透传
+
+> 类型：同步
+> Action: dy-feed-notify
+> **认证方式：** [CPSign](/docs/v3.5/入门指南/服务端接入须知#服务端请求头)
+
+### 请求参数
+
+| <strong>字段</strong>
+ | <strong>类型</strong>
+ | <strong>是否必填</strong>
+ | <strong>说明</strong>
+ |
+|-------------------------|-------------------------|---------------------------|-------------------------|
+| cp_user_id                | String              | 是                    | 用户游戏 ID     |
+| product_id                | String              | 是                    | 产品 ID    |
+| channel_id                | String              | 是                    | 渠道 ID     |
+
+### 请求案例
+```res
+{
+  "cp_user_id":"1002",
+  "product_id":"xxx"
+  "channel_id":"xxx"
+ }
+```
+
+### 响应参数
+| <strong>字段</strong>
+ | <strong>类型</strong>
+ | <strong>是否必填</strong>
+ | <strong>说明</strong>
+ |
+|-------------------------|-------------------------|---------------------------|-------------------------|
+| code          | Number             | 是                    | 响应状态码0为正常，其他为异常              |
+| msg          | String              | 是                    |  描述              |
+| data          | Data              | 是                     | 响应抖音的数据              |
+
+#### Data
+| <strong>字段</strong>
+ | <strong>类型</strong>
+ | <strong>是否必填</strong>
+ | <strong>说明</strong>
+ |
+|-------------------------|-------------------------|---------------------------|-------------------------|
+| err_no          | Number             | 是                    | 请求错误码              |
+| err_msg          | String              | 是                    |  err_no非0时对应的错误信息文案提示，成功时为空字符串              |
+| data          | DataObject              | 是                     | 响应体的业务数据字段              |
+
+#### DataObject
+| <strong>字段</strong>
+ | <strong>类型</strong>
+ | <strong>是否必填</strong>
+ | <strong>说明</strong>
+ |
+|-------------------------|-------------------------|---------------------------|-------------------------|
+| scenes          | []Scene             | 是                    | 就绪状态的场景对象列表，场景值定义见下述scene结构章节              |
+
+#### Scene
+| <strong>字段</strong>
+ | <strong>类型</strong>
+ | <strong>是否必填</strong>
+ | <strong>说明</strong>
+ |
+|-------------------------|-------------------------|---------------------------|-------------------------|
+| scene          | Number             | 是                    | 就绪的场景值：
+1： 离线收益场景 
+2： 体力恢复场景 
+3： 重要事件掉落              |
+| content_ids          | []String              | 是                    |  就绪场景对应自定义文案ID列表，由开发者向平台申请生成，具体见下述文案使用方式章节              |
+| extra          | String              | 否                     | 开发者可为每个场景携带额外的信息，类型是字符串，要求字符串长度 < 100              |
+
+#### 文案使用方式
+针对同一场景的不同内容，开发者可以在平台上自定义不同的文案描述，并生成对应的content_id。
+
+![image.png](https://haiqi-ruixue-test.oss-cn-beijing.aliyuncs.com/docOnline/image-1741699123819.png)
+​
+
+### 响应案例
+```res
+{
+  "code":0,
+  "msg":"",
+  "data":{
+    "err_no": 0,
+    "err_msg": "",
+    "data": {
+      "scenes": [{
+        "scene": 1,
+        "content_ids": ["CONTENT27648287"],
+        "extra": ""
+      }]
+    }
+  }
+}
+```
+
+::: tip
+- [推荐流直出游戏能力OpenAPI接入文档
+](https://developer.open-douyin.com/docs/resource/zh-CN/mini-game/develop/server/feed-game/open-api)
+:::

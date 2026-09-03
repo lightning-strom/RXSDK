@@ -1,0 +1,239 @@
+---
+title: "客户端接入"
+---
+
+## 后台接入配置
+- [登录配置说明](/docs/v3.5/三方服务/快手/客户端/客户端接入)
+- [支付配置说明](/docs/v3.5/三方服务/快手/客户端/客户端接入)
+
+## 望舒快速接入（必接）
+- [快速接入文档](/docs/v3.5/登录（通行证）/Android 登录API/快速接入)
+
+## 三方渠道接入说明（必读）
+- [三方渠道接入说明](/docs/v3.5/入门指南/快速开始/Android初始化/快速接入)
+
+## SDK集成
+
+#### 快手渠道库联运版
+ SDK 3.7.28开始 依赖快手 sdk 1.5.0-449 版本，之前版本依赖1.4.3-218
+
+```groovy
+implementation 'com.ruixue:rxsdk_kwaiallin:${version}'
+```
+
+#### 快手渠道库买量版
+进行买量投放的接入此版本库 与 国家通信院sdk 配合使用 [参考链接]](/docs/v3.5/三方服务/Oaid/客户端接入)
+买量版本oaid 获取完成后再初始化快手sdk
+依赖 1.4.3.213-base 版本，为快手单独发送 sdk
+
+```groovy
+
+implementation 'com.ruixue:rxsdk_kwai_buy:${version}'
+```
+
+## 配置说明
+
+- 在您的项目中，打开 your_app | Gradle Scripts | build.gradle (Module: app) 并将以下语句添加到 defaultConfig{'{'}{'}'} 部分：
+
+```groovy
+    manifestPlaceholders = [
+        KWAI_APP_ID    : "xxxxxxx"
+        KWAI_APP_NAME    : "xxxxxxx"
+    ]
+```
+
+::: tip
+
+1. meta-data 要配置在 application 标签内，否则不生效。
+2. 使用快手 sdk 隐私时，需要同步打开快手后台sdk隐私权限配置开关。
+3. 必须 必须接望舒 onApplicationCreate 生命周期函数。
+:::
+
+```xml
+
+    <!--[可选] 是否允许游客登录，默认不允许-->
+    
+    <!--[可选] 是否不显示悬浮球，默认显示-->
+    
+     <!--[可选] 是否自定义隐私，true时使用自定义隐私界面，默认false使用快手 sdk 隐私界面-->
+    
+
+    <!--CP中的主Activity-->
+    
+        <!-- 快手配置 需要把以下代码加入到你们主界面，如果没有特殊需要按下面处理-->
+        <!-- 注意：默认情况下  游戏使用ks(+游戏缩写小写://home即可  path和参数可以根据自身是否需要-->
+        <!-- 如下面锁示，需要将此加入游戏主界面的Activity里。 -->
+        
+            
+    
+            
+            
+            <!--协议部分-->
+            
+        
+    
+
+```
+
+## 快手常用词汇术语
+[https://ks-game-docs.kuaishou.com/guide/activity/3.accountSystem.html#_3-4-faq](https://ks-game-docs.kuaishou.com/guide/activity/3.accountSystem.html#_3-4-faq)
+
+## 接入三方sdk版本信息
+
+使用快手sdk 1.3.3.143 版本.
+望舒sdk v3.4.18 后使用 1.4.3.209 版本，兼容targetSdk 30
+SDK v3.6.15 后 使用 1.4.3.218 版本
+
+## 依赖信息
+
+使用 aar 接入方式的的请添加下面依赖配置，否则无需添加
+
+```groovy
+    implementation "androidx.appcompat:appcompat:${libs.appcompat}"
+    //noinspection GradleDependency
+    implementation "com.google.code.gson:gson:${libs.gson}"
+
+    implementation('com.kwai.sdk:kwaisdk-base:1.3.3.143') 
+
+    implementation('com.kwai.sdk:kwaisdk-base:1.4.3.209')// 2024年01月15日16:53:42 v3.4.18 后版本使用   
+    
+    implementation('com.kwai.sdk:kwaisdk-base:1.4.3.218')// 2024年12月10日 v3.6.15 后版本使用  
+
+    //noinspection GradleDependency
+    implementation 'com.alipay.sdk:AlipaySdk:15.8.01.20210112203525'
+```
+
+## 常见问题
+
+1. 如遇冲突 Duplicate class com.google.common.util.concurrent.ListenableFuture found in modules jetified-guava-24.0-android (com.google.guava:guava:24.0-android) and jetified-listenablefuture-1.0 (com.google.guava:listenablefuture:1.0)
+
+在 app build.gradle 中添加下面配置
+
+```groovy
+    configurations {
+        all*.exclude group: 'com.google.guava', module: 'listenablefuture'
+    }
+```
+
+2. 如微信组件出现冲突，请使用下面方式可以排除冲突。
+
+```groovy
+    api ("com.ruixue:rxsdk_weixin:+" ){
+        exclude group: 'com.tencent.mm.opensdk', module: 'wechat-sdk-android'
+    }
+```
+
+3. 如遇错误
+
+```
+java.lang.NoClassDefFoundError: Failed resolution of: Lcom/google/common/base/Optional; Caused by: java.lang.ClassNotFoundException: Didn't find class "com.google.common.base.Optional"
+
+```
+
+请添加  ('com.google.guava:guava:24.0-android') 库
+
+4. 如遇编译错误错误
+
+``` groovy
+Duplicate class androidx.core.util.Supplier found in modules core-1.8.0-runtime (androidx.core:core:1.8.0) and jetified-kwaisdk-base-1.4.3.209-runtime (com.kwai.sdk:kwaisdk-base:1.4.3.209)
+Duplicate class androidx.lifecycle.DefaultLifecycleObserver found in modules jetified-kwaisdk-base-1.4.3.209-runtime (com.kwai.sdk:kwaisdk-base:1.4.3.209) and lifecycle-common-2.5.1 (androidx.lifecycle:lifecycle-common:2.5.1)
+
+Go to the documentation to learn how to Fix dependency resolution errors.
+```
+
+请在 gradle.properties 中添加
+
+``` groovy
+android.useAndroidX=true
+android.enableJetifier=true
+android.jetifier.blacklist=kwaisdk-base-1.4.3.209.aar
+android.jetifier.ignorelist=kwaisdk-base-1.4.3.209.aar
+
+#注意 1.4.3.209 为版本号，要使用最新的，目前为 1.4.3.218
+
+```
+
+## 初始化 SDK（必接）
+```java
+Map params = new HashMap<>();
+RuiXueSdk.getApi().initThirdSdk(this, params, new RXJSONCallback() {
+    @Override
+    public void onSuccess(@Nullable JSONObject jsonObject) {
+        Log.d(TAG, "init third sdk success");
+    }
+
+    @Override
+    public void onFailed(@NonNull JSONObject jsonObject) {
+        Log.d(TAG, "init third sdk failed " + jsonObject);
+    }
+});
+```
+
+## 登录 (必须接入) 
+请参考 [Android端登录API](/docs/v3.5/登录（通行证）/Android 登录API/快速接入)
+参考代码
+```java
+String username = null;
+String loginType = LoginMethod.KUAISHOU;
+String password = null;
+String captchaCode = null;
+String loginOpenId = null;
+Map ext = null;
+String[] signFields = null;
+Object migrateArgs = null;
+RuiXueSdk.getApi().login(DemoActivity.this, loginType, username, password, captchaCode, loginOpenId, ext, signFields, migrateArgs, new RXJSONCallback() {
+    @Override
+    public void onSuccess(@Nullable JSONObject data) {
+        Toast.makeText(DemoActivity.this, "登录成功", Toast.LENGTH_SHORT).show();
+    }
+
+    @Override
+    public void onFailed(@NonNull JSONObject cause) {
+        Toast.makeText(DemoActivity.this, "登录失败", Toast.LENGTH_SHORT).show();
+    }
+});
+```
+
+## 支付 (必须接入)
+请参考 [Android端支付API](/docs/v3.5/三方服务/快手/客户端/客户端接入)
+
+## 登出
+```java
+RuiXueSdk.getApi().logout(new OnLogoutCallback() {
+    @Override
+    public void onSuccess(@Nullable String data) {
+        // 登出成功
+    }
+});
+```
+
+## 退出(在游戏主界面退出时需要接入该方法)
+参考代码
+```java
+ RuiXueSdk.exitApp(this, new OnAppExitCallback() {
+    @Override
+    public void onExitConfirm(@Nullable String res) {
+        Toast.makeText(DemoActivity.this, "退出游戏成功", Toast.LENGTH_SHORT).show();
+    }
+
+    @Override
+    public void onExitCancel() {
+        Toast.makeText(DemoActivity.this, "退出游戏取消", Toast.LENGTH_SHORT).show();
+    }
+});
+```
+
+## 切换账号
+```java
+KwaiSdkHelper.switchLogin(new OnLoginCallback() {
+    @Override
+    public void onSuccess(@Nullable String data) {
+        
+    }
+
+    @Override
+    public void onFailed(int code, String msg, @Nullable String traceId) {
+
+    }
+});
+```

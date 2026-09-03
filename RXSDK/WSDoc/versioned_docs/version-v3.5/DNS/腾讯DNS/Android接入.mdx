@@ -1,0 +1,46 @@
+---
+title: "Android接入"
+---
+
+## SDK 集成
+```
+implementation 'com.ruixue:ruixue_tencent_dns:${version}'
+```
+
+## 初始化
+
+:::warning
+DNS initAppID  初始化应放在 RuiXueSdk.initialize 之前
+:::
+
+**接口原型**
+
+```java
+    /**
+     * @param context  应用上下文 3.7.32 后添加
+     * @param dnsID  dnsID
+     * @param dnsKey dnsKey
+     * @param isDebug isDebug 调试日志模式，true 开启，false 关闭，默认
+     */
+    public void initAppID(Context context, String dnsID, String dnsKey, boolean isDebug)
+```
+
+**调用示例**
+
+```java
+    TencentDnsManager.getInstance().initAppID( context, "xxx", "xxx", true);
+```
+
+## 开启
+在调用初始化设置时
+
+```java
+String cpid = cpid;
+String productid = productId();
+String channelid = channelId();
+RXSdkInitConfig rxSdkInitConfig = new RXSdkInitConfig(cpid, productid, channelid, urls, initCallback);
+
+rxSdkInitConfig.setUseDNS(true);
+TencentDnsManager.getInstance().initAppID(context, "xxx", "xxxx", true);
+RuiXueSdk.initialize(rxSdkInitConfig);
+```

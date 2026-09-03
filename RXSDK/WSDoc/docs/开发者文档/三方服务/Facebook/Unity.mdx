@@ -1,0 +1,76 @@
+---
+sidebar_position: 2
+title: Unity 接入
+description: Facebook Unity 端接入指南，包含 SDK 集成、配置说明及接口调用示例。
+---
+
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
+
+## SDK集成
+
+<Tabs groupId="platform">
+  <TabItem value="ios-sdk" label="iOS" default>
+
+iOS FaceBook相关SDK已自动集成。
+
+</TabItem>
+  <TabItem value="android-sdk" label="Android">
+
+```groovy
+    //海外渠道引用此库
+    implementation 'com.ruixue:rxsdk_overseas:${version}'
+```
+
+</TabItem>
+</Tabs>
+
+
+## 配置说明
+
+<Tabs groupId="platform">
+  <TabItem value="ios-config" label="iOS" default>
+
+- 打开Assets/RuiXueSettings/RuiXueSDK_FacebookXcodeSetting.asset 文件，在文件中填写
+```
+  FbId: fb+您的FacebookAppID。例如fb111111111
+  FacebookAppID: 您的FacebookAppID
+  FacebookClientToken: 您的FacebookClientToken
+```
+
+</TabItem>
+  <TabItem value="android-config" label="Android">
+
+- 打开 AndroidManifest.xml 文件， 在 application 标签下新增：
+
+```xml
+<application>
+    <meta-data
+        android:name="com.facebook.sdk.ApplicationId"
+        android:value="@string/facebook_app_id" />
+    <meta-data
+        android:name="com.facebook.sdk.ClientToken"
+        android:value="@string/facebook_client_token" />
+</application>
+```
+
+- 打开 launcherTemplate.gradle 文件，在 defaultConfig 下新增
+
+```groovy
+    resValue "string", "facebook_app_id", "859273879327004"
+    resValue "string", "facebook_client_token", "5f1d4a9d87c60c36dbb94f15d13bcf0b"
+```
+
+`注`：由于 meta-data 不支持 long 数据类型，如果配置的值为数字类型，则默认为 int 值，导致无法参数错误，所以参数需要配置在 `slauncherTemplate.gradle` 文件内。
+
+打开 launcherTemplate.gradle 文件，在 defaultConfig 下新增
+
+```groovy
+       manifestPlaceholders = [
+           FACEBOOK_APP_ID : "859273879327004"
+       ] 
+```
+
+</TabItem>
+</Tabs>
+

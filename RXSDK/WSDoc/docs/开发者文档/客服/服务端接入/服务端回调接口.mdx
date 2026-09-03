@@ -1,0 +1,353 @@
+---
+sidebar_position: 4
+title: 服务端回调接口
+description: "望舒SDK 客服 服务端回调接口服务端文档，提供接口请求参数与响应说明。"
+---
+
+## 通过望舒 openid 换取游戏用户 id
+
+> 类型：同步
+>
+> Action: user-get_id
+>
+> **认证方式：** [CPSign](/docs/开发者文档/入门指南/服务端接入须知)
+
+### 请求参数
+
+| 字段 | 类型 | 是否必填 | 说明 |
+| --- | --- | --- | --- |
+| open_id | []String | 是 | 望舒 openid 数组 |
+
+#### 请求示例
+
+```groovy
+[
+ "open_id_1",
+ "open_id_2"
+]
+```
+
+#### 返回示例
+
+```groovy
+[
+ "user_id_1",
+ "user_id_2"
+]
+```
+
+### 响应要求
+
+| 字段 | 类型 | 说明 |
+| --- | --- | --- |
+| code | Number | 0 成功 |
+| msg | String | 错误信息 |
+| data | []String | 游戏用户 id 数组 |
+
+## 通过游戏用户 id 换取望舒 openid
+
+> 类型：同步
+>
+> Action: user-get_open_id
+>
+> **认证方式：** [CPSign](/docs/开发者文档/入门指南/服务端接入须知)
+
+### 请求参数
+
+| 字段 | 类型 | 是否必填 | 说明 |
+| --- | --- | --- | --- |
+| user_id | []String | 是 | 游戏用户 id 数组 |
+
+#### 请求示例
+
+```groovy
+[
+ "user_id_1",
+ "user_id_2"
+]
+```
+
+#### 返回示例
+
+```groovy
+[
+ "open_id_1",
+ "open_id_2"
+]
+```
+
+### 响应要求
+
+| 字段 | 类型 | 说明 |
+| --- | --- | --- |
+| code | Number | 0 成功 |
+| msg | String | 错误信息 |
+| data | []String | 望舒 openid 数组 |
+
+## 通过望舒 openid 注销用户
+
+> 类型：同步
+>
+> Action: user-deregister
+>
+> **认证方式：** [CPSign](/docs/开发者文档/入门指南/服务端接入须知)
+
+### 请求参数
+
+| 字段 | 类型 | 是否必填 | 说明 |
+| --- | --- | --- | --- |
+| open_id | []String | 是 | 望舒 openid 数组 |
+| cpdata | String | 否 | 用户穿透数据 |
+
+#### 请求示例
+
+```json
+{
+ "open_id":["openid_1"],
+ "cpdata":"{}"
+}
+```
+
+### 响应要求
+
+| 字段 | 类型 | 说明 |
+| --- | --- | --- |
+| code | Number | 0 成功 |
+| msg | String | 错误信息 |
+
+## 解封用户
+
+> 类型：异步
+>
+> Action: user-unban
+>
+> **认证方式：** [CPSign](/docs/开发者文档/入门指南/服务端接入须知)
+
+### 请求参数
+
+| 字段 | 类型 | 是否必填 | 说明 |
+| --- | --- | --- | --- |
+| open_id | String | 是 | 望舒 openid 数组 |
+| user_id | String | 否 | 游戏用户 id |
+| cause | String | 否 | 解封原因 |
+
+#### 请求示例
+
+```groovy
+[
+ "open_id": "xxx",
+ "user_id": "cp 方用户 ID",
+ "cause": "解封原因"
+]
+```
+
+### 响应要求
+
+| 字段 | 类型 | 说明 |
+| --- | --- | --- |
+| code | Number | 0 成功 |
+| msg | String | 错误信息 |
+
+## 修改用户头像
+
+> 类型：异步
+>
+> Action: update_head_img_url
+>
+> **认证方式：**[CPSign](/docs/开发者文档/入门指南/服务端接入须知)
+
+### 请求参数
+
+| 字段 | 类型 | 是否必填 | 说明 |
+| --- | --- | --- | --- |
+| open_id | String | 是 | 望舒 openid |
+| head_img_url | String | 是 | 用户头像链接地址 |
+
+#### 请求示例
+
+```json
+{
+ "open_id": "open_id_1",
+ "head_img_url": "https://rxfile.com/head_img_url.jpg"
+}
+```
+
+### 响应要求
+
+| 字段 | 类型 | 说明 |
+| --- | --- | --- |
+| code | Number | 0 成功 |
+| msg | String | 错误信息 |
+
+## 微信客服消息转发
+
+> 类型：同步|异步 根据事件类型决定
+>
+> Action: service-wechat_notify
+>
+> **认证方式：** [CPSign](/docs/开发者文档/入门指南/服务端接入须知)
+
+### 请求参数
+
+| 字段 | 类型 | 是否必填 | 说明 |
+| --- | --- | --- | --- |
+| product_id | String | 是 | 望舒产品 ID |
+| channel_id | String | 是 | 望舒渠道 ID |
+| openid2rxopenid | []String | 否 | 望舒 openID |
+| cp_user_id_list | []String | 否 | 游戏 ID |
+| raw | String | 是 | 微信的原始数据 JSON 格式 |
+
+```json
+{
+ "product_id": "1002",
+ "channel_id": "818",
+ "raw": "{\"ToUserName\":\"gh_f24d58f11458\",\"FromUserName\":\"of2_W5XeC112NDxwQypv1g3c3t73g\",\"CreateTime\":1712115234,\"MsgType\":\"event\",\"Event\":\"minigame_deliver_goods\",\"MiniGame\":{\"OrderId\":\"wxag_game_gift202404035pDo9244Nh\",\"IsPreview\":0,\"ToUserOpenid\":\"ofr_W5UwjtaHS5wSbeYrt34enG28\",\"GoodsList\":[{\"Id\":\"15\",\"Num\":2000000}],\"Zone\":2001,\"GiftTypeId\":6,\"GiftId\":\"CBgAAoXb6-IajFNyqmyE3p90j7h0YaGicQYbO9M6-_OC-OToQZy9TNYk89EM_Jbr2oSpR0XGBzqsYGoVaxg\",\"SendTime\":1712115233}}",
+ "openid2rxopenid": [
+ "rxugOb-7XJP9NYLh-XGGHj1234a61o13ngrlpMkz"
+ ]
+}
+```
+
+### 响应参数
+
+| 字段 | 类型 | 是否必填 | 说明 |
+| --- | --- | --- | --- |
+| code | Number | 是 | 响应状态码 0 为正常，其他为异常 |
+| msg | String | 是 | 描述 |
+| data | string | 是 | 响应微信的数据，根据事件类型决定返回值 |
+
+### 响应案例
+
+#### minigame_deliver_goods 事件
+
+```json
+{
+ "code":0,
+ "msg":"success",
+ "data":"{\"ErrCode\":0,\"ErrMsg\":\"Success\"}"
+}
+```
+
+[接收消息和事件](https://developers.weixin.qq.com/miniprogram/dev/framework/open-ability/customer-message/receive.html)
+
+[小游戏礼包](https://developers.weixin.qq.com/minigame/dev/guide/open-ability/game-gift.html)
+
+[微信小游戏商城接入指南](https://docs.qq.com/doc/DVG5pUUJrTG9ERnlS)
+
+[小游戏道具直购开发指南](https://docs.qq.com/doc/DVFBybVlRWHVhRmZj)
+
+## 抖音客服消息转发
+
+> 类型：同步 根据事件类型决定
+>
+> Action: channel-notify
+>
+> **认证方式：** [CPSign](/docs/开发者文档/入门指南/服务端接入须知)
+
+### 请求参数
+
+| 字段 | 类型 | 是否必填 | 说明 |
+| --- | --- | --- | --- |
+| method | String | 是 | 默认： minigame_douyin |
+| channel_notify_type | string | 是 | 默认： gift_delivery |
+| cp_user_id | String | 是 | 游戏 ID |
+| rx_openid_id | String | 是 | 望舒 openid |
+| raw | Object | 是 | 抖音的原始数据 JSON 格式 |
+
+#### Object（消息类型：gift_delivery）
+
+| 字段名 | 字段类型 | 必须 | 说明 |
+| --- | --- | --- | --- |
+| gift_id | int64 | 否 | 发货时对应的礼包 ID ，正式请求一般有，在道具测试阶段无 |
+| play_type | int8 | 否 | 发货时对应的礼包类型枚举，与 gift_id 共同存在 |
+
+
+枚举： 3(游戏登录礼包), 4(游戏站签到礼包), 5(平台托管礼包)
+channel
+| int8 | 否 | 对应托管礼包发送时的渠道枚举： 3(用户权益中心) |
+| --- | --- | --- |
+| gift_name | string | 否 |
+| 发货时对应的礼包名称，与 gift_id 共同存在 | gift_code | string |
+| 是 | 此次发货使用的礼包码，可用于消息去重 |  |
+
+**注意**
+
+在执行发货时，无法避免同一条发货消息的重复推送，开发者需通过 gift_code 保障幂等（保留 24 小时即可），避免同一个 gift_code 被多次使用，造成损失
+| 字段 | 类型 | 是否必填 | 说明 |
+| --- | --- | --- | --- |
+| open_id | string | 是 | 领奖用户的 open_id |
+| prop_list | array | 是 | 此次发货的道具列表，正常情况下，开发者需给用户账号增加这些道具资产 |
+| prop_list.prop_id | string | 是 | 道具列表中当前道具的道具 ID |
+| prop_list.name | string | 是 | 道具列表中当前道具的道具名称 |
+| prop_list.count | int64 | 是 | 道具列表中当前道具的发货数量 |
+| env.type | string | 是 | 发货请求的环境标识 |
+
+
+- development ：调试环境，使用平台测试推送入口时使用
+
+- production ：正式环境，用户正式领取礼包时使用
+send_time
+| int64 | 是 | 礼包推送请求触发的秒级时间戳 |
+| --- | --- | --- |
+
+#### 参数案例
+
+```json
+{
+ "method": "minigame_douyin",
+ "channel_notify_type": "gift_delivery",
+ "cp_user_id": "xxx",
+ "open_id": "rxxxx",
+ "raw": {
+ "gift_id": 7461891275051078697,
+ "play_type": 4,
+ "gift_name": "每日签到游戏礼包",
+ "gift_code": "cdk0000001",
+ "open_id": "_0000-vQJEof2jifeowf1TbzSda6jg",
+ "prop_list": [
+ {
+ "prop_id": "coin003",
+ "name": "游戏金币",
+ "count": 5
+ },
+ {
+ "prop_id": "skin002",
+ "name": "皮肤",
+ "count": 1
+ }
+ ],
+ "env_type": "production",
+ "send_time": 1737619782
+ }
+}
+```
+
+### 响应参数
+
+| 字段 | 类型 | 是否必填 | 说明 |
+| --- | --- | --- | --- |
+| code | Number | 是 | 响应状态码 0 为正常，其他为异常 |
+| msg | String | 是 | 描述 |
+| data | String | 是 | 响应抖音的数据，根据事件类型决定返回值 |
+
+### 响应案例
+
+#### gift_delivery事件
+
+```text
+// 成功场景
+{
+ "code":0,
+ "msg":"success",
+ "data":"{\"success\": true}"
+}
+
+// 失败场景
+{
+ "code":0,
+ "msg":"success",
+ "data":"{\"success\": false,\"err_code\": 100001,\"reason\": \"user info not found\"}"
+}
+```
+
+[游戏站礼包](https://developer.open-douyin.com/docs/resource/zh-CN/mini-game/develop/guide/open-ability/gift-bag/game-gift-station-guide)

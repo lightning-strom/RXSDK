@@ -1,0 +1,196 @@
+---
+sidebar_position: 6
+title: 服务端接入
+description: "望舒SDK 三方服务 服务端接入 小游戏 接入文档，提供完整的接口调用说明与示例。"
+---
+
+渠道方文档地址: [https://opendocs.alipay.com/mini/6430ce5a_alipay.open.app.mini.templatemessage.send?scene=common&pathHash=18c2bf3e](https://opendocs.alipay.com/mini/6430ce5a_alipay.open.app.mini.templatemessage.send?scene=common&pathHash=18c2bf3e)
+
+## 发送模版消息（服务端）
+
+> **POST：** `/v1/thirdparty/api/channel_gateway/minigame_alipay/templatemessage_send`
+>
+> **认证方式：** [CPSign](/docs/开发者文档/入门指南/服务端接入须知)
+
+### CURL 示例
+
+```bash
+curl --location --request POST '{{接口域名}}/v1/thirdparty/api/channel_gateway/minigame_alipay/templatemessage_send' \
+--header 'ruixue-cpid: {{CPID}}' \
+--header 'ruixue-cpts: {{时间戳}}' \
+--header 'ruixue-traceid: {{TraceID}}' \
+--header 'ruixue-cpsign: {{请求签名}}' \
+```
+
+### 请求参数（POST）
+
+| 字段 | 类型 | 是否必填 | 说明 |
+| --- | --- | --- | --- |
+| user_template_id | string | 是 | 商家在商家自运营中心选用的消息模板 ID[模板 ID 获取方式](/docs/开发者文档/订阅消息/微信/微信小游戏发送订阅消息) |
+| data | string | 是 | 消息模板变量内容 【示例值】`{"keyword1":"12:00","keyword2":"20180808","keyword3":"支付宝" }` |
+| page | string | 是 | 消息卡片跳转页面地址 |
+| rx_openid | string | 是 | 望舒 Openid |
+
+### 响应结构（JSON）
+
+| 字段名 | 类型 | 描述 |
+| --- | --- | --- |
+| code | Number | 望舒错误码 |
+| data.code | String | 业务错误码 |
+| data.msg | String | 业务信息 |
+| data.sub_code | String | 子错误码 |
+| data.sub_msg | String | 子错误信息 |
+
+
+**返回示例**
+
+```json
+{
+  "code": 0,
+  "data": {
+  "code": "10000",
+  "msg": "Success",
+  "sub_code": "isp.unknow-error",
+  "sub_msg": "系统繁忙"
+}
+}
+```
+
+渠道方文档地址: [https://opendocs.alipay.com/mini/cb667597_alipay.open.app.mini.templatemessage.batchsend?pathHash=d555af29&ref=api&scene=common](https://opendocs.alipay.com/mini/cb667597_alipay.open.app.mini.templatemessage.batchsend?pathHash=d555af29&ref=api&scene=common)
+
+## 批量发送模版消息（服务端）
+
+> **POST：** `/v1/thirdparty/api/channel_gateway/minigame_alipay/templatemessage_batchsend`
+>
+> **认证方式：** [CPSign](/docs/开发者文档/入门指南/服务端接入须知)
+
+### CURL 示例
+
+```bash
+curl --location --request POST '{{接口域名}}/v1/thirdparty/api/channel_gateway/minigame_alipay/templatemessage_batchsend' \
+--header 'ruixue-cpid: {{CPID}}' \
+--header 'ruixue-cpts: {{时间戳}}' \
+--header 'ruixue-traceid: {{TraceID}}' \
+--header 'ruixue-cpsign: {{请求签名}}' \
+```
+
+### 请求参数（POST）
+
+| 字段 | 类型 | 是否必填 | 说明 |
+| --- | --- | --- | --- |
+| template_id | string | 是 | 商家在商家自运营中心选用的消息模板 ID[模板 ID 获取方式](/docs/开发者文档/订阅消息/微信/微信小游戏发送订阅消息) |
+| data | string | 是 | 消息模板变量内容 【示例值】`{"keyword1":"12:00","keyword2":"20180808","keyword3":"支付宝" }` |
+| page | string | 是 | 消息卡片跳转页面地址 |
+| schedule_send_time | string | 否 | 定时发送时间 匹配格式 yyyy-MM-dd HH:mm:ss 的 date 类型 |
+
+### 响应结构（JSON）
+
+| 字段名 | 类型 | 描述 |
+| --- | --- | --- |
+| code | Number | 望舒错误码 |
+| data.code | String | 业务错误码 |
+| data.msg | String | 业务信息 |
+| data.batch_msg_id | String | 批量发送记录 id |
+| data.sub_code | String | 子错误码 |
+| data.sub_msg | String | 子错误信息 |
+
+
+**返回示例**
+
+```json
+{
+  "code": 0,
+  "data": {
+  "code": "10000",
+  "msg": "Success",
+  "batch_msg_id": "wf#2021004128629639521540df-280a-40bc-baa8-97ecc68827f2"
+  "sub_code": "isp.unknow-error",
+  "sub_msg": "系统繁忙"
+}
+}
+```
+
+## 三方小游戏游戏道具发放接口(望舒回调CP)
+
+当在支付宝小游戏平台配置游戏圈礼包后,用户领取礼包通知游戏发放道具
+
+> 类型：异步
+>
+> Action: channel-notify
+>
+> **认证方式：** [CPSign](/docs/开发者文档/入门指南/服务端接入须知)
+
+### 请求参数
+
+| 字段 | 类型 | 是否必填 | 说明 |
+| --- | --- | --- | --- |
+| product_id | String | 是 | 望舒产品标识 |
+| channel_id | String | 是 | 望舒渠道表示 |
+| method | String | 是 | 默认 minigame_alipay |
+| channel_notify_type | String | 是 | 默认 spi_alipay_user_gameopenpromo_gift_send |
+| query | String | 否 | url 参数 |
+| body | String | 否 | body 请求体 |
+
+#### url字段参数说明
+
+| 字段 | 类型 | 是否必填 | 说明 |
+| --- | --- | --- | --- |
+| rx_openid | String | 是 | 望舒 openid |
+
+#### body字段参数说明
+
+| 字段 | 类型 | 是否必填 | 说明 |
+| --- | --- | --- | --- |
+| open_id | String | 是 | 支付宝 openid |
+| order_id | String | 是 | 发货订单唯一 id ，开发者服务端可基于此去重 |
+| test_flag | String | 是 | 是否为测试请求， B 站道具测试时，此值为 true |
+| system | String | 是 | 用户系统 枚举值 安卓: android 苹果: ios 未知: unknown |
+| gift_type_id | Number | 是 | 发货礼包类型， 1-每日签到礼包 2-每日登陆礼包 3-周末福利礼包等 详情见 B 站礼包配置 |
+| gift_id | String | 是 | 礼包 id ，在 B 站配置完成后，可获取 |
+| send_time | String | 是 | 礼包发货时间 |
+| goods_list | []GoodList | 是 | 发奖道具列表 |
+
+##### GoodList
+
+| 字段 | 类型 | 是否必填 | 说明 |
+| --- | --- | --- | --- |
+| id | String | 是 | 道具 id, 由游戏商自定义 |
+| send_count | Number | 是 | 道具发货数量, 由游戏商自行在 B 站配置 |
+
+#### 请求示例
+
+```json
+{
+  "product_id": "1002",
+  "channel_id": "100",
+  "method": "minigame_alipay",
+  "channel_notify_type": "templatemessage_batchsend",
+  "query": "rx_openid=xxasdkajdsdasjkdsaj",
+  "body": "system=android&gift_type_id=1&send_time=2025-05-14 16:50:41&goods_list=[{\"id\":\"rxtest\",\"send_count\":100}]&open_id=039ceH8MlYVBc2cI2vM5EZxGrv8qnKv9XwxjVpTAjm_zxM9&gift_id=BF9A1910A7C23AC37C6FE120BB731D95&test_flag=true&order_id=2088842421751392_BF9A1910A7C23AC37C6FE120BB731D95_20250514"
+}
+```
+
+#### 返回示例
+
+```json
+{
+  "code": 0,
+  "data":{
+  "result_code":"SUCCESS"
+}
+}
+```
+
+### 响应要求
+
+| 字段 | 类型 | 说明 |
+| --- | --- | --- |
+| code | Number | 0 成功 |
+| msg | String | 错误信息 |
+| data | Data | 响应渠道方数据 |
+
+#### 响应data要求
+
+| 字段 | 类型 | 说明 |
+| --- | --- | --- |
+| result_code | String | 礼包发放结果码 SUCCESS 礼包发放成功 USER_UNREGISTERED - 未注册用户, 无法发放 SEND_CONDITION_NOT_SATISFIED - 未完成游戏任务, 引导用户进入游戏 |

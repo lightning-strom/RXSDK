@@ -1,0 +1,1414 @@
+---
+title: "服务端 API"
+---
+
+{/* v35-v4-banner */}
+:::tip[v3.5 归档文档]
+
+此页为 v3.5 归档文档。新项目请查看 [v4.x 对应文档](/docs/开发者文档/支付/服务端接入/服务端-API)。
+
+:::
+
+
+## 支付回调流程(除xsolla页面支付)
+
+![](https://guanwangyun.oss-cn-beijing.aliyuncs.com/document/payment/TDT3bBh7gobLGexkfD2cyWhsnAe.png)
+
+## 获取订单信息
+
+> **POST：** `/v1/ke/order/query`
+> **认证方式：** [CPSign](/docs/v3.5/入门指南/服务端接入须知)
+
+:::tip
+提示：非必接接口，CP 服务端可主动请求获取指定订单信息
+:::
+
+### CURL 示例
+
+```bash
+curl --location --request POST '{{接口域名}}/v1/ke/order/query' \
+--header 'ruixue-cpid: {{CPID}}' \
+--header 'ruixue-cpts: {{时间戳}}' \
+--header 'ruixue-traceid: {{TraceID}}' \
+--header 'ruixue-cpsign: {{请求签名}}' \
+-d '{"date":"2304","openid":"rxxxx"}'
+```
+
+### 请求参数（JSON）
+
+| <strong>字段</strong> | <strong>类型</strong> | <strong>是否必填</strong> | <strong>说明</strong> | <strong>示例</strong> |
+| --- | --- | ---- | --- | --- |
+| date | String | 是 | 订单日期（年份后俩位 + 月份） | 2304 |
+| openid | String | 否 | 望舒 openid 
+ openid、order_no、trade_no、platform_no必传其中一个 | rxxxxxx |
+| order\_no | String | 否 | 望舒订单号 
+ openid、order_no、trade_no、platform_no必传其中一个 | 2112121546 |
+| trade\_no | String | 否 | CP 订单号 
+ openid、order_no、trade_no、platform_no必传其中一个 |  |
+| platform\_no | String | 否 | 三方支付平台订单号 
+ openid、order_no、trade_no、platform_no必传其中一个 |  |
+
+<strong>响应示例</strong>
+
+```json
+{
+        "code": 0,
+        "data": [{
+                "product_id": "",
+                "sub_channelid": "",
+                "channel_id": "",
+                "device_code": "",
+                "system": 1,
+                "tp_mch_id": "",
+                "order_no": "",
+                "platform_no": "",
+                "trade_no": "",
+                "attach": "",
+                "pay_type": "",
+                "sub_pay": "",
+                "goods_tag": "",
+                "goods_name": "",
+                "price": 1,
+                "currency": "",
+                "foreign_price": 1,
+                "card_price": 1,
+                "openid": "",
+                "is_debug": 1,
+                "env": 1,
+                "status": 1,
+                "start_time": "",
+                "pay_time": "",
+                "refund_status": 1
+        }]
+}
+```
+
+### 响应结构（JSON）
+
+| 字段名 | 类型 | 描述 |
+| --- | --- | --- |
+| product\_id | String | 产品 ID |
+| sub\_channel\_id | String | 子渠道 |
+| channel\_id | String | 渠道 |
+| device\_code | String | 设备码 |
+| system | Number | 设备系统 |
+| tp\_mch\_id | String | 支付商编（银联号） |
+| order\_no | String | 望舒订单号 |
+| platform\_no | String | 三方支付单号 |
+| trade\_no | String | CP 支付单号 |
+| attach | String | CP 透传参数 |
+| pay\_type | String | 支付方式 |
+| sub\_pay | String | 子支付方式 |
+| goods\_tag | String | 计费点标识 |
+| goods\_name | String | 商品名称 |
+| price | Number | 商品价格 |
+| currency | String | 支付币种 |
+| foreign\_price | Number | 外币金额 |
+| card\_price | Number | 充值卡金额 |
+| openid | String | 望舒 openid |
+| is\_debug | Number | 是否测试订单 |
+| env | Number | 支付环境 沙盒/正式 |
+| status | Number | 支付状态 状态 0 下单，1 验证失败 2 收到回调验证通过 3 通知发货失败 4 已通知 CP,CP 回复错误 5 成功 6 上报统计完成。支付状态 >2 皆为成功支付订单 |
+| start\_time | String | 下单时间 |
+| pay\_time | String | 支付时间 |
+| refund_status  | Number| 退款状态  1 申请中 2 已退款  |
+
+<strong>返回示例</strong>
+
+```json
+{
+        "code": 0,
+        "data": [{
+                "product_id": "",
+                "sub_channelid": "",
+                "channel_id": "",
+                "device_code": "",
+                "system": 1,
+                "tp_mch_id": "",
+                "order_no": "",
+                "platform_no": "",
+                "trade_no": "",
+                "attach": "",
+                "pay_type": "",
+                "sub_pay": "",
+                "goods_tag": "",
+                "goods_name": "",
+                "price": 1,
+                "currency": "",
+                "foreign_price": 1,
+                "card_price": 1,
+                "openid": "",
+                "is_debug": 1,
+                "env": 1,
+                "status": 1,
+                "start_time": "",
+                "pay_time": "",
+                "refund_status ":1
+        }]
+}
+```
+
+## 补单接口
+
+> **POST：** `/v1/ke/order/repair`
+> **认证方式：** [CPSign](/docs/v3.5/入门指南/服务端接入须知)
+
+:::tip
+提示：
+
+:::
+
+### CURL 示例
+
+```bash
+curl --location --request POST '{{接口域名}}/v1/ke/order/repair' \
+--header 'Content-Type: application/json' \
+--header 'ruixue-cpid: {{CPID}}' \
+--header 'ruixue-cpts: {{时间戳}}' \
+--header 'ruixue-traceid: {{TraceID}}' \
+--header 'ruixue-cpsign: {{请求签名}}' \
+--data-raw '{"order_no": "xxxxx"}' 
+```
+
+请求示例
+
+```json
+{
+    "order_no" : "2112121546"
+}
+```
+
+### 请求参数（JSON）
+
+| <strong>字段</strong> | <strong>类型</strong> | <strong>是否必填</strong> | <strong>说明</strong> | <strong>示例</strong> |
+| --- | --- | ---- | --- | --- |
+| order\_no | String | 是 | 望舒订单号 | 2112121546 |
+
+<strong>响应示例</strong>
+
+```json
+{
+    "code":0
+}
+```
+
+## 通知苹果退款订单的风控信息
+
+> **POST：** `/v1/ke/refundcp`
+> **认证方式：** [CPSign](/docs/v3.5/入门指南/服务端接入须知)
+
+![](https://guanwangyun.oss-cn-beijing.aliyuncs.com/document/payment/YkaubQnqfodLXPxiWEEcdCNQnyh.png)
+
+:::tip
+需要望舒后台 > 基础配置 > 支付设置 > 苹果支付配置中配置App Store Connect 用户访问 密钥 ID
+
+<strong>调用场景：</strong>
+
+1. 苹果用户发生退款时，苹果会通知望舒补充相关信息（苹果评估玩家是否是合理退款）。
+2. 望舒通知 CP 方补充信息，CP 调用该接口回传相关信息。
+3. 望舒把 CP 方补充信息回传给苹果。
+
+:::
+
+###CURL 示例
+
+```bash
+curl --location --request POST '{{接口域名}}/v1/ke/order/refundcp' \
+--header 'Content-Type: application/json' \
+--header 'ruixue-cpid: {{CPID}}' \
+--header 'ruixue-cpts: {{时间戳}}' \
+--header 'ruixue-traceid: {{TraceID}}' \
+--header 'ruixue-cpsign: {{请求签名}}' \
+--data-raw '{"transaction_id":"xxxxxxx","account_tenure":0,"consumption_status":0,"delivery_status":0,"lifetime_dollars_purchased":0,"lifetime_dollars_refunded":0,"platform":0,"playtime":0,"sample_content_provided":false,"user_status":0}'
+```
+
+<strong>请求示例</strong>
+
+```json
+{
+    "transaction_id":"xxxxxxx",
+    "account_tenure":0,
+    "consumption_status":0,
+    "delivery_status":0,
+    "lifetime_dollars_purchased":0,
+    "lifetime_dollars_refunded":0,
+    "platform":0,
+    "playtime":0,
+    "sample_content_provided":false,
+    "user_status":0
+}
+```
+
+### 请求参数（JSON）
+
+| <strong>字段</strong> | <strong>类型</strong> | <strong>是否必填</strong> | <strong>说明</strong> | <strong>示例</strong> |
+| --- | --- | ---- | --- | --- |
+| account\_tenure | Number | 否 | 客户注册时间 | `0` 账户注册时间未知。
+`1` 账户注册时间介于 0-3 天之间。
+`2` 账户注册时间在 3-10 天之间。
+`3` 账户注册时间在 10-30 天之间。
+`4` 账户注册时间在 30-90 天之间。
+`5` 账户注册时间在 90-180 天之间。
+`6` 账户注册时间在 180-365 天之间。
+`7` 账户注册时间超过 365 天。 |
+| consumption\_status | Number | 否 | 购买的道具消耗状态 | `0` 消耗状态未知。
+`1` 未消耗。
+`2` 部分消耗。
+`3` 完全消耗。 |
+| delivery\_status | Number | 否 | 发货状态 | `0` 该应用程序交付了消耗品应用程序内购买，并且运行正常。
+`1` 由于质量问题，该应用未发货
+`2` 该应用程序提供了错误的项目。
+`3` 由于服务器中断，未发货。
+`4` 由于游戏内货币更改，未发货。
+`5` 该应用程序由于其他原因，未发货。 |
+| lifetime\_dollars\_purchased | Number | 否 | 客户自购买应用程序以来在所有平台上在您的应用程序中进行的应用程序内购买的美元金额 | `0` 金额未知。
+`1` 0 美元。
+`2` 在 0.01–49.99 美元之间。
+`3` 在 50–99.99 美元之间。
+`4` 在 100–499.99 美元之间。
+`5` 在 500–999.99 美元之间。
+`6` 在 1000–1999.99 美元之间。
+`7` 金额超过 2000 美元。 |
+| lifetime\_dollars\_purchased | Number | 否 | 客户自购买应用程序以来，客户在所有平台上已在您的应用程序中收到的退款金额。 | `0` 金额未知。
+`1` 0 美元。
+`2` 在 0.01–49.99 美元之间。
+`3` 在 50–99.99 美元之间。
+`4` 在 100–499.99 美元之间。
+`5` 在 500–999.99 美元之间。
+`6` 在 1000–1999.99 美元之间。
+`7` 金额超过 2000 美元。 |
+| platform | Number | 否 | 客户购买应用程序的平台。 | `0` 未知。
+`1` 苹果平台。
+`2` 非苹果平台 |
+| playtime | Number | 否 | 客户使用应用程序的时间 | `0` 未知。
+`1` 使用时间在 0-5 分钟之间。
+`2` 使用时间在 5-60 分钟之间。
+`3` 使用时间在 1-6 小时之间。
+`4` 使用时间在 6-24 小时之间。
+`5` 使用时间在 1-4 天之间。
+`6` 使用时间在 4-16 天之间。
+`7` 使用时间超过 16 天 |
+| sample\_content\_provided | bool | 否 | 是否提供了免费样品试用版或其他运作信息如游戏玩法 | `true` 如果您在客户购买之前提供了以下任何一项，请将此值设置为：
+\- 购买内容的免费样品或免费试用
+\- 有关内容及其运作方式的信息，例如预期的游戏玩法
+否则将此值设置为 `false`。 |
+| user\_status | Number | 否 | 客户账户状态 | `0` 未知
+`1` 活动中
+`2` 已暂停
+`3` 已终止。
+`4` 访问权限有限。 |
+| transaction\_id | String | 是 | 苹果退款 translation\_id | 退款通知中的 translation\_id |
+| refund_preference | Number | 否 | 退款偏好 | `0` 退款偏好未声明。使用此值可避免提供此字段的信息。
+`1` 您希望 Apple 批准退款。
+`2` 您希望 Apple 拒绝退款。
+`3` 无论 Apple 同意还是拒绝退款，您都无法做出选择
+ |
+
+<strong>响应示例</strong>
+
+```json
+{
+    "code":0
+}
+```
+
+> 此功能为望舒支付能力，集成各个主流支付渠道支付功能，需要在望舒后台配置相关支付方式，客户端调用该接口拉起支付，后台配置具体可参考
+> [功能介绍](/docs/v3.5/支付/功能介绍)
+> 个别支付渠道由三方服务器根据配置在三方后台发起的支付成功回调 需要在三方后台配置望舒支付回调地址-> 联系技术人员提供
+> 注意：如 CP 方无特殊需求，请使用 SDK 接入该功能
+
+## 下单接口
+
+### 支付类型字典
+
+| <strong>下单 pay\_type 字段</strong> | <strong>支付类型含义</strong> |
+| -------------- | ------ |
+| wechath5 | 微信 H5 支付 |
+| minigame | 微信小游戏支付 |
+| jump\_minigame | 微信小游戏内跳转其他小游戏支付 |
+| appstore | 苹果支付 |
+| alipayh5 | 支付宝 H5 支付 |
+| alipay | 支付宝 app 支付 |
+| aums | 银联支付 |
+| baidunet | 百度网讯支付 |
+| douyin | 抖音支付 |
+| google | 谷歌支付 |
+| hwjos | 华为支付 |
+| weile | 微乐 H5 支付 |
+| jixiang | 吉祥 H5 支付 |
+| xinyue | 心悦 H5 支付 |
+| kele | 科乐 H5 支付 |
+| ksly | 快手联运(融合)支付 |
+| kuaishou\_minigame | 快手小游戏 |
+| mi | 小米支付 |
+| oppo | oppo 支付 |
+| vivo | vivo 支付 |
+| meitua | 美团支付 |
+| qihu | 奇虎 360 支付 |
+| minigame\_friend | 微信小游戏代付 |
+| oppo\_minigame | oppo 小游戏 |
+| huaweih5 | 华为 H5 支付 |
+| qq\_minigame | QQ 小游戏支付 |
+| 4399 | 4399 支付 |
+| 4399\_mobilegame | 4399 手游支付 |
+| 1niu | 1 牛 |
+| gamedog | 游戏狗 |
+| wxpub | 微信公众号支付 |
+| bilibili | 哔哩哔哩支付 |
+| douyinh5 | 抖音 H5 支付 |
+| alipaypc | 支付宝 PC 支付 |
+| midas | 应用宝支付 |
+| jdjh | 京东聚合 |
+| upay | 优贝支付 |
+| xsolla | 艾克索拉 SDK 支付 |
+| payermax | payermax |
+| mycard | mycard支付 |
+| yeepay | yeepay支付 |
+| checkout | checkout |
+|  |  |
+
+:::tabs#platform
+@tab 需要AccessToken认证
+
+> **POST：** `/v1/ke/order`
+> **认证方式：** [Accesstoken](/docs/v3.5/入门指南/服务端接入须知)
+
+### CURL 示例(需要登录)
+
+```bash
+// 以微信小游戏(minigame)支付方式为例，下单请求传递参数
+curl --location --request POST '{{接口域名}}/v1/ke/order' \
+--header 'Content-Type: application/json' \
+--header 'ruixue-language: {{语言}}' \
+--header 'ruixue-cpid: {{CPID}}' \
+--header 'ruixue-productid: {{产品标识}}' \
+--header 'ruixue-traceid: {{TraceID}}' \
+--header 'ruixue-devicecode: {{设备码}}' \
+--header 'ruixue-channelid: {{渠道标识}}' \
+--header 'ruixue-platformid: {{平台标识}}' \
+--header 'ruixue-accesstoken: {{望舒通行证授权令牌}}' \
+--data-raw '{"pay_type":"minigame","goods_tag":"goods1","trade_no":"1658991176618","transmit_args":"a=1&b=2","callback_from":1,"notify_url":"http://www.baidu.com","currency":"CNY","openid":"rxuRQP_p8xRJwntkowRH3kNEG3O-Adg5","is_debug":0,"env":0,"ext":{"wx_openid":"oD7-Z5ex4zjQBnWXkHvnG3ZpNbw0","zone_id":"1","pf":"android"}}' \
+```
+
+> **POST：** `/v1/ke/unlogin_order`
+> **认证方式：** 无
+
+### CURL 示例(免登录)
+
+```bash
+// 以微信小游戏(minigame)支付方式为例，下单请求传递参数
+curl --location --request POST '{{接口域名}}/v1/ke/unlogin_order' \
+--header 'Content-Type: application/json' \
+--header 'ruixue-language: {{语言}}' \
+--header 'ruixue-cpid: {{CPID}}' \
+--header 'ruixue-productid: {{产品标识}}' \
+--header 'ruixue-traceid: {{TraceID}}' \
+--header 'ruixue-devicecode: {{设备码}}' \
+--header 'ruixue-channelid: {{渠道标识}}' \
+--header 'ruixue-platformid: {{平台标识}}' \
+--data-raw '{"pay_type":"minigame","goods_tag":"goods1","trade_no":"1658991176618","transmit_args":"a=1&b=2","callback_from":1,"notify_url":"http://www.baidu.com","currency":"CNY","openid":"rxuRQP_p8xRJwntkowRH3kNEG3O-Adg5","is_debug":0,"env":0,"ext":{"wx_openid":"oD7-Z5ex4zjQBnWXkHvnG3ZpNbw0","zone_id":"1","pf":"android"}}' \
+```
+
+:::
+
+#### 通用参数
+
+| <strong>字段</strong> | <strong>类型</strong> | <strong>是否必填</strong> | <strong>说明</strong> | <strong>示例</strong> |
+| --- | --- | ---- | --- | --- |
+| pay\_type | String | 是 | 支付方式 |  |
+| goods\_tag | String | 是 | 计费点标识 |  |
+| sub\_channel\_id | String | 否 | 用户子渠道 |  |
+| source | String | 否 | 用户来源 |  |
+| currency | String | 否 | 币种 默认传: CNY 根据支付币种传递[国家编码 币种字典](/docs/v3.5/支付/功能介绍)
+使用收银台必传 |  |
+| openid | String | 是 | 望舒 OPENID |  |
+| trade\_no | String | 是 | CP 订单号 |  |
+| transmit\_args | String | 否 | 客户端透传参数 |  |
+| is\_debug | Number | 否 | 是否测试订单 默认 0 正式 1 为测试订单 |  |
+| env | Number | 否 | 是否使用沙盒环境支付 0 正式 1 沙盒 |  |
+| indulge\_auth | Number | 是 | 是否进行防沉迷支付验证 0 不进行 1 进行 |  |
+| age | Number | 否 | 用户年龄,indulge\_auth 为 1 时必填该字段 |  |
+| callback\_from | Number | 是 | 支付成功后的回调是否是客户端发起 客户端发起传: 1 |  |
+| notify\_url | String | 否 | 支付成功通知 CP 发货地址 不支持路径上带参数(例如:不支持 url?param=xxx) 不传该参数则按 CP 实现接口中的 action 地址通知 |  |
+| ext | obj | 是 | 支付扩展字段 三方支付额外传递参数 详见下面具体渠道 |  |
+| user\_real\_currency | String | 否 | 用户实际支付币种 |  |
+| user\_real\_price | Number | 否 | 用户实际支付金额 |  |
+| language | String | 否 | 下单时使用语言. 当支付类型是 upay 时，默认值 vi |  |
+| scene | String | 否 | 下单时的场景值 |  |
+| rest\_channel\_id\_from\_login | Boolean | 否 | true 设置用户最后登录的产品渠道信息为下单的产品渠道信息 |  |
+
+<strong>渠道 ext 额外传递参数</strong>
+
+#### 微信小游戏
+
+| <strong>字段</strong> | <strong>类型</strong> | <strong>是否必填</strong> | <strong>说明</strong> | <strong>示例</strong> |
+| --- | --- | ---- | --- | --- |
+| wx\_openid | String | 是 | 微信 openid |  |
+| zone\_id | String | 是 | 微信文档要求 默认传 1 字符串 |  |
+| pf | String | 是 | 微信文档要求 默认传 android |  |
+
+#### 微信小游戏代付
+
+| <strong>字段</strong> | <strong>类型</strong> | <strong>是否必填</strong> | <strong>说明</strong> | <strong>示例</strong> |
+| --- | --- | ---- | --- | --- |
+| wx\_openid | String | 是 | 微信 openid |  |
+| zone\_id | String | 是 | 微信文档要求 默认传 1 字符串 |  |
+| pf | String | 是 | 微信文档要求 默认传 android |  |
+
+#### 银联
+
+| <strong>字段</strong> | <strong>类型</strong> | <strong>是否必填</strong> | <strong>说明</strong> | <strong>示例</strong> |
+| --- | --- | ---- | --- | --- |
+| pay\_type | String | 是 | 使用银联的哪种支付 alipay 支付宝 wechat 微信 uac 云闪付 minigame 跳转自营小程序 h5 小游戏内 h5 卡片支付 [银联 h5 微信客服卡片支付方式特别说明](/docs/v3.5/支付/服务端接入/服务端 API) |  |
+| scheme | String | 否 | 用于指定 APP 跳转支付宝小程序后的回 跳路径，传值规范为 iOS:schemeurl;Android:schemeurl。 若不上送则默认返回入网配置的默认路 径。 |  |
+
+pay\_type 为 minigame 时，EXT 还需增加传递参数
+
+1.在 APP 侧预下单-> 获取预下单订单号以及跳转小程序配置
+
+| <strong>字段</strong> | <strong>类型</strong> | <strong>是否必填</strong> | <strong>说明</strong> | <strong>示例</strong> |
+| --- | --- | ---- | --- | --- |
+| pre\_mini | String | 是 | 传 Y，代表 APP 侧预下单 |  |
+
+2.跳转小游戏后，小游戏侧下单需额外传
+
+| <strong>字段</strong> | <strong>类型</strong> | <strong>是否必填</strong> | <strong>说明</strong> | <strong>示例</strong> |
+| --- | --- | ---- | --- | --- |
+| rx\_pre\_order\_no | String | 是 | 望舒预下单订单号 |  |
+| js\_code | String | 是 | 微信小游戏登录 code |  |
+
+#### 微乐，吉祥，心悦
+
+| <strong>字段</strong> | <strong>类型</strong> | <strong>是否必填</strong> | <strong>说明</strong> | <strong>示例</strong> |
+| --- | --- | ---- | --- | --- |
+| openid | String | 是 | H5openid |  |
+| pay\_channel | Number | 是 | 支付渠道 按 H5 文档传 |  |
+| fee\_type | Number | 是 | 钻石 or 人民币 按 H5 文档字段传 |  |
+
+#### 科乐
+
+| <strong>字段</strong> | <strong>类型</strong> | <strong>是否必填</strong> | <strong>说明</strong> | <strong>示例</strong> |
+| --- | --- | ---- | --- | --- |
+| openid | String | 是 | H5openid |  |
+| pay\_channel | String | 是 | 支付渠道 按 H5 文档传 |  |
+| fee\_type | String | 是 | 按 H5 文档字段传 |  |
+
+#### 快手联运
+
+| <strong>字段</strong> | <strong>类型</strong> | <strong>是否必填</strong> | <strong>说明</strong> |
+| --- | --- | ---- | --- |
+| role\_id | String | 是 | 快手游戏角色 id |
+| role\_name | String | 是 | 快手在平台注册的商品 tag |
+| role\_level | String | 是 | 快手游戏角色等级（参与签名） |
+| server\_id | String | 是 | 快手游戏大区 id（参与签名） |
+| server\_name | String | 是 | 快手游戏大区名称（参与签名） |
+| currency\_type | String | 是 | 快手货币类型（CNY）（参与签名） |
+
+1）接入指南
+
+[https://docs.qingque.cn/d/home/eZQB2OJZrjdApqLXqAbIj8Rkz?identityId=CjFjUYnK31](https://docs.qingque.cn/d/home/eZQB2OJZrjdApqLXqAbIj8Rkz?identityId=CjFjUYnK31)
+
+2）快手渠道 SDK 接入文档：
+
+[https://docs.qingque.cn/d/home/eZQD7uSCd__93YHO6TJjnYZMH?identityId=CjFjUYnK31](https://docs.qingque.cn/d/home/eZQD7uSCd__93YHO6TJjnYZMH?identityId=CjFjUYnK31)
+
+3）服务端文档：[https://docs.qingque.cn/d/home/eZQCFq1vtqNywSW70TM4ykpms?identityId=CjFjUYnK31](https://docs.qingque.cn/d/home/eZQCFq1vtqNywSW70TM4ykpms?identityId=CjFjUYnK31)
+
+4）自检文档：[https://docs.qingque.cn/s/home/eZQBsdOZlsOdNryk6KfDuO7L0?identityId=CjFjUYnK31#section=308676817](https://docs.qingque.cn/s/home/eZQBsdOZlsOdNryk6KfDuO7L0?identityId=CjFjUYnK31#section=308676817)
+
+#### 快手小游戏
+
+<strong>含义请查询快手小游戏开发文档</strong>
+
+| <strong>字段</strong> | <strong>类型</strong> | <strong>是否必填</strong> | <strong>说明</strong> |
+| --- | --- | ---- | --- |
+| game\_token | String | 是 | 用户的登录凭证 |
+
+#### oppo 小游戏
+
+<strong>含义请查询 oppo 小游戏开发文档</strong>
+
+| <strong>字段</strong> | <strong>类型</strong> | <strong>是否必填</strong> | <strong>说明</strong> |
+| --- | --- | ---- | --- |
+| oppoOpenid | String | 是 | oppo 小游戏 openid |
+| count | Number | 是 | 商品数量 |
+| appVersion | String | 是 | 游戏版本 |
+| engineVersion | String | 是 | 快应用引擎版本 |
+
+#### QQ 小游戏
+
+| <strong>字段</strong> | <strong>类型</strong> | <strong>是否必填</strong> | <strong>说明</strong> |
+| --- | --- | ---- | --- |
+| qq\_openid | String | 是 | qq 小游戏 openid |
+
+#### bilibili
+
+| <strong>字段</strong> | <strong>类型</strong> | <strong>是否必填</strong> | <strong>说明</strong> |
+| --- | --- | ---- | --- |
+| game\_money | Number | 是 | 游戏内货币，即本次交易购买的游戏内货币 |
+| bili\_uid | String | 否 | bilibili 平台⽤户的唯⼀标识 |
+| bili\_role | String | 否 | ⽤户游戏内⻆⾊名，⻓度不超过 64 |
+| bili\_server\_id | String | 否 | bilibili 分配的区服 id |
+| bili\_username | String | 否 | bilibili 平台⽤户昵称 |
+
+#### 抖音 H5
+
+| <strong>字段</strong> | <strong>类型</strong> | <strong>是否必填</strong> | <strong>说明</strong> |
+| --- | --- | ---- | --- |
+| dy\_openid | String | 是 | 抖音 openid |
+
+#### 微信公众号
+
+[微信公众号 h5 微信客服卡片支付方式特别说明](/docs/v3.5/支付/服务端接入/服务端 API)
+
+| <strong>字段</strong> | <strong>类型</strong> | <strong>是否必填</strong> | <strong>说明</strong> |
+| --- | --- | ---- | --- |
+| wx\_openid | String | 是 | 微信 openid customer 为 0 时 必填写该字段 为 1 非必填 |
+| customer | Number | 是 | 是否通过微信客服进入公众号充值 1 是 0 否 |
+
+#### 米大师
+
+| <strong>字段</strong> | <strong>类型</strong> | <strong>是否必填</strong> | <strong>说明</strong> |
+| --- | --- | ---- | --- |
+| openid | String | 是 | 账号 openid |
+| open\_key | String | 是 | 账号 openkey |
+| pf | String | 是 | 米大师 sdk 获取 pf 接口获取参数 |
+| pf\_key | String | 是 | 米大师 sdk 获取 pfkey 接口获取参数 |
+
+#### 京东聚合
+
+| <strong>字段</strong> | <strong>类型</strong> | <strong>是否必填</strong> | <strong>说明</strong> |
+| --- | --- | ---- | --- |
+| callback\_url | String | 是 | 回调 URL 地址 |
+| trade\_type | String | 是 | 交易类型 |
+| access\_type | String | 是 |  |
+
+#### UPay 支付
+
+| <strong>字段</strong> | <strong>类型</strong> | <strong>是否必填</strong> | <strong>说明</strong> |
+| --- | --- | ---- | --- |
+| pay\_type | String | 是 | net: 网银支付
+ww\_card: web or wap 充值卡支付
+api: api 充值卡支付 |
+
+当 pay\_type 传 card 时 还需传递参数
+
+| <strong>字段</strong> | <strong>类型</strong> | <strong>是否必填</strong> | <strong>说明</strong> |
+| --- | --- | ---- | --- |
+| goods\_tag | String | 是 | 点卡对应的计费点标识。 |
+| tag | String | 否 | 三方子支付方式 |
+
+#### payerMax 支付
+
+参考文档: https://docs.shareitpay.in/#/30?page\_id=650&lang=zh-cn
+
+| <strong>字段</strong> | <strong>类型</strong> | <strong>是否必填</strong> | <strong>说明</strong> |
+| --- | --- | ---- | --- |
+| language | String | 否 | 收银台页面语言 |
+| frontCallbackUrl | String | 是 | 商户指定的跳转 URL，用户完成支付后会被跳转到该地址，以 http/https 开头或者商户应用的 scheme 地址（目前仅支持 Andriod） |
+| referralCode | String | 否 | 根据商户的需要新增推荐维度，如设备 ID、设备指纹等 |
+| paymentTokenID | String | 条件必填 | 卡 token 支付时，此字段为必填 |
+| paymentMethod | String | 否 | 支付方式，可以为空，参见[【收银台支付-支付方式列表】](https://docs.payermax.com/#/30?page_id=665&lang=zh-cn) |
+| targetOrg | String | 否 | 目标机构，可以为空，如果指定目标机构，则支付方式也是指定 |
+| cardOrg | String | 否 | 卡组织，当 paymentMethod 为 CARD 时可以指定具体的卡组织,
+具体参见[【收银台支付-支付方式列表】](https://docs.payermax.com/#/30?page_id=665&lang=zh-cn) |
+| cardOrgType | String | 否 | 卡组织类型，当 paymentMethod 为 CARD 时可以根据卡组织类型指定国际卡组织或本地卡组织，与 cardOrg 字段二选一上送。具体参见[【收银台支付-支付方式列表】](https://docs.payermax.com/#/30?page_id=665&lang=zh-cn) |
+| tag | String | 否 | 三方子支付方式 |
+
+#### xsolla SDK支付
+
+| <strong>字段</strong> | <strong>类型</strong> | <strong>是否必填</strong> | <strong>说明</strong> | <strong>示例</strong> |
+| --- | --- | ---- | --- | --- |
+| user\_name | String | 否 | 游戏侧玩家昵称 |  |
+| return\_url | String | 是 | 支付结束后跳转页面地址 |  |
+| button\_name | String | 否 | 跳转页面按钮名称 |  |
+| tag | String | 否 | 三方子支付方式 |  |
+
+#### yeepay 支付
+
+| <strong>字段</strong> | <strong>类型</strong> | <strong>是否必填</strong> | <strong>说明</strong> |
+| --- | --- | ---- | --- |
+| pay\_type | String | 是 | wechat: 微信支付
+alipay:支付宝支付
+uac:银联支付 |
+| pay\_way | String | 是 | USER\_SCAN：用户扫码
+MERCHANT\_SCAN：商家扫码
+JS\_PAY：JS支付
+MINI\_PROGRAM：小程序支付
+WECHAT\_OFFIACCOUNT：微信公众号支付
+ALIPAY\_LIFE：生活号支付
+FACE\_SCAN\_PAY：刷脸支付
+SDK\_PAY：SDK支付
+H5\_PAY：H5支付
+ONEKEYPAY：一键支付
+BINDCARDPAY：绑卡支付
+E\_BANK：网银支付
+ENTERPRISE\_ACCOUNT\_PAY：企业账户支付
+STATICQR ：静态台牌 |
+
+#### checkout 支付
+
+| <strong>字段</strong> | <strong>类型</strong> | <strong>是否必填</strong> | <strong>说明</strong> | <strong>示例</strong> |
+| --- | --- | ---- | --- | --- |
+| return\_url | String | 是 | 支付结束后跳转页面地址 |  |
+| tag | String | 否 | 三方子支付方式 |  |
+| topup\_lang | String | 否 | 风控字段-ISO639-1 2字符语言代码 |  |
+| account\_level | Number | 否 | 风控字段-游戏内的账号等级 |  |
+| is\_vip | Boolean | 否 | 风控字段-被充值账号是否VIP |  |
+| balance\_after\_topup | Number | 否 | 风控字段-有二级货币，传二级货币的余额没有二级货币，不需要额外传此字段 |  |
+
+<strong>响应示例</strong>
+
+```json
+//以微信小游戏(minigame)返回参数为例
+{
+    "data": {
+        "order_no": "22080335440957",
+        "trade_no": "1658991176618",
+        "price": 100,
+        "transmit_args": "a=1&b=2",
+        "goods_tag": "goods1",
+        "goods_name": "商品1",
+        "notify_url": "https://ruixue.weiletest.com/v1/ke/callback/1002/minigame",
+        "ext": {
+            "gen_balance": 0,
+            "save_amt": 20,
+            "save_sum": 20,
+            "cost_sum": 20,
+            "amount": 10,
+            "errmsg": "ok",
+            "balance": 0,
+            "first_save": 0,
+            "present_sum": 0,
+            "offer_id": "1450030244",
+            "errcode": 0
+        }
+    },
+    "code": 0 // 0 成功 非0失败 具体详见下方code含义
+}
+```
+
+### 响应结构（JSON）
+
+#### 通用返回
+
+| <strong>字段</strong> | <strong>类型</strong> | <strong>是否必填</strong> | <strong>说明</strong> |
+| --- | --- | ---- | --- |
+| order\_no | String | 是 | 望舒订单号 |
+| trade\_no | String | 是 | CP 订单号 |
+| price | Number | 是 | 下单金额 单位: 分 |
+| transmit\_args | String | 是 | 下单透传参数 |
+| goods\_tag | String | 是 | 计费点标识 |
+| goods\_name | String | 是 | 商品名称 / 详情 |
+| notify\_url | String | 是 | 1.支付成功望舒客户端回调请求地址,望舒客户端依据实际支付方式决定是否调用个别支付渠道需要客户端传递回调地址给三方 SDK |
+| ext | Object | 否 | 三方下单额外返回参数 详见下面具体渠道额外返回 |
+| plug\_url | String | 否 | 所选支付方式如果需要支付插件，则会返回插件下载地址，不需要则回空串 |
+
+<strong>渠道 ext 额外返回</strong>
+
+#### 小游戏支付
+
+| <strong>字段</strong> | <strong>类型</strong> | <strong>说明</strong> |
+| --- | --- | --- |
+| errcode | Number | 错误码 |
+| errmsg | String | 错误信息 |
+| balance | Number | 游戏币个数（包含赠送） |
+| gen\_balance | Number | 赠送游戏币数量（赠送游戏币数量） |
+| first\_save | boolean | 是否满足历史首次充值 |
+| save\_amt | Number | 累计充值金额的游戏币数量 |
+| save\_sum | Number | 历史总游戏币金额 |
+| cost\_sum | Number | 历史总消费游戏币金额 |
+| present\_sum | Number | 历史累计收到赠送金额 |
+| offer\_id | String | 小游戏 offerid |
+| amount | Number | 小游戏支付金额(按小游戏后台比例换算) |
+
+#### 微信 H5 支付
+
+| <strong>字段</strong> | <strong>类型</strong> | <strong>说明</strong> |
+| --- | --- | --- |
+| pay\_url | String | 微信 H5 支付链接 |
+| referer | String | 微信 H5 支付 referer |
+
+#### 苹果支付
+
+| <strong>字段</strong> | <strong>类型</strong> | <strong>说明</strong> |
+| --- | --- | --- |
+| third\_tag | String | 苹果计费点标识 |
+
+#### 小游戏支付代付
+
+| <strong>字段</strong> | <strong>类型</strong> | <strong>说明</strong> |
+| --- | --- | --- |
+| errcode | Number | 错误码 |
+| errmsg | String | 错误信息 |
+| balance | Number | 游戏币个数（包含赠送） |
+| gen\_balance | Number | 赠送游戏币数量（赠送游戏币数量） |
+| first\_save | Boolean | 是否满足历史首次充值 |
+| save\_amt | Number | 累计充值金额的游戏币数量 |
+| save\_sum | Number | 历史总游戏币金额 |
+| cost\_sum | Number | 历史总消费游戏币金额 |
+| present\_sum | Number | 历史累计收到赠送金额 |
+| miniorder | Object | 代付参数 |
+
+miniorder 代付参数字段 详见小游戏文档 [https://developers.weixin.qq.com/minigame/dev/guide/open-ability/friend-payment.html](https://developers.weixin.qq.com/minigame/dev/guide/open-ability/friend-payment.html)
+
+| <strong>字段</strong> | <strong>类型</strong> | <strong>说明</strong> |
+| --- | --- | --- |
+| mode | String | 支付的类型 |
+| env | Number | 环境配置 |
+| offerId | String | 在米大师侧申请的应用 id |
+| currencyType | String | 币种 |
+| buyQuantity | Number | 游戏币购买数量 |
+| platform | String | 申请接入时的平台 |
+| zoneId | String | 区服 id |
+| outTradeNo | String | 小程序订单号 |
+| nonceStr | String | 随机串 |
+| timeStamp | Number | 时间戳 |
+| signature | String | 签名 |
+
+#### 支付宝 H5
+
+| <strong>字段</strong> | <strong>类型</strong> | <strong>说明</strong> |
+| --- | --- | --- |
+| pay\_url | String | 支付链接 |
+
+#### 支付宝 app
+
+| <strong>字段</strong> | <strong>类型</strong> | <strong>说明</strong> |
+| --- | --- | --- |
+| orderStr | String | 获取签名后的业务数据 |
+| out\_trade\_no | String | 望舒订单号 |
+| trade\_no | String | 支付宝订单号 |
+| total\_amount | String | 该笔订单的资金总额（元） |
+| seller\_id | String | 收款支付宝账号对应的支付宝唯一用户号 |
+| merchant\_order\_no | String | 商户原始订单号 |
+
+#### 银联支付
+
+银联跳转自营小程序(下单 ext pay\_type 传递 minigame 且有传递 pre\_mini 字段)预下单额外返回
+
+| <strong>字段</strong> | <strong>类型</strong> | <strong>说明</strong> |
+| --- | --- | --- |
+| rx\_pre\_order\_no | String | 望舒预下单订单号 |
+| wx\_appid | String | 跳转微信 appid |
+| wx\_ghid | String | 跳转微信原始 ID |
+| wx\_page | String | 跳转微信支付页面 |
+
+银联跳转小程序侧下单返回值详见银联小程序支付文档，服务端将银联返回值放入 ext 原样返回
+
+详见文档银联接口返回值 服务端将值放入 EXT 原样回给客户端
+
+[📎 全民付移动支付文档](https://res-mop.chinaums.com/upload_doc/%E9%97%A8%E6%88%B7%E6%96%87%E6%A1%A3/%E6%94%AF%E4%BB%98%E6%96%87%E6%A1%A3/7dd64d847ddfd65b71fda544d0ff33bd690d786975836c841011b3ce264515c4.pdf)
+
+#### 百度网讯
+
+| <strong>字段</strong> | <strong>类型</strong> | <strong>说明</strong> |
+| --- | --- | --- |
+| third\_tag | String | 百度计费点标识 |
+
+#### 谷歌支付
+
+| <strong>字段</strong> | <strong>类型</strong> | <strong>说明</strong> |
+| --- | --- | --- |
+| third\_tag | String | 谷歌计费点标识 |
+| foreign\_price | Number | 外币价格 |
+
+#### 华为支付
+
+| <strong>字段</strong> | <strong>类型</strong> | <strong>说明</strong> |
+| --- | --- | --- |
+| third\_tag | String | 华为计费点标识 |
+
+#### 快手小游戏
+
+字段含义见快手小游戏开发文档
+
+| <strong>字段</strong> | <strong>类型</strong> | <strong>说明</strong> |
+| --- | --- | --- |
+| sign | String | 签名 |
+| user\_ip | String | 用户 IP 地址 |
+| third\_party\_trade\_no | String | 游戏定义的订单 id |
+| chargeBalance | Number | 收费金额 |
+| freeBalance | Number | 优惠金额 |
+
+#### 小米支付
+
+| <strong>字段</strong> | <strong>类型</strong> | <strong>说明</strong> |
+| --- | --- | --- |
+| third\_tag | String | 小米计费点标识 |
+
+#### vivo 支付
+
+| <strong>字段</strong> | <strong>类型</strong> | <strong>说明</strong> |
+| --- | --- | --- |
+| appId | String | 开发者平台 ID |
+| cpOrderNumber | String | 商户订单号 |
+| orderAmount | Number | 商品价格分 |
+| productName | String | 商品名称 |
+| productDesc | String | 商品描述 |
+| notifyUrl | String | 回调地址 |
+| sign | String | 订单签名 |
+
+#### oppo 小游戏支付
+
+| <strong>字段</strong> | <strong>类型</strong> | <strong>说明</strong> |
+| --- | --- | --- |
+| orderNo | String | 商户订单号 |
+| paySign | String | 支付签名 |
+| timestamp | String | 时间戳 |
+| code | String | Sucess 返回码 |
+| oppoMsg | String | Sucess 返回消息 |
+
+#### 华为 H5 支付
+
+| <strong>字段</strong> | <strong>类型</strong> | <strong>说明</strong> |
+| --- | --- | --- |
+| productName | String | 商品名称 |
+| productDesc | String | 商品介绍 |
+| applicationID | String | 应用 ID |
+| requestId | String | 请求 ID |
+| amount | String | 商品金额元 |
+| merchantId | String | 商户 id |
+| serviceCatalog | String | 商品类型 |
+| merchantName | String | 礼品卡名称 |
+| sdkChannel | String | 渠道信息 |
+| currency | String | 定价货币的币种 |
+| country | String | 国家码，用于区分国家信息，参见“[ISO 3166 标准](https://www.iso.org/iso-3166-country-codes.html)”。 |
+| publicKey | String | 开通应用内支付服务时获取的支付公钥 |
+| urlver | String |  |
+| url | String |  |
+| sign | String | 签名 |
+
+#### QQ 小游戏
+
+字段详情见 [https://q.qq.com/wiki/develop/game/server/virtual-payment/game_pay.html](https://q.qq.com/wiki/develop/game/server/virtual-payment/game_pay.html)
+
+| <strong>字段</strong> | <strong>类型</strong> | <strong>说明</strong> |
+| --- | --- | --- |
+| amount | Number | 金额 |
+| errcode | Number | 错误码 |
+| errmsg | String | 错误信息 |
+| prepayId | String | 订单号，有效期是 48 小时 |
+
+#### 4399 支付
+
+| <strong>字段</strong> | <strong>类型</strong> | <strong>说明</strong> |
+| --- | --- | --- |
+| amount | Number | 金额 |
+
+#### 4399 手游支付
+
+| <strong>字段</strong> | <strong>类型</strong> | <strong>说明</strong> |
+| --- | --- | --- |
+| amount | Number | 金额 |
+
+#### alipaypc
+
+| <strong>字段</strong> | <strong>类型</strong> | <strong>说明</strong> |
+| --- | --- | --- |
+| html | String | 支付页面 |
+
+#### bibili
+
+字段类型和含义参照 B 站文档
+
+| <strong>字段</strong> | <strong>类型</strong> | <strong>说明</strong> |
+| --- | --- | --- |
+| game\_money | Number | 游戏内货币，即本次交易购买的游戏内货币 |
+| bili\_uid | String | bilibili 平台⽤户的唯⼀标识 |
+| bili\_username | String | bilibili 平台⽤户昵称 |
+| bili\_role | String | ⽤户游戏内⻆⾊名，⻓度不超过 64 |
+| bili\_server\_id | String | bilibili 分配的区服 id |
+| total\_fee | Number | 总金额 |
+| notify\_url | String | 通知地址 |
+| out\_trade\_no | String | 订单号 |
+| order\_sign | String | 签名 |
+| body | String | 商品描述 |
+| subject | String | 商品名称 |
+
+#### 抖音 H5
+
+<strong>字段含义参照抖音文档</strong> [https://microapp.bytedance.com/docs/zh-CN/mini-game/develop/api/payment/acquire-mini-game-coin-balance](https://microapp.bytedance.com/docs/zh-CN/mini-game/develop/api/payment/acquire-mini-game-coin-balance)
+
+| <strong>字段</strong> | <strong>类型</strong> | <strong>说明</strong> |
+| --- | --- | --- |
+| errcode | Number | 错误码 |
+| errmsg | String | 错误描述 |
+| balance | Number | 游戏币余额，含赠送 |
+| gen\_balance | Number | 赠送游戏币的余额 |
+| save\_amt | Number | 历史累计充值游戏币数量 |
+| save\_sum | Number | 历史获得总游戏币数量 |
+| cost\_sum | Number | 历史总消费游戏币数量 |
+| present\_sum | Number | 历史累计收到赠送游戏币数量 |
+
+#### 微信公众号
+
+| <strong>字段</strong> | <strong>类型</strong> | <strong>说明</strong> |
+| --- | --- | --- |
+| appId | String | 应用 ID |
+| timeStamp | Number | 时间戳 |
+| nonceStr | String | 随机字符串 |
+| package | String | JSAPI package |
+| signType | String | 签名类型 |
+| paySign | String | 钦命串 |
+
+#### Upay
+
+| <strong>字段</strong> | <strong>类型</strong> | <strong>说明</strong> |
+| --- | --- | --- |
+| responsecode | String | 返回代码 |
+| tranid | String | Upay 的订单号 |
+| descriptionvn | String | 越南说明 |
+| descriptionen | String | 英文说明 |
+| status | String | 状态 |
+| url | String | 网银支付 URL |
+| mac | String | 用来验签，暂时没有实现 |
+| app\_order\_no | String | 望舒订单号 |
+| amount | String | 金额，单位：国家主货币单位\*100 |
+| valid\_time | String | 验证时间 |
+
+#### payerMax 支付
+
+| <strong>字段</strong> | <strong>类型</strong> | <strong>说明</strong> |
+| --- | --- | --- |
+| outTradeNo | String | 商户订单号 |
+| tradeToken | String | PayerMax 流水号 |
+| status | String | 交易状态：PENDING-支付中 |
+| redirectUrl | String | 跳转地址 |
+
+#### xsolla SDK支付
+
+| <strong>字段</strong> | <strong>类型</strong> | <strong>说明</strong> |
+| --- | --- | --- |
+| order\_id | String | xsolla订单号 |
+| token | String | 支付凭证 |
+| url | String | 支付链接 |
+
+#### yeepay 支付
+
+<strong>文档链接</strong> [https://open.yeepay.com/docs/apis/fwssfk/options__rest__v1.0__aggpay__tutelage__pre-pay](https://open.yeepay.com/docs/apis/fwssfk/options__rest__v1.0__aggpay__tutelage__pre-pay)
+
+| <strong>字段</strong> | <strong>类型</strong> | <strong>说明</strong> |
+| --- | --- | --- |
+| appId | String | 开发者平台 ID |
+| orderId | String | 商户收款请求号 |
+| uniqueOrderNo | String | 易宝收款订单号 |
+| prePayTn | String | 预支付标识信息 |
+| miniProgramPath | String | 跳转小程序的路径 |
+| miniProgramOrgId | String | 小程序原始id |
+
+#### mycard web支付
+
+申请厂商服务代码需要提供的服务器信息：（需按产品申请）
+
+> 補儲通知網址SERVER IP： 需要运维确认服务器的出口ip
+> 補儲通知網址： 望舒api地址+/v1/ke/mycardcallback/产品id
+> 交易差異比對網址SERVER IP：需要运维确认服务器的出口ip
+> 交易差異比對網址：望舒api地址+/v1/ke/compare/产品id/mycard
+> 交易結果回傳網址：望舒api地址+/v1/ke/callback/产品id/mycard
+
+mycard 支付需要cp测准备两个web页面（商城页面和支付结果显示页面）
+支付流程为:
+1、cp自定义商城选择计费点， 然后调用望舒不需要accesstoken认证的下单接口
+
+<strong>请求示例</strong>
+
+```json
+{
+    "pay_type": "mycard",
+    "goods_tag": "计费点",
+    "currency": "TWD", // TWD/HKD/USD
+    "openid": "rxuRldmwK31PWNQt6knKfEZN-zu9Vz4rqnR6r5zo",
+    "trade_no": "cp方订单号" // cp方需先下单，支付成功后会通知发货
+}
+```
+
+<strong>响应示例</strong>
+
+```json
+{
+    "data": {
+        ...
+        "ext": {
+            "ReturnMsg": "成功",
+            "AuthCode": "CFDE6C58DC9B4AFA31EA481BF4C6FDD744E08DDED6DB55A01F377CBF774550613497003557D06212DBDE814A047D47B54647258226A33B55161A5B52E8A77D54",
+            "TradeSeq": "GST2310280000467",
+            "TransactionUrl": "https://test.mycard520.com.tw/MyCardPay/?AuthCode=CFDE6C58DC9B4AFA31EA481BF4C6FDD744E08DDED6DB55A01F377CBF774550613497003557D06212DBDE814A047D47B54647258226A33B55161A5B52E8A77D54",
+            "InGameSaveType": "2",
+            "ReturnCode": "1"
+        }
+    },
+    "code": 0
+}
+```
+
+2、cp方需跳转页面到mycard支付， 页面地址为返回结果中的 **TransactionUrl** 字段
+
+3、支付成功后，页面跳转到望舒后台填写的支付结果页面 + ?product\_id=产品id&platform\_no=mycard订单号&return\_msg=支付结果
+
+#### checkout 支付
+
+| <strong>字段</strong> | <strong>类型</strong> | <strong>说明</strong> |
+| --- | --- | --- |
+| url | String | 跳转地址 |
+
+## 客户端支付回调接口
+
+> **POST：**`下单时候返回的notify_url字段地址`
+> **认证方式：**[Accesstoken](/docs/v3.5/入门指南/服务端接入须知)
+
+### CURL 示例
+
+```bash
+curl --location --request POST '{{下单时候返回的notify_url字段地址}}' \
+--header 'Content-Type: application/json' \
+--header 'ruixue-language: {{语言}}' \
+--header 'ruixue-cpid: {{CPID}}' \
+--header 'ruixue-productid: {{产品标识}}' \
+--header 'ruixue-traceid: {{TraceID}}' \
+--header 'ruixue-devicecode: {{设备码}}' \
+--header 'ruixue-channelid: {{渠道标识}}' \
+--header 'ruixue-platformid: {{平台标识}}' \
+--header 'ruixue-accesstoken: {{望舒通行证授权令牌}}' \
+--data-raw '{"order_no":"123456789","receipt":"xxxx"}'
+```
+
+<strong>请求示例</strong>
+
+```json
+{
+    "order_no" : "123456789",
+    "receipt" : "xxxx",
+}
+```
+
+### 请求参数（JSON）
+
+#### 苹果支付
+
+| <strong>字段</strong> | <strong>类型</strong> | <strong>是否必填</strong> | <strong>说明</strong> |
+| --- | --- | ---- | --- |
+| order\_no | String | 是 | 望舒订单号 |
+| receipt | String | 是 | 苹果支付凭证 |
+
+<strong>微信小游戏支付</strong>
+
+| <strong>字段</strong> | <strong>类型</strong> | <strong>是否必填</strong> | <strong>说明</strong> |
+| --- | --- | ---- | --- |
+| wx\_openid | String | 是 | 微信 openid |
+| order\_no | String | 是 | 望舒订单号 |
+| amount | Number | 是 | 订单金额 |
+| env | Number | 是 | 同下单参数 支付环境 |
+| zone\_id | String | 是 | 同下单参数 |
+| pf | String | 是 | 同下单参数 |
+
+#### 谷歌支付
+
+| <strong>字段</strong> | <strong>类型</strong> | <strong>是否必填</strong> | <strong>说明</strong> |
+| --- | --- | ---- | --- |
+| originaljson | String | 是 | 谷歌支付信息 |
+| signature | String | 是 | 谷歌支付签名 |
+| order\_no | String | 是 | 望舒订单号 |
+
+#### 华为支付
+
+| <strong>字段</strong> | <strong>类型</strong> | <strong>是否必填</strong> | <strong>说明</strong> |
+| --- | --- | ---- | --- |
+| originaljson | String | 是 | 华为支付信息 |
+| signature | String | 是 | 华为支付签名 |
+
+#### 应用宝支付
+
+| <strong>字段</strong> | <strong>类型</strong> | <strong>是否必填</strong> | <strong>说明</strong> |
+| --- | --- | ---- | --- |
+| pay\_openid | String | 是 | 米大师 openid |
+| open\_key | String | 是 |  |
+| pf | String | 是 |  |
+| pf\_key | String | 是 |  |
+| order\_no | String | 是 |  |
+| amount | Number | 是 | 单位/分 |
+| ac | String | 是 |  |
+
+<strong>响应示例</strong>
+
+```json
+{
+    "code": 0
+}
+```
+
+## xsolla页面支付流程
+
+![](https://haiqi-ruixue-test.oss-cn-beijing.aliyuncs.com/img_1-1721037234420.png)
+
+## xsolla(艾克索拉) web支付
+
+用户使用xsolla支付,用户下单及支付成功时xsolla服务器会通知望舒,望舒将消息处理后转发cp服务器
+申请厂商服务代码需要提供的服务器信息：（需按产品申请）
+webhook(https://publisher.xsolla.com/399655/projects/228862/edit/webhooks/store): `望舒api地址+/v1/ke/web_order/callback/产品id/xsolla`
+Secret(https://publisher.xsolla.com/399655/projects/228862/edit/api\_key): 消息密钥（用于生成webhook请求body签名）
+
+接入xsolla需要如下步骤(https://developers.xsolla.com/zh/solutions/payments/other/quickstart/):
+1.在xsolla发布商帐户中创建项目。一个项目对应一个游戏。如有多个游戏，请为每个游戏各创建一个项目。
+2.将要销售的商品添加到艾克索拉侧的目录。
+3.cp配置计费点关联艾克索拉要销售的商品
+4.测试创建模拟用户要支付的订单。
+5.进行测试性购买并设置webhook通知。
+6.在发布商帐户中签署与艾克索拉的协议以开始处理真实支付。
+7.望舒处理支付消息,通知cp发货
+8.cp根据订单通知给用户发货
+
+#### 向 cp 侧下单接口(望舒后台配置的下单URL)
+
+#### 请求参数（JSON）
+
+| **字段** | **类型** | **是否必填** | **说明** | **示例** |
+| --- | --- | ---- | --- | --- |
+| sku | String | 是 | 商品唯一标识。望舒后台商品ID和xsolla商品ID要一致 |  |
+| openid | String | 是 | 望舒 openid |  |
+| pay\_type | String | 是 | 固定值 xsolla |  |
+| amount | String | 是 | 订单金额 |  |
+| currency | String | 否 | 货币类型 |  |
+| country | String | 否 | 所在国家 |  |
+| env | Number | 否 | 是否测试环境 1：测试环境 |  |
+
+请求示例
+
+```curl
+curl --location --request POST '{{望舒后台配置的下单URL}}' \
+--header 'ruixue-cpid: {{CPID}}' \
+--header 'ruixue-productid: {{产品标识}}' \
+--header 'ruixue-cpts: {{时间戳}}' \
+--header 'ruixue-traceid: {{TraceID}}' \
+--header 'ruixue-cpsign: {{请求签名}}' \
+--header 'ruixue-devicecode: {{设备码}}' \
+--header 'ruixue-channelid: {{渠道标识}}' \
+--header 'ruixue-platformid: {{平台标识}}'\
+--data-raw '{
+    "sku": "tag2222222",
+    "openid": "rxuR2zlpL8E-QB_my9_twZtbMu3YGPDrR9w4j0eO",
+    "pay_type": "xsolla",
+    "amount": "0.99",
+    "currency": "USD",
+    "country": "CN",
+    "env": 0
+}'
+```
+
+#### 响应参数（JSON）
+
+| **字段** | **类型** | **是否必填** | **说明** | **示例** |
+| --- | --- | ---- | --- | --- |
+| code | Number | 是 | 返回错误码，0 为正确 |  |
+| msg | String | 是 | 错误信息 |  |
+| data | Object | 是 | 订单信息 |  |
+| data.trace\_no | String | 是 | CP侧订单号 |  |
+| data.notify\_url | String | 是 | 支付成功回调CP的URL |  |
+
+返回示例
+
+```json
+{
+  "code" : 0,
+  "msg" : "OK",
+  "data" : {
+    "trace_no" : 123456,
+    "notify_url" : "https://abc.domain.com/callback"
+  }
+}
+```
+
+## 获取计费点道具信息
+
+> **GET:**  `v1/operationtoolsapi/goods/getprops`
+> **认证方式：** [CPSign](/docs/v3.5/入门指南/服务端接入须知)
+
+### CURL 示例
+
+```bash
+curl --location --request GET '{{接口域名}}/v1/operationtoolsapi/goods/getprops?version=1729929906' \
+--header 'ruixue-language: {{语言}}' \
+--header 'ruixue-cpid: {{CPID}}' \
+--header 'ruixue-productid: {{产品标识}}' \
+--header 'ruixue-cpts: {{时间戳}}' \
+--header 'ruixue-traceid: {{TraceID}}' \
+--header 'ruixue-accesstoken: {{登录token}}' \
+--header 'ruixue-devicecode: {{设备码}}' \
+--header 'ruixue-channelid: {{渠道标识}}' \
+--header 'ruixue-platformid: {{平台标识}}'
+```
+
+### 请求参数（JSON）
+
+| **字段** | **类型** | **是否必填** | **说明** | **示例** |
+| --- | --- | ---- | --- | --- |
+| version | String | 是 | 缓存版本, 如果和服务器版本一致， 不下发计费点道具信息 |  |
+
+### 响应参数（JSON）
+
+**HTTP 状态码：**`200 OK`
+
+| **字段** | **类型** | **是否必填** | **说明** | **示例** |
+| --- | --- | ---- | --- | --- |
+| code | Number | 是 | 响应状态码，0为成功，非0表示出错 | 0 |
+| msg | String | 否 | 响应信息，仅在status为非0时不为空 |  |
+| data | Data | 否 | 响应内容 |  |
+
+#### Data
+
+| **字段** | **类型** | **是否必填** | **说明** | **示例** |
+| --- | --- | ---- | --- | --- |
+| data | []Goods | 是 | 计费点列表 |  |
+| version | Number | 是 | 当前服务器版本 |  |
+| cache | bool | 是 | 是否为缓存 |  |
+
+#### Goods
+
+| **字段** | **类型** | **是否必填** | **说明** | **示例** |
+| --- | --- | ---- | --- | --- |
+| goods\_name | String | 是 | 计费点名称 |  |
+| goods\_tag | String | 是 | 计费点标识 |  |
+| props | []Props | 是 | 道具 |  |
+
+#### Props
+
+| **字段** | **类型** | **是否必填** | **说明** | **示例** |
+| --- | --- | ---- | --- | --- |
+| tag | string | 是 | 道具标识 |  |
+| number | Number | 是 | 道具数量 |  |
+
+**响应示例**
+
+```json
+{
+    "data": {
+        "version": 1,
+        "cache": false,
+        "data": [
+            {
+                "goods_name": "测试",
+                "goods_tag": "15",
+                "props": [
+                    {
+                        "tag": "测试",
+                        "number": 2
+                    }
+                ]
+            }
+        ]
+    },
+    "code": 0
+}
+```
+
+## 批量上报游戏内累积充值到望舒
+
+> **POST：** `v1/ke/report/total_money`
+> **认证方式：** [CPSign](/docs/v3.5/入门指南/服务端接入须知)
+
+:::warning
+一次请求最多上报100条 如需批量导入请查看[批量上报游戏内累积充值到望舒CSV批量导入] 接口
+:::
+
+:::
+
+### CURL 示例
+
+```bash
+curl --location --request POST '{{接口域名}}/v1/ke/report/total_money' \
+--header 'ruixue-cpid: {{CPID}}' \
+--header 'ruixue-cpts: {{时间戳}}' \
+--header 'ruixue-traceid: {{TraceID}}' \
+--header 'ruixue-cpsign: {{请求签名}}' \
+--data-raw '[{"openid":"rxuR2zlpL8E-QB_my9_twZtbMu3YGPDrR9w4j0eO","total_money":600,"total_currency":"CNY"}]'
+```
+
+### 请求参数（POST）数组
+
+| <strong>字段</strong> | <strong>类型</strong> | <strong>是否必填</strong> | <strong>说明</strong> | <strong>示例</strong> |
+| --- | --- | ---- | --- | --- |
+| openid | String | 是 |望舒openid | rxuR2zlpL8E-QB_my9_twZtbMu3YGPDrR9w4j0eO |
+| total_money  | String  | 是 | 累积充值金额 最小货币单位(分)  | 100 |
+| total_currency | String | 是 | 累积充值币种|CNY  |
+
+<strong>响应示例</strong>
+
+```json
+{
+    "code": 0,
+      
+}
+```
+
+## 批量上报游戏内累积充值到望舒CSV批量导入
+
+> **POST：** `v1/ke/report/total_money_csv_batch`
+> **认证方式：** [CPSign](/docs/v3.5/入门指南/服务端接入须知)
+
+:::
+
+### CURL 示例
+
+```bash
+curl --location --request POST '{{接口域名}}/v1/ke/report/total_money_csv_batch' \
+--header 'ruixue-cpid: {{CPID}}' \
+--header 'ruixue-cpts: {{时间戳}}' \
+--header 'ruixue-traceid: {{TraceID}}' \
+--header 'ruixue-cpsign: {{请求签名}}' \
+--data-raw '{"csv_file":"https://ruixueyun.oss-cn-beijing.aliyuncs.com/public/csv/%E6%B8%B8%E6%88%8F%E5%86%85%E7%B4%AF%E7%A7%AF%E5%85%85%E5%80%BC%E9%87%91%E9%A2%9D%E4%B8%8A%E6%8A%A5%E6%A8%A1%E7%89%88.csv"}'
+```
+
+### 请求参数（POST）
+
+| <strong>字段</strong> | <strong>类型</strong> | <strong>是否必填</strong> | <strong>说明</strong> | <strong>示例</strong> |
+| --- | --- | ---- | --- | --- |
+| csv_file | String | 是 |CSV文件地址 | [示例文件](https://ruixueyun.oss-cn-beijing.aliyuncs.com/public/csv/%E6%B8%B8%E6%88%8F%E5%86%85%E7%B4%AF%E7%A7%AF%E5%85%85%E5%80%BC%E9%87%91%E9%A2%9D%E4%B8%8A%E6%8A%A5%E6%A8%A1%E7%89%88.csv) |
+
+## 根据订单号查询订单状态
+> **GET：**  `/v1/ke/api/trade_query`
+> **认证方式：** [CPSign](/docs/v3.5/入门指南/服务端接入须知)
+>  **应用场景：** 服务端调用
+```bash
+curl --location --request GET '{{接口域名}}/v1/ke/api/trade_query?order_no=rxxxxxx' \
+--header 'ruixue-productid:{{产品 ID}}' \
+--header 'ruixue-productid:{{产品 ID}}' \
+--header 'ruixue-cpid: {{CPID}}' \
+--header 'ruixue-cpts: {{时间戳}}' \
+--header 'ruixue-traceid: {{TraceID}}' \
+--header 'ruixue-cpsign: {{请求签名}}' \
+```
+> ---
+> **GET：**  `/v1/ke/sdk/trade_query`
+> **认证方式：** [Accesstoken](/docs/v3.5/入门指南/服务端接入须知)
+> **应用场景：** 客户端调用
+
+```bash
+curl --location --request GET '{{接口域名}}/v1/ke/sdk/trade_query?order_no=rxxxxxx' \
+--header 'ruixue-productid:{{产品 ID}}' \
+--header 'ruixue-productid:{{产品 ID}}' \
+--header 'ruixue-cpid: {{CPID}}' \
+--header 'ruixue-traceid: {{TraceID}}' \
+--header 'ruixue-accesstoken: {{accesstoken}}' \
+```
+### 请求参数（GET）
+| <strong>字段</strong> | <strong>类型</strong> | <strong>是否必填</strong> | <strong>说明</strong> | <strong>示例</strong> |
+| --- | --- | ---- | --- | --- |
+| order\_no | String | 是 | 望舒订单号 支持的支付方式：wechath5、wechat、wxpub、alipay、alipayh5| 2508137208306952v1 |
+### 响应结构（JSON）
+| 字段名 | 类型 | 描述 |
+| --- | --- | --- |
+| code | Number | 状态 等于0 为正常情况   |
+| data | Data |  响应数据 |
+#### 响应结构（Data）
+| 字段名 | 类型 | 描述 |
+| --- | --- | --- |
+| platform_status | Number | 支付状态 状态 1: 未支付 2 支付中 3 支付成功 4 支付关闭 |
+<strong>响应示例</strong>
+```json
+{
+    "data": {
+        "platform_status": 3,
+    },
+    "code": 0
+}
+```

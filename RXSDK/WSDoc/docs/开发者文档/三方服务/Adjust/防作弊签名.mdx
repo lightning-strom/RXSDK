@@ -1,0 +1,144 @@
+---
+sidebar_position: 4
+title: 防作弊签名
+description: 望舒 防作弊签名 iOS / Android 接入文档，提供完整的接口调用说明与示例。
+---
+
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
+
+<Tabs groupId="platform">
+
+<TabItem value="ios" label="iOS">
+
+前往 [Adjust 官方文档](https://dev.adjust.com/zh/sdk/ios/integrations/signature-library?version=v4)。
+
+Adjust 的 SDK 签名库是 Adjust SDK 的一款独立插件，也就是说，您无需变更代码或改变在应用中使用 Adjust SDK 的方式，即可使用 SDK 签名库。安装插件后， Adjust SDK 发出的所有请求都将继续如常运行。
+
+**操作前须知**
+
+要将 Adjust 签名库集成到您的 iOS 应用，请确保满足下列条件：
+
+正在使用的 Adjust SDK 为 **4.35.2 或更高版本 。**
+
+支持 iOS **12 或更高 版本。**
+
+## SDK 集成
+
+编辑 Podfile 文件，添加如下配置：
+
+```objectivec
+pod 'RXAdjustSigSDK'
+```
+
+## 进行应用测试
+
+Adjust 对于测试环境配置有要求，需注意以下几点：
+
+Adjust 要求测试测试环境必须使用 **sandbox** 模式，由于SDK 初始化时默认使用正式环境初始化，所以在进行 AdjustSign 防作弊签名测试时需要在SDK 初始化前调用 Adjust 初始化，参考调用示例：
+
+```objectivec
+// Adjust 初始化
+RXADJConfig *config = [RXADJConfig configWithAppToken:@"此处替换为真实的 adjust token" environment:RXADJEnvironmentSandbox];
+[[RXAdjust sharedSDK] appDidLaunch:config];
+
+// SDK 初始化
+[[RXService sharedSDK] initWithProductId:@"此处替换为真实的 productid"
+ channelId:@"此处替换为真实的 channelid"
+ cpid:@"此处替换为真实的 cpid"
+ baseUrlList:@[此处替换为真实的 baseUrl]
+ complete:^(NSDictionary * _Nullable response, RX_CommonRequestError * _Nullable error) {
+ if (!error) {
+ NSLog(@"初始化成功");
+ } else {
+ NSLog(@"初始化失败");
+ }
+}];
+```
+
+从测试设备中完全删除应用，确保安装信息能被正确发送， Adjust 归因触发条件为首次安装，每次测试都需要删除应用重新安装。
+
+使用测试控制台遗忘设备，清除与该设备相关的所有信息。
+
+将开发模式设置为 **release**，通过 xcode 直接运行会导致签名无效，可以通过以下方式进行调试：
+
+将项目打包成 ipa 后安装 ipa ；
+
+将 ipa 上传至 TestFlight 后通过 TestFlight 下载；
+
+将 ipa 上传至 蒲公英/fir.im 等平台生成二维码后扫码下载（部分平台对游戏项目管控较严格，可能上传失败）；
+
+应用启动后可在 Adjust 测试控制台根据**设备的广告 id （ adid ）**查看结果：
+
+**签名验证结果** 为 **有效签名**；
+
+**签名接收状态** 为 **已接收**；
+
+</TabItem>
+
+<TabItem value="android" label="Android">
+
+Adjust 的 SDK 签名库是 Adjust SDK 的一款独立插件，也就是说，您无需变更代码或改变在应用中使用 Adjust SDK 的方式，即可使用 SDK 签名库。安装插件后， Adjust SDK 发出的所有请求都将继续如常运行。
+
+## SDK 集成
+
+具体版本 [点击查看最新版本](https://dev.adjust.com/zh/sdk/android/integrations/signature-library)
+
+```plaintext
+implementation 'com.adjust.signature:adjust-android-signature:x.x.x'
+```
+
+一切就绪！签名库现已集成到您的项目中。请按照下一节说明的步骤操作，在 Adjust suite 中配置您的数字证书。
+
+## 将您的数字证书指纹加入 Adjust 许可名单
+
+请注意 请务必将要使用的所有证书指纹添加进 Adjust suite ，包括调试版本和针对不同商店的版本。
+
+获得证书指纹后，请按照下列步骤操作，将证书指纹加入许可名单：
+
+在 AppView 中选中您的应用，打开应用详情界面。
+
+选择 数据保护 标签页。
+
+点击 可疑安装 部分的 编辑 按钮。
+
+找到 安卓指纹 部分，选择 新指纹 。
+
+将签名 SHA-1 指纹粘贴入弹出的文本框中。
+
+选择 添加 。
+
+一切就绪！您的指纹现已加入应用许可名单。
+
+## 进行应用测试
+
+您可以使用 Adjust [测试控制台](https://help.adjust.com/zh/article/testing-console)验证签名库是否已正确集成进应用。
+
+要测试您的签名库集成情况，请按照下列步骤操作。
+
+从测试设备中完全删除应用，确保安装信息能被正确发送。
+
+使用测试控制台遗忘设备，清除与该设备相关的所有信息。您还可以发送从 Adjust InSights 应用中获得的应用识别码和广告 ID ，以此使用 forget_device 终端。您可以使用以下任何广告 ID ： adid、android_id、gps_adid、imei、oaid。
+
+调用看上去应该是这样的：
+
+```plaintext
+curl -X POST ''
+```
+
+从测试控制台抹除设备信息后，请在测试设备上安装并打开应用，以将安装信息发送给 Adjust。
+
+将测试设备的广告 ID 输入测试控制台，调取安装事件信息。请检查以下内容：
+
+(1). SignatureVerificationResult 字段应当显示以下值 Valid Signature
+
+(2).SignatureVersion 字段应当显示以下值 3
+
+如果这些字段没有缺失，且包含正确的信息，就说明签名库已经成功集成。如果字段中出现了不同的值，请再次检查集成步骤，或发送邮件到 [support@adjust.com](mailto:support@adjust.com) 获取支持。
+
+一切就绪！签名库已成功集成到您的应用。等待两个归因窗口结束，即可执行 SDK 签名验证，确保 Adjust 只接受带有签名的请求。
+
+</TabItem>
+
+</Tabs>
+

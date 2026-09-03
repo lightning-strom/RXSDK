@@ -1,0 +1,78 @@
+---
+sidebar_position: 1
+title: 开放平台对接
+description: "望舒SDK 三方服务 开放平台对接服务端文档，提供接口请求参数与响应说明。"
+---
+
+渠道方文档地址: [https://doc.77sy.com.cn/fid/43](https://doc.77sy.com.cn/fid/43)
+
+## 上报角色信息接口
+
+> **POST：** `/v1/thirdparty/api/channel_gateway/minigame_77/gamerolereport`
+>
+> **认证方式：** [CPSign](/docs/开发者文档/入门指南/服务端接入须知)
+
+### CURL 示例
+
+```bash
+curl --location --request POST '{{接口域名}}/v1/thirdparty/api/channel_gateway/minigame_xunlei/message.v1.sync' \
+--header 'ruixue-cpid: {{CPID}}' \
+--header 'ruixue-cpts: {{时间戳}}' \
+--header 'ruixue-traceid: {{TraceID}}' \
+--header 'ruixue-cpsign: {{请求签名}}' \
+--header 'ruixue-productid: {{产品ID}}' \
+--header 'ruixue-channelid: {{渠道ID}}' \
+--header 'Content-Type: application/json' \
+--data-raw '{"token":"5988EvIUVWKhu0-Gf61GCQcAHvzHh0SIdnfY2dZGuH15xduJTj0XuhiHFm4_Or3F0RS6ADDtnzVZpHlHI1_OBvVfi3WQc8WiuVIhm1LSK8TLuc2zqO4s8PGc0jgM1MhZMGu302Li4129pf1om7lEjv1c4DcJXG610g2ikUv9QYk8KlBTthsIwbtj-OEQ0yy0SZnKHF2q", "role_data":{"role_id":"1001","server_id":"1"}}'
+```
+
+### 请求参数（POST）
+
+
+| 字段 | 类型 | 是否必填 | 说明 |
+| --- | --- | --- | --- |
+| token | string | 是 | 获取平台用户信息处（ getUserInfo 接口）获得的用户身份 token 串（该 token 非永久有效，请务必每次均使用最后一次 getUserInfo 接口请求获得的最新 token 值 |
+| string | 是 | 游戏方用户 ID （ string ，最大长度： 36 ） | 1001 |
+| int | 否 | 区服 ID ：无区服划分时区服可固定传入 0 （ int ，最小值： 0 ，最大值： 2147483647 ） | 1234 |
+| string | 否 | 区服名称（ string ，最大长度： 36 ） | 测试区服 01 |
+| string | 否 | 角色 ID ：必须保证在整个游戏系统内始终唯一（ string ，最大长度： 36 ） | 1111 |
+| string | 否 | 角色名称（ string ，最大长度： 36 ） | 测试角色 01 |
+| int | 否 | 角色等级（ int ，最小值： 0 ，最大值： 2147483647 ） | 66 |
+| int | 否 | 角色转生数：无转生系统时转生数可固定传入 0 （ int ，最小值： 0 ，最大值： 2147483647 ） | 1 |
+| int | 否 | 角色战力值（ bigint ，最小值： 0 ，最大值： 9223372036854775807 ） | 666 |
+| int | 否 | VIP 等级（ int ，最小值： 0 ，最大值： 2147483647 ） | 0 |
+| string | 否 | 拓展参数， JSON 字符串，用于功能拓展，没有内容时直接传空（ text ） |  |
+
+
+**响应示例**
+
+```json
+{
+ "code": 0,
+ "data": {
+ "code":0,
+ "msg":"success"
+ }
+}
+```
+
+### 响应结构（JSON）
+
+| 字段名 | 类型 | 描述 |
+| --- | --- | --- |
+| code | Number | 望舒错误码 |
+| data.code | Number | 业务错误码 |
+| data.msg | String | 业务信息 |
+
+
+**返回示例**
+
+```json
+{
+ "code": 0,
+ "data": {
+ "code":0,
+ "msg":"success"
+ }
+}
+```

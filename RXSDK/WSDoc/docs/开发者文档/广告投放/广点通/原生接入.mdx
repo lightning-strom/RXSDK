@@ -1,0 +1,551 @@
+---
+sidebar_position: 2
+title: 原生接入
+description: 望舒广告投放广点通 iOS / Android 端接入指南，包含 SDK 集成与接口调用说明。
+---
+
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
+
+<Tabs groupId="platform">
+
+<TabItem value="ios" label="iOS">
+
+基础库 RXSDK_Pure 3.8.5 以上支持。
+
+## 准备工作
+
+接入请前先做好准备工作。可通过 pod 方式接入**RXGDTSDK**组件，并使用**RXGDTSDK**相关功能。
+
+## SDK 集成
+
+编辑 Podfile 文件，添加如下配置：
+
+```objectivec
+pod 'RXGDTSDK'
+```
+
+## 初始化（必须）
+
+在 [SDK 初始化方法](/docs/开发者文档/性能分析/GPM-SDK接入/快速开始) 之前调用。
+
+**接口原型**
+
+```objectivec
+/**
+ * 初始化
+ */
+- (void)regist;
+```
+
+**调用示例**
+
+```objectivec
+[[RXGDTService sharedSDK] regist];
+```
+
+## 上报接口
+
+激活、注册、登录事件在使用对应功能时 SDK 自动上报，其他事件客户端按需上报。
+
+检测接入结果：查看控制台是否有 **action name** 日志。
+
+### 初始化/激活（非自动上报使用）
+
+```objectivec
+/**
+ * 初始化/激活
+ * @param context
+ * @param sid
+ * @param secretKey
+ */
+- (void)initWithActionSetId:(NSString *)actionSetId secretKey:(NSString *)secretKey;
+
+// 调用示例
+[[RXGDTService sharedSDK] initWithActionSetId:setId secretKey:secretKey]
+```
+
+### 注册（非自动上报使用）
+
+```objectivec
+/**
+ * 注册
+ * @param method 表示注册方式，业务方可以传任意可标识注册方式的值，如注册方式为手机号（method = @"phone" ）、微信注册（method = @“WeChat” ）、邮箱（method = @"mail"）等；方便业务方在数据平台以method为key查询数据
+ * @param isSuccess 是否注册成功
+ */
+- (void)reportRegisterActionWithMethod:(NSString *)method isSuccess:(BOOL)isSuccess;
+
+// 调用示例
+[[RXGDTService sharedSDK] reportRegisterActionWithMethod:method isSuccess:YES];
+```
+
+### 登录（非自动上报使用）
+
+```objectivec
+/**
+ * 用户登录时事件
+ * @param method 表示登录的方式，如游戏账号、手机号等
+ * @param success 是否登录成功
+ */
+- (void)reportLoginActionWithMethod:(NSString *)method isSuccess:(BOOL)isSuccess;
+
+// 调用示例
+[[RXGDTService sharedSDK] reportLoginActionWithMethod:method isSuccess:YES];
+```
+
+### 创建游戏角色
+
+**接口原型**
+
+```objectivec
+/**
+ * 创建角色
+ * @param role 游戏角色
+ */
+- (void)reportCreateRoleActionWithRole:(NSString *)role;
+```
+
+**调用示例**
+
+```objectivec
+[[RXGDTService sharedSDK] reportCreateRoleActionWithRole:@"rolid"];
+```
+
+### 用户下单时事件
+
+**接口原型**
+
+```objectivec
+/**
+ * 下单
+ * @param type 内容类型如“配备”、“皮肤"
+ * @param name 商品或内容名称
+ * @param contentID 商品或内容标识符
+ * @param number 商品数量
+ * @param isVirtualCurrency 是否使用的是虚拟货币
+ * @param virtualCurrencyType 虚拟货币类型，如"元宝"、“金币”等
+ * @param realCurrencyType 真实货币类型，ISO 4217代码，如：“USD”
+ * @param isSuccess 提交购买/下单是否成功
+ */
+- (void)reportCheckoutActionWithContentType:(NSString *)type contentName:(NSString *)name contentID:(NSString *)contentID contentNumber:(NSUInteger)number isVirtualCurrency:(BOOL)isVirtualCurrency virtualCurrencyType:(NSString *)virtualCurrencyType realCurrencyType:(NSString *)realCurrencyType isSuccess:(BOOL)isSuccess;
+```
+
+**调用示例**
+
+```objectivec
+[[RXGDTService sharedSDK] reportCheckoutActionWithContentType:@"内容类型" contentName:@"商品名称" contentID:@"商品标识" contentNumber:商品数量 isVirtualCurrency:YES virtualCurrencyType:@"虚拟币类型" realCurrencyType:@"真实货币类型" isSuccess:YES]; [[RXGDTService sharedSDK] reportCheckoutActionWithContentType:@"内容类型" contentName:@"商品名称" contentID:@"商品标识" contentNumber:1 isVirtualCurrency:YES virtualCurrencyType:@"虚拟币类型" realCurrencyType:@"真实货币类型" isSuccess:YES];
+```
+
+### 用户支付时事件
+
+**接口原型**
+
+```objectivec
+/**
+ * 支付
+ * @param type 内容类型如“配备”、“皮肤”
+ * @param name 商品或内容名称
+ * @param contentID 商品或内容标识符
+ * @param number 商品数量
+ * @param channel 支付渠道名，如支付宝、微信等 @param realCurrency 真实货币类型，ISO 4217代码，如：“USD”
+ * @param amount 本次支付的真实货币的金额
+ * @param isSuccess 支付是否成功
+ */
+- (void)reportPurchaseActionWithContentType:(NSString *)type contentName:(NSString *)name contentID:(NSString *)contentID contentNumber:(NSUInteger)number paymentChannel:(NSString *)channel realCurrency:(NSString *)realCurrency currencyAmount:(unsigned long long)amount isSuccess:(BOOL)isSuccess;
+```
+
+**调用示例**
+
+```objectivec
+[[RXGDTService sharedSDK] reportPurchaseActionWithContentType:@"内容类型" contentName:@"商品名称" contentID:@"商品标识" contentNumber:1 paymentChannel:@"支付渠道" realCurrency:@"本次支付的真实币种" currencyAmount:本次支付的真实货币的金额 isSuccess:YES];
+```
+
+### 上报启动应用行为
+
+**接口原型**
+
+```objectivec
+/**
+ * 处理 openUrl 唤起数据
+ */
+- (void)handleOpenUrl:(NSURL *)url;
+```
+
+**调用示例**
+
+```objectivec
+- (BOOL)application:(UIApplication *)app openURL:(NSURL *)url options:(NSDictionaryUIApplicationOpenURLOptionsKey,id> *)options
+{
+ [[RXGDTService sharedSDK] handleOpenUrl:url];
+ return YES;
+}
+```
+
+### 完成关键事件（如新手教学）时
+
+**接口原型**
+
+```objectivec
+/**
+ * 完成节点（如教学/任务/副本）时调用此接口
+ * @param questID 教学/任务/副本等关卡标识符
+ * @param type 节点类型
+ * @param name 教学/任务/副本等关卡名称
+ * @param number 第几个任务节点
+ * @param desc 节点描述
+ * @param isSuccess 节点是否完成*
+ */
+- (void)reportFinishQuestActionWithQuestID:(NSString *)questID questType:(NSString *)type questName:(NSString *)name questNumer:(NSUInteger)number description:(NSString *)desc isSuccess:(BOOL)isSuccess;
+```
+
+**调用示例**
+
+```objectivec
+[[RXGDTService sharedSDK] reportFinishQuestActionWithQuestID:@"教学/任务/副本等关卡标识符" questType:@"节点类型" questName:@"教学/任务/副本等关卡名称" questNumer:第几个任务节点 description:@"节点描述" isSuccess:YES];
+```
+
+### 分享
+
+**接口原型**
+
+```objectivec
+/**
+ * 分享至社交媒体时调用此接口
+ * @param channel 社交媒体
+ * @param isSuccess 分享是否成功
+ */
+- (void)reportShareActionWithChannel:(NSString *)channel isSuccess:(BOOL)isSuccess;
+```
+
+**调用示例**
+
+```objectivec
+[[RXGDTService sharedSDK] reportShareActionWithChannel:@"社交媒体" isSuccess:YES];
+```
+
+### 游戏升级时
+
+**接口原型**
+
+```objectivec
+/**
+ * 用户升级后调用此接口
+ * @param level 当前用户等级
+ */
+- (void)reportUpgradeLevelActionWithLevel:(NSUInteger)level;
+```
+
+**调用示例**
+
+```objectivec
+[[RXGDTService sharedSDK] reportUpgradeLevelActionWithLevel:当前用户等级];
+```
+
+### 用户对 App 评分时
+
+**接口原型**
+
+```objectivec
+/**
+ * 对APP进行应用商店评分时调用此接口
+ * @param rate 评分
+ */
+- (void)reportRateActionWithRate:(CGFloat)rate;
+```
+
+**调用示例**
+
+```objectivec
+[[RXGDTService sharedSDK] reportRateActionWithRate:评分];
+```
+
+### 查看内容/商品详情时
+
+**接口原型**
+
+```objectivec
+/**
+ * 查看内容/商品详情时调用此接口
+ * @param type 内容类型如“配备”、“皮肤”
+ * @param name 商品或内容名称
+ * @param contentID 商品或内容标识符
+ */
+- (void)reportViewContentActionWithContentType:(NSString *)type contentName:(NSString *)name contentID:(NSString *)contentID;
+```
+
+**调用示例**
+
+```objectivec
+[[RXGDTService sharedSDK] reportViewContentActionWithContentType:@"内容类型如“配备”、“皮肤”" contentName:@"商品或内容名称" contentID:@"商品或内容标识符"];
+```
+
+### 加入购物车时
+
+**接口原型**
+
+```objectivec
+/**
+ * 加入购物车时调用此接口
+ * @param type 内容类型如“配备”、“皮肤”
+ * @param name 商品或内容名称
+ * @param contentID 商品或内容标识符
+ * @param number 商品数量
+ * @param isSuccess 加入购买/购物车是否成功
+ */
+- (void)reportAddingToCartActionWithContentType:(NSString *)type contentName:(NSString *)name contentID:(NSString *)contentID contentNumber:(NSUInteger)number isSuccess:(BOOL)isSuccess;
+```
+
+**调用示例**
+
+```objectivec
+[[RXGDTService sharedSDK] reportAddingToCartActionWithContentType:@"内容类型如“配备”、“皮肤”" contentName:@"商品或内容名称" contentID:@"商品或内容标识符" contentNumber:商品数量 isSuccess:YES];
+```
+
+</TabItem>
+
+<TabItem value="android" label="Android">
+
+## 集成望舒SDK
+
+在 app module 级别的 .gradle 文件中，在 dependencies 里引入 SDK。
+
+
+:::tip[版本说明]
+`version` 为 SDK 版本号（替换为实际版本号），最新版本请从 [更新日志](/docs/开发者文档/入门指南/更新日志/Android) 中查看。
+:::
+
+```groovy
+implementation 'com.ruixue:rxsdk_gdt:${version}'
+```
+
+## 混淆说明
+
+在应用级根目录下打开混淆配置文件 `proguard-rules.pro` ，加入排除 SDK 的混淆配置
+
+```plaintext
+-dontwarn com.qq.gdt.action.**
+-keep class com.qq.gdt.action.** {*;}
+-keepclassmembers class com.qq.gdt.action.** {*;}
+-keep public class com.tencent.turingfd.sdk.**
+-keep class com.**.TNative$aa {public *;}
+-keep class com.**.TNative$aa$bb {public *;}
+-keep class com.**.TNative$bb {*;}
+-keep class com.**.TNative$bb$I {*;}
+
+-keepclasseswithmembers class * {
+ native ;
+}
+```
+
+## 权限申请（非强制）
+
+如果您的 App 适配了 Android6.0 （ API >= 23 ），调用 logAction 时，需要处理 Android6.0 动态权限的兼容问题。具体做法是，先检查 App 是否获得了 android.permission.READ_PHONE_STATE 、 Manifest.permission.WRITE_EXTERNAL_STORAGE 权限，如果获得了这项权限，可以直接调用上面这段代码上报 App 启动行为；如果没有获得权限，那么可以调用 requestPermissions 方法来向用户申请权限（建议获得 android.permission.READ_PHONE_STATE 权限，上报数据会更准确，不是强制要求）
+
+```java
+// 在项目的主页面的 onCreate 方法中动态申请权限， 参考代码
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+    if (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_PHONE_STATE) != PackageManager.PERMISSION_GRANTED || ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
+    //没有,申请权限 权限数组
+    ActivityCompat.requestPermissions(this, new String[] { Manifest.permission.READ_PHONE_STATE, Manifest.permission.WRITE_EXTERNAL_STORAGE}, 1000);
+    }
+    }
+```
+
+## 上报接口
+
+激活、注册、登录事件在使用对应功能时 SDK 自动上报，其他事件客户端按需上报。
+
+检测接入结果：查看控制台是否有 **LogAction success** 日志。
+
+### 初始化（非自动上报使用，3.7.35以上）
+
+```java
+/**
+    * 初始化
+    * @param context
+    * @param sid
+    * @param secretKey
+    * @param channel 可为空（为 tencent）, 可以填写 "natural", "bytedance", "kuaishou", "alibaba", "baidu", "others" 任选其一
+    * @param channelId 可传 "tencent"
+    */
+public void init(Context context, String sid, String secretKey, String channel, String channelId)
+
+// 调用示例
+GDTSdkWrapper.getInstance().init(context, sid, sk, "tencent", "tencent");
+```
+
+### 注册（非自动上报使用，3.7.35以上）
+
+```java
+/**
+    * 用户注册时事件
+    * @param method 表示注册方式 （游客: guest ）
+    * @param success 是否注册成功
+    */
+public void reportRegister(String method, boolean success)
+
+// 调用示例
+GDTSdkWrapper.getInstance().reportRegister("注册方式", true);
+```
+
+### 登录（非自动上报使用，3.7.35以上）
+
+```java
+/**
+    * 用户登录时事件
+    * @param method 表示登录的方式，如游戏账号、手机号等
+    * @param success 是否登录成功
+    */
+public void reportLogin(String method, boolean success)
+
+// 调用示例
+GDTSdkWrapper.getInstance().reportLogin("登录方式", true);
+```
+
+### 创建游戏角色
+
+```java
+/**
+    * 创建游戏角色
+    * @param role 游戏角色名称
+    */
+public void reportCreateRole(String role)
+
+// 调用示例
+GDTSdkWrapper.getInstance().reportCreateRole("CP 自己的游戏角色名称");
+```
+
+### 用户下单时事件
+
+```java
+/**
+    * 用户下单时事件
+    * @param type 商品类型
+    * @param name 商品名称
+    * @param id 商品 id
+    * @param number 商品数量
+    * @param isVirtualCurrency 是否使用虚拟货币
+    * @param virtualCurrencyType 虚拟货币类型
+    * @param currency 真实货币类型
+    * @param success 下单是否成功
+    */
+public void reportCheckout(String type, String name, String id, int number, boolean isVirtualCurrency, String virtualCurrencyType, String currency, boolean success)
+
+// 调用示例
+GDTSdkWrapper.getInstance().reportCheckout("test", "rxname", "rx", 1, false, "vct", "CNY", true);
+```
+
+### 用户支付时事件
+
+```java
+/**
+    * 用户支付时事件
+    * @param goodsType 商品类型
+    * @param goodsName 商品名称
+    * @param goodsId 商品 id
+    * @param number 商品数量
+    * @param goodsChannel 支付渠道名，如支付宝、微信等
+    * @param currency 真是货币类型，如 "CNY"
+    * @param value 真实货币金额，单位分
+    * @param success 支付是否成功
+    */
+public void reportPurchase(String goodsType, String goodsName, String goodsId, int number, String goodsChannel, String currency, int value, boolean success)
+
+// 调用示例
+GDTSdkWrapper.getInstance().reportPurchase("test", "rxname", "rx", 1, "gchannel", "vct", 100, true);
+```
+
+### 完成关键事件（如新手教学）时
+
+```java
+/**
+    * 完成关键事件（如新手教学）时
+    * @param id 事件 id
+    * @param type 事件类型
+    * @param name 事件名称
+    * @param number 第几个事件
+    * @param desc 事件描述
+    * @param success 事件是否完成
+    */
+public void reportQuestFinish(String id, String type, String name, int number, String desc, boolean success)
+
+// 调用示例
+GDTSdkWrapper.getInstance().reportQuestFinish("", "", "", 0, "", true);
+```
+
+### 分享
+
+```java
+/**
+    * 分享
+    * @param channel 分享渠道
+    * @param success 是否分享成功
+    */
+public void reportShare(String channel, boolean success)
+
+// 调用示例
+GDTSdkWrapper.getInstance().reportShare("", true);
+```
+
+### 游戏升级时
+
+```java
+/**
+    * 游戏升级时
+    * @param level 升级后的等级
+    */
+public void reportUpdateLevel(int level)
+
+// 调用示例
+GDTSdkWrapper.getInstance().reportUpdateLevel(1);
+```
+
+### 用户对 App 评分时
+
+```java
+/**
+    * 用户对 App 评分时
+    * @param value 用户给出的评分值
+    */
+public void reportRateApp(float value)
+
+// 调用示例
+GDTSdkWrapper.getInstance().reportRateApp(1.0f);
+```
+
+### 查看内容/商品详情时
+
+```java
+/**
+    * 查看内容/商品详情时
+    * @param type 内容/商品类型
+    * @param name 内容/商品名称
+    * @param id 内容/商品的 id
+    */
+public void reportViewContent(String type, String name, String id)
+
+// 调用示例
+GDTSdkWrapper.getInstance().reportViewContent("", "", "");
+```
+
+### 加入购物车时
+
+```java
+/**
+    * 加入购物车时
+    * @param type 商品类型
+    * @param name 商品名称
+    * @param id 商品 id
+    * @param number 商品数量
+    * @param success 加入购物车是否成功
+    */
+public void reportAddToCart(String type, String name, String id, int number, boolean success)
+
+// 调用示例
+GDTSdkWrapper.getInstance().reportAddToCart("", "", "", 0, true);
+```
+
+</TabItem>
+
+</Tabs>
+

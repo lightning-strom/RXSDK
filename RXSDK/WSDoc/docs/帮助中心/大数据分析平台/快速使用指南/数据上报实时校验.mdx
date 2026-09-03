@@ -1,0 +1,67 @@
+---
+sidebar_position: 6
+title: "数据上报实时校验"
+description: "望舒帮助中心 数据上报实时校验 文档"
+---
+
+
+## 背景
+由于大数据平台应用层数据模型处理需要时间，根据集群资源不同有10-60分钟延迟时间，导致研发人员上报数据不能及时校验数据准确性；使用以下方式可实时查询上报的原始数据。
+
+
+```tip
+如果使用自定义事件测试数据上报，需要先在大数据平台进行自定义事件和自定义属性创建
+```
+## 操作步骤
+1. 使用大数据平台 SQL 查询功能，查询实时stage模型数据。位置:**大数据平台>行为分析>SQL查询**。
+![](https://guanwangyun.oss-cn-beijing.aliyuncs.com/document/dataPlatform/dataselect/position.jpg)
+
+### track事件数据查询
+使用以下 SQL 代码查询，将`event_name`替换为所查询的事件名称，$\{N\}替换为返回的条目数。
+```sql
+select * from stage_fact_events 
+where event = '${event_name}' and type = 'track'
+-- 可选：筛选时间范围
+and `time` between ${start_time} and ${end_time} 
+-- 筛选瑞雪openid或者cp_userid，根据所上报事件数据按需填入
+and distinct_id = '${userid}'
+-- 按照事件时间进行倒序排列
+order by `time` desc limit ${N}; 
+```
+![](https://guanwangyun.oss-cn-beijing.aliyuncs.com/document/dataPlatform/dataselect/track_examp.png)
+### 参数说明
+| **参数**<br/> | **类型**<br/>       | **备注**<br/>     |
+| ------------ | ----------------- | ---------------- |
+| $\{event_name\}<br/>  | String        | 上报数据的事件名称，例如  share 等         |
+| $\{start_time\}<br/> | timestamp<br/> | 由于stage模型数据量级很大，所以查询时建议带上时间范围，避免查询过慢。|
+| $\{end_time\}<br/> | timestamp<br/> | 由于stage模型数据量级很大，所以查询时建议带上时间范围，避免查询过慢。|
+| $\{userid\}<br/> | String | 筛选瑞雪openid或者cp_userid，根据所上报事件数据按需填入 |
+| $\{N\}<br/> | Int |  返回数据的条目数 |
+
+### 用户属性 user 数据查询
+使用以下 SQL 代码查询，将`event_name`替换为所查询的事件名称，$\{N\}替换为返回的条目数。
+```sql
+select * from stage_fact_events 
+where 
+-- 筛选用户更新类型，例如：user_setonce、user_set、user_add、user_max、user_min
+event = '${event_name}' and type = 'user'
+-- 可选：筛选时间范围
+and `time` between ${start_time} and ${end_time}
+-- 筛选瑞雪openid或者cp_userid，根据所上报事件数据按需填入
+and distinct_id = '${userid}'
+-- 筛选所上报的用户属性名
+and properties like '%${attr_name}%'
+-- 按照事件时间进行倒序排列
+order by `time` desc limit ${N}; 
+```
+### 参数说明
+| **参数**<br/> | **类型**<br/>       | **备注**<br/>     |
+| ------------ | ----------------- | ---------------- |
+| $\{event_name\}<br/>  | String        | 上报数据的事件名称，例如  share 等         |
+| $\{start_time\}<br/> | timestamp<br/> | 由于stage模型数据量级很大，所以查询时建议带上时间范围，避免查询过慢。|
+| $\{end_time\}<br/> | timestamp<br/> | 由于stage模型数据量级很大，所以查询时建议带上时间范围，避免查询过慢。|
+| $\{userid\}<br/> | String | 筛选瑞雪openid或者cp_userid，根据所上报事件数据按需填入 |
+| $\{attr_name\}<br/> | String | 上报数据的用户属性名 |
+| $\{N\}<br/> | Int |  返回数据的条目数 |
+
+![](https://guanwangyun.oss-cn-beijing.aliyuncs.com/document/dataPlatform/dataselect/user_exam.png)

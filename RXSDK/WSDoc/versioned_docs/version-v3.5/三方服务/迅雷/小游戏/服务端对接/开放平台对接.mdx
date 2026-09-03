@@ -1,0 +1,184 @@
+---
+title: "开放平台对接"
+---
+
+渠道方文档地址: [http://docs.game.xunlei.com/server/msg-sync](http://docs.game.xunlei.com/server/msg-sync)
+
+## 游戏消息同步
+
+> **POST：** `/v1/thirdparty/api/channel_gateway/minigame_xunlei/message.v1.sync`
+> **认证方式：** [CPSign](/docs/v3.5/入门指南/服务端接入须知)
+
+### CURL 示例
+
+```bash
+curl --location --request POST '{{接口域名}}/v1/thirdparty/api/channel_gateway/minigame_xunlei/message.v1.sync' \
+--header 'ruixue-cpid: {{CPID}}' \
+--header 'ruixue-cpts: {{时间戳}}' \
+--header 'ruixue-traceid: {{TraceID}}' \
+--header 'ruixue-cpsign: {{请求签名}}' \
+```
+
+### 请求参数（POST）
+
+| <strong>字段</strong> | <strong>类型</strong> | <strong>是否必填</strong> | <strong>说明</strong> | <strong>示例</strong> |
+| --- | --- | ---- | --- | --- |
+| name | string | 是 | 区服名称 | a1234567 |
+| rx\_openid | string | 是 | 望舒openid | xxxxxx |
+| server\_id | string | 是 | 区服 ID | s101 |
+| server\_create\_time | string | 是 | 开服时间 | 2023-10-01 10:00:00 |
+| role\_id | string | 是 | 角色 ID | r920922 |
+| role\_name | string | 是 | 角色名称 | 愤怒的小鸟 |
+| msg | string | 是 | 消息内容 | xxxx |
+| msg\_type | int32 | 是 | 消息类型 ，1 - 世界 、 2 - 私聊、 3 - 其它 | 1 |
+| ts | int64 | 是 | 时间戳（unix timestamp） | 1702957771 |
+
+<strong>响应示例</strong>
+
+```json
+{
+        "code": 0,
+        "data": {
+            "code":0,
+            "message":"success"
+        }
+}
+```
+
+### 响应结构（JSON）
+
+| 字段名 | 类型 | 描述 |
+| --- | --- | --- |
+| code | Number | 望舒错误码 |
+| data.code | Number | 业务错误码 |
+| data.message | String | 业务信息 |
+
+<strong>返回示例</strong>
+
+```json
+{
+        "code": 0,
+        "data": {
+            "code":0,
+            "message":"success"
+        }
+}
+```
+
+## 新增区服同步
+
+> **POST：** `/v1/thirdparty/api/channel_gateway/minigame_xunlei/game.syncserver`
+> **认证方式：** [CPSign](/docs/v3.5/入门指南/服务端接入须知)
+
+### CURL 示例
+
+```bash
+curl --location --request POST '{{接口域名}}/v1/thirdparty/api/channel_gateway/minigame_xunlei/game.syncserver' \
+--header 'ruixue-cpid: {{CPID}}' \
+--header 'ruixue-cpts: {{时间戳}}' \
+--header 'ruixue-traceid: {{TraceID}}' \
+--header 'ruixue-cpsign: {{请求签名}}' \
+```
+
+### 请求参数（POST）
+
+| **字段** | **类型** | **是否必填** | **说明** | **示例** |
+| --- | --- | ---- | --- | --- |
+| name | string | 是 | 区服名称 | 迅雷 1 服 |
+| server\_id | int64 | 是 | 区服 id | 1 |
+| open\_at | string | 是 | 开服时间 | 2024-04-16 18:00:00 |
+| display | string | 是 | 是否展示 | "0" - 不展示, "1" - 展示 |
+| game\_id | string | 是 | 游戏标识 | cdrg0rjrc8k0m7af5fcg |
+| time | int64 | 是 | 当前时间戳 | 1713239399 |
+| servers | string | 是 | 区服列表 json 串 | "[{'{'}"name":"迅雷一服","server\_id":12222222,"open\_at":"2024-04-16 18:00:00"{'}'}]" |
+
+**响应示例**
+
+```json
+{
+        "code": 0,
+        "data": {
+            "code":0,
+            "message":"success"
+        }
+}
+```
+
+### 响应结构（JSON）
+
+| 字段名 | 类型 | 描述 |
+| --- | --- | --- |
+| code | Number | 望舒错误码 |
+| data.code | Number | 业务错误码 |
+| data.message | String | 业务信息 |
+
+**返回示例**
+
+```json
+{
+        "code": 0,
+        "data": {
+            "code":0,
+            "message":"success"
+        }
+}
+```
+
+## 更新区服同步
+
+> **POST：** `/v1/thirdparty/api/channel_gateway/minigame_xunlei/game.updateserver`
+> **认证方式：** [CPSign](/docs/v3.5/入门指南/服务端接入须知)
+
+### CURL 示例
+
+```bash
+curl --location --request POST '{{接口域名}}/v1/thirdparty/api/channel_gateway/minigame_xunlei/game.updateserver' \
+--header 'ruixue-cpid: {{CPID}}' \
+--header 'ruixue-cpts: {{时间戳}}' \
+--header 'ruixue-traceid: {{TraceID}}' \
+--header 'ruixue-cpsign: {{请求签名}}' \
+```
+
+### 请求参数（POST）
+
+| **字段** | **类型** | **是否必填** | **说明** | **示例** |
+| --- | --- | ---- | --- | --- |
+| name | string | 是 | 区服名称 | 迅雷 1 服 |
+| server\_id | int64 | 是 | 区服 id | 1 |
+| open\_at | string | 是 | 开服时间 | 2024-04-16 18:00:00 |
+| display | string | 是 | 是否展示 | "0" - 不展示, "1" - 展示 |
+| game\_id | string | 是 | 游戏标识 | cdrg0rjrc8k0m7af5fcg |
+| time | int64 | 是 | 当前时间戳 | 1713239399 |
+| servers | string | 是 | 区服列表 json 串 | "[{'{'}"name":"迅雷一服","server\_id":12222222,"open\_at":"2024-04-16 18:00:00"{'}'}]" |
+
+**响应示例**
+
+```json
+{
+        "code": 0,
+        "data": {
+            "code":0,
+            "message":"success"
+        }
+}
+```
+
+### 响应结构（JSON）
+
+| 字段名 | 类型 | 描述 |
+| --- | --- | --- |
+| code | Number | 望舒错误码 |
+| data.code | Number | 业务错误码 |
+| data.message | String | 业务信息 |
+
+**返回示例**
+
+```json
+{
+        "code": 0,
+        "data": {
+            "code":0,
+            "message":"success"
+        }
+}
+```

@@ -1,0 +1,105 @@
+---
+title: "iOS接入"
+---
+
+## 准备工作
+
+::: tip
+接入请前先做好准备工作。
+可通过 **pod** 方式接入 **RXAliCloudDNSSDK** 组件，并使用 **RXAliCloudDNSSDK** 相关功能。
+在需要使用功能的类中引用头文件 <code>#import </code>
+在 [阿里云DNS文档中心](https://help.aliyun.com/document_detail/2584339.html?spm=a2c4g.2584853.0.0.38961d2ccLtRQQ) 中创建项目项目，并获取相关参数。
+:::
+
+## SDK 集成
+
+- 编辑 Podfile 文件，添加如下配置：
+
+```objectivec
+pod 'RXAliCloudDNSSDK'
+```
+
+## 初始化 RXAliCloudDNSSDK
+:::warning
+在 [SDK 初始化方法](/docs/v3.5/入门指南/快速开始/iOS初始化/快速开始) 之前调用。
+:::
+
+**接口原型**
+
+```objectivec
+/**
+ * 初始化方法
+ * accountID appkey
+ * secretKey 秘钥
+ * debug 调试日志模式，YES开启，NO关闭，默认NO
+ */
+- (void)initWithAccountID:(int)accountID secretKey:(NSString *)secretKey debug:(BOOL)debug;
+```
+
+**调用示例**
+
+```objectivec
+- (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions {
+    
+    [[RXAliCloudDNSSDKService sharedSDK] initWithAccountID:your account id secretKey:@"your secretKey" debug:YES];
+    
+    return YES;
+}
+```
+
+## 开启RXAliCloudDNSSDK
+
+在调用主库初始化设置时，将**isUseDNS**设置为YES：
+```objectivec
+RXSdkInitConfig *config = [[RXSdkInitConfig alloc] init];
+config.productId = @"your product id";
+config.channelId = @"your channel id";
+config.cpId = @"your cpId";
+config.baseUrlList = @[@"your base url"];
+config.isUseDNS = YES;//打开DNS开关
+[[RXService sharedSDK] initWithConfig:config complete:^(NSDictionary * _Nullable response, RX_CommonRequestError * _Nullable error) {
+    if (!error) {
+        NSLog(@"初始化成功");
+    } else {
+        NSLog(@"初始化失败");
+    }
+}];
+```
+
+## 设置region节点
+如果APP需要在海外环境使用HTTPDNS，为了提升解析效率，可以主动设置本SDK的启动服务节点。设置节点后，SDK会使用该节点进行域名解析和进行随后的调度节点列表更新。
+:::warning
+在 DNS 初始化前调用。
+:::
+
+**接口原型**
+
+```objectivec
+/**
+ * 指定region，指定后会读取该region对应配置作为初始化配置
+ * @param region 需要指定的region，缺省为中国大陆
+ */
+- (void)setRegion:(NSString *)region;
+```
+
+**调用示例**
+
+```objectivec
+- (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions {
+    
+    [[RXAliCloudDNSSDKService sharedSDK] setRegion:@"所需节点"];
+    [[RXAliCloudDNSSDKService sharedSDK] initWithAccountID:your account id secretKey:@"your secretKey" debug:YES];
+    
+    return YES;
+}
+```
+
+> region 说明
+
+| region | 说明 |
+| --- | --- |
+| cn | 中国大陆 |
+| hk | 中国香港 |
+| sg | 新加坡 |
+| de | 德国 |
+| us | 美国 |

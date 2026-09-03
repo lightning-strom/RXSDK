@@ -1,0 +1,165 @@
+---
+sidebar_position: 1
+title: 服务端接口
+description: "望舒SDK 三方服务 服务端接口服务端文档，提供接口请求参数与响应说明。"
+---
+:::info[文档说明]
+本渠道当前仅提供配置说明，暂无独立的客户端 SDK 接入文档。
+如需了解各渠道覆盖能力，请查看 [渠道矩阵](/docs/开发者文档/三方服务/渠道矩阵)。
+:::
+
+
+
+## 检测用户社媒建联状态
+
+> **POST：** `/v1/thirdparty/service_api/check_social_bind`
+>
+> **认证方式：** [CPSign](/docs/开发者文档/入门指南/服务端接入须知)
+
+### CURL 示例
+
+```bash
+curl --location --request POST '{{接口域名}}/v1/thirdparty/service_api/check_social_bind' \
+--header 'ruixue-language: {{语言}}' \
+--header 'ruixue-cpid: {{CPID}}' \
+--header 'ruixue-productid: {{产品标识}}' \
+--header 'ruixue-cpts: {{时间戳}}' \
+--header 'ruixue-traceid: {{TraceID}}' \
+--header 'ruixue-cpsign: {{请求签名}}' \
+--header 'ruixue-devicecode: {{设备码}}' \
+--header 'ruixue-channelid: {{渠道标识}}' \
+--header 'ruixue-platformid: {{平台标识}}' \
+--header 'Content-Type: application/json' \
+--data-raw '{
+ "open_id" : "rxu1234567890"
+}'
+```
+
+### 请求参数（JSON）
+
+
+| 字段 | 类型 | 是否必填 | 说明 |
+| --- | --- | --- | --- |
+| open_id | String | 是 | 望舒 openid |
+| language | String | 否 | 语言 |
+| accounts | []String | 否 | 媒体账号 |
+
+
+### 枚举值（language）
+
+| code | 说明 |
+| --- | --- |
+| zh | 中文简体 |
+| tc | 中文繁体 |
+| en | 英语 |
+| ja | 日文 |
+| th | 泰文 |
+| vi | 越南文 |
+| tl | 菲律宾语 |
+| id | 印尼语 |
+| ar | 阿拉伯语 |
+
+**请求示例**
+
+```json
+{
+ "open_id" : "rux***********",
+ "language": "zh",
+ "accounts": ["line***", "whatsapp***"]
+}
+```
+
+### 响应参数（JSON)
+
+**HTTP 状态码：**`200 OK`
+
+| 字段 | 类型 | 是否必填 | 说明 | 示例 |
+| --- | --- | --- | --- | --- |
+| code | Number | 是 | 响应状态码， 0 为成功，非 0 表示出错 | 0 |
+| msg | String | 否 | 响应信息，仅在 code 非 0 时返回 | data |
+| Node | 否 | 响应信息，仅在 code 非 0 时返回 |  |  |
+
+#### Node
+
+
+| 字段 | 类型 | 是否必填 | 说明 |
+| --- | --- | --- | --- |
+| open_id | String | 是 | 望舒 openid |
+| cpid | Number | 是 | cpid |
+| bind_status | [][Bind](/docs/开发者文档/登录-通行证/服务端接入/服务端-API) | 否 | 建联状态 |
+| redirect_urls | [][Redirect](/docs/开发者文档/登录-通行证/服务端接入/服务端-API) | 是 | 跳转链接 |
+
+
+##### Bind
+
+
+| 字段 | 类型 | 是否必填 | 说明 |
+| --- | --- | --- | --- |
+| account | String | 是 | 媒体账号 |
+| bind_status | Number | 是 | 建联状态 |
+| Number | 是 | 建联状态 | 1:建联 |
+
+
+##### Redirect
+
+
+| 字段 | 类型 | 是否必填 | 说明 |
+| --- | --- | --- | --- |
+| source | String | 是 | 媒体 |
+| LINE / WhatsApp / Messenger | account | String | 是 |
+| 媒体账号 | link | String | 是 |
+| 跳转链接 | language | String | 是 |
+| 语言 |  |  |  |
+
+
+**响应示例**
+
+```json
+{
+ "data": {
+ "open_id": "o5Wfv67m8b3fBLp_vJXKDGleKmGg",
+ "cpid": 114,
+ "binds": [
+ {
+ "account": "LINE+ID",
+ "bind_status": 1
+ }
+ ],
+ "redirects": [
+ {
+ "source": "WhatsApp",
+ "account": "000",
+ "link": "https://wa.me/000/?text=%5BCPID%3A114%26OPENID%3Ar5fSPaBz7yKgnumbdm1jfa%2F25jUVaoiq5%2FQdKv3ne2I%3D%26LANGUAGE%3Azh%26ACCOUNT%3A000%5D",
+ "language": "zh"
+ },
+ {
+ "source": "LINE",
+ "account": "444",
+ "link": "https://line.me/R/oaMessage/444/?%5BCPID%3A114%26OPENID%3Ar5fSPaBz7yKgnumbdm1jfa%2F25jUVaoiq5%2FQdKv3ne2I%3D%26LANGUAGE%3Azh%26ACCOUNT%3A444%5D1",
+ "language": "zh"
+ },
+ {
+ "source": "Messenger",
+ "account": "PAGE-NAME",
+ "link": "http://m.me/PAGE-NAME?text=%5BCPID%3A114%26OPENID%3Ar5fSPaBz7yKgnumbdm1jfa%2F25jUVaoiq5%2FQdKv3ne2I%3D%26LANGUAGE%3Azh%26ACCOUNT%3APAGE-NAME%5D%E4%B8%AD%E6%96%87%E7%AE%80%E4%BD%93%0A%E4%B8%AD%E6%96%87%E7%AE%80%E4%BD%93%0A%E4%B8%AD%E6%96%87%E7%AE%80%E4%BD%93%0A",
+ "language": "zh"
+ },
+ {
+ "source": "WhatsApp",
+ "account": "13694000445",
+ "link": "https://wa.me/13694000445/?text=%5BCPID%3A114%26OPENID%3Ar5fSPaBz7yKgnumbdm1jfa%2F25jUVaoiq5%2FQdKv3ne2I%3D%26LANGUAGE%3Azh%26ACCOUNT%3A13694000445%5D%E4%B8%AD%E6%96%87%E7%AE%80%E4%BD%93%0A%E4%B8%AD%E6%96%87%E7%AE%80%E4%BD%93%0A",
+ "language": "zh"
+ },
+ {
+ "source": "LINE",
+ "account": "LINE ID",
+ "link": "https://line.me/R/oaMessage/LINE ID/?%5BCPID%3A114%26OPENID%3Ar5fSPaBz7yKgnumbdm1jfa%2F25jUVaoiq5%2FQdKv3ne2I%3D%26LANGUAGE%3Azh%26ACCOUNT%3ALINE+ID%5D%E4%B8%AD%E6%96%87%E7%AE%80%E4%BD%93%0A",
+ "language": "zh"
+ }
+ ]
+ },
+ "code": 0
+}
+```
+
+---

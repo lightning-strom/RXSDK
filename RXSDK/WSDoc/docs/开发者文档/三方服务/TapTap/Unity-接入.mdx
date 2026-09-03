@@ -1,0 +1,59 @@
+---
+sidebar_position: 2
+title: Unity 接入
+description: "望舒SDK 三方服务 Unity 接入文档，提供详细的功能说明与接入指引。"
+---
+
+## SDK集成
+
+打开 mainTemplate.gradle 文件，在 dependencies 中新增：
+
+
+:::tip[版本说明]
+`version` 为 SDK 版本号（替换为实际版本号），最新版本请从 [更新日志](/docs/开发者文档/入门指南/更新日志/Unity) 中查看。
+:::
+
+```groovy
+ //taptap，渠道库必接一个
+ implementation 'com.ruixue:rxsdk_taptap:${version}'
+```
+
+## 配置说明
+
+```csharp
+Dictionary<string, object> map = new();
+map.Add("client_id", "");
+map.Add("client_token", "");
+RuiXueSdk.InitThirdSdk(map, InitThirdSdkResponseDelegate, InitThirdSdkErrorDelegate);
+
+public void InitThirdSdkResponseDelegate(string data)
+{
+    LogUtil.Log("EventManager", $"RequestResponseDelegate: {data}");
+}
+public void InitThirdSdkErrorDelegate(string data)
+{
+    LogUtil.Log("EventManager", $"RequestErrorDelegate: {data}");
+}
+```
+
+## 支付
+
+到账后上报支付金额（`amount` 单位：分）。支付成功后，CP 应在服务端确认到账后主动上报，否则未成年人充值限制无效。
+
+```csharp
+public void OnSubmitChannelPayment()
+{
+    // 单位：分。建议在服务端确认到账后调用，用于渠道合规充值金额上报。
+    RuiXueSdk.SubmitChannelPayment(100, SubmitChannelPaymentResponseDelegate, SubmitChannelPaymentErrorDelegate);
+}
+
+private void SubmitChannelPaymentResponseDelegate(string data)
+{
+    LogUtil.Log("EventManager", $"SubmitChannelPayment: {data}");
+}
+
+private void SubmitChannelPaymentErrorDelegate(string error)
+{
+    LogUtil.Log("EventManager", $"SubmitChannelPayment Error: {error}");
+}
+```

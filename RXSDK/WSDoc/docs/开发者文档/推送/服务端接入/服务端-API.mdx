@@ -1,0 +1,142 @@
+---
+sidebar_position: 2
+title: 服务端 API
+description: "望舒SDK 消息推送 服务端 API服务端文档，提供接口请求参数与响应说明。"
+---
+
+## 发送推送消息
+
+> **POST：** `/v1/pusher/push/push`
+>
+> **认证方式：** [CPSign](/docs/开发者文档/入门指南/服务端接入须知)
+
+### CURL 示例
+
+```bash
+curl --location --request POST '{{接口域名}}/v1/pusher/push/push' \
+--header 'ruixue-cpid: {{CPID}}' \
+--header 'ruixue-cpts: {{时间戳}}' \
+--header 'ruixue-traceid: {{TraceID}}' \
+--header 'ruixue-productid: {{产品标识}}' \
+--header 'ruixue-channelid: {{渠道标识}}' \
+--header 'ruixue-cpsign: {{请求签名}}' \
+ -d '{"target":{"type":0,"openid":[],"tag":"","alias":[]},"push_info":{"title":"有人抱走了你的猫咪","content":"球球被别人抱走了，快去领回来吧","action":0,"payload":"","classification":0}}' \
+```
+
+**请求示例**
+
+```json
+{
+ "target":{
+ "type":0,
+ "openid":[
+
+ ]
+ },
+ "push_info":{
+ "title":"有人抱走了你的猫咪",
+ "content":"球球被别人抱走了,快去领回来吧",
+ "action":0,
+ "payload":"",
+ "classification":0
+ },
+ "target_user_type":0
+}
+```
+
+### 请求参数（JSON）
+
+| 字段 | 类型 | 是否必填 | 说明 | 示例 |
+| --- | --- | --- | --- | --- |
+| target | [Target Object](/docs/开发者文档/推送/服务端接入/推送常见错误及解决方法) | 是 | 推送目标信息 | push_info |
+| [PushInfo Object](/docs/开发者文档/推送/服务端接入/推送常见错误及解决方法) | 是 | 推送内容 | target_user_type | Number |
+| 否 | 通道类型 0 正式通道 1 测试通道(目前华为、荣耀、[vivo](/docs/开发者文档/推送/服务端接入/推送常见错误及解决方法)、苹果支持) |  |  |  |
+
+ 如果是测试通道 target.type 只允许为 1 类型，以一个 openid 作为标识发送
+
+#### Target
+
+| 字段 | 类型 | 是否必填 | 说明 | 示例 |
+| --- | --- | --- | --- | --- |
+| type | Number | 是 | 推送目标类型可选值有： |  |
+| 0 |  |  |  |  |
+| openid | []String | 否 | 望舒 openid ， target.type = 1/2 时(与 cp_user_id 传其中一个即可) | ["openid1"] |
+
+0 ：向全部用户推送
+
+1 ：以一个用户望舒 openid 作为身份标识向单个用户推送
+
+2 ：以一群用户望舒 openid 作为身份标识向一群用户推送
+
+["openid1","openid2"]
+cp_user_id
+| []String | 否 | 游戏 id ， target.type = 1/2 时（与 openid 传其中一个即可） | ["cp_user_id"] |
+| --- | --- | --- | --- |
+
+##### PushInfo
+
+| 字段 | 类型 | 是否必填 | 说明 | 示例 |
+| --- | --- | --- | --- | --- |
+| title | String | 是 | 推送消息的标题 | "有人抱走了你的猫咪" |
+| content | String | 是 | 推送消息的内容 | "球球被别人抱走了，快去领回来吧" |
+| action | Number | 是 | 推送消息点击后的动作： |  |
+| 0 |  |  |  |  |
+| payload | String | 否 | 推送消息的参数 |  |
+
+0 ：打开 APP 首页
+
+1 ：打开网页
+
+2 ：带参数打开 APP
+
+根据 push_info.action 的值，填写对应参数
+
+push_info.action =1 时填写 打开网页的 url 地址
+
+push_info.action =2 时填写 所携带的参数
+"[https://www.4399.com](https://www.4399.com)"
+
+"roomid=333245"
+classification
+Number
+是
+消息类型
+
+0 营销类消息
+
+1 系统类消息
+0
+
+**响应示例**
+
+```json
+{
+ "data":{
+ "task_id":123456789,
+ "device_type_map":{
+ "apnspush":"success"
+ }
+ },
+ "code": 0
+}
+```
+
+### 响应结构（JSON）
+
+| 字段 | 类型 | 说明 |
+| --- | --- | --- |
+| device_type_map | map[string]string | 仅测试通道返回，标记当前厂商状态 |
+
+#### device_type
+
+| 字段 | 说明 |
+| --- | --- |
+| vivopush | vivo 推送 |
+| huaweipush | 华为推送 |
+| oppopush | oppo 推送 |
+| apnspush | 苹果推送 |
+| harmonypush | 鸿蒙推送 |
+| honorpush | 荣耀推送 |
+| fcmpush | Google 推送 |
+| flymepush | 魅族推送 |
+| xiaomipush | 小米推送 |

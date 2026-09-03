@@ -1,0 +1,126 @@
+---
+sidebar_position: 2
+title: 公众号支付配置说明
+description: "望舒SDK 三方服务 公众号支付配置说明 小游戏 接入文档，提供完整的接口调用说明与示例。"
+---
+
+## 准备工作
+
+微信公众平台：[https://mp.weixin.qq.com/](https://mp.weixin.qq.com/)
+
+望舒系统地址：[企业管理后台中获取望舒地址](/docs/开发者文档/入门指南/准备工作)。
+
+## 微信公众号支付(wxpub)
+
+### 微信支付平台关键信息获取
+
+**微信支付平台获取商户号（ mchid ）**
+
+登录 [微信支付平台](https://pay.weixin.qq.com/) ，位置：**微信支付平台 > 产品中心 > 开发配置>商户信息**。
+
+获取关键配置：商户号。并在支付配置中添加域名授权。
+
+![](https://guanwangyun.oss-cn-beijing.aliyuncs.com/document/tripartite/PwZbbvjwXoygY9xVHJ4cseFpnVc.png)
+
+**微信支付平台获取密钥**
+
+登录 [微信支付平台](https://pay.weixin.qq.com/) ，位置：**微信支付平台 > 账户中心 > API** 安全 > 信息。
+
+获取关键配置：「密钥」
+
+![](https://guanwangyun.oss-cn-beijing.aliyuncs.com/document/tripartite/WacUbNSvSo9EFUxX3MZcAs2TnJd.png)
+
+**微信支付平台确认已关联支付使用的公众号**
+
+![](https://haiqi-ruixue-test.oss-cn-beijing.aliyuncs.com/docOnline/image-1752648102319.png)
+
+![](https://haiqi-ruixue-test.oss-cn-beijing.aliyuncs.com/docOnline/image-1752648152936.png)
+
+**微信公众号获取** `AppID`、`AppSecet`
+
+登录[微信公众平台](https://mp.weixin.qq.com/)，位置：**设置与开发 > 基本配置**。
+
+获取关键配置： `AppID`、`AppSecet`。并添加 JS 接口安全域名和网页授权域名。
+
+获取到的验证文件可以通过望舒的渠道验证文件进行添加验证。[渠道验证文件](/docs/开发者文档/三方服务/三方接入说明)
+
+![](https://guanwangyun.oss-cn-beijing.aliyuncs.com/document/tripartite/LmODbydHPoIwfnxW5LwchzJpnMb.png)
+
+登录[微信公众平台](https://mp.weixin.qq.com/)，位置：**管理 > 开发管理 > 消息推送**。
+
+**配置消息推送** `URL`、`TOKEN` 等参数
+
+![](https://haiqi-ruixue-test.oss-cn-beijing.aliyuncs.com/docOnline/image-1750407342177.png)
+
+![](https://haiqi-ruixue-test.oss-cn-beijing.aliyuncs.com/docOnline/image-1750406238925.png)
+
+URL(服务器地址):望舒首页域名/v1/servicewechat/notify/产品 id/渠道 id
+
+TOKEN:ruixue/通过望舒游戏发行平台首页选择微信小游戏渠道包-客服参数-进行参数复制。
+
+EncodingAESKey(消息加密密钥)：**非明文模式填写的必须和望舒获取的一致。**
+
+数据格式： JSON
+
+![](https://haiqi-ruixue-test.oss-cn-beijing.aliyuncs.com/docOnline/image-1750405808407.png)
+
+### 微信后台域名配置
+
+**微信公众平台域名配置**
+
+登录[微信公众平台](https://mp.weixin.qq.com/)，位置：**设置与开发 > 公众号设置>功能设置**。
+
+添加 js 接口安全域名和网页授权域名（需要把项目初始化的 basrurlList 的域名全部配置到此列表）。
+
+![](https://haiqi-ruixue-test.oss-cn-beijing.aliyuncs.com/1720164386778-image.png)
+
+**微信商户平台域名配置**
+
+登录 [微信支付平台](https://pay.weixin.qq.com/) ，位置：**微信支付平台 > 产品中心 > 开发配置>支付配置**。
+
+添加 JSAPI 支付授权域名（需要把项目初始化的 basrurlList 的域名全部配置到此列表）。
+
+![](https://haiqi-ruixue-test.oss-cn-beijing.aliyuncs.com/1720164525296-image.png)
+
+### 微信公众号IP白名单配置
+
+配置公众号支付时，会展示当前的出口 IP。需要把出口 IP 添加白名单。
+
+![](https://haiqi-ruixue-test.oss-cn-beijing.aliyuncs.com/docOnline/image-1737454536617.png)
+
+### 望舒系统中配置支付信息
+
+#### 使用发送卡片回复订单的方式支持动态参数替换。新方式不使用发送卡片形式时建议自行传递相关参数，不支持内置参数替换。
+
+**创建微信公众号 H5 自动回复卡片**
+
+添加回复开卡片，位置：**消息推送工具 > 微信客服自动推送 。**
+
+关键信息填写方式如下：
+
+| 字段 | 填写内容 |
+| --- | --- |
+| 回复平台 | 全部平台 |
+| 接收类型 | 卡片 |
+| 匹配关键字 | `ruixue_pay_wxpub` （发送卡片回复订单）/`ruixue_pay_wxpub_without_card` （直接回复订单） |
+| 回复类型 | 图文链接 |
+| 标题 | 订单号 `{order_no}` > SDK 内置参数 `{order_no}` 在展示充值图文链接时 会替换为用户的订单号。新方式不支持内置参数替换 需要自行传递 title 和 desc |
+| 描述 | 金额 `{priceYuan}` 元 > SDK 内置参数 `{priceYuan}` 在展示充值图文链接时 会替换为用户的充值金额。新方式不支持内置参数替换需要自行传递 title 和 desc |
+| 跳转链接 | `{url}`> SDK 内置参数`{url}`为卡片跳转地址。 |
+
+
+![](https://guanwangyun.oss-cn-beijing.aliyuncs.com/document/tripartite/Ii8ubsfJ4oG6XpxQ9q2c6dbHnbc.png)
+
+**公众号支付埋点配置（使用发送卡片支付）**
+
+1.配置支付埋点。[埋点配置](/docs/开发者文档/数据分析/iOS-数据分析/快速接入)
+
+2.配置埋点素材和策略。[小游戏分享策略](/docs/开发者文档/三方服务/银联/配置说明)
+
+**添加支付方式**
+
+从微信支付平台、微信公众平台获取 ` 商户号 `、` 密钥 `、`AppID`、`AppSecet` 信息。
+
+复制到望舒系统，位置：**三方账号管理 > 微信公众号支付 > 新建**。
+
+![](https://guanwangyun.oss-cn-beijing.aliyuncs.com/document/tripartite/wechat/pay/pay_pub.png)

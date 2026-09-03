@@ -1,0 +1,81 @@
+---
+title: "推送常见错误及解决方法"
+---
+
+## 苹果
+
+| 错误 |原因  |
+| --- | --- |
+| pkcs12: xxxxxxx | pkcs12 开头的错误是上传的p12证书不对或者密码错误 |
+| x509: xxxxx |  x509: 开头的错误是填写的PEM证书不对或密码错误|
+| BadCollapseId | 折叠标识符超过了允许的最大大小 |
+| BadDeviceToken | 指定的设备令牌无效。验证请求包含有效令牌，并且令牌与环境匹配 |
+| BadExpirationDate | apns-expiration值无效 |
+| BadMessageId |  apns-id值无效|
+| BadPriority | apns-priority值无效 |
+| BadTopic |  apns-topic值无效|
+| DeviceTokenNotForTopic |  设备令牌与指定的主题不匹配|
+| DuplicateHeaders |  重复一个或多个标头|
+| IdleTimeout | 闲置超时 |
+| InvalidPushType | apns-push-type值无效 |
+| MissingDeviceToken |  设备令牌没有在请求路径中指定。验证：path报头是否包含设备令牌|
+| MissingTopic | 请求的apns-topic标头没有指定，是必需的。当使用支持多个主题的证书连接客户端时，apns-topic标头是必需的 |
+| PayloadEmpty | 消息有效负载为空 |
+| TopicDisallowed | 不允许讨论这个话题 |
+| BadCertificate | 证书无效 |
+| BadCertificateEnvironment | 客户端证书适用于错误的环境 |
+| ExpiredProviderToken | 提供者令牌已经过期，应该生成一个新的令牌 |
+| Forbidden | 不允许指定的操作 |
+|  InvalidProviderToken | 提供者令牌无效，或者无法验证令牌签名 |
+| MissingProviderToken | 没有使用提供者证书连接到apn，并且缺少授权头或没有指定提供者令牌 |
+| UnrelatedKeyIdInToken | 提供者令牌中的密钥ID与此连接的第一次推送中使用的令牌的密钥ID无关。要使用此令牌，请打开一个新连接 |
+| BadPath | 请求包含无效的：path值 |
+| MethodNotAllowed | 原因：指定的：方法值不是POST |
+| ExpiredToken | 设备令牌已过期 |
+| Unregistered | 对于指定的主题，设备令牌处于非活动状态。没有必要向相同的设备令牌发送进一步的推送，除非你的应用程序检索到相同的设备令牌，请参阅注册您的应用程序与apn |
+| PayloadTooLarge | 消息有效负载太大。有关允许的有效负载大小的信息，请参见向apn发送通知请求中的向apn创建POST请求 |
+| TooManyProviderTokenUpdates | 提供者的身份验证令牌更新得太频繁。每20分钟更新一次身份验证令牌 |
+|  TooManyRequests| 连续向同一个设备令牌发出太多请求 |
+| InternalServerError | 发生内部服务器错误 |
+| ServiceUnavailable | 服务不可用 |
+| Shutdown | APNs服务器正在关闭 |
+
+## firebase
+
+| 错误 |原因  |
+| --- | --- |
+| messaging/invalid-argument | 向 FCM 方法提供的参数无效。错误消息中应包含更多信息 |
+| messaging/invalid-recipient | 预期的消息接收者无效。错误消息中应包含更多信息 |
+| messaging/invalid-payload | 提供的消息载荷对象无效。错误消息中应包含更多信息 |
+| messaging/invalid-data-payload-key | 数据消息载荷包含无效键。如需了解受限制的键，请参阅 DataMessagePayload 的参考文档 |
+| messaging/payload-size-limit-exceeded | 提供的消息载荷超出了 FCM 大小限制。对于大多数消息，此限制为 4096 字节。对于发送到主题的消息，此限制为 2048 字节。键和值都会计入载荷总大小 |
+| messaging/invalid-options | 提供的消息选项对象无效。错误消息中应包含更多信息 |
+| messaging/invalid-registration-token | 提供的注册令牌无效。请确保它与客户端应用在注册 FCM 时获得的注册令牌相符。不要截断该值，也不要添加额外字符 |
+| messaging/registration-token-not-registered | 提供的注册令牌未注册。以前有效的注册令牌可能会因多种原因而被取消注册，其中包括：客户端应用从 FCM 自行取消注册。客户端应用被自动取消注册。如果用户卸载该应用，或者在 Apple 平台中 APNs 反馈服务报告称 APNs 令牌无效，就可能会发生这种情况。注册令牌已过期。例如，Google 可能决定更新注册令牌，或 Apple 设备的 APNs 令牌可能已过期。客户端应用已更新，但新版本未配置为接收消息。对于所有这些情况，请移除此注册令牌，并停止用其发送消息 |
+| messaging/invalid-package-name | 消息被发送至软件包名称与提供的 restrictedPackageName 选项不匹配的注册令牌 |
+| messaging/message-rate-exceeded | 向特定目标发送消息的频率过高。请减少发送到此设备或主题的消息数，且不要立即再次尝试向此目标发送消息 |
+| messaging/device-message-rate-exceeded | 向特定设备发送消息的频率过高。请减少发送到此设备的消息数，且不要立即再次尝试向此设备发送消息 |
+| messaging/topics-message-rate-exceeded | 向特定主题的订阅者发送消息的频率过高。 请减少发送到相应主题的消息数，且不要立即再次尝试向相应主题发送消息 |
+| messaging/too-many-topics | 注册令牌订阅的主题数量已达到上限，无法订阅更多主题 |
+| messaging/invalid-apns-credentials | 无法向 Apple 设备发送消息，因为所需的 APNs SSL 证书尚未上传或已过期。请检查您的开发和生产环境证书是否有效 |
+| messaging/mismatched-credential |  用于对此 SDK 进行身份验证的凭据无权向所提供的注册令牌对应的设备发送消息。请确保相应凭据和注册令牌均属于同一个 Firebase 项目。如需查看有关如何对 Firebase Admin SDK 进行身份验证的文档，请参阅将 Firebase 添加到您的应用|
+| messaging/authentication-error | SDK 无法向 FCM 服务器验证身份。请务必使用具有发送 FCM 消息相应权限的凭据对 Firebase Admin SDK 进行身份验证。如需查看有关如何对 Firebase Admin SDK 进行身份验证的文档，请参阅将 Firebase 添加到您的应用 |
+| messaging/server-unavailable | FCM 服务器无法及时处理请求。您应该重试同一个请求，但必须：如果 FCM 连接服务器发出的响应中包含 Retry-After 标头，则应在该标头指明的间隔后重试。在您的重试机制中实现指数退避。例如，如果等待一秒钟后进行第一次重试，则至少要等待两秒钟再进行下一次重试，然后等待四秒钟，并继续增加等待时间。果您要发送多条消息，请分别将每条消息额外延迟随机时长，从而避免同时发出所有消息的新请求。导致出现问题的发送者有可能会被列入屏蔽名单 |
+| messaging/internal-error | FCM 服务器在尝试处理请求时遇到错误。您可按照之前的 messaging/server-unavailable 行中列出的要求重试同一请求。如果错误持续存在，请向我们的错误报告支持渠道报告该问题 |
+| messaging/unknown-error | 返回了未知的服务器错误。如需了解详情，请参阅错误消息中的原始服务器响应。如果您看到此错误，请向我们的错误报告支持渠道报告完整的错误消息 |
+
+## 魅族
+
+## 鸿蒙
+
+## 荣耀
+
+## 华为
+
+## oppo
+
+## vivo
+
+## 微信
+
+## 小米

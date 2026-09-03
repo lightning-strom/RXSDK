@@ -1,0 +1,238 @@
+---
+title: "Unity快速接入"
+---
+
+### 接入方式
+* Package Manager 导入 RuiXue.Uwa
+
+### UWA调用方式
+:::tip
+- 接入UWA需要调用**UWA初始化**与**UWA获取性能数据上报**两个方法。
+- 这两个方法需要在**望舒SDK初始化成功后的回调方法中**进行调用。(其中**UWA初始化方法**并不一定需要在望舒SDK初始化成功的回调方法中调用，但必须保持在**UWA获取性能数据并上报**方法之前调用)。
+:::
+**调用示例**
+```csharp
+   public void initSuccess()
+   {
+       UWAGPM.StaticInit(
+            "your url", 
+            "your appID", 
+            "your version",
+            "your channel",
+            debug: false
+        );
+        PerformManceReport.PerformReport();
+   }
+```
+
+### UWA初始化
+
+**接口原型**
+
+```csharp
+    /// <summary>
+    /// Initializes the GPM SDK.
+    /// </summary>
+    /// UWA注册后下发的url
+    /// UWA注册后下发的appID
+    /// UWA版本号
+    /// UWA渠道
+    /// 是否为调试模式，默认为false
+    public static void StaticInit(string url, string appID, string appVersion, string channel = "", bool debug = false);
+```
+
+**调用示例**
+
+```csharp
+    public void initUWA()
+    {
+        UWAGPM.StaticInit(
+            "your url", 
+            "your appID", 
+            "your version",
+            "your channel",
+            debug: false
+        );
+
+    }
+```
+
+### UWA获取性能数据并上报
+:::tip
+- UWA性能数据收集上报时间间隔需在望舒管理平台进行配置
+- UWA获取性能数据并上报的方法，必须要在望舒SDK初始化成功后进行调用，方可生效。
+:::
+**接口原型**
+
+```csharp
+    public static void PerformReport();
+```
+
+**调用示例**
+
+```csharp
+    public void startUWAReport()
+    {
+        PerformManceReport.PerformReport();
+    }
+```
+
+### UWA其他方法
+#### 获取注册状态
+:::
+**接口原型**
+
+```csharp
+    //获取注册状态，返回1时表示成功
+    public static int GetRegisterState();
+```
+
+**调用示例**
+
+```csharp
+    RuiXueUWAGPM.GetRegisterState();
+```
+
+#### 切换场景操作
+:::
+**接口原型**
+
+```csharp
+    //GPM 支持针对场景的异常检测，通过 Unity 接口切换场景时 SDK 将会自动记录，同时也支持通过 API 来切换场景
+    public static void ChangeScene(string sceneName);
+```
+
+**调用示例**
+
+```csharp
+    RuiXueUWAGPM.ChangeScene("test");
+```
+
+#### 设置当前的网络延时
+:::
+**接口原型**
+
+```csharp
+    //设置当前的网络延时（单位毫秒 ms），建议每秒更新一次，该数值会被作为统计项出现在线上报告中。
+    public static void SetNetworkLatency(uint value);
+```
+
+**调用示例**
+
+```csharp
+    RuiXueUWAGPM.SetNetworkLatency(1);
+```
+
+#### 设置当前用户 ID
+:::
+**接口原型**
+
+```csharp
+    //设置当前用户 ID，用于匹配线上用户配置。
+    public static void SetUser(string userId);
+    或
+    public static void SetUserId(string userId);
+```
+
+**调用示例**
+
+```csharp
+    RuiXueUWAGPM.SetUser("your userid");
+    或
+    RuiXueUWAGPM.SetUserId("your userid");
+    
+```
+
+#### 设置当前的画质等级
+:::
+**接口原型**
+
+```csharp
+    //设置当前的画质等级，传入参数为整数，可以根据实际情况自行拟定数值。
+    public static void SetQuality(int quality);
+```
+
+**调用示例**
+
+```csharp
+    RuiXueUWAGPM.SetQuality(1);
+```
+
+#### 标记场景加载开始
+:::
+**接口原型**
+
+```csharp
+    //标记场景加载开始，注意开启和结束需要成对调用，多余的调用将会无效。
+    public static void BeginSceneLoad(string sceneName);
+```
+
+**调用示例**
+
+```csharp
+    RuiXueUWAGPM.BeginSceneLoad("test");
+```
+
+#### 标记场景加载结束
+:::
+**接口原型**
+
+```csharp
+    //标记场景加载结束，注意开启和结束需要成对调用，多余的调用将会无效。
+    public static void EndSceneLoad();
+```
+
+**调用示例**
+
+```csharp
+    RuiXueUWAGPM.EndSceneLoad();
+```
+
+#### 标记数据忽略区间
+:::
+**接口原型**
+
+```csharp
+    //标记数据忽略区间。注意开启和结束需要成对调用，多余的调用将会无效。
+    public static void BeginIgnore();
+    
+    public static void EndIgnore()
+```
+
+**调用示例**
+
+```csharp
+    RuiXueUWAGPM.BeginIgnore();
+    
+    RuiXueUWAGPM.EndIgnore();
+```
+
+#### 获取 SDK 当前的运行数据
+:::
+**接口原型**
+
+```csharp
+    //获取 SDK 当前的运行数据，未获取到的指标会返回 0 值，具体支持的指标数据见SDKMetricType 枚举类型的定义。
+    public static float GetSDKData(UWAGPM.SDKMetricType type);
+```
+
+**调用示例**
+
+```csharp
+    RuiXueUWAGPM.GetSDKData(UWAGPM.SDKMetricType.CPUTEMP);
+```
+
+#### 设置屏幕截图比例
+:::
+**接口原型**
+
+```csharp
+    //设置屏幕截图比例
+    public static void SetScreenShotRatio(float ratio);
+```
+
+**调用示例**
+
+```csharp
+    RuiXueUWAGPM.SetScreenShotRatio(1);
+```

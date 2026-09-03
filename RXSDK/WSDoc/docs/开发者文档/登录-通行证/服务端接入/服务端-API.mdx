@@ -1,0 +1,2677 @@
+---
+sidebar_position: 1
+title: 服务端 API
+description: "望舒SDK 登录通行证 服务端 API服务端文档，提供接口请求参数与响应说明。"
+unlisted: true
+---
+
+## 登录注册
+
+### 注册
+
+> **POST：** `/v1/passport/account/register`
+>
+> **认证方式：无**
+
+#### CURL示例
+
+```bash
+curl --location --request POST '{{接口域名}}/v1/passport/account/register' \
+--header 'ruixue-language: {{语言}}' \
+--header 'ruixue-cpid: {{CPID}}' \
+--header 'ruixue-productid: {{产品标识}}' \
+--header 'ruixue-cpts: {{时间戳}}' \
+--header 'ruixue-traceid: {{TraceID}}' \
+--header 'ruixue-cpsign: {{请求签名}}' \
+--header 'ruixue-devicecode: {{设备码}}' \
+--header 'ruixue-channelid: {{渠道标识}}' \
+--header 'ruixue-platformid: {{平台标识}}'
+-d '{"captcha_code":"0651","password":"xxxxx","username":"19877771111"}'
+```
+
+#### 请求参数（JSON）
+
+
+| 字段 | 类型 | 是否必填 | 说明 |
+| --- | --- | --- | --- |
+| captcha_code | String | 否 | 发送到"username"字段所指地址的，用于注册的验证码。 |
+| sex | Number | 否 | 0 表示女性， 1 表示男性 |
+| distinct_id | String | 是 | 客户端随机生成的 ID ，在用户注册前作为这个用户的唯一标识。 |
+| username | String | 是 | 用户名，可以是手机号，邮箱地址，或者任意其他形式的用户名。 |
+| password | String | 否 | 密码，客户端传的密码，可以是用户输入的密码本身，或者将其经过特定步骤转化的结构。为保护用户隐私，建议将用户输入的密码原文进行 hash 运算后作为 password 参数的值。该值将作为登录接口 password 参数的值。 |
+| nickname | String | 否 | 昵称。 |
+| avatarUrl | String | 否 | 头像地址。 |
+| device | [Device](/docs/开发者文档/用户信息/获取指定用户信息) | 是 | 客户端设备信息。具体结构参考下文 device 结构说明。 |
+| activate | [Activate](/docs/开发者文档/用户信息/获取指定用户信息) | 否 | 激活相关信息，一个设备仅需在第一次调用登录或注册接口需要传递 |
+| user_attrs | Map[String]Any | 否 | 设置大数据用户属性 |
+| user_source | [UserSource](/docs/开发者文档/用户信息/获取指定用户信息) | 否 | 用户推广来源。具体结构参考下文 user_soruce 结构说明。 |
+| migrate_args | 任意合法的 json 类型, 比如 String, Number 等 | 否 | 旧版账号迁移用的参数, 调用 CP account-query 及 account-queryandbind 接口时透传给 CP. |
+| user_transmits | 任意合法的 json 类型, 比如 String, Number 等 | 否 | 透传参数，如果有需要透传给 cp 侧的数据，放到里面，望舒侧在响应时透传给 cp 侧 |
+| ext | Object | 否 | 扩展信息 |
+
+
+##### Device
+
+
+| 字段 | 类型 | 是否必填 | 说明 |
+| --- | --- | --- | --- |
+| idfa | String | 否 | 仅用于 iOS 设备。目前 iOS 系统主流的广告获取设备标识符方式。用户可开启、关闭，每次切换会改变为新的取值。10 以下的版本关闭时也能取到唯一值, >=10 的 iOS 版本关闭时取到的值为 00000000000 ；系统大版本升级（如 11 到 12 ） IDFA 也会发生变化。 |
+| android_id | String | 否 | 仅用于 Android 设备。Android 版本 = 8.0 ，应用签名、用户（即系统上的用户账号）和设备的每个组合都具有唯一的 ANDROID_ID 值，即使系统升级也不变。 |
+| imei | String | 否 | 仅用于 Android 设备。Android 版本 &lt; 6.0 ，只需要 READ_PHONE_STATE 静态权限（安装 App 时即可获取到该权限），即可通过系统 API TelephonyManager#getDeviceId API 获取准确值； 6.0 &lt;= Android 版本 &lt;= 9.0 ， READ_PHONE_STATE 升级为动态权限，安装 App 时不会获得该权限，需要在 App 运行时用户在弹窗确认授权后才可以获取； Android 版本 >= 10.0 ，设备不可变 ID 的隐私保护得到进一步升级，需要 READ_PRIVILEGED_PHONE_STATE 权限才可以获取 IMEI ，而该权限只有系统级别的应用才可以获得，因此一般 App 无法获取到 IMEI。 |
+| oaid | String | 否 | 仅用于 Android 设备。移动安全联盟（简称 MSA ）制定的匿名设备标识符。可用于 android 系统的补充设备标示，通常 android10 以上的国内主流设备都可以获取。具体 OAID 介绍以及最新覆盖厂商范围请详见 MSA 官网：[https://msa-alliance.cn](https://msa-alliance.cn)。 |
+| mac | String | 否 | 仅用于 Android 设备。设备 Mac 地址。 |
+| user_agent | String | 否 | 一种方式获取的 user_agent ，若为空，则取 user-agent header 的值 |
+| user_agent1 | String | 否 | 其他方式获取的 user_agent |
+| user_agent2 | String | 否 | 其他方式获取的 user_agent |
+| ipv4 | String | 否 | 客户端检测到的自身外网 IPv4 地址，如果客户端调用本激活接口时是使用 IPv4 ，则激活接口服务端自动检测客户端的 IPv4 地址用于归因，否则使用此字段传的值。 |
+| ipv6 | String | 否 | 客户端检测到的自身外网 IPv6 地址，如果客户端调用本激活接口时是使用 IPv6 ，则激活接口服务端自动检测客户端的 IPv6 地址用于归因，否则使用此字段传的值。 |
+
+
+##### Activate
+
+| 字段 | 类型 | 是否必填 | 说明 | 示例 |
+| --- | --- | --- | --- | --- |
+| result | Object | 否 | 若调用激活接口成功，则传激活接口返回的 json 信息中的 data 部分。若调用激活接口超时，则传 null 或不传此字段 | args |
+| [SourceAd](/docs/开发者文档/用户信息/获取指定用户信息) | 否 | 若调用激活接口失败，则在此传递激活相关的参数。source_ad 结构参考激活接口文档。 |  |  |
+
+##### SourceAd
+
+| 字段 | 类型 | 是否必填 | 说明 | 示例 |
+| --- | --- | --- | --- | --- |
+| click_id | String | 否 | *若客户端调用激活接口失败，则通过此字段传递用户激活的参数* |  |
+
+##### UserSource
+
+| 字段 | 类型 | 是否必填 | 说明 | 示例 |
+| --- | --- | --- | --- | --- |
+| share | [Share](/docs/开发者文档/用户信息/获取指定用户信息) | 否 | 分享来源信息，仅当是分享用户时才传递这个字段。具体结构参考下文 share 结构说明。 | guide |
+| [Guide](/docs/开发者文档/用户信息/获取指定用户信息) | 否 | 导量来源信息，仅当是导量用户时才传递这个字段。具体结构参考下文 guide 结构说明。 | sub_package | [SubPackage](/docs/开发者文档/用户信息/获取指定用户信息) |
+| 否 | 用户自定义子包标识主要用于 android 分包。 | activity | [Activity](/docs/开发者文档/用户信息/获取指定用户信息) | 否 |
+| 活动来源 |  |  |  |  |
+
+##### Share
+
+
+| 字段 | 类型 | 是否必填 | 说明 |
+| --- | --- | --- | --- |
+| landing_id | String | 否 | 广告推广来源信息。具体结构参考下文 ad 结构说明。 |
+| trigger_id | String | 否 | 埋点 ID。 |
+| trigger_tag | String | 是 | 埋点唯一标识。 |
+| trigger_type | String | 是 | 埋点类型。 |
+| material_type | String | 是 | 分享素材类型。 |
+| material_id | String | 是 | 分享素材类型。 |
+| strategy_type | String | 是 | 策略类型。 |
+| strategy_id | String | 是 | 策略唯一 ID。 |
+| share_time | String | 是 | 分享时间。 |
+| share_type | String | 是 | 游戏客户端自定义的分享类型。 |
+| inviter_region | String | 否 | 分享者所在地区编码。 |
+| inviter_openid | String | 是 | 分享者的望舒 openid。 |
+| inviter_productid | String | 否 | 分享者的产品 ID, 若为空, 则通行证通过 inviter_openid 获取关联信息 |
+| inviter_channelid | String | 否 | 分享者的渠道 ID, 若为空, 则通行证通过 inviter_openid 获取关联信息 |
+| inviter_subchannelid | String | 否 | 分享者的子渠道 ID, 若为空, 则通行证通过 inviter_openid 获取关联信息 |
+
+
+##### Guide
+
+
+| 字段 | 类型 | 是否必填 | 说明 |
+| --- | --- | --- | --- |
+| guide_platform | String | 否 | 导量来源游戏平台。 |
+| guide_app | String | 否 | 导量来源游戏 app 标识。 |
+| subchannelid | String | 否 | 子渠道 ID ，望舒后台统一分配。 |
+
+
+##### SubPackage
+
+| 字段 | 类型 | 是否必填 | 说明 | 示例 |
+| --- | --- | --- | --- | --- |
+| sub_channel_id | String | 否 | 子渠道标识 |  |
+
+##### Activity
+
+
+| 字段 | 类型 | 是否必填 | 说明 |
+| --- | --- | --- | --- |
+| inviter_openid | String | 是 | 分享者的望舒 openid。 |
+| inviter_productid | String | 否 | 分享者的产品 ID, |
+| inviter_channelid | String | 否 | 分享者的渠道 ID |
+| inviter_activity_tag | String | 是 | 分享者的活动标识 |
+| inviter_activity_region | String | 是 | 分享者的活动区域 |
+
+
+**响应示例**
+
+```json
+{
+ "code": 0,
+ "data": {
+ "id": 2031,
+ "openid": "rxuIR2c1N1EdU9s/gkE8I8bEQ==",
+ "inviter_cp_user_id":"邀请人游戏 ID"
+ }
+}
+```
+
+#### 响应结构（JSON）
+
+| 字段 | 类型 | 说明 |
+| --- | --- | --- |
+| code | Number | 状态 等于 0 为正常情况 |
+| data | Data | 响应数据 |
+
+##### Data
+
+| 字段 | 类型 | 说明 |
+| --- | --- | --- |
+| openid | String | 望舒用户 OpenID （区别大小写） |
+| inviter_cp_user_id | String | 邀请人游戏 ID （目前仅注册场景有返回值） |
+
+### 首次登录
+
+> **POST：** `/v1/passport/account/login_by_credential`
+>
+> **认证方式：无**
+
+#### CURL示例
+
+```bash
+curl '{{接口域名}}/v1/passport/account/login_by_credential' \
+ --header "accept: application/json"
+ --header "Charset: UTF-8"
+ --header "Connection: Keep-Alive"
+ --header "Content-Type: application/json; charset=UTF-8"
+ --header 'ruixue-language: {{语言}}' \
+ --header 'ruixue-cpid: {{CPID}}' \
+ --header 'ruixue-productid: {{产品标识}}' \
+ --header 'ruixue-cpts: {{时间戳}}' \
+ --header 'ruixue-traceid: {{TraceID}}' \
+ --header 'ruixue-cpsign: {{请求签名}}' \
+ --header 'ruixue-devicecode: {{设备码}}' \
+ --header 'ruixue-channelid: {{渠道标识}}' \
+ --header 'ruixue-platformid: {{平台标识}}'
+ --header "User-Agent: HTTP/2.0" \
+ -d '{
+ "method":"guest",
+ "distinct_id":"d53e5c1c-b591-24b01b906ea0",
+ "user_source":{
+ "share":{
+ "share_time":"1690269028",
+ "inviter_productid":"11",
+ "landing_id":"11",
+ "trigger_type":"1",
+ "trigger_id":"11",
+ "inviter_channelid":"111",
+ "inviter_subchannelid":"51",
+ "platform":"wechat",
+ "material_type":"link",
+ "inviter_region":"-1",
+ "identity":"nAtpENq4R",
+ "product_id":"264",
+ "action":"share",
+ "rtag":"1111111111",
+ "delay_ts":"xxxxxxx",
+ "cpid":"1000038",
+ "strategy_type":"1",
+ "product_name":"xxxxxxxx",
+ "inviter_openid":"11111111111111111",
+ "share_type":"app",
+ "platform_id":"11",
+ "strategy_id":"11",
+ "material_id":"11",
+ "region":"-1",
+ "trigger_tag":"111111111",
+ "channel_id":"11"
+ }
+ },
+ "activate":{
+
+ },
+ "device":{
+ "user_agent1":"Mozilla\/5.0 (Linux; Android 12; LE2121 Build\/SKQ1.210216.001; wv) AppleWebKit\/537.36 (KHTML, like Gecko) Version\/4.0 Chrome\/95.0.4638.74 Mobile Safari\/537.36",
+ "android_id":"c930a3f158bad0e7",
+ "user_agent":"Dalvik\/2.1.0 (Linux; U; Android 12; LE2121 Build\/SKQ1.210216.001)",
+ "oaid":"d7659540-cdce-4fc5-bafa-e20e48af47e3",
+ "mac":"0e:af:b3:14:65:11"
+ },
+ "ts":1690272885470,
+ "open_source": "1256"
+}'
+```
+
+#### 请求参数（JSON）
+
+
+| 字段 | 类型 | 是否必填 | 说明 |
+| --- | --- | --- | --- |
+| [method](/docs/开发者文档/用户信息/获取指定用户信息) | String | 是 | 登录账号的类型。 |
+| distinct_id | String | 是 | 客户端随机生成的 ID ，在用户注册前作为这个用户的唯一标识，仅需在首次登录时传递。 |
+| username | String | 是 | 已注册账号的用户名。 |
+| password | String | 否 | 密码，其编码规则与注册账号时传递的密码编码规则相同。 |
+| sign_fields | []String | 否 | 指定对登录成功后返回的特定字段, 使用 CPKEY 计算签名. CP 服务器可重新计算签名并与登录返回的签名比对, 作为对望舒登录数据的校验. 支持的字段包括: nickname, avatar, openid, region, sex, age, 计算签名的逻辑会对指定字段进行排序, 此处传参与顺序无关. |
+| device | [Device](/docs/开发者文档/用户信息/获取指定用户信息) | 否 | 客户端设备信息。 |
+| activate | [Activate](/docs/开发者文档/用户信息/获取指定用户信息) | 否 | 激活相关信息，一个设备仅需在第一次调用登录或注册接口是需要传递 |
+| user_attrs | Map[String]Any | 否 | 设置大数据用户属性，仅对本次登录新注册的用户有效 |
+| user_source | [UserSource](/docs/开发者文档/用户信息/获取指定用户信息) | 否 | 用户推广来源，当 method 不为 "username"，且 ext 指定的三方账号时首次登录时，用于标记新注册账号的推广来源。 |
+| ext | [Ext](/docs/开发者文档/用户信息/获取指定用户信息) | 否 | 三方账号授权信息。每种 method ，都有对应的 ext 结构类型。各种 method 对应的 ext 结构的定义见下文。[method](/docs/开发者文档/用户信息/获取指定用户信息) |
+| user_transmits | 任意合法的 json 类型, 比如 String, Number 等 | 否 | 透传参数，如果有需要透传给 cp 侧的数据，放到里面，望舒侧在响应时透传给 cp 侧 |
+| device_info | Number | 否 | 是否下发设备关联账号信息 |
+
+
+0:不获取 1:获取
+
+
+#### method 及其对应的 ext 结构:
+
+##### virtual
+
+其**ext**结构如下
+
+
+| 字段 | 类型 | 是否必填 | 说明 |
+| --- | --- | --- | --- |
+| logindata | String | 否 | CP 账号的部分信息，使用产品包的 AppKey 加密，参考 [logindata 加密规则](/docs/开发者文档/用户信息/获取指定用户信息) |
+| regtime | String | 否 | 注册日期，格式为 "2006-01-02 15:04:05"。 |
+| nickname | String | 否 | 昵称。 |
+| avatar | String | 否 | 头像地址。 |
+| sex | Number | 否 | 性别。 |
+
+
+##### logindata加密规则
+
+构造如下 json object 数据
+
+| 字段 | 类型 | 是否必填 | 说明 | 示例 |
+| --- | --- | --- | --- | --- |
+| ext | String | 是 | 当前登录用户的 CP 方唯一标识，须为数值型的字符串，如 "100" |  |
+
+如 `{"ext":"100"}`记这一 json object 数据的 utf8 编码为字节数组 A。
+
+将字节数组 A 进行 padding ，使其为 16 字节的整数倍（补 1 至 16 个字节），其中最后一个字节为所补字节数对应的 byte 值。比如 json 数据本身有 13 个字节，则补充 3 个字节，其中最后一个字节是 0x03。得到字节数组 B。
+
+使用 AES 算法（ CBC mode ）对字节数组 B 进行加密，使用对应产品包的 appkey 作为 key （望舒的 appkey 是 32 个字符的字符串，该字符串的 ASCII/utf8 编码的 32 字节内存结构即为 AES key ，因此使用的是 256 bits length 的 key ）， appkey 的前 16 字节作为 IV。得到一个新的字节数组 C。
+
+将字节数组 C 转化为 base64 的字符串形式，作为 logindata 数据传递
+
+其 **ext** 结构如下：
+
+##### captchacode
+
+其 **ext** 结构如下：
+
+手机/邮箱验证码登录， username 可为手机号或者邮箱地址
+
+| 字段 | 类型 | 是否必填 | 说明 | 示例 |
+| --- | --- | --- | --- | --- |
+| captcha_code | String | 是 | 用途为 login 的验证码 |  |
+
+**guest**
+
+登录游客账号无需传递 ext 参数，游客登录所需的设备码信息，取自 ruixue-devicecode 请求头。
+
+**username**
+
+登录普通账号参数无需传递 ext 参数。
+
+##### quickphone
+
+其 **ext** 结构如下：
+
+| 字段 | 类型 | 是否必填 | 说明 | 示例 |
+| --- | --- | --- | --- | --- |
+| access_token | String | 是 | 阿里 Access Token。 |  |
+
+##### wechat
+
+其 **ext** 结构如下：
+
+| 字段 | 类型 | 是否必填 | 说明 | 示例 |
+| --- | --- | --- | --- | --- |
+| code | String | 是 | 微信 OAuth2.0 授权码。 |  |
+
+##### minigame
+
+注：微信小游戏登录无法获取性别信息，除非用户在用微信小游戏注册账号后手动设置性别，否则登录接口返回的性别是 -1 ，表示未知。
+
+其 **ext** 结构如下：
+
+
+| 字段 | 类型 | 是否必填 | 说明 |
+| --- | --- | --- | --- |
+| code | String | 是 | 微信临时登录凭证 code。 |
+| version | String | 否 | 登录类型，"base" |
+| "normal"，默认为 "normal"。version = "base" 时只通过 code 获取 openid 等用户唯一标识信息，以及支付需要用到的 session key ； version = "normal" 时还需传递下列其他字段，同步微信的用户个人信息。 | encryptedData | String | 否 |
+| 微信用户加密信息。 | iv | String | 否 |
+| 用于加密 encryptedData 的 AES Initial Vector 信息。 |  |  |  |
+
+
+##### mobileqq
+
+其 **ext** 结构如下：
+
+
+| 字段 | 类型 | 是否必填 | 说明 |
+| --- | --- | --- | --- |
+| code | String | 是 | QQ OAuth2.0 授权码。 |
+| version | String | 否 | 登录类型，为 "base" 时只通过 code 换取 openid 等用户唯一标识信息，否则还需传递下列其他字段，同步 QQ 的用户个人信息。 |
+| encryptedData | String | 否 | QQ 用户加密信息。 |
+| iv | String | 否 | 用于加密 encryptedData 的 AES Initial Vector 信息。 |
+
+
+##### ysdk
+
+其 **ext** 结构如下：
+
+
+| 字段 | 类型 | 是否必填 | 说明 |
+| --- | --- | --- | --- |
+| from | String | 是 | 用户登录应用宝的账号类型。"qq", "wechat"，分别表示用户使用 QQ 账号和微信账号登录应用宝。 |
+| openid | String | 是 | 应用宝用户 openid。 |
+| nickname | String | 否 | 昵称。 |
+| avatar | String | 否 | 头像地址。 |
+
+
+##### kuaishou
+
+其 **ext** 结构如下：
+
+
+| 字段 | 类型 | 是否必填 | 说明 |
+| --- | --- | --- | --- |
+| game_id | String | 是 | 游戏应用在快手的唯一标识。 |
+| game_token | String | 是 | 快手用户 access token。 |
+
+
+##### apple
+
+其 **ext** 结构如下：
+
+
+| 字段 | 类型 | 是否必填 | 说明 |
+| --- | --- | --- | --- |
+| user | String | 是 | 苹果用户唯一标识。 |
+| nickname | String | 否 | 昵称。 |
+
+
+##### baidunet
+
+其 **ext** 结构如下：
+
+| 字段 | 类型 | 是否必填 | 说明 | 示例 |
+| --- | --- | --- | --- | --- |
+| access_token | String | 是 | 百度网讯用户 access token。 |  |
+
+##### huawei
+
+其 **ext** 结构如下：
+
+
+| 字段 | 类型 | 是否必填 | 说明 |
+| --- | --- | --- | --- |
+| playerId | String | 是 | 华为用户唯一 ID。 |
+| displayName | String | 否 | 华为用户昵称。 |
+
+
+##### hwjos
+
+其 **ext** 结构如下：
+
+
+| 字段 | 类型 | 是否必填 | 说明 |
+| --- | --- | --- | --- |
+| playerId | String | 是 | 华为用户唯一 ID。 |
+| displayName | String | 否 | 华为用户昵称。 |
+| openid | String | 是 | 新版华为接口的用户唯一标识。若为空，则使用旧版华为接口的逻辑，需要提供下列 ts ， playerLevel ， playerSign 参数进一步校验。 |
+| ts | String | 否 | 客户端调用华为 sdk 获取的 ts 信息。 |
+| playerLevel | String | 否 | 客户端调用华为 sdk 获取的 playerLevel 信息。 |
+| playerSign | String | 否 | 客户端调用华为 sdk 获取的 playerSign 信息。 |
+
+
+##### hihonor
+
+其 **ext** 结构如下：
+
+
+| 字段 | 类型 | 是否必填 | 说明 |
+| --- | --- | --- | --- |
+| openid | String | 是 | 荣耀接口的用户唯一标识。 |
+| nickname | String | 否 | 荣耀昵称 |
+| avatar | String | 否 | 荣耀头像 |
+
+
+##### huaweih5
+
+其 **ext** 结构如下：
+
+
+| 字段 | 类型 | 是否必填 | 说明 |
+| --- | --- | --- | --- |
+| playerId | String | 是 | 华为用户唯一 ID。 |
+| displayName | String | 否 | 华为用户昵称。 |
+| ts | String | 否 | 客户端调用华为 sdk 获取的 ts 信息。 |
+| playerLevel | String | 否 | 客户端调用华为 sdk 获取的 playerLevel 信息。 |
+| playerSign | String | 否 | 客户端调用华为 sdk 获取的 playerSign 信息。 |
+
+
+##### mi
+
+其 **ext** 结构如下：
+
+
+| 字段 | 类型 | 是否必填 | 说明 |
+| --- | --- | --- | --- |
+| uid | String | 是 | 小米用户唯一 ID。 |
+| nickname | String | 否 | 昵称。 |
+| session | String | 是 | 小米账号当前 session。 |
+
+
+##### vivo
+
+其 **ext** 结构如下：
+
+
+| 字段 | 类型 | 是否必填 | 说明 |
+| --- | --- | --- | --- |
+| authtoken | String | 是 | vivo 账号 auth token。 |
+| username | String | 否 | vivo 用户名，作为通行证用户的昵称。 |
+
+
+##### oppo
+
+其 **ext** 结构如下：
+
+
+| 字段 | 类型 | 是否必填 | 说明 |
+| --- | --- | --- | --- |
+| ssoid | String | 是 | oppo 用户唯一标识。 |
+| token | String | 是 | oppo 当前登录 token。 |
+
+
+##### meituan
+
+其 **ext** 结构如下：
+
+
+| 字段 | 类型 | 是否必填 | 说明 |
+| --- | --- | --- | --- |
+| code | String | 是 | 美团 OAuth2.0 授权码。 |
+| nickname | String | 否 | 昵称。 |
+| avatarUrl | String | 否 | 头像地址。 |
+
+
+##### douyin
+
+其 **ext** 结构如下：
+
+| 字段 | 类型 | 是否必填 | 说明 | 示例 |
+| --- | --- | --- | --- | --- |
+| access_token | String | 是 | 抖音用户 access token。 |  |
+
+##### douyinh5
+
+其 **ext** 结构如下：
+
+
+| 字段 | 类型 | 是否必填 | 说明 |
+| --- | --- | --- | --- |
+| code | String | 是 | 客户端 tt.login 接口返回的登录凭证 |
+| anonymous_code | String | 否 | 客户端 tt.login 接口返回的匿名登录凭证 |
+
+
+##### facebook
+
+其 **ext** 结构如下：
+
+
+| 字段 | 类型 | 是否必填 | 说明 |
+| --- | --- | --- | --- |
+| id | String | 否 | facebook 用户 ID。 |
+| name | String | 否 | 昵称。 |
+| url | String | 否 | 头像地址。 |
+| gender | String | 否 | 性别。"male" 男性， "female" 女性。 |
+| access_token | String | 是 | facebook [user access token](https://developers.facebook.com/docs/facebook-login/guides/access-tokens#usertokens) |
+| app_associated_bussiness | bool | 是 | facebook 应用是否有关联到 business ，如果有，则允许一个 facebook 用户从（该 business 关联的）多个 facebook 应用登录返回的望舒账号信息相同。如果 facebook 应用未关联 business ，而登录时此字段传 true ，则会返回报错。 |
+
+
+##### google
+
+其 **ext** 结构如下：
+
+| 字段 | 类型 | 是否必填 | 说明 | 示例 |
+| --- | --- | --- | --- | --- |
+| idToken | String | 是 | google 用户当前登录的 ID Token。 |  |
+
+##### taptap
+
+其 **ext** 结构如下：
+
+
+| 字段 | 类型 | 是否必填 | 说明 |
+| --- | --- | --- | --- |
+| access_token | String | 是 | TapTap SDK 获取的 AccessToken 对象中的 access_token 字段信息。 |
+| mac_key | String | 是 | TapTap SDK 获取的 AccessToken 对象中的 mac_key 字段信息。 |
+| scopes | String | 否 | TapTap SDK 获取的 AccessToken 对象中的 scopeSet ，转化为字符串形式，各 scope 用逗号 "," 分隔。表示向用户申请了哪些授权。 |
+
+
+##### bilibili
+
+其 **ext** 结构如下：
+
+
+| 字段 | 类型 | 是否必填 | 说明 |
+| --- | --- | --- | --- |
+| access_token | String | 是 | bilibili 游戏 SDK 登录接口返回的 access_key ，也就是客户端登录接口返回的 access_token |
+| uid | String | 是 | B 站用户 uid |
+
+
+##### line
+
+其 **ext** 结构如下：
+
+| 字段 | 类型 | 是否必填 | 说明 | 示例 |
+| --- | --- | --- | --- | --- |
+| access_token | String | 是 | 客户端调用 line sdk 获取的 access token |  |
+
+##### 4399
+
+其 **ext** 结构如下：
+
+
+| 字段 | 类型 | 是否必填 | 说明 |
+| --- | --- | --- | --- |
+| uid | String | 是 | 用户 id |
+| state | String | 是 | 登录后 SDK 获取的服务端 TOKEN |
+| nickname | String | 否 | 昵称 |
+
+
+##### weile
+
+其 **ext** 结构如下：
+
+
+| 字段 | 类型 | 是否必填 | 说明 |
+| --- | --- | --- | --- |
+| access_token | String | 是 | 微乐游戏用户 access token。 |
+| openid | String | 是 | 微乐游戏用户 openid。 |
+
+
+##### jixiang
+
+其 **ext** 结构如下：
+
+
+| 字段 | 类型 | 是否必填 | 说明 |
+| --- | --- | --- | --- |
+| access_token | String | 是 | 吉祥游戏用户 access token。 |
+| openid | String | 是 | 吉祥游戏用户 openid。 |
+
+
+##### xinyue
+
+其 **ext** 结构如下：
+
+
+| 字段 | 类型 | 是否必填 | 说明 |
+| --- | --- | --- | --- |
+| access_token | String | 是 | 心悦游戏用户 access token。 |
+| openid | String | 是 | 心悦游戏用户 openid。 |
+
+
+##### kele
+
+其 **ext** 结构如下：
+
+
+| 字段 | 类型 | 是否必填 | 说明 |
+| --- | --- | --- | --- |
+| token | String | 是 | 科乐游戏用户授权 token。 |
+| openid | String | 是 | 科乐游戏用户平台 id。 |
+| sign | String | 是 | 科乐登录签名。 |
+
+
+##### zalo
+
+其 **ext** 结构如下：
+
+
+| 字段 | 类型 | 是否必填 | 说明 |
+| --- | --- | --- | --- |
+| oauth_code | String | 是 | zalo 接口返回的登录凭证 |
+| code_verifier | String | 是 | 验签 code |
+
+
+##### minigame_vivo
+
+其 **ext** 结构如下：
+
+
+| 字段 | 类型 | 是否必填 | 说明 |
+| --- | --- | --- | --- |
+| authtoken | String | 是 | vivo 用户授权 token |
+| pkgName | String | 是 | 包名 |
+
+
+##### cpquick
+
+其 **ext** 结构如下：
+
+
+| 字段 | 类型 | 是否必填 | 说明 |
+| --- | --- | --- | --- |
+| uid | String | 是 | 三方登录 UID |
+| ts | String | 是 | 签名时间（秒级），五分钟内有效 |
+| String | 是 | 签名时间（秒级），五分钟内有效 | sign |
+| 是 | 签名 sha1(uid + ts + signKey) |  |  |
+| nickname | String | 否 | 用户昵称 |
+| avatar | String | 否 | 用户头像（ URL 地址） |
+| sex | String | 否 | 性别 0:女 1:男 |
+| realauth | String | 否 | 实名标识 0:未实名 1:已实名 |
+
+
+ signKey 在望舒后台渠道包获取
+
+如果未传或者传 0 ，通行证登录会下发防沉迷标识 [flag](/docs/开发者文档/用户信息/获取指定用户信息)，由游戏控制是否需要弹窗实名
+
+
+##### ext 临时参数
+
+其 **ext** 结构如下：
+
+| 字段 | 类型 | 是否必填 | 说明 | 示例 |
+| --- | --- | --- | --- | --- |
+| device_info | Number | 否 | 是否获取设备关联账号信息 |  |
+| bind_account | Number | 否 | 是否为绑定微信操作 |  |
+| openid | String | 否 | 望舒 openid |  |
+
+0:不获取 1:获取
+
+ 0:否 1:是
+
+条件：请求头传递 ruixue-accesstoken 或者在请求体 ext 下传递 openid 用于锁定绑定的具体用户
+
+响应错误码： 312258
+
+绑定微信操作所需参数
+
+#### 响应结构（JSON）
+
+##### 二次登录响应结构也是这个结构
+
+
+| 字段 | 类型 | 说明 |
+| --- | --- | --- |
+| token | [Token](/docs/开发者文档/用户信息/获取指定用户信息) | 编码当前登录用户信息的 access token 及 refresh token。 |
+| username | String | 用户名。对于手机号类型的用户名，第 4-7 位数字均用 '*' 符号替换；对于邮箱类型的用户名，'@' 符号之前的部分除第一个字符外都用 '*' 符号替换。三方渠道账号，用户名由望舒根据规则生成，不返回给客户端。 |
+| nickname | String | 昵称。 |
+| avatar | String | 头像地址。 |
+| region | String | 地区编码（身份证提取的）。 |
+| sex | Number | 性别:-1 未知 ， 0 表示女性， 1 表示男性。 |
+| ts | Number | 服务器当前时间戳（秒）。 |
+| attr | Number | [账号状态标记，使用位运算构成。](/docs/开发者文档/用户信息/获取指定用户信息) |
+| flag | Number | [账号状态扩展标记，使用位运算构成。](/docs/开发者文档/用户信息/获取指定用户信息) |
+| age | Number | 用户年龄，根据实名信息获取。 |
+| aas | Number | 当 flag 有防沉迷标记时，表示用户剩余游戏时间（秒） |
+| source_channel | String | 用户注册来源类型。"buy" 表示通过买量注册，"share" 表示其他用户分享注册，"guide" 表示通过其他游戏导量注册，"ad" 表示通过广告注册。 |
+| source | String | 区分不同 source_channel 的用户注册具体来源。当 source_channel 为 "buy" 时， source 表示用户通过那个买量计划的广告而来；当 source_channel 为 "share" 时， source 表示分享的埋点；当 source_channel 为 "guide" 时， source 表示导量的游戏标记。 |
+| inviter_openid | String | 当用户是通过分享注册时，表示分享者的望舒 OpenID ，用户属性注册后不变。 |
+| inviter_cp_user_id | String | 邀请人游戏 ID （目前仅注册场景有返回值），用户属性注册后不变。 |
+| tid | String | 使用三方账号时，三方账号的 OpenID。 |
+| method | String | 对应请求参数的 method。当请求参数中 method 为 "username" 时，返回的 method 可能是 "username"，"phone" 或者 "email"，用于区分用户名类型。其他类型的账号，返回的 method 与请求的 method 相同。 |
+| subchannelid | String | 子渠道 ID。 |
+| openid | String | 望舒用户 OpenID ，优先返回新版。注意：望舒 OpenID 区分大小写。 |
+| oldopenid | String | 旧版望舒用户 OpenID ，如果是通行证改为使用新的规则生成 OpenID 之后注册的用户，则旧版 OpenID 为空。 |
+| passport_id | Number | 望舒用户 通行证 ID （只有绑定手机号或者手机号登录方式用户有） |
+| login_openid | String | 用户信息的加密字符串，使用产品包的 appkey 加密。可用于 CP 服务器解密（参考 [login_openid 解密](/docs/开发者文档/用户信息/获取指定用户信息)）获取登录用户的信息，也可用于二次登录。 |
+| login_openid_expire | long | login_openid 有效期，单位 秒，默认 1209600 即 14 天 |
+| password_set | bool | 当前登录的账号是否有设置密码 |
+| ext | ExtObject | 扩展信息。 |
+| fields_sign | String | 根据请求参数中的 sign_fields 字段列表, 将本登录返回数据结构中的相应字段结合 CPKEY 计算的签名, 具体签名规则见下文 [FieldsSign](#fieldssign%E7%AD%BE%E5%90%8D%E8%AE%A1%E7%AE%97%E6%96%B9%E6%B3%95) 签名计算方法. 对于使用 Go 语言的 CP 游戏服务端, 也可直接集成 ruixuego sdk 计算签名, 调用 ruixuego.GetLoginResultSign 即可. |
+| simulator_info | float | 模拟器风险概率 |
+| is_simulator | Bool | 是否为模拟器 |
+| source_info | SourceInfo | 用户来源信息 |
+| share_info | ShareInfo | 用户分享信息（本次请求） |
+| reg_time | Number | 用户注册时间戳秒级（没有值则不提供） |
+| device_info | [DeviceInfo](/docs/开发者文档/用户信息/获取指定用户信息) | 设备关联账号信息（没有值则不提供） |
+
+
+##### ShareInfo
+
+
+| 字段 | 类型 | 说明 |
+| --- | --- | --- |
+| openid | string | 本次请求分享人的望舒 openid （没值则不提供） |
+| cp_user_id | string | 本次请求分享人的游戏 ID （没值则不提供） |
+| trigger_tag | string | 本次请求分享信息埋点标识（没值则不提供） |
+| region | string | 本次请求分享信息地区（没值则不提供） |
+| productid | string | 本次请求分享信息产品 ID （没值则不提供） |
+| channelid | string | 本次请求分享信息渠道 ID （没值则不提供） |
+| subchannelid | string | 本次请求分享信息子渠道 ID （没值则不提供） |
+| landing_tags | string | 本次请求落地页标签多个使用“，”分割（没值则不提供） |
+
+
+##### SourceInfo
+
+| 字段 | 类型 | 说明 | 示例 |
+| --- | --- | --- | --- |
+| live_streamer | LiveStreamer | 直播相关信息（没值则不提供） | ad_source |
+| map[string]any | 透传广告来源标识（没值则不提供） |  |  |
+
+##### DeviceInfo
+
+| 字段 | 类型 | 说明 | 示例 |
+| --- | --- | --- | --- |
+| relation_openid_count | Number | 符合要求的账号数量 （没值则不提供） |  |
+
+##### LiveStreamer
+
+| 字段 | 类型 | 说明 | 示例 |
+| --- | --- | --- | --- |
+| media | string | 类型： xingtu,douyin_union |  |
+
+##### login_openid解密
+
+登录接口返回的 login_openid 信息是包含登录用户信息的加密字符串，使用对应产品包的 appkey 进行加密。为安全起见， CP 服务器不应使用客户端传递的明文 openid ，而应从客户端获取 login_openid。CP 服务器可以使用相应的 appkey 进行解密，获取包括登录用户的 openid 在内用户信息，作为登录用户的唯一标识。如果 CP 服务器使用 go 语言实现，可以使用 ruixuego sdk 对 login_openid 进行解密。参考 [ruixuego/examples/openid](https://github.com/ruixueyun/ruixuego/blob/master/examples/openid/main.go) 里面的例子。简单的说， CP 服务器在初始化的时候需要配置好各产品包（通过 productid ， channelid 关联）对应的 appkey ，然后在收到登录请求的时候，通过当前用户登录的 productid 和 channelid 信息找到关联的 appkey ，并用该 appkey 对客户端从望舒登录接口获取的 login_openid 进行解密，获取 明文 openid 信息。如果 CP 服务器使用其他语言实现，可以按照以下步骤对 login_openid 进行解密：
+
+将 login_openid 进行 base64 解码，得到一个字节数组 A。
+
+使用 AES 算法（ CBC mode ）对字节数组 A 进行解密，使用对应产品包的 appkey 作为 key （望舒的 appkey 是 32 个字符的字符串，该字符串的 ASCII/utf8 编码的 32 字节内存结构即为 AES key ，因此使用的是 256 bits length 的 key ）， appkey 的前 16 字节作为 IV。得到一个新的字节数组 B。
+
+读取 B 的最后一个字节的值，应在 1 至 16 范围内，假设为 p。然后将 B 中末尾 p 个字节移除，得到新的字节数组 C。
+
+字节数组 C 对应一个 utf8 编码的 json object ，其结构如下，将其进行 json 解析即可得到各字段信息
+
+
+| 字段 | 类型 | 说明 |
+| --- | --- | --- |
+| traceid | String | 对应登录请求的唯一标识 |
+| appid | String | 产品 ID |
+| channelid | String | 渠道 ID |
+| method | String | 登录账号类型 |
+| openid | String | 明文望舒 openid |
+| ts | Number | 登录时间戳（毫秒） |
+| accountid | Number | 登录账号 ID |
+
+
+##### token
+
+
+| 字段 | 类型 | 说明 |
+| --- | --- | --- |
+| access | String | access token |
+| access_expire | Number | access token 剩余有效期（秒） |
+| refresh | String | refresh token |
+| refresh_expire | Number | refresh token 剩余有效期（秒） |
+
+
+##### ExtObject
+
+| 字段 | 类型 | 说明 | 示例 |
+| --- | --- | --- | --- |
+| realauthid | string | 实名标识，数据为加密格式加密方式与 login_openid 一致 （没值则不提供） |  |
+
+##### attr标记说明
+
+| 位（ 0 表示最低位） | 备注 |
+| --- | --- |
+| 0 | 是否已实名， 1 表示已实名。对于部分会要求用户实名认证的三方平台，当用其账号登录望舒时，返回的 attr 也会标记为已实名。海外地区所有账号登录也都会标记为已实名。 |
+| 1 | 用户当前是否有绑定手机号， 1 表示有绑定。 |
+| 2 | 用户当前是否有绑定邮箱， 1 表示有绑定。 |
+| 3 | 用户当前是否有已设置密码的登录凭证， 1 表示有。 |
+| 4 | 用户是否通过望舒完成实名认证， 1 表示是。 |
+| 5 | 内部使用 |
+| 6 | 内部使用 |
+| 7 | 内部使用 |
+| 8 | 内部使用 |
+| 9 | 用户是否绑定微信， 1 标识是 |
+
+
+##### flag标记说明
+
+| 位（ 0 表示最低位） | 备注 |
+| --- | --- |
+| 0 | 是否是通过本次登录行为新注册的用户，这里的新用户，是针对当前 CP 而言的，每个新用户对应一个新的望舒 OpenID。1 表示新用户。 |
+| 1 | 当前用户是否受防沉迷控制，未实名用户，或者未成年实名用户，受防沉迷控制。 |
+| 2 | 保留。 |
+| 3 | 是否曾经绑定过手机号。1 表示绑定过。 |
+| 4 | 是否曾经绑定过邮箱。1 表示绑定过。 |
+| 5 | 是否处于注销申请流程中。1 表示是。 |
+| 6 | 是否为测试账号。1 表示是。 |
+
+
+##### FieldsSign签名计算方法
+
+将 sign_fields 指定字段的字段名及其值, 构造成 k1=v1&k2=v2 的 URL Query Params 形式, 其中 key 和 value 都经过必要的 URL 编码, 并根据 key 进行排序.
+
+比如登录时传的 sign_fields 是, ["nickname",“avatar"], 而登录结果返回的信息是
+
+```json
+{
+ "code": 0,
+ "data": {
+ "nickname": "strongman",
+ "avatar": "https://th.strongman.com/th/id/head.png"
+ ...
+ }
+}
+```
+
+则这一步骤将得到:
+
+```groovy
+avatar=https%3A%2F%2Fth.strongman.com%2Fth%2Fid%2Fhead.png&nickname=strongman1114cde09ebe42fd167510c727f57f72
+```
+
+在第一步构造的字符串后面直接拼接 CPKEY.
+
+假设 CPKEY 是 1114cde09ebe42fd167510c727f57f72, 则这一步之后将得到:
+
+```groovy
+avatar=https%3A%2F%2Fth.strongman.com%2Fth%2Fid%2Fhead.png&nickname=strongman1114cde09ebe42fd167510c727f57f72
+```
+
+使用 sha1 算法对以上步骤构造的字符串计算 hash 值, 为 byte 数据. 再将此 byte 数据转为小写 16 进行形式, 得到 fields_sign.
+
+这一步骤, 相当于 go 语言的如下代码:
+
+```go
+h := sha1.New()
+h.Write(source)
+sign := hex.EncodeToString(h.Sum(nil))
+```
+
+这段代码中, source 为经过上面 2 个步骤拼接得到的字符串. hex.EncodeToString 是将 sha1 得到的 []byte 类型的 hash 值, 转为为小写 16 进制的字符串.
+
+使用上面的测试数据, 计算得到的 sign 为 89075c3f9cac9cb65c2b26f7116658925197cdfa .
+
+响应示例
+
+```json
+{
+ "code": 0,
+ "data": {
+ "aas": 0,
+ "attr": 10,
+ "ext": {
+ "phone": "159****7520"
+ },
+ "flag": 10,
+ "login_openid": "wyTZceEyelk8ADGVK6MSTJ3N4Tk6mihWROqlnjhf/sLrtZFtk7pYWL9lPGFnjat6Khp5Lcc0XFotZZH+lN7klL7t1bq60Lk43akMnypc8D+HWajbUw2ca0RCLZaFGx2hZdCi+sxVaGM9SpMpdgnU+NcjQa3VNlvBEmf2iAUCs1uJbPzBkwMBw2ieWQqBlWxgK9wxfnPwnMeSLZCcNb4c6FSLPHTfVm5JvsSQqEfoMTRXd0Thle0l7kQAPLYTkM2ep19raLmjG5C5omXZ0E1gF5ZxCoJFI7iiRrYzgAq5ra4=",
+ "method": "phone",
+ "nickname": "rssllyn",
+ "openid": "rxuWFnlHRbTZ5ED5TkwAG5XVQ==",
+ "token": {
+ "access": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJDUElEIjoxMDI0LCJBY2NvdW50SUQiOjE5MjMsIlVzZXJJRCI6MjAyNSwiQXBwSUQiOiIxMDAyIiwiU3RhbmRhcmRDbGFpbXMiOnsiZXhwIjoxNjYwMDQ3NTk3fSwiVG9rZW5JRCI6ImE5NmQzYzg4LTY3ODItNDcwOS05MjhmLWIwZDc3MTE3YjlkZiJ9.Lo9xt99BO_AxtSxemEDQFZ9Pt0Tj3EiklxEJjZTZTBE",
+ "access_expire": 86400,
+ "refresh": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJDUElEIjoxMDI0LCJBY2NvdW50SUQiOjE5MjMsIlVzZXJJRCI6MjAyNSwiQXBwSUQiOiIxMDAyIiwiU3RhbmRhcmRDbGFpbXMiOnsiZXhwIjoxNjYwNTY1OTk3fSwiVG9rZW5JRCI6ImI2Y2U3MzhlLTY1NDAtNDJhOS04YTNmLTNkYjczYmViOTY4ZSJ9.n7tiYdp-L_2mBHHttVGshGAsuHAwXxGs78Hpy0XNsZ4",
+ "refresh_expire": 604800
+ },
+ "ts": 1659961197,
+ "username": "159****7520"
+ }
+}
+```
+
+用户被封停
+
+| 字段 | 类型 | 说明 | 示例 |
+| --- | --- | --- | --- |
+| endtime | Number | 截至时间的时间戳（秒） |  |
+
+### 二次登录
+
+> **POST：** `/v1/passport/account/login_by_token`
+>
+> **认证方式：无**
+
+#### CURL示例
+
+```bash
+curl {{接口域名}}/v1/passport/account/login_by_token \
+ --header "accept: application/json"
+ --header "Charset: UTF-8"
+ --header "Connection: Keep-Alive"
+ --header "Content-Type: application/json; charset=UTF-8"
+ --header 'ruixue-language: {{语言}}' \
+ --header 'ruixue-cpid: {{CPID}}' \
+ --header 'ruixue-productid: {{产品标识}}' \
+ --header 'ruixue-cpts: {{时间戳}}' \
+ --header 'ruixue-traceid: {{TraceID}}' \
+ --header 'ruixue-cpsign: {{请求签名}}' \
+ --header 'ruixue-devicecode: {{设备码}}' \
+ --header 'ruixue-channelid: {{渠道标识}}' \
+ --header 'ruixue-platformid: {{平台标识}}'
+ --header "User-Agent: HTTP/2.0" \
+ -d '{
+ "login_openid": "xxxxxxxxxxx",
+ "ext": {},
+ "method": "wechat"}'
+```
+
+#### 请求参数（JSON）
+
+
+| 字段 | 类型 | 是否必填 | 说明 |
+| --- | --- | --- | --- |
+| method | String | 是 | 上次登录获取 login_openid 时使用的[登录方式](/docs/开发者文档/用户信息/获取指定用户信息) |
+| login_openid | String | 是 | 上次登录返回的 login_openid 数据 |
+| sign_fields | []String | 否 | 指定对登录成功后返回的特定字段, 使用 CPKEY 计算签名. CP 服务器可重新计算签名并与登录返回的签名比对, 作为对望舒登录数据的校验. 支持的字段包括: nickname, avatar, openid, region, sex, age, 计算签名的逻辑会对指定字段进行排序, 此处传参与顺序无关. |
+| device | [Device](/docs/开发者文档/用户信息/获取指定用户信息) | 否 | 用户推广来源，当 method 不为 "username"，且 ext 指定的三方账号时首次登录时，用于标记新注册账号的推广来源。 |
+| user_source | [UserSource](/docs/开发者文档/用户信息/获取指定用户信息) | 否 | 三方账号授权信息。每种 method ，都有对应的 ext 结构类型。各种 method 对应的 ext 结构的定义见下文。 |
+
+
+##### method账号类型说明
+
+| method 值 | 登录账号类型 |
+| --- | --- |
+| virtual | 虚拟账号。用于一些暂时不想接入望舒通行证的账号体系，但要使用望舒的分享、统计等功能的游戏项目，相当于将游戏项目自身作为一个三方账号平台。 |
+| guest | 游客账号，以设备信息生成设备码作为登录凭证 |
+| username | 普通账号，包括手机账号、邮箱账号和自定义用户名的账号。 |
+| quickphone | 阿里一键登录，即将当前手机号作为用户名 |
+| wechat | 通过微信 APP 授权登录微信账号 |
+| minigame | 通过微信小游戏登录微信账号 |
+| mobileqq | QQ 账号 |
+| ysdk | 应用宝账号 |
+| kuaishou | 登录快手账号 |
+| apple | 苹果账号 |
+| baidunet | 百度网讯账号 |
+| huawei | 华为账号 |
+| hihonor | 华为荣耀账号 |
+| hwjos | 华为拂袖账号 |
+| huaweih5 | 通过 H5 的方式登录华为账号 |
+| mi | 小米账号 |
+| vivo | vivo 账号 |
+| oppo | oppo 账号 |
+| meituan | 美团账号 |
+| douyin | 抖音账号 |
+| facebook | facebook 账号 |
+| google | google 账号 |
+| zalo | 越南 zalo 账号 |
+| minigame_vivo | vivo 快应用 |
+| cpquick | 三方快速登录 |
+
+
+#### 响应结构（JSON）
+
+[同登录](/docs/开发者文档/用户信息/获取指定用户信息)
+
+## 用户中心
+
+### 申请注销账号
+
+> **POST：** `/v1/passport/user/deregister`
+>
+> **认证方式：** [Accesstoken](/docs/开发者文档/入门指南/服务端接入须知)
+
+#### CURL示例
+
+```bash
+curl --location --request POST '{{接口域名}}/v1/passport/user/deregister' \
+--header 'ruixue-language: {{语言}}' \
+--header 'ruixue-cpid: {{CPID}}' \
+--header 'ruixue-productid: {{产品标识}}' \
+--header 'ruixue-cpts: {{时间戳}}' \
+--header 'ruixue-traceid: {{TraceID}}' \
+--header 'ruixue-accesstoken: {{accesstoken}}' \
+--header 'ruixue-devicecode: {{设备码}}' \
+--header 'ruixue-channelid: {{渠道标识}}' \
+--header 'ruixue-platformid: {{平台标识}}' \
+--header 'Content-Type: application/json' \
+--data-raw '{
+ "idcard": "220122199010222323",
+ "realname": "李明",
+ "cpdata": "游戏自定义参数"
+}'
+```
+
+**请求示例**
+
+```json
+{
+ "idcard": "220122199010222323",
+ "realname": "李明",
+ "cpdata": "游戏自定义参数"
+}
+```
+
+#### 请求参数（JSON）
+
+
+| 字段 | 类型 | 是否必填 | 说明 |
+| --- | --- | --- | --- |
+| idcard | String | 否 | 身份证号码。在望舒平台实名过才需要填写 |
+| realname | String | 否 | 真实姓名。在望舒平台实名过才需要填写 |
+| cpdata | String | 是 | 游戏自定义参数。 |
+
+
+**响应示例**
+
+```json
+{
+ "code": 0
+}
+```
+
+### 撤销注销申请
+
+> **POST：** `/v1/passport/user/cancel_deregister`
+>
+> **认证方式：** [Accesstoken](/docs/开发者文档/入门指南/服务端接入须知)
+
+#### CURL示例
+
+```bash
+curl --location --request POST '{{接口域名}}/v1/passport/user/cancel_deregister' \
+--header 'ruixue-language: {{语言}}' \
+--header 'ruixue-cpid: {{CPID}}' \
+--header 'ruixue-productid: {{产品标识}}' \
+--header 'ruixue-cpts: {{时间戳}}' \
+--header 'ruixue-traceid: {{TraceID}}' \
+--header 'ruixue-accesstoken: {{accesstoken}}' \
+--header 'ruixue-devicecode: {{设备码}}' \
+--header 'ruixue-channelid: {{渠道标识}}' \
+--header 'ruixue-platformid: {{平台标识}}' \
+--header 'Content-Type: application/json' \
+--data-raw '{
+}'
+```
+
+#### 请求参数 （JSON）
+
+本接口无需请求体。
+
+**响应示例**：注意，当某个字段为零值时不返回（如结构体为空，数字时的 0 ，或者空字符串）
+
+```json
+{
+ "code": 0
+}
+```
+
+### 查询用户拥有的账号（查询当前用户绑定的手机/邮箱账号）
+
+> **POST：** `/v1/passport/user/bound_accounts`
+>
+> **认证方式：** [Accesstoken](/docs/开发者文档/入门指南/服务端接入须知)
+
+#### CURL示例
+
+```bash
+curl --location --request POST '{{接口域名}}/v1/passport/user/bound_accounts' \
+--header 'ruixue-language: {{语言}}' \
+--header 'ruixue-cpid: {{CPID}}' \
+--header 'ruixue-productid: {{产品标识}}' \
+--header 'ruixue-cpts: {{时间戳}}' \
+--header 'ruixue-traceid: {{TraceID}}' \
+--header 'ruixue-accesstoken: {{accesstoken}}' \
+--header 'ruixue-devicecode: {{设备码}}' \
+--header 'ruixue-channelid: {{渠道标识}}' \
+--header 'ruixue-platformid: {{平台标识}}' \
+--header 'Content-Type: application/json' \
+--data-raw '{
+}'
+```
+
+#### 请求参数（JSON）
+
+不需要发送 body ，可传一个空的 json body ，即 `{}`成功响应
+
+#### 响应结构（JSON）
+
+| 字段 | 类型 | 说明 |
+| --- | --- | --- |
+| phones | [][BoundAccount](/docs/开发者文档/用户信息/获取指定用户信息) | 绑定的手机账号信息，若不存在，返回 null |
+| emails | [][BoundAccount](/docs/开发者文档/用户信息/获取指定用户信息) | 绑定的邮箱账号信息，若不存在，返回 null |
+
+##### BoundAccount
+
+| 字段 | 类型 | 说明 |
+| --- | --- | --- |
+| id | Number | 账号 ID ，整数。可作为发送验证码的 boundaccountid 参数，给当前登录用户绑定的某个手机或邮箱发送验证码 |
+| username | String | 账号用户名，客户端显示用 |
+
+### 获取验证码（发送验证码）
+
+> **POST：** `/v1/passport/captcha/send`
+>
+> **认证方式：无**
+
+#### CURL示例
+
+```bash
+curl --location --request POST '{{接口域名}}/v1/passport/captcha/send' \
+--header 'ruixue-language: {{语言}}' \
+--header 'ruixue-cpid: {{CPID}}' \
+--header 'ruixue-productid: {{产品标识}}' \
+--header 'ruixue-cpts: {{时间戳}}' \
+--header 'ruixue-traceid: {{TraceID}}' \
+--header 'ruixue-devicecode: {{设备码}}' \
+--header 'ruixue-channelid: {{渠道标识}}' \
+--header 'ruixue-accesstoken: {{accesstoken}}' \
+--header 'ruixue-platformid: {{平台标识}}' \
+--header 'Content-Type: application/json' \
+--data-raw '{
+ "email": "liming@jixiang.cn",
+ "phone": "17112122222",
+ "boundaccountid": 2,
+ "purpose":"register"
+}'
+```
+
+**请求示例**
+
+```json
+{
+ "email": "liming@jixiang.cn",
+ "phone": "17112122222",
+ "boundaccountid": 2,
+ "purpose":"register",
+ "tencent_captcha":{
+ "ticket":"图形验证码凭证,可为空",
+ "randstr":"图形验证码随机串,可~~~~为空"
+ }
+
+}
+```
+
+#### 请求参数（JSON）
+
+
+| 字段 | 类型 | 是否必填 | 说明 |
+| --- | --- | --- | --- |
+| email | String | 是 | 接收验证码的邮箱地址 |
+| phone | String | 是 | 接收验证码的手机号 |
+| boundaccountid | Number | 是 | 整数，要求处于登录状态，传 ruixue-accesstoken 请求头。表示给当前登录用户绑定的某个手机/邮箱账号发送验证码。 |
+| purpose | String | 是 | 验证码的用途 |
+| tencent_captcha.ticket | String | 否 | 图形验证码凭证，可为空 |
+| tencent_captcha.randstr | String | 否 | 图形验证码随机串，可为空 |
+
+
+> 优先根据指定 email 或 phone 发送验证码；
+>
+> 否则根据 boundaccountid 找到当前登录用户绑定的手机/邮箱账号发送验证码；
+>
+> 否则根据当前登录的手机或者邮箱账号发送验证码。
+
+**purpose 枚举说明**
+
+| 标识 | 备注 |
+| --- | --- |
+| register | 注册 |
+| resetpwd | 重置密码 |
+| changepwd | 修改密码 |
+| bindphone | 绑定手机号 |
+| unbindphone | 解绑手机号 |
+| bindemail | 绑定邮箱 |
+| unbindemail | 解绑邮箱 |
+| login | 使用验证码登录 |
+
+#### 响应结构（JSON）
+
+| 字段 | 说明 | 示例 |
+| --- | --- | --- |
+| captcha_app_id | string | 滑块验证码 appid |
+| err_msg | string | 错误信息 |
+
+**响应示例**
+
+```json
+{
+ "code": 0,
+ "data": {
+ "interval": 60,
+ "surplus": 60
+ }
+}
+```
+
+### 「废弃」发送验证码-发送给已绑定的邮箱或手机
+
+> **POST：** `/v1/passport/captcha/send_auth`
+>
+> **认证方式：** [Accesstoken](/docs/开发者文档/入门指南/服务端接入须知)
+
+#### CURL示例
+
+```bash
+curl --location --request POST '{{接口域名}}/v1/passport/captcha/send_auth' \
+--header 'ruixue-language: {{语言}}' \
+--header 'ruixue-cpid: {{CPID}}' \
+--header 'ruixue-productid: {{产品标识}}' \
+--header 'ruixue-cpts: {{时间戳}}' \
+--header 'ruixue-traceid: {{TraceID}}' \
+--header 'ruixue-accesstoken: {{accesstoken}}' \
+--header 'ruixue-devicecode: {{设备码}}' \
+--header 'ruixue-channelid: {{渠道标识}}' \
+--header 'ruixue-platformid: {{平台标识}}' \
+--header 'Content-Type: application/json' \
+--data-raw '{
+ "email": "liming@jixiang.cn",
+ "phone": "17112122222",
+ "boundaccountid": 2,
+ "purpose":"register"
+}'
+```
+
+**请求示例**
+
+```json
+{
+ "email": "liming@jixiang.cn",
+ "phone": "17112122222",
+ "boundaccountid": 2,
+ "purpose":"register"
+}
+```
+
+#### 请求参数（JSON）
+
+
+| 字段 | 类型 | 是否必填 | 说明 |
+| --- | --- | --- | --- |
+| email | String | 否 | 接收验证码的邮箱地址优先取此参数，没传则从登录信息获取 |
+| phone | String | 否 | 接收验证码的手机号优先取此参数，没传则从登录信息获取 |
+| method | String | 是 | 当 purpose 为 changepwd 时传 phone/email 指定获取验证码的方式 ，默认不传则按 phone 处理 |
+| boundaccountid | Number | 是 | 整数，要求处于登录状态，传 ruixue-accesstoken 请求头。表示给当前登录用户绑定的某个手机/邮箱账号发送验证码。 |
+| purpose | String | 是 | 验证码的用途 |
+
+
+> 优先根据指定 email 或 phone 发送验证码；
+>
+> 否则根据 boundaccountid 找到当前登录用户绑定的手机/邮箱账号发送验证码；
+>
+> 否则根据当前登录的账号所绑定的手机或者邮箱账号发送验证码。
+
+**purpose 枚举说明**
+
+| 标识 | 备注 |
+| --- | --- |
+| register | 注册 |
+| resetpwd | 重置密码 |
+| changepwd | 修改密码 |
+| bindphone | 绑定手机号 |
+| unbindphone | 解绑手机号 |
+| bindemail | 绑定邮箱 |
+| unbindemail | 解绑邮箱 |
+| login | 使用验证码登录 |
+
+#### 响应结构（JSON）
+
+| 字段 | 说明 | 示例 |
+| --- | --- | --- |
+| captcha_app_id | string | 滑块验证码 appid |
+| err_msg | string | 错误信息 |
+
+**响应示例**
+
+```json
+{
+ "code": 0,
+ "data": {
+ "interval": 60,
+ "surplus": 60
+ }
+}
+```
+
+### 校验验证码
+
+> **POST：** `/v1/passport/captcha/verify`
+>
+> **认证方式：无**
+
+#### CURL示例
+
+```bash
+curl --location --request POST '{{接口域名}}/v1/passport/captcha/verify' \
+--header 'ruixue-language: {{语言}}' \
+--header 'ruixue-cpid: {{CPID}}' \
+--header 'ruixue-productid: {{产品标识}}' \
+--header 'ruixue-cpts: {{时间戳}}' \
+--header 'ruixue-traceid: {{TraceID}}' \
+--header 'ruixue-devicecode: {{设备码}}' \
+--header 'ruixue-channelid: {{渠道标识}}' \
+--header 'ruixue-accesstoken: {{accesstoken}}' \
+--header 'ruixue-platformid: {{平台标识}}' \
+--header 'Content-Type: application/json' \
+--data-raw '{
+ "email": "liming@jixiang.cn",
+ "phone": "17112122222",
+ "boundaccountid": 2,
+ "purpose":"register",
+ "captcha_code":"3455"
+}'
+```
+
+**请求示例**
+
+```json
+{
+ "email": "liming@jixiang.cn",
+ "phone": "17112122222",
+ "boundaccountid": 2,
+ "purpose":"register",
+ "captcha_code":"3455"
+}
+```
+
+#### 请求参数（JSON）
+
+
+| 字段 | 类型 | 是否必填 | 说明 |
+| --- | --- | --- | --- |
+| email | String | 是 | 接收验证码的邮箱地址 |
+| phone | String | 是 | 接收验证码的手机号 |
+| boundaccountid | Number | 是 | 整数，要求处于登录状态，传 ruixue-accesstoken 请求头。表示校验发送给当前登录用户绑定的某个手机/邮箱账号的验证码。 |
+| purpose | String | 是 | 验证码的用途，须与发送验证码时指定的 purpose 相同。 |
+| captcha_code | String | 是 | 验证码 |
+
+
+> 若 email 和 phone 都未传，则要求传递 ruixue-accesstoken 请求头。若 boundaccountid 大于 0，则校验发送给当前用户绑定的某手机/邮箱账号的验证码；否则要求当前登录的账号是手机账号或者邮箱账号，本接口将校验发送到当前登录的手机号或邮箱地址的验证码。
+
+**响应示例**
+
+不返回 data 信息，验证码不正确会直接返回相应的错误。
+
+```json
+{
+ "code": 0
+}
+```
+
+### 「废弃」登录状态-校验已绑定的邮箱或手机验证码
+
+> **POST：** `/v1/passport/captcha/verify_auth`
+>
+> **认证方式：** [Accesstoken](/docs/开发者文档/入门指南/服务端接入须知)
+
+#### CURL示例
+
+```bash
+curl --location --request POST '{{接口域名}}/v1/passport/captcha/verify_auth' \
+--header 'ruixue-language: {{语言}}' \
+--header 'ruixue-cpid: {{CPID}}' \
+--header 'ruixue-productid: {{产品标识}}' \
+--header 'ruixue-cpts: {{时间戳}}' \
+--header 'ruixue-traceid: {{TraceID}}' \
+--header 'ruixue-accesstoken: {{accesstoken}}' \
+--header 'ruixue-devicecode: {{设备码}}' \
+--header 'ruixue-channelid: {{渠道标识}}' \
+--header 'ruixue-platformid: {{平台标识}}' \
+--header 'Content-Type: application/json' \
+--data-raw '{
+ "purpose":"register",
+ "captcha_code":"3455"
+}'
+```
+
+**请求示例**
+
+```json
+{
+ "purpose":"register",
+ "captcha_code":"3455"
+}
+```
+
+#### 请求参数（JSON）
+
+
+| 字段 | 类型 | 是否必填 | 说明 |
+| --- | --- | --- | --- |
+| purpose | String | 是 | 验证码的用途，须与发送验证码时指定的 purpose 相同。 |
+| captcha_code | String | 是 | 验证码 |
+| method | String | 否 | 当 purpose 为 changepwd 时传 phone/email 指定校验验证码的方式 ，默认不传则按 phone 处理 |
+
+
+**purpose 枚举说明**
+
+> changepwd:当前只对绑定的手机关联的账号修改密码生效
+
+| 标识 | 备注 |
+| --- | --- |
+| changepwd | 修改密码 |
+| unbindphone | 解绑手机号 |
+| unbindemail | 解绑邮箱 |
+
+**响应示例**
+
+不返回 data 信息，验证码不正确会直接返回相应的错误。
+
+```json
+{
+ "code": 0
+}
+```
+
+### 绑定邮箱
+
+> **POST：** `/v1/passport/user/bind_email`
+>
+> **认证方式：** [Accesstoken](/docs/开发者文档/入门指南/服务端接入须知)
+
+#### CURL示例
+
+```bash
+curl --location --request POST '{{接口域名}}/v1/passport/user/bind_email' \
+--header 'ruixue-language: {{语言}}' \
+--header 'ruixue-cpid: {{CPID}}' \
+--header 'ruixue-productid: {{产品标识}}' \
+--header 'ruixue-cpts: {{时间戳}}' \
+--header 'ruixue-traceid: {{TraceID}}' \
+--header 'ruixue-accesstoken: {{accesstoken}}' \
+--header 'ruixue-devicecode: {{设备码}}' \
+--header 'ruixue-channelid: {{渠道标识}}' \
+--header 'ruixue-platformid: {{平台标识}}' \
+--header 'Content-Type: application/json' \
+--data-raw '{
+ "email": "liming@jixiang.cn",
+ "captcha_code":"3455"
+}'
+```
+
+**请求示例**
+
+```json
+{
+ "email": "liming@jixiang.cn",
+ "captcha_code":"3455"
+}
+```
+
+#### 请求参数（JSON）
+
+
+| 字段 | 类型 | 是否必填 | 说明 |
+| --- | --- | --- | --- |
+| email | String | 是 | 邮箱地址。 |
+| password | String | 是 | 密码，其编码规则与注册账号时传递的密码编码规则相同。 |
+| captcha_code | String | 是 | 发送到 email 邮箱地址的，用于绑定邮箱的验证码。 |
+
+
+**响应示例**
+
+```json
+{
+ "code": 0
+}
+```
+
+### 换绑邮箱
+
+> **POST：** `/v1/passport/user/change_email`
+>
+> **认证方式：** [Accesstoken](/docs/开发者文档/入门指南/服务端接入须知)
+
+#### CURL示例
+
+```bash
+curl --location --request POST '{{接口域名}}/v1/passport/user/change_email' \
+--header 'ruixue-language: {{语言}}' \
+--header 'ruixue-cpid: {{CPID}}' \
+--header 'ruixue-productid: {{产品标识}}' \
+--header 'ruixue-cpts: {{时间戳}}' \
+--header 'ruixue-traceid: {{TraceID}}' \
+--header 'ruixue-accesstoken: {{accesstoken}}' \
+--header 'ruixue-devicecode: {{设备码}}' \
+--header 'ruixue-channelid: {{渠道标识}}' \
+--header 'ruixue-platformid: {{平台标识}}' \
+--header 'Content-Type: application/json' \
+--data-raw '{
+ "old_email_captcha":"3455",
+ "new_email":"liming@jixiang.cn",
+ "new_email_captcha":"3456",
+}'
+```
+
+**请求示例**
+
+```json
+{
+ "old_email_captcha":"3455",
+ "new_email":"liming@jixiang.cn",
+ "new_email_captcha":"3456",
+}
+```
+
+#### 请求参数（JSON）
+
+
+| 字段 | 类型 | 是否必填 | 说明 |
+| --- | --- | --- | --- |
+| old_email_captcha | String | 是 | 当前登录的账号的 unbindemail 验证码。 |
+| new_email | String | 是 | 新的邮箱地址。 |
+| new_email_captcha | String | 是 | 新邮箱的 bindemail 验证码。 |
+
+
+**响应示例**
+
+```json
+{
+ "code": 0
+}
+```
+
+### 绑定手机号
+
+> **POST：** `/v1/passport/user/bind_phone`
+>
+> **认证方式：** [Accesstoken](/docs/开发者文档/入门指南/服务端接入须知)
+
+#### CURL示例
+
+```bash
+curl --location --request POST '{{接口域名}}/v1/passport/user/bind_phone' \
+--header 'ruixue-language: {{语言}}' \
+--header 'ruixue-cpid: {{CPID}}' \
+--header 'ruixue-productid: {{产品标识}}' \
+--header 'ruixue-cpts: {{时间戳}}' \
+--header 'ruixue-traceid: {{TraceID}}' \
+--header 'ruixue-accesstoken: {{accesstoken}}' \
+--header 'ruixue-devicecode: {{设备码}}' \
+--header 'ruixue-channelid: {{渠道标识}}' \
+--header 'ruixue-platformid: {{平台标识}}' \
+--header 'Content-Type: application/json' \
+--data-raw '{
+ "phone":"17610270022",
+ "captcha_code":"3456"
+}'
+```
+
+**请求示例**
+
+```json
+{
+ "phone":"17610270022",
+ "captcha_code":"3456"
+}
+```
+
+#### 请求参数（JSON）
+
+
+| 字段 | 类型 | 是否必填 | 说明 |
+| --- | --- | --- | --- |
+| phone | String | 是 | 手机号。 |
+| captcha_code | String | 是 | 发送到 phone 手机号的，用于绑定手机号的验证码。 |
+
+
+**响应示例**
+
+```json
+{
+ "code": 0
+}
+```
+
+### 修改手机号
+
+> **POST：** `/v1/passport/user/change_phone`
+>
+> **认证方式：** [Accesstoken](/docs/开发者文档/入门指南/服务端接入须知)
+
+#### CURL示例
+
+```bash
+curl --location --request POST '{{接口域名}}/v1/passport/user/change_phone' \
+--header 'ruixue-language: {{语言}}' \
+--header 'ruixue-cpid: {{CPID}}' \
+--header 'ruixue-productid: {{产品标识}}' \
+--header 'ruixue-cpts: {{时间戳}}' \
+--header 'ruixue-traceid: {{TraceID}}' \
+--header 'ruixue-accesstoken: {{accesstoken}}' \
+--header 'ruixue-devicecode: {{设备码}}' \
+--header 'ruixue-channelid: {{渠道标识}}' \
+--header 'ruixue-platformid: {{平台标识}}' \
+--header 'Content-Type: application/json' \
+--data-raw '{
+ "oldphone_captcha":"2332",
+ "newphone":"17610289334",
+ "newphone_captcha":"3456"
+}'
+```
+
+**请求示例**
+
+```json
+{
+ "oldphone_captcha":"2332",
+ "newphone":"17610289334",
+ "newphone_captcha":"3456"
+}
+```
+
+#### 请求参数（JSON）
+
+
+| 字段 | 类型 | 是否必填 | 说明 |
+| --- | --- | --- | --- |
+| oldphone_captcha | String | 是 | 当前登录的手机号的 unbindphone 验证码。 |
+| newphone | String | 是 | 新的手机号。 |
+| newphone_captcha | String | 是 | 新手机号的 bindphone 验证码。 |
+
+
+**响应示例**
+
+```json
+{
+ "code": 0
+}
+```
+
+### 获取用户信息
+
+> **POST：** `/v1/passport/user/get_info`
+>
+> **认证方式：** [Accesstoken](/docs/开发者文档/入门指南/服务端接入须知)
+
+#### CURL示例
+
+```bash
+curl --location --request POST '{{接口域名}}/v1/passport/user/get_info' \
+--header 'ruixue-language: {{语言}}' \
+--header 'ruixue-cpid: {{CPID}}' \
+--header 'ruixue-productid: {{产品标识}}' \
+--header 'ruixue-cpts: {{时间戳}}' \
+--header 'ruixue-traceid: {{TraceID}}' \
+--header 'ruixue-accesstoken: {{accesstoken}}' \
+--header 'ruixue-devicecode: {{设备码}}' \
+--header 'ruixue-channelid: {{渠道标识}}' \
+--header 'ruixue-platformid: {{平台标识}}' \
+--header 'Content-Type: application/json' \
+--data-raw '{
+}'
+```
+
+#### 响应结构（JSON）
+
+| 字段 | 类型 | 说明 |
+| --- | --- | --- |
+| age | Number | 用户年龄，根据实名信息获取。 |
+| sex | Number | 性别。-1 未知 ， 0 表示女性， 1 表示男性。 |
+| user_state | Number | 用户状态定义, 0 为正常用户。为正数时，使用各位编码用户的不同状态（以下表述中，第 0 位表示最低位）:第 0 位: 为 1 表示玩家已提交注销申请第 1 位: 为 1 表示已注销。可以是客服同意玩家的注销申请，也可以是客服直接在后台操作将账号注销。第 2 位: 为 1 表示已封停。 |
+| attr | Number | 账号状态标记，使用位运算构成。参考下文 [attr 标记说明](/docs/开发者文档/用户信息/获取指定用户信息) |
+| openid | String | 望舒用户 OpenID。 |
+| external_openid | String | 三方 openid |
+| external_unionid | String | 三方 unionid |
+| wx_unionid | String | [DEPRECATED] 三方 unionid |
+| mobile_phone | String | 手机号 |
+| nickname | String | 昵称 |
+| avatarurl | String | 头像 |
+| idCard | String | 身份证号 |
+| realName | String | 姓名 |
+| theme_skin | Number | 客服主题皮肤 0 默认皮肤 1 VIP 主题 |
+| r_mode | Number | 用户标签 |
+| r_mode_tag | String | 用户标签名称 |
+
+##### attr标记
+
+attr 标记，由以下标记位构成
+
+| 标识 | 备注 |
+| --- | --- |
+| 0 | 是否已通过望舒完成实名认证， 1 表示已实名。 |
+| 1 | 用户当前是否有绑定手机号， 1 表示有绑定。 |
+| 2 | 用户当前是否有绑定邮箱， 1 表示有绑定。 |
+| 3 | 用户当前是否有已设置密码的登录凭证， 1 表示有。 |
+| 4 | 用户是否通过望舒完成实名认证， 1 表示是。 |
+
+**响应示例**
+
+```json
+{
+ "code": 0,
+ "data": {
+ "avatarurl": "",
+ "mobile_phone": "159****7520",
+ "nickname": "rssllyn",
+ "openid": "rxuWFnlHRbTZ5ED5TkwAG5XVQ==",
+ "sex": 0,
+ "user_state": 0,
+ "attr": 0,
+ "theme_skin": 0,
+ "r_mode": 1,
+ "r_mode_tag": "苹果VIP"
+ }
+}
+```
+
+### 修改用户信息
+
+> **POST：** `/v1/passport/user/update_info`
+>
+> **认证方式：** [Accesstoken](/docs/开发者文档/入门指南/服务端接入须知)
+
+#### CURL示例
+
+```bash
+curl --location --request POST '{{接口域名}}/v1/passport/user/update_info' \
+--header 'ruixue-language: {{语言}}' \
+--header 'ruixue-cpid: {{CPID}}' \
+--header 'ruixue-productid: {{产品标识}}' \
+--header 'ruixue-cpts: {{时间戳}}' \
+--header 'ruixue-traceid: {{TraceID}}' \
+--header 'ruixue-accesstoken: {{accesstoken}}' \
+--header 'ruixue-devicecode: {{设备码}}' \
+--header 'ruixue-channelid: {{渠道标识}}' \
+--header 'ruixue-platformid: {{平台标识}}' \
+--header 'Content-Type: application/json' \
+--data-raw '{
+ "nickname":"小吉",
+ "avatarurl":"图片地址",
+ "region":"220122",
+ "sex":0
+}'
+```
+
+**请求示例**
+
+```json
+{
+ "nickname":"小吉",
+ "avatarurl":"图片地址",
+ "region":"220122",
+ "sex":0
+}
+```
+
+#### 请求参数（JSON）
+
+
+| 字段 | 类型 | 是否必填 | 说明 |
+| --- | --- | --- | --- |
+| nickname | String | 是 | 昵称。 不为空才更新 |
+| avatarurl | String | 是 | 头像地址。不为空才更新 |
+| region | String | 是 | 用户所在地区编码。 |
+| sex | Number | 是 | 性别。0 表示女性， 1 表示男性。 |
+
+
+**响应示例**
+
+```json
+{
+ "code": 0
+}
+```
+
+### 修改密码
+
+> **POST：** `/v1/passport/user/change_password`
+>
+> **认证方式：** [Accesstoken](/docs/开发者文档/入门指南/服务端接入须知)
+
+#### CURL示例
+
+```bash
+curl --location --request POST '{{接口域名}}/v1/passport/user/change_password' \
+--header 'ruixue-language: {{语言}}' \
+--header 'ruixue-cpid: {{CPID}}' \
+--header 'ruixue-productid: {{产品标识}}' \
+--header 'ruixue-cpts: {{时间戳}}' \
+--header 'ruixue-traceid: {{TraceID}}' \
+--header 'ruixue-accesstoken: {{accesstoken}}' \
+--header 'ruixue-devicecode: {{设备码}}' \
+--header 'ruixue-channelid: {{渠道标识}}' \
+--header 'ruixue-platformid: {{平台标识}}' \
+--header 'Content-Type: application/json' \
+--data-raw '{
+ "new_password":"new_password",
+ "by_oldpassword":{
+ "old_password":"old_password"
+ }
+ "by_captchacode":{
+ "boundaccountid":1,
+ "captcha_code":"2342"
+ }
+}'
+```
+
+**请求示例**
+
+```json
+{
+ "new_password":"new_password",
+ "by_oldpassword":{
+ "old_password":"old_password"
+ }
+ "by_captchacode":{
+ "boundaccountid":1,
+ "captcha_code":"2342"
+ }
+}
+```
+
+#### 请求参数（JSON）
+
+
+| 字段 | 类型 | 是否必填 | 说明 |
+| --- | --- | --- | --- |
+| new_password | String | 是 | 新密码，其编码规则与注册账号时传递的密码编码规则相同。 |
+| old_password | String | 否 | 已废弃，请使用 by_oldpassword.old_password |
+| by_oldpassword | [ByOldPassword](/docs/开发者文档/用户信息/获取指定用户信息) | 是 | 若非空，则使用当前账号的旧密码进行校验。 |
+| by_captchacode | [ByCaptchaCode](/docs/开发者文档/用户信息/获取指定用户信息) | 是 | 若非空，则使用某绑定的手机/邮箱账号接收的验证码进行校验。 |
+
+
+##### ByOldPassword
+
+| 字段 | 类型 | 是否必填 | 说明 | 示例 |
+| --- | --- | --- | --- | --- |
+| old_password | String | 是 | 旧密码，其编码规则与注册账号时传递的密码编码规则相同。 |  |
+
+##### ByCaptchaCode
+
+
+| 字段 | 类型 | 是否必填 | 说明 |
+| --- | --- | --- | --- |
+| boundaccountid | Number | 是 | 当前登录用户绑定的手机/邮箱账号的 ID ，默认为当前登录的手机/邮箱账号。 |
+| method | String | 否 | 验证码验证类型： phone/email 不传默认为手机号 |
+| captcha_code | String | 是 | 使用发送验证码接口发送的， purpose 为 changepwd 的验证码 |
+
+
+**响应示例**
+
+```json
+{
+ "code": 0
+}
+```
+
+### 重置密码
+
+> **POST：** `/v1/passport/account/reset_password`
+>
+> **认证方式：** [Accesstoken](/docs/开发者文档/入门指南/服务端接入须知)
+
+#### CURL示例
+
+```bash
+curl --location --request POST '{{接口域名}}/v1/passport/account/reset_password' \
+--header 'ruixue-language: {{语言}}' \
+--header 'ruixue-cpid: {{CPID}}' \
+--header 'ruixue-productid: {{产品标识}}' \
+--header 'ruixue-cpts: {{时间戳}}' \
+--header 'ruixue-traceid: {{TraceID}}' \
+--header 'ruixue-accesstoken: {{accesstoken}}' \
+--header 'ruixue-devicecode: {{设备码}}' \
+--header 'ruixue-channelid: {{渠道标识}}' \
+--header 'ruixue-platformid: {{平台标识}}' \
+--header 'Content-Type: application/json' \
+--data-raw '{
+ "account_id":1,
+ "username":"xiaoming",
+ "password":"fgsdfgerew",
+ "captcha_code":"2342"
+}'
+```
+
+**请求示例**
+
+```json
+{
+ "account_id":1,
+ "username":"xiaoming",
+ "password":"fgsdfgerew",
+ "captcha_code":"2342"
+}
+```
+
+#### 请求参数（JSON）
+
+
+| 字段 | 类型 | 是否必填 | 说明 |
+| --- | --- | --- | --- |
+| account_id | Number | 是 | 账号 id ，通过绑定的手机号可以获得 |
+| username | String | 是 | 已经注册过账号的手机号或者邮箱地址用户名。 |
+| password | String | 是 | 密码，其编码规则与注册账号时传递的密码编码规则相同。 |
+| captcha_code | String | 是 | 发送到"username"字段所指地址的，用于重置密码的验证码。 |
+
+
+**响应示例**
+
+```json
+{
+ "code": 0
+}
+```
+
+### 根据字段获取用户信息（建议首次注册后5s调用）
+
+> **POST：** `/v1/passport/user/info_by_field`
+>
+> **认证方式：** [Accesstoken](/docs/开发者文档/入门指南/服务端接入须知)
+>
+> **应用场景：** 客户端登录调用
+
+#### CURL示例
+
+```bash
+# 客户端登录调用示例
+curl --location --request POST '{{接口域名}}/v1/passport/user/info_by_field' \
+--header 'ruixue-language: {{语言}}' \
+--header 'ruixue-cpid: {{CPID}}' \
+--header 'ruixue-productid: {{产品标识}}' \
+--header 'ruixue-cpts: {{时间戳}}' \
+--header 'ruixue-traceid: {{TraceID}}' \
+--header 'ruixue-devicecode: {{设备码}}' \
+--header 'ruixue-channelid: {{渠道标识}}' \
+--header 'ruixue-platformid: {{平台标识}}' \
+--header 'ruixue-accesstoken: {{accesstoken}}'\
+--header 'Content-Type: application/json' \
+--data-raw '{
+ "user":["product_id"],
+ "login":["product_id"],
+ "current":["ip"]
+}'
+```
+
+> **POST：** `/v1/passport/user/info_by_field_sign`
+>
+> **认证方式：** [CPSign](/docs/开发者文档/入门指南/服务端接入须知)
+>
+> **应用场景：** 服务端端签名调用
+
+#### CURL示例
+
+```bash
+# 服务端端签名调用示例
+curl --location --request POST '{{接口域名}}/v1/passport/user/info_by_field_sign' \
+--header 'ruixue-language: {{语言}}' \
+--header 'ruixue-cpid: {{CPID}}' \
+--header 'ruixue-productid: {{产品标识}}' \
+--header 'ruixue-cpts: {{时间戳}}' \
+--header 'ruixue-traceid: {{TraceID}}' \
+--header 'ruixue-cpsign: {{请求签名}}' \
+--header 'ruixue-devicecode: {{设备码}}' \
+--header 'ruixue-channelid: {{渠道标识}}' \
+--header 'ruixue-platformid: {{平台标识}}' \
+--header 'Content-Type: application/json' \
+--data-raw '{
+ "user":["product_id"],
+ "login":["product_id"],
+ "current":["ip"],
+ "rx_open_id":"rxxxx"
+}'
+```
+
+**响应示例**
+
+```json
+{
+ "data": {
+ "user": {
+ "rx_open_id": "rxuxxxx",
+ "product_id": "1002",
+ "custom": "hall_qrqd_receive_double",
+ "source": "share"
+ },
+ "login": {
+ "product_id": "1002"
+ },
+ "current": {
+ "ip": "124.235.118.55"
+ }
+ },
+ "code": 0
+}
+```
+
+#### 请求参数（JSON）
+
+| 字段 | 类型 | 是否必填 | 说明 | 示例 |
+| --- | --- | --- | --- | --- |
+| user | []String | 是 | 支持查询的字段： rx_open_id,cp_user_id,custom,source,product_id,channel_id,promoter,devicecode | login |
+| []String | 是 | 支持查询的字段： devicecode,product_id,channel_id,login_ip,login_time | current | []String |
+| 是 | 支持查询的字段： devicecode,product_id,channel_id,ip,os,os_version | rx_open_id | String | 否 |
+| 服务端签名调用必填 |  |  |  |  |
+
+#### 响应结构（JSON）
+
+| 字段 | 类型 | 说明 |
+| --- | --- | --- |
+| code | Number | 状态 等于 0 为正常情况 |
+| data | Data | 响应数据 |
+
+##### Data
+
+| 字段 | 类型 | 说明 |
+| --- | --- | --- |
+| user | userData | 用户注册时信息 |
+| login | loginData | 用户上次登录信息 |
+| current | currentData | 本地请求信息 |
+
+##### userData
+
+| 字段 | 类型 | 说明 | 说明 |
+| --- | --- | --- | --- |
+| rx_open_id | string | 望舒 openid | rxufoMlxBd47G8N5PbuwgCpJYSNyN-zXqe261Kbk |
+| cp_user_id | string | 游戏侧用户 ID | 10001 |
+| custom | string | 用户来源类型 | share |
+| source | string | 用户实际来源，例如 custom:share 当前字段为分享埋点 | fail_share_coin |
+| product_id | string | 注册的产品 | 1002 |
+| channel_id | string | 注册的渠道 | 818 |
+| promoter | string | 注册时关联的推广员 | 12359 |
+| devicecode | string | 注册时设备信息 | 40CF718FECB889D6418C97D8D3E11BC6 |
+
+##### loginData
+
+| 字段 | 类型 | 说明 | 案例 |
+| --- | --- | --- | --- |
+| product_id | string | 上次登录的产品 | 1002 |
+| channel_id | string | 上次登录的渠道 | 818 |
+| devicecode | string | 上次登录的设备 | 40CF718FECB889D6418C97D8D3E11BC6 |
+| login_ip | string | 上次登录的 IP | 124.235.118.55 |
+| login_time | string | 上次登录的时间 | 2025-07-04 13:51:10 |
+
+##### currentData
+
+| 字段 | 类型 | 说明 | 案例 |
+| --- | --- | --- | --- |
+| product_id | string | 本次请求的产品 | 1002 |
+| channel_id | string | 本次请求的渠道 | 818 |
+| devicecode | string | 本次请求的设备 | 40CF718FECB889D6418C97D8D3E11BC6 |
+| ip | string | 本次请求的 IP | 124.235.118.55 |
+| os | string | 本次请求的系统 | Android |
+| os_version | string | 本次请求的系统版本 | 18.5 |
+
+#### custom枚举值
+
+| 字段 | 说明 |
+| --- | --- |
+| ad | 广告 |
+| share | 分享 |
+| guide | 导量 |
+| sub_package | 分包 |
+| promoter | 分包-推广员 |
+| push | 推送 |
+| xingtu | 星图 |
+| douyin_union | 抖音联运 |
+| activity | 活动 |
+
+#### os枚举值
+
+| 字段 | 描述 |
+| --- | --- |
+| iPad | (iPad; CPU OS 18_5 like Mac OS X) |
+| Android | (Linux; Android 12; RTE-AL00 Build/HUAWEIRNA-AL00; wv) |
+| iPhone | (iPhone; CPU iPhone OS 18_5 like Mac OS X) |
+| Phone | (Phone; OpenHarmony 5.0) |
+| Windows | (Windows NT 10.0; Win64; x64) |
+
+### 绑定三方账号
+
+bind 场景：暂时只支持绑定微信
+
+authorization 场景：暂时只支持海外项目
+
+> **POST：** `/v1/passport/user/bind_account`
+>
+> **认证方式：** [Accesstoken](/docs/开发者文档/入门指南/服务端接入须知)
+
+#### CURL示例
+
+```bash
+curl --location --request POST '{{接口域名}}/v1/passport/user/bind_account' \
+--header 'ruixue-language: {{语言}}' \
+--header 'ruixue-cpid: {{CPID}}' \
+--header 'ruixue-productid: {{产品标识}}' \
+--header 'ruixue-cpts: {{时间戳}}' \
+--header 'ruixue-traceid: {{TraceID}}' \
+--header 'ruixue-accesstoken: {{accesstoken}}' \
+--header 'ruixue-devicecode: {{设备码}}' \
+--header 'ruixue-channelid: {{渠道标识}}' \
+--header 'ruixue-platformid: {{平台标识}}' \
+--header 'Content-Type: application/json' \
+--data-raw '{
+ "scene":"bind",
+ "method":"wechat",
+ "ext":{
+ "code":""
+ }
+}'
+```
+
+**请求示例**
+
+```json
+{
+ "scene":"bind",
+ "method":""wechat",
+ "ext":{
+ "code":""
+ }
+}
+```
+
+#### 请求参数
+
+参数与登录的 method 和 ext 一致
+
+#### 请求参数（JSON）
+
+
+| 字段 | 类型 | 是否必填 | 说明 |
+| --- | --- | --- | --- |
+| scene | String | 是 | 场景 bind:绑定三方账号， authorization ：授权三方账号登录 |
+| method | String | 是 | 参数与登录的 method 一致 |
+| ext | [Ext](/docs/开发者文档/登录-通行证/服务端接入/服务端-API) | 是 | 参数与登录的 ext 一致 |
+
+
+## 其他
+
+### 刷新 access token
+
+> **POST：** `/v1/passport/token/refresh`
+>
+> **认证方式：无**
+
+#### CURL示例
+
+```bash
+curl --location --request POST '{{接口域名}}/v1/passport/token/refresh' \
+--header 'ruixue-language: {{语言}}' \
+--header 'ruixue-cpid: {{CPID}}' \
+--header 'ruixue-productid: {{产品标识}}' \
+--header 'ruixue-cpts: {{时间戳}}' \
+--header 'ruixue-traceid: {{TraceID}}' \
+--header 'ruixue-devicecode: {{设备码}}' \
+--header 'ruixue-channelid: {{渠道标识}}' \
+--header 'ruixue-platformid: {{平台标识}}' \
+--header 'Content-Type: application/json' \
+--data-raw '{
+}'
+```
+
+#### 请求参数（JSON）
+
+本接口无需请求体， refresh token 通过 ruixue-refreshtoken 请求头传递。
+
+**响应示例**
+
+```json
+{
+ "code": 0,
+ "data": {
+ "access": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJDUElEIjoxMDI0LCJBY2NvdW50SUQiOjE5MjMsIlVzZXJJRCI6MjAyNSwiQXBwSUQiOiIxMDAyIiwiU3RhbmRhcmRDbGFpbXMiOnsiZXhwIjoxNjYwMDQ5OTg5fSwiVG9rZW5JRCI6IjllMzc3NjMwLWU5ZjAtNDY0My1iY2UyLWZmOWUzMzc4NDA4MSJ9.935HVZcQPogr4iIFMNzK9FT9lOnCd1OzLMw_e2WXRwQ",
+ "access_expire": 86400,
+ "refresh": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJDUElEIjoxMDI0LCJBY2NvdW50SUQiOjE5MjMsIlVzZXJJRCI6MjAyNSwiQXBwSUQiOiIxMDAyIiwiU3RhbmRhcmRDbGFpbXMiOnsiZXhwIjoxNjYwNTY4Mzg5fSwiVG9rZW5JRCI6IjIxMzUzZDNlLWE2NGEtNGZmMi1hNmFlLTI2NThiY2I3Nzc2ZCJ9.758siyfs4AOgnWavE_LvTOXAyrRf8KD9CZbcFh8zMKU",
+ "refresh_expire": 604800
+ }
+}
+```
+
+### 同步第三方账号用户信息
+
+> **POST：** `/v1/passport/user/sync_info`
+>
+> **认证方式：** [Accesstoken](/docs/开发者文档/入门指南/服务端接入须知)
+
+#### CURL示例
+
+```bash
+curl --location --request POST '{{接口域名}}/v1/passport/user/sync_info' \
+--header 'ruixue-language: {{语言}}' \
+--header 'ruixue-cpid: {{CPID}}' \
+--header 'ruixue-productid: {{产品标识}}' \
+--header 'ruixue-cpts: {{时间戳}}' \
+--header 'ruixue-traceid: {{TraceID}}' \
+--header 'ruixue-accesstoken: {{accesstoken}}' \
+--header 'ruixue-devicecode: {{设备码}}' \
+--header 'ruixue-channelid: {{渠道标识}}' \
+--header 'ruixue-platformid: {{平台标识}}' \
+--header 'Content-Type: application/json' \
+--data-raw '{
+}'
+```
+
+#### 请求参数（JSON）
+
+本接口的请求体结构，与当前账号登录时请求体中 ext 字段的结构相同。相当于使用三方账号授权信息重新走登录流程获取用户信息。
+
+**响应示例**
+
+```json
+{
+ "code": 0
+}
+```
+
+### 「废弃」设置 GameID
+
+> **POST：** `/v1/passport/user/set_gameid`
+>
+> **认证方式：** [Accesstoken](/docs/开发者文档/入门指南/服务端接入须知)
+
+#### CURL示例
+
+```bash
+curl --location --request POST '{{接口域名}}/v1/passport/user/set_gameid' \
+--header 'ruixue-language: {{语言}}' \
+--header 'ruixue-cpid: {{CPID}}' \
+--header 'ruixue-productid: {{产品标识}}' \
+--header 'ruixue-cpts: {{时间戳}}' \
+--header 'ruixue-traceid: {{TraceID}}' \
+--header 'ruixue-accesstoken: {{accesstoken}}' \
+--header 'ruixue-devicecode: {{设备码}}' \
+--header 'ruixue-channelid: {{渠道标识}}' \
+--header 'ruixue-platformid: {{平台标识}}' \
+--header 'Content-Type: application/json' \
+--data-raw '{
+ "gameid":1
+}'
+```
+
+**请求示例**
+
+```json
+{
+ "gameid":1
+}
+```
+
+#### 请求参数（JSON）
+
+| 字段 | 类型 | 是否必填 | 说明 | 示例 |
+| --- | --- | --- | --- | --- |
+| gameid | Number | 是 | GameID |  |
+
+**响应示例**
+
+```json
+{
+ "code": 0
+}
+```
+
+### 换绑手机号登录账号清理校验
+
+> **POST：** `/v1/passport/user/change_phone/account_check`
+>
+> **认证方式：** [Accesstoken](/docs/开发者文档/入门指南/服务端接入须知)
+
+#### CURL示例
+
+```bash
+curl --location --request POST '{{接口域名}}/v1/passport/user/change_phone/account_check' \
+--header 'ruixue-language: {{语言}}' \
+--header 'ruixue-cpid: {{CPID}}' \
+--header 'ruixue-productid: {{产品标识}}' \
+--header 'ruixue-cpts: {{时间戳}}' \
+--header 'ruixue-traceid: {{TraceID}}' \
+--header 'ruixue-accesstoken: {{accesstoken}}' \
+--header 'ruixue-devicecode: {{设备码}}' \
+--header 'ruixue-channelid: {{渠道标识}}' \
+--header 'ruixue-platformid: {{平台标识}}' \
+--header 'Content-Type: application/json' \
+--data-raw '{
+}'
+```
+
+#### 请求参数
+
+无
+
+**响应示例**
+
+```json
+{
+ "code": 0 , // 如果非0 则读取msg信息做提示
+ "msg":""
+}
+```
+
+### 【废弃】账号检测
+
+> **POST：** `/v1/passport/user/account_check`
+>
+> **认证方式：** [Accesstoken](/docs/开发者文档/入门指南/服务端接入须知)
+
+#### CURL示例
+
+```bash
+curl --location --request POST '{{接口域名}}/v1/passport/user/account_check' \
+--header 'ruixue-language: {{语言}}' \
+--header 'ruixue-cpid: {{CPID}}' \
+--header 'ruixue-productid: {{产品标识}}' \
+--header 'ruixue-cpts: {{时间戳}}' \
+--header 'ruixue-traceid: {{TraceID}}' \
+--header 'ruixue-accesstoken: {{accesstoken}}' \
+--header 'ruixue-devicecode: {{设备码}}' \
+--header 'ruixue-channelid: {{渠道标识}}' \
+--header 'ruixue-platformid: {{平台标识}}' \
+--header 'Content-Type: application/json' \
+--data-raw '{
+ "type":"change_bind",
+ "username":"xiaoming"
+}'
+```
+
+**请求示例**
+
+```json
+{
+ "type":"change_bind",
+ "username":"xiaoming"
+}
+```
+
+#### 请求参数（JSON）
+
+| 字段 | 类型 | 是否必填 | 说明 | 示例 |
+| --- | --- | --- | --- | --- |
+| username | String | 是 | 手机号、邮箱、用户名 |  |
+
+**响应示例**
+
+```json
+{
+ "code": 0 , // 如果非0 则读取msg信息做提示
+ "msg":""
+}
+```
+
+### 「废弃」账号关联的项目列表
+
+> **POST：** `/v1/passport/user/account_cpids`
+>
+> **认证方式：** [Accesstoken](/docs/开发者文档/入门指南/服务端接入须知)
+
+#### CURL示例
+
+```bash
+curl --location --request POST '{{接口域名}}/v1/passport/user/account_check' \
+--header 'ruixue-language: {{语言}}' \
+--header 'ruixue-cpid: {{CPID}}' \
+--header 'ruixue-productid: {{产品标识}}' \
+--header 'ruixue-cpts: {{时间戳}}' \
+--header 'ruixue-traceid: {{TraceID}}' \
+--header 'ruixue-accesstoken: {{accesstoken}}' \
+--header 'ruixue-devicecode: {{设备码}}' \
+--header 'ruixue-channelid: {{渠道标识}}' \
+--header 'ruixue-platformid: {{平台标识}}' \
+--header 'Content-Type: application/json' \
+--data-raw '{
+ "type":"change_bind",
+ "username":"xiaoming"
+}'
+```
+
+**请求示例**
+
+```json
+{
+ "type":"change_bind",
+ "username":"xiaoming"
+}
+```
+
+#### 请求参数（JSON）
+
+
+| 字段 | 类型 | 是否必填 | 说明 |
+| --- | --- | --- | --- |
+| type | String | 是 | 使用场景 |
+| method | String | 是 | phone,email |
+
+
+**type**
+
+| 标识 | 备注 |
+| --- | --- |
+| change_bind | 换绑 |
+
+
+#### 响应结构（JSON）
+
+| 字段 | 说明 | 示例 |
+| --- | --- | --- |
+| phone | string | 手机号 |
+| email | string | 邮箱 |
+| cps | projects | 项目列表 |
+
+**project**
+
+| 字段 | 类型 | 示例 |
+| --- | --- | --- |
+| cpid | Number | cpid |
+| project_name | String | 项目名称 |
+| logo | String | logo url |
+
+
+**响应示例**
+
+```json
+{
+ "code": 0 , // 如果非0 则读取msg信息做提示
+ "msg":""
+},,
+ "data": {
+ "cps": [
+ {
+ "cpid": 114,
+ "project_name": "海奇测试"
+ }
+ ]
+ },
+```
+
+## CP 游戏服务器接入的接口
+
+有些游戏业务，并非有游戏客户端直接调用望舒接口，而是先调用其游戏服务器接口，再由游戏服务器调用望舒接口。此类望舒接口，由于鉴权方式与游戏客户端直接调用的望舒接口不同，因此单独分为一类。
+
+CP 游戏服务器调用望舒服务器接口，需要特定的请求头进行签名认证，参考 [CPSign](/docs/开发者文档/入门指南/服务端接入须知)
+
+### 验证用户的实名信息是否匹配
+
+> **POST：** `/v1/passport/users/verify_realauth`
+>
+> **认证方式：** [CPSign](/docs/开发者文档/入门指南/服务端接入须知)
+
+#### 请求参数（JSON）
+
+| 字段 | 类型 | 是否必填 | 说明 | 示例 |
+| --- | --- | --- | --- | --- |
+| openid | String | 是 | 望舒用户 OpenID |  |
+
+**响应示例**
+
+```json
+{
+ "code": 0,
+ "data": {
+ "realauth_finished": true,
+ "realauth_matched": false
+ }
+}
+```
+
+### 根据望舒 openid 查询用户信息
+
+> **GET：** `/v1/passport/users/load_by_openid`
+>
+> **认证方式：** [CPSign](/docs/开发者文档/入门指南/服务端接入须知)
+
+#### CURL示例
+
+```bash
+curl --location --request GET '{{接口域名}}/v1/passport/users/load_by_openid?openid={openid}' \
+--header 'ruixue-language: {{语言}}' \
+--header 'ruixue-cpid: {{CPID}}' \
+--header 'ruixue-productid: {{产品标识}}' \
+--header 'ruixue-cpts: {{时间戳}}' \
+--header 'ruixue-traceid: {{TraceID}}' \
+--header 'ruixue-cpsign: {{请求签名}}' \
+--header 'ruixue-devicecode: {{设备码}}' \
+--header 'ruixue-channelid: {{渠道标识}}' \
+--header 'ruixue-platformid: {{平台标识}}'
+```
+
+#### 请求参数(Query Parameters）
+
+| 字段 | 类型 | 是否必填 | 说明 | 示例 |
+| --- | --- | --- | --- | --- |
+| openid | String | 是 | 望舒用户 OpenID |  |
+
+#### 响应结构（JSON）
+
+| 字段 | 类型 | 说明 |
+| --- | --- | --- |
+| registered_at_time | Number | 望舒用户注册时间，秒级时间戳 |
+| openid | String | 望舒 openid |
+| real_name | String | 实名信息-真实姓名 |
+| id_card | String | 实名信息-身份证号 |
+| phone | String | 绑定的邮箱 |
+| email | String | 绑定的手机号 |
+| first_phone | String | 首次绑定的手机号 |
+| first_email | String | 首次绑定的手机号 |
+| registered_from_ip | String | 注册时客户端的 IP 地址 |
+| gender | Number | 性别：-1 未知； 0 女； 1 男 |
+| accounts | [][Account](/docs/开发者文档/用户信息/获取指定用户信息) | 相关账号，参考 account 结构 |
+| cp_user_id | String | cp 侧的游戏 id |
+| nick_name | String | 昵称 |
+| avatar | String | 头像 |
+
+##### Account结构说明
+
+| 字段 | 类型 | 说明 |
+| --- | --- | --- |
+| registered_at_time | Number | 望舒账号注册时间，秒级时间戳 |
+| last_login_time | Number | 望舒登录时间 |
+| last_login_ip | String | 望舒登录 IP |
+| type | String | 账号类型 |
+| identifier | String | 用户名 |
+| registered_from_product | String | 注册产品标识 |
+| registered_from_channel | String | 注册渠道标识 |
+| registered_from_ip | String | 注册 IP |
+
+**响应示例**
+
+```json
+{
+ "code": 0,
+ "data": {
+ "accounts": [
+ {
+ "identifier": "hwjos_1190923120102958",
+ "last_login_ip": "",
+ "last_login_time": 0,
+ "registered_at_time": 1685010295,
+ "registered_from_channel": "214",
+ "registered_from_ip": "",
+ "registered_from_product": "434",
+ "type": "hwjos"
+ }
+ ],
+ "email": "",
+ "first_email": "",
+ "first_phone": "",
+ "gender": -1,
+ "id_card": "",
+ "openid": "rxufDKpjbq2O-VluN0D8TY2M7RCyEDZp5l0YZEx8",
+ "phone": "",
+ "real_name": "",
+ "registered_at_time": 1685010295,
+ "registered_from_ip": "117.152.46.63"
+ }
+}
+```
+
+### 设置 cp 侧 userid
+
+> **POST：** `/v1/passport/users/update_cpuserid`
+>
+> **认证方式：** [CPSign](/docs/开发者文档/入门指南/服务端接入须知)
+
+#### CURL示例
+
+```bash
+curl --location --request POST '{{接口域名}}/v1/passport/users/update_cpuserid' \
+--header 'ruixue-language: {{语言}}' \
+--header 'ruixue-cpid: {{CPID}}' \
+--header 'ruixue-productid: {{产品标识}}' \
+--header 'ruixue-cpts: {{时间戳}}' \
+--header 'ruixue-traceid: {{TraceID}}' \
+--header 'ruixue-cpsign: {{请求签名}}' \
+--header 'ruixue-devicecode: {{设备码}}' \
+--header 'ruixue-channelid: {{渠道标识}}' \
+--header 'ruixue-platformid: {{平台标识}}' \
+--header 'Content-Type: application/json' \
+--data-raw '{
+ "openid":"rxxxxx",
+ "cp_user_id":"xxxx"
+}'
+```
+
+#### 请求参数（JSON）
+
+
+| 字段 | 类型 | 是否必填 | 说明 |
+| --- | --- | --- | --- |
+| open_id | String | 是 | 目标通行证用户的 openid |
+| cp_user_id | String | 是 | cp 侧的 user_id |
+
+
+**响应示例**
+
+```json
+{
+ "code": 0
+}
+```
+
+## 临时接口
+
+### 根据微信openid 查询用户信息（临时）
+
+> **GET：** `/v1/passport/users/temp_load_by_external_openid`
+>
+> **认证方式：** [CPSign](/docs/开发者文档/入门指南/服务端接入须知)
+
+#### CURL示例
+
+```bash
+curl --location --request GET '{{接口域名}}/v1/passport/users/temp_load_by_external_openid?external_openid={external_openid}' \
+--header 'ruixue-language: {{语言}}' \
+--header 'ruixue-cpid: {{CPID}}' \
+--header 'ruixue-productid: {{产品标识}}' \
+--header 'ruixue-cpts: {{时间戳}}' \
+--header 'ruixue-traceid: {{TraceID}}' \
+--header 'ruixue-cpsign: {{请求签名}}' \
+--header 'ruixue-devicecode: {{设备码}}' \
+--header 'ruixue-channelid: {{渠道标识}}' \
+--header 'ruixue-platformid: {{平台标识}}'
+```
+
+#### 请求参数（Query）
+
+
+| 字段 | 类型 | 是否必填 | 说明 |
+| --- | --- | --- | --- |
+| external_openid | String | 是 | 微信 OpenID |
+| unionid | String | 否 | 开放平台 unionid |
+
+
+**响应示例**
+
+```json
+{
+ "data": {
+ "cp_user_id": "1010326",
+ "regtime": 1714358210,
+ "external_openid": "oEJMP5x42ABJ8l8NbKb3MYxdgD9o"
+ },
+ "code": 0
+}
+```
+
+#### 响应结构（JSON）
+
+| 字段 | 类型 | 说明 |
+| --- | --- | --- |
+| code | Number | 状态 等于 0 为正常情况 |
+| data | Data | 响应数据 |
+
+##### Data
+
+| 字段 | 类型 | 说明 |
+| --- | --- | --- |
+| cp_user_id | String | 游戏侧用户 ID |
+| regtime | Number | 注册时间 |
+| external_openid | String | 微信 openid |

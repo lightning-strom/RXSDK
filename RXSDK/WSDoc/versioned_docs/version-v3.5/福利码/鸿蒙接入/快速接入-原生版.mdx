@@ -1,0 +1,120 @@
+---
+title: "快速接入-原生版"
+---
+
+## 获取福利码
+
+**接口原型**
+
+```typescript
+/**
+ * 获取促销展示标识（Promo Display Key）
+ * 该标识用于展示和追踪特定的促销活动，支持自动刷新机制
+ * 
+ * @param callback - 回调函数，用于接收促销展示标识获取结果
+ *                   回调参数格式：{ code: number, message: string, data?: PromoCode }
+ *                   - code: 状态码（0表示成功，非0表示失败）
+ *                   - message: 操作消息
+ *                   - data: 促销码对象，包含展示标识和相关信息
+ * 
+ * @param autoRefresh - 是否启用自动刷新（可选，默认false）
+ *                      true: 定期自动刷新促销展示标识
+ *                      false: 仅获取一次，不自动刷新
+ * 
+ * @returns 无返回值，结果通过回调函数返回
+ 
+ */
+getPromoDisplayKEY(callback: RCallback, autoRefresh?: boolean | undefined): void {
+  // 方法实现
+}
+```
+
+**调用示例**
+
+```typescript
+        RXApi.getInstance().passport().getPromoDisplayKEY((result) =>
+        {
+
+        }, true);
+```
+
+### 响应结构(JSON)
+
+| **参数** | **类型**                                             | **备注** |
+| -------- | ---------------------------------------------------- | -------- |
+| code     | Number                                               | 0 为成功 |
+| msg      | String                                               | 失败信息 |
+| data     | [Data](/docs/v3.5/入门指南/服务端接入须知)            |          |
+
+##### data
+
+| **参数**   | **类型**  | **说明** |
+| ---------- | ----------| -------- |
+| refresh_period | Number    | 刷新周期 单位分钟|
+| promo_name      | String    | 福利码名称 |
+| gift_name    | String    | 礼包名称|
+| promo_valid_start    | String    | 福利码创建时间|
+| promo_valid_end    | String    | 福利码有效期结束时间|
+| promo_code    | String    | 游戏内显示福利码|
+| refresh_period_exp    | Number    | 刷新周期过期时间，小于1时轮询|
+| polling    | Number    | 轮询间隔时间 秒|
+
+## 兑换福利码
+
+**接口原型**
+
+```typescript
+/**
+ * 兑换促销CDKEY
+ * 将用户输入的促销码兑换为对应的奖励或权益
+ * 
+ * @param cdKey - 促销CDKEY字符串
+ *                格式通常为字母数字组合（如ABC123-XYZ789）
+ *                区分大小写，具体格式由业务规则决定
+ * 
+ * @param callback - 回调函数，用于接收兑换结果
+ *                   回调参数格式：{ code: number, msg: string, data?: string }
+ *                   - code: 状态码（0表示成功，非0表示失败）
+ *                   - msg: 操作消息（如"兑换成功"、"CDKEY无效"）
+ *                   - data: 兑换成功后的额外信息（如奖励ID、凭证码）
+ * 
+ * @returns 返回Promise，解析为统一的响应结果对象
+ *          注意：该方法同时支持Promise和回调两种模式
+ * 
+ * @throws {Error} 如果CDKEY为空或格式不符合要求
+ * @throws {Error} 如果未提供回调函数且未处理Promise的拒绝情况
+ */
+exchangePromoCDKEY(cdKey: string, callback: RCallback): Promise>
+
+```
+
+**调用示例**
+
+```typescript
+RXApi.getInstance().passport()exchangePromoCDKEY("ABC123-XYZ789", (result) => {
+   if (result.code === 0) {
+     console.log("兑换成功:", result.data);
+     showReward(result.data); // 显示奖励
+   } else {
+     console.error("兑换失败:", result.message);
+     showErrorToast(result.message); // 显示错误提示
+   }
+ });
+   
+ ```
+
+### 响应结构(JSON)
+
+| **参数** | **类型**                                             | **备注** |
+| -------- | ---------------------------------------------------- | -------- |
+| code     | Number                                               | 0 为成功 |
+| msg      | String                                               | 失败信息 |
+| data     | [][Data](/docs/v3.5/入门指南/服务端接入须知)            |          |
+
+##### data
+
+| **参数**   | **类型**  | **说明** |
+| ---------- | ----------| -------- |
+| prop_id | String    | 道具标识|
+| prop_name      | String    | 道具名称 |
+| prop_num    | String    | 道具数量|

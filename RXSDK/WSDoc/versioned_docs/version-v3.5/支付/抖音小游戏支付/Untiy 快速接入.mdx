@@ -1,0 +1,120 @@
+---
+title: "Untiy 快速接入"
+---
+
+## 下单支付
+
+### 参数说明
+
+| **字段**
+      | **类型**
+ | **是否必填**
+ | **备注**
+                                                                      |
+| ----------------- | ------------ | ---------------- | --------------------------------------------------------------------------------- |
+| pay_type
+      | string
+   | 是
+           | 支付的类型
+                                                                    |
+| platform
+      | string
+   | 否
+           | 支付的平台 android ios，不传默认android
+                                                                    |
+| goods_tag
+     | string
+   | 是
+           | 计费点标识
+                                                                      |
+| trade_no
+      | string
+   | 是
+           | CP 订单号
+                                                                     |
+| indulge_auth
+  | number
+   | 是
+           | 是否进行防沉迷支付验证 ，0 不验证 1 验证，默认不验证
+如果为 1 age 必传
+ |
+| age
+           | number
+   | 否
+           | 用户年龄
+indulge_auth 为 1 时必传该字段
+                                |
+| notify_url
+    | string
+   | 否
+           | 支付成功通知 CP 发货地址 
+                                                     |
+| transmit_args
+ | string
+   | 否
+           | 客户端透传参数，key1=val1&key2=val2 的格式
+                                    |
+| is_debug
+      | number
+   | 否
+           | 是否测试订单，0 正式 1 为测试订单，默认为 0 
+                                  |
+| env
+           | number
+   | 否
+           | 是否使用沙盒环境支付，0 正式 1 沙盒，默认为 0 
+                                |
+| game_info     | object    | 否           | 游戏自定义数据， 上报区服和角色需要在 game_info 中传入属性，具体使用方式参考下方 game_info 字段说明  || bigdata_report     | object     | 否           | 商业化支付参数， 通过商业化触发的支付行为要传以下参数，否则数据统计会有丢失，具体使用方式参考下方 bigdata_report 字段说明  |
+
+> `bigdata_report` 字段说明
+
+| **字段**  | **类型** | **是否必填** | **备注** |
+| --------- | ------  | ----------- |---------|
+| scene_identifier| string| 否             | 场景标识                           |
+| scene_name     | string| 否            | 场景名称                          |
+| trigger_button_identifier     | string| 否            | 触发按钮标识                         |
+| trigger_button_name     | string| 否            | 触发按钮名称                         |
+| window_identifier     | string| 否            | 窗口标识                         |
+| window_name     | string| 否            | 窗口名称                         |
+| window_sequence     | string| 否            | 窗口展示顺序                         |
+| gift_package     | object     | 否            | 礼包	                         |
+
+> `gift_package` 字段说明
+
+| **字段**  | **类型** | **是否必填** | **备注** |
+| --------- | ------  | ----------- |---------|
+| identifier| string| 否             | 礼包标识                           |
+| name     | string| 否            | 礼包名称                          |
+| purchase_medium     | string| 否            | 购买礼包介质                         |
+| price     | number| 否            | 礼包价格                         |
+| billing_point     | string| 否            | 礼包计费点                         |
+
+> `game_info` 字段说明
+
+| **字段**  | **类型** | **是否必填** | **备注** |
+| --------- | ------  | ----------- |---------|
+| cp_game_character_id| string| 否             | 角色 id                           |
+| cp_game_area_id     | string| 否            | 区服 id                           |
+
+> pay_type 说明
+
+| **字段**
+ | **备注**
+                                    |
+| ------------ | ----------------------------------------------- |
+| douyinh5
+ | 抖音支付
+ |
+
+### 示例代码
+```csharp
+
+Dictionary dic = new();
+// dic.Add("pay_type", "douyinh5");
+// dic.Add("platform", "ios");
+// dic.Add("goods_tag", "bytest"); // 计费点
+// dic.Add("trade_no", "1212"); // 订单号，根据业务自己填写
+// 参数根据需求填写
+RXPay.Pay(dic, onResponse, onError)
+
+```

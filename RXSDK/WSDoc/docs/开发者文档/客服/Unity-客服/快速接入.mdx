@@ -1,0 +1,83 @@
+---
+sidebar_position: 1
+title: 快速接入
+description: "望舒SDK 客服 快速接入 Unity 接入文档，提供完整的接口调用说明与示例。"
+---
+
+### 接入方式
+
+Package Manager 导入 RuiXue.Help
+
+## 帮助中心
+
+### 展示帮助中心
+
+**UI 示例**
+
+![](https://guanwangyun.oss-cn-beijing.aliyuncs.com/document/charts/helpdark.png)
+
+![](https://guanwangyun.oss-cn-beijing.aliyuncs.com/document/charts/helpligth.png)
+
+**接口原型**
+
+```csharp
+public void HelperCenterUI(Dictionarystring, object> dic,
+ RequestResponseDelegate responseDelegate, RequestErrorDelegate errorDelegate);
+```
+
+#### 参数说明
+
+> Dictionary 结构说明
+
+| 字段 | 备注 |
+| --- | --- |
+| transmit_args | 透传数据，使用 jsonString 形式 |
+| game_user_id | 用户的游戏 id |
+| nickname | 用户昵称 |
+| head_img_url | 用户头像 |
+| queue_name | 在望舒客服系统设置的接入点名称 不填写默认为 default |
+
+**调用示例**
+
+```csharp
+ public void OnHelperCenterUI()
+ {
+ Dictionarystring, object> dic = new();
+ RXHelp.HelperCenterUI(dic, HelperCenterUIResponseDelegate, HelperCenterUIErrorDelegate);
+ }
+```
+
+### 客服会话
+
+**UI 示例**
+
+![](https://guanwangyun.oss-cn-beijing.aliyuncs.com/document/chatService/HrMKbwZDDo5CayxoqPWcQfLinfw.png)
+
+**接口原型**
+
+```csharp
+public void ChatServiceUI(Dictionarystring, object> dic,
+ RequestResponseDelegate responseDelegate, RequestErrorDelegate errorDelegate);
+```
+
+#### 参数说明
+
+> Dictionary 结构说明
+
+| 字段 | 备注 |
+| --- | --- |
+| transmit_args | 透传数据，使用 jsonString 形式 |
+| game_user_id | 用户的游戏 id |
+| nickname | 用户昵称 |
+| head_img_url | 用户头像 |
+| queue_name | 在望舒客服系统设置的接入点名称 不填写默认为 default |
+
+**调用示例**
+
+```csharp
+ public void ChatServiceUI()
+ {
+ Dictionarystring, object> dic = new();
+ RXHelp.ChatServiceUI(dic, ChatServiceUIResponseDelegate, ChatServiceUIErrorDelegate);
+ }
+```

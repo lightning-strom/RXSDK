@@ -1,0 +1,89 @@
+---
+title: "iOS"
+---
+
+## 准备工作
+
+::: tip
+接入请前先做好准备工作。
+可通过 **pod** 方式接入 **RXZaloSDK** 组件，并使用 **RXZaloSDK** 相关功能。
+在需要使用功能的类中引用头文件 <code>#import </code>
+
+在 [Zalo开发者](https://developers.zalo.me) 中创建项目项目，并获取相关参数。
+:::
+
+## SDK 集成
+- **RXZaloSDK 版本 3.0.2**
+- **RXSDK_Pure 版本 3.4.30**
+- **RXOSUIKit 版本 3.4.17**
+
+**依赖ZaloSDK版本 4.1.0803** 
+
+- 编辑 Podfile 文件，添加如下配置：
+
+```objectivec
+pod 'RXZaloSDK'
+```
+
+## 工程配置
+
+- 在 **Xcode > Info > URL Types** 中添加 **zalo id**。
+
+![](http://guanwangyun.oss-cn-beijing.aliyuncs.com/document/tripartite/zalo1.jpeg)
+
+- 在 **info.plist->Queried URL Schemes** 中添加 **zalosdk** 和 **zaloshareext** 配置。
+
+![](http://guanwangyun.oss-cn-beijing.aliyuncs.com/document/tripartite/zalo2.jpeg)
+
+## 初始化 ZaloSDK
+
+**接口原型**
+
+```objectivec
+/**
+ * 初始化 Zalo
+ */
+- (void)initWithAppId:(NSString *)appid;
+```
+
+**调用示例**
+
+```objectivec
+[[RXZaloService sharedSDK] initWithAppId:@"your zalo appid"];
+```
+
+## 跳转 openURL
+
+::: tip
+<code>- (BOOL)application:(UIApplication *)app openURL:(NSURL *)url options:(NSDictionary *)options; </code>
+此系统方法用于处理app之间跳转的参数传递，在此添加Zalo跳转url用于接收Zalo跳转回客户端所携带的参数。必须实现此方法，否则无法正常使用Zalo登录或分享功能。
+:::
+
+**接口原型**
+
+```objectivec
+/**
+ * openUrl 处理跳转信息
+ */
+- (BOOL)application:(UIApplication *)app openURL:(NSURL *)url options:(NSDictionary *)options;
+```
+
+**调用示例**
+
+```objectivec
+- (BOOL)application:(UIApplication *)app openURL:(NSURL *)url options:(NSDictionary *)options{
+    if ([[RXZaloService sharedSDK] application:app openURL:url options:options]) {
+        return YES;
+    }
+    return YES;
+}
+```
+
+## 登录
+
+[点此跳转到 UI 登录方式](/docs/v3.5/三方服务/Instagram/iOS)
+[点此跳转到 API 登录方式](/docs/v3.5/三方服务/Reddit/iOS)
+
+## 分享
+
+[点此跳转到分享 API](/docs/v3.5/三方服务/Instagram/iOS)

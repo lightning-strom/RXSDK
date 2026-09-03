@@ -1,0 +1,251 @@
+---
+sidebar_position: 2
+title: 动态消息 API
+description: "望舒SDK 动态消息 API服务端文档，提供接口请求参数与响应说明。"
+---
+
+## 创建动态消息activity_id
+
+> **POST: ** `/v1/thirdparty/api/create_activity_id`
+>
+> **认证方式:** [CPSign](/docs/开发者文档/入门指南/服务端接入须知)
+
+### CURL 示例
+
+```bash
+curl --location --request POST '{{接口域名}}/v1/thirdparty/api/create_activity_id' \
+--header 'ruixue-language: {{语言}}' \
+--header 'ruixue-cpid: {{CPID}}' \
+--header 'ruixue-productid: {{产品标识}}' \
+--header 'ruixue-cpts: {{时间戳}}' \
+--header 'ruixue-traceid: {{TraceID}}' \
+--header 'ruixue-cpsign: {{请求签名}}' \
+--header 'ruixue-devicecode: {{设备码}}' \
+--header 'ruixue-channelid: {{渠道标识}}' \
+--header 'ruixue-platformid: {{平台标识}}'
+-d '{"unionid":"用户微信unionid","openid":"用户微信 openid"}'
+```
+
+### 请求参数（JSON）
+
+微信小游戏动态消息[微信官方文档](https://developers.weixin.qq.com/minigame/dev/api-backend/open-api/updatable-message/updatableMessage.createActivityId.html)
+
+| 参数 | 类型 | 是否必填 | 备注 |
+| --- | --- | --- | --- |
+| rx_open_id | String | 否 | 望舒 openid ，如果没有传入微信 unionid 和 openid,则使用 rx_open_id 查询 |
+| openid | String | 否 | 为私密消息创建 activity_id 时，指定分享者为 openid 用户。其余用户不能用此 activity_id 分享私密消息。openid 与 unionid 填一个即可。 |
+| unionid | String | 否 | 为私密消息创建 activity_id 时，指定分享者为 unionid 用户。其余用户不能用此 activity_id 分享私密消息。openid 与 unionid 填一个即可。 |
+
+**请求示例**
+
+```json
+{
+ "unionid": "",
+ "openid": ""
+}
+```
+
+### 响应结构(JSON)
+
+| 参数 | 类型 | 备注 |
+| --- | --- | --- |
+| code | Number | 0 为成功 |
+| msg | String | 失败信息 |
+| data | Data |  |
+
+#### Data
+
+| 参数 | 类型 | 说明 |
+| --- | --- | --- |
+| errcode | Number | 微信返回的错误 |
+| expiration_time | Number | activity_id 的过期时间戳。默认 24 小时后过期。 |
+| activity_id | String | 动态消息的 ID |
+
+**响应示例**
+
+```json
+{
+ "code": 0,
+ "data": {
+ "activity_id": "1309_sC1FWO2S6InsVyLayXzNh_MRShc4J6G6jNczAVfh5aftvpkylnj_8WSsR-6a2oXWwDl7OpA3Ros8MsZ7",
+ "expiration_time": 1739514834,
+ "errcode": 0
+ }
+}
+```
+
+## 修改被分享的动态消息
+
+> **POST: ** `/v1/thirdparty/api/set_updatable_msg`
+>
+> **认证方式:** [CPSign](/docs/开发者文档/入门指南/服务端接入须知)
+
+### CURL 示例
+
+```bash
+curl --location --request POST '{{接口域名}}/v1/thirdparty/api/set_updatable_msg' \
+--header 'ruixue-language: {{语言}}' \
+--header 'ruixue-cpid: {{CPID}}' \
+--header 'ruixue-productid: {{产品标识}}' \
+--header 'ruixue-cpts: {{时间戳}}' \
+--header 'ruixue-traceid: {{TraceID}}' \
+--header 'ruixue-cpsign: {{请求签名}}' \
+--header 'ruixue-devicecode: {{设备码}}' \
+--header 'ruixue-channelid: {{渠道标识}}' \
+--header 'ruixue-platformid: {{平台标识}}'
+-d '{"activity_id":"1319_TGDxxxxxxxxaa8Rqojjjh6xxxxxxDt2FBtmrjEzIJCZAplQgJ","target_state":0,"template_info": {"parameter_list": [{"name": "member_count", "value": "2"}, {"name":"room_limit", "value": "5"} ] } } '
+```
+
+### 请求参数（JSON）
+
+微信小游戏动态消息[微信官方文档](https://developers.weixin.qq.com/minigame/dev/api-backend/open-api/updatable-message/updatableMessage.setUpdatableMsg.html)
+
+| 参数 | 类型 | 是否必填 | 备注 |
+| --- | --- | --- | --- |
+| activity_id | String | 是 | 动态消息的 ID |
+| target_state | Number | 是 | 动态消息修改后的状态 0 未开始 1 一开始 |
+| template_info | TemplateInfo | 是 | 动态消息对应的模板信息 |
+
+#### TemplateInfo
+
+| 参数 | 类型 | 是否必填 | 备注 |
+| --- | --- | --- | --- |
+| parameter_list | []Object | 是 | 模板中需要修改的参数 |
+
+##### Object
+
+| 参数 | 类型 | 是否必填 | 备注 |
+| --- | --- | --- | --- |
+| name | String | 是 | 要修改的参数名 |
+| value | String | 是 | 修改后的参数值 |
+
+##### name 的合法值
+
+| 值 | 说明 | 最低版本 |
+| --- | --- | --- |
+| member_count | target_state = 0 时必填，文字内容模板中 member_count 的值 | room_limit |
+| target_state = 0 时必填，文字内容模板中 room_limit 的值 | path | target_state = 1 时必填，点击「进入」启动小程序时使用的路径。对于小游戏，没有页面的概念，可以用于传递查询字符串（ query ），如 "?foo=bar" |
+| version_type | target_state = 1 时必填，点击「进入」启动小程序时使用的版本。有效参数值为： develop （开发版）， trial （体验版）， release （正式版） |  |
+
+**请求示例**
+
+```json
+{
+ "activity_id": "966_NGiqxxxxxxxxx...xxxxxxxxE33BlwX",
+ "target_state": 0,
+ "template_info": {
+ "parameter_list": [
+ {
+ "name": "member_count",
+ "value": "2"
+ },
+ {
+ "name": "room_limit",
+ "value": "5"
+ }
+ ]
+ }
+}
+```
+
+### 响应结构(JSON)
+
+| 参数 | 类型 | 备注 |
+| --- | --- | --- |
+| code | Number | 0 为成功 |
+| data | object | 微信返回结果透传 |
+| msg | String | 失败信息 |
+
+**响应示例**
+
+```json
+{
+ "data": {
+ "errcode": 0,
+ "errmsg": "ok"
+ },
+ "code": 0
+}
+```
+
+## 更新活动状态或用户完成情况
+
+> **POST: ** `/v1/thirdparty/api/chat_tool_msg_send`
+>
+> **认证方式:** [CPSign](/docs/开发者文档/入门指南/服务端接入须知)
+
+### CURL 示例
+
+```bash
+curl --location --request POST '{{接口域名}}/v1/thirdparty/api/set_updatable_msg' \
+--header 'ruixue-language: {{语言}}' \
+--header 'ruixue-cpid: {{CPID}}' \
+--header 'ruixue-productid: {{产品标识}}' \
+--header 'ruixue-cpts: {{时间戳}}' \
+--header 'ruixue-traceid: {{TraceID}}' \
+--header 'ruixue-cpsign: {{请求签名}}' \
+--header 'ruixue-devicecode: {{设备码}}' \
+--header 'ruixue-channelid: {{渠道标识}}' \
+--header 'ruixue-platformid: {{平台标识}}'
+-d '{"activity_id":"966_NGiqxxxxxxxxxx...xxxxxxxxE33BlwX","target_state":1,"template_id":"4A68CBB88A92B0A9311848DBA1E94A199B166463","version_type":0,"participator_info_list":[{"group_openid":"aaaaaaaaaa","state":1},{"group_openid":"bbbbbbbbb","state":1},]}'
+```
+
+### 请求参数（JSON）
+
+微信小游戏动态消息[微信官方文档](https://developers.weixin.qq.com/miniprogram/dev/OpenApiDoc/mp-message-management/updatable-message/setChatToolMsg.html)
+
+| 参数 | 类型 | 是否必填 | 备注 |
+| --- | --- | --- | --- |
+| activity_id | String | 是 | 动态消息的 ID ，通过 createActivityId 接口获取 |
+| target_state | Number | 是 | 动态消息修改后的状态 0 未开始 1 一开始 |
+| template_id | String | 是 | 模板 id |
+| participator_info_list | []ParticipatorInfo | 否 | 更新后的聊天室成员状态 |
+| version_type | Number | 是 | 0 正式版 1 开发版 2 体验版 |
+
+#### ParticipatorInfo
+
+| 参数 | 类型 | 是否必填 | 备注 |
+| --- | --- | --- | --- |
+| group_openid | String | 是 | 聊天室用户的 GroupOpenID |
+| state | Number | 是 | 用户对卡片事件的完成状态。0 ：未完成（初始状态）， 1 ：已完成。目前只支持设置为 1 |
+
+**请求示例**
+
+```json
+{
+ "activity_id": "966_NGiqxxxxxxxxxx...xxxxxxxxE33BlwX",
+ "target_state": 1,
+ "template_id": "4A68CBB88A92B0A9311848DBA1E94A199B166463",
+ "version_type": 0,
+ "participator_info_list": [
+ {
+ "group_openid": "aaaaaaaaaa",
+ "state": 1
+ },
+ {
+ "group_openid": "bbbbbbbbb",
+ "state": 1
+ },
+ ]
+}
+```
+
+### 响应结构(JSON)
+
+| 参数 | 类型 | 备注 |
+| --- | --- | --- |
+| code | Number | 0 为成功 |
+| data | object | 微信返回结果透传 |
+| msg | String | 失败信息 |
+
+**响应示例**
+
+```json
+{
+ "data": {
+ "errcode": 0,
+ "errmsg": "ok"
+ },
+ "code": 0
+}
+```

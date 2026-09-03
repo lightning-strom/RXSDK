@@ -1,0 +1,85 @@
+---
+title: "iOS"
+---
+
+## 准备工作
+
+::: tip
+接入请前先做好准备工作。
+可通过 **pod** 方式接入 **RXInstagramSDK** 组件，并使用 **RXInstagramSDK** 相关功能。
+在需要使用功能的类中引用头文件 <code>#import  </code>
+在 [Instagram开发者](https://developers.facebook.com/docs/instagram-basic-display-api) 中创建项目项目，并获取相关参数。
+:::
+
+## SDK 集成
+- **RXInstagramSDK 版本 1.0.1**
+- **RXSDK_Pure 版本 3.4.32**
+- **RXOSUIKit 版本 3.4.18**
+
+- 编辑 Podfile 文件，添加如下配置：
+
+```objectivec
+pod 'RXInstagramSDK'
+```
+
+## 初始化
+
+:::tip
+在调用 Instagram 相关功能前必须要在 <code>- (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions</code> 中先进行初始化。
+:::
+
+**接口原型**
+
+```objectivec
+/**
+ * 初始化 instagram
+ * @param clientID 应用ID
+ * @param redirectURI 应用重定向网址
+ * 注册应用时自动生成应用ID，并设置重定向网址redirectURI
+ */
+- (void)initWithClientID:(NSString *)clientID redirectURI:(NSString *)redirectURI;
+```
+
+**调用示例**
+
+```objectivec
+- (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions {
+    // Override point for customization after application launch.
+    
+    self.window = [[UIWindow alloc] initWithFrame:[[UIScreen mainScreen] bounds]];
+    self.window.backgroundColor = [UIColor blackColor];
+    
+    ViewController *rootVC = [[ViewController alloc] init];
+
+    UINavigationController *naVC = [[UINavigationController alloc] initWithRootViewController:rootVC];
+    self.window.rootViewController = naVC;
+    [self.window makeKeyAndVisible];
+    
+    [[RXInstagramService sharedSDK] initWithClientID:@"your client id" redirectURI:@"your redirect uri"];
+    
+    [[RXService sharedSDK] initWithProductId:@"your productId"
+                                   channelId:@"your channelId"
+                                        cpid:@"your cpid"
+                                 baseUrlList:@[@"https:xxx"]
+                                    complete:^(NSDictionary * _Nullable response, RX_CommonRequestError * _Nullable error) {
+        if (!error) {
+            NSLog(@"初始化成功");
+        } else {
+            NSLog(@"初始化失败");
+        }
+    }];    
+    
+    return YES;
+}
+```
+
+## 登录
+
+[点此跳转到 UI 登录方式](/docs/v3.5/三方服务/Instagram/iOS)
+[点此跳转到 API 登录方式](/docs/v3.5/三方服务/Instagram/Android)
+
+## 分享
+
+仅支持系统分享。
+
+[点此跳转到分享 API](/docs/v3.5/三方服务/Instagram/iOS)

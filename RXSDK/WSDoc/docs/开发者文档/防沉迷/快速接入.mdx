@@ -1,0 +1,270 @@
+---
+sidebar_position: 2
+title: 快速接入
+description: "望舒SDK 防沉迷 快速接入文档，提供详细的功能说明与接入指引。"
+---
+
+## 准备工作
+
+### 注册中宣部实名认证系统
+
+在 [中宣部网络游戏防沉迷实名认证系统](https://wlc.nppa.gov.cn/fcm_company/index.html#/login?redirect=%2F) 完成注册，通过接口测试，并获取相关凭证：
+
+游戏备案识别码 `bizId`
+
+应用标识 `APPID`
+
+应用密钥 `Secret Key`
+
+并把望舒首页的出口 IP 添加到中宣部系统的白名单配置中。
+
+### 望舒系统中配置防沉迷信息
+
+菜单位置：**法务管理 > 法务合规配置 > 防沉迷配置**
+
+前置条件：先创建产品信息
+
+---
+
+## 接入 RDS 实名认证和防沉迷服务
+
+### 游戏实名认证与防沉迷
+
+按照国家新闻出版署[《关于进一步严格管理切实防止未成年人沉迷网络游戏的通知》](https://www.nppa.gov.cn/nppa/contents/279/98792.shtml)，各游戏出版运营企业均须在游戏内落实游戏实名认证和防沉迷新策略。
+
+#### 实名认证
+
+所有用户必须使用真实有效身份信息进行游戏账号注册并登录网络游戏。RDS 已为开发者自动对接了中宣部网络游戏防沉迷实名认证系统，并以开发者主体进行信息上报。
+
+业务流程：
+
+在玩家登录后，调用 SDK 实名认证的接口，如账号为未实名状态，则会触发实名认证界面，完成真实信息填写。
+
+完成填写后，RDS 会将信息提交至中宣部系统中进行真实性校验（请先确认已完成开发者中心的配置工作，否则无法成功校验）。
+
+#### 防沉迷策略
+
+《通知》中要求，游戏企业必须严格管理未成年的游戏时间以及付费额度。SDK 封装了相应接口，游戏可通过 RDS 云端查询未成年玩家是否处于可以游戏的时间段内，以及未成年玩家的某笔消费是否受限。
+
+**游戏时间限制**：渠道开启防沉迷后，18 岁以下用户无法登录。仅允许未成年人在**周五、周六、周日和法定节假日的 20:00 至 21:00** 进行游戏。
+
+**充值额度限制**：
+- 不满 8 岁，无法在游戏内进行充值
+- 满 8 岁，不满 16 岁：单次充值 ≤ 50 元，单月充值累计 ≤ 200 元
+- 满 16 岁，不满 18 岁：单次充值 ≤ 100 元，单月充值累计 ≤ 400 元
+
+---
+
+## 客户端接入
+
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
+
+### 实名认证
+
+调用防沉迷弹框前，必需接入实名认证。
+
+<Tabs groupId="platform">
+<TabItem value="android" label="Android">
+
+客户端调用**实名认证接口**
+
+[国内](/docs/开发者文档/登录-通行证/Android-登录API/快速接入)
+
+[国外](/docs/开发者文档/登录-通行证/实名认证奖励道具/实名认证配置)
+
+</TabItem>
+<TabItem value="ios" label="iOS">
+
+客户端调用**实名认证接口**
+
+[国内](/docs/开发者文档/登录-通行证/iOS-登录UI-国内/快速接入)
+
+[国外](/docs/开发者文档/登录-通行证/iOS-登录UI-国外/快速接入)
+
+</TabItem>
+<TabItem value="unity" label="Unity">
+
+客户端调用**实名认证接口**
+
+[国内](/docs/开发者文档/登录-通行证/Unity-登录API/快速接入)
+
+[国外](/docs/开发者文档/登录-通行证/Unity-登录API/快速接入)
+
+</TabItem>
+<TabItem value="harmony" label="鸿蒙">
+
+鸿蒙端使用 TypeScript API 调用：
+
+```typescript
+/**
+ * 显示实名认证界面
+ * 引导用户完成实名认证流程，支持自定义奖励和回调通知
+ * @param uiContext - UI上下文对象
+ * @param callback - 可选回调函数，用于接收实名认证结果
+ * 回调参数格式：{ code: number, message: string, data?: RealNameResult }
+ * - code: 状态码（0表示成功，非0表示失败）
+ * - message: 操作消息（如"认证成功"、"用户取消"）
+ * - data: 认证结果数据，包含用户实名信息
+ * @returns 返回对话框控制器实例
+ */
+showRealNameUI(uiContext: UIContext, callback?: RCallback<RealNameResult>): IBaseDialog<RealNameResult>
+```
+
+**调用示例**：
+
+```typescript
+RXApi.getInstance().showRealNameUI(this.uiContext, (result) => {
+  if (result.code === 0) {
+    console.log("实名认证成功:", result.data);
+    refreshUserInfo();
+  } else {
+    console.error("实名认证失败:", result.message);
+  }
+});
+```
+
+</TabItem>
+</Tabs>
+
+### 防沉迷弹框
+
+望舒提供了防沉迷弹框：
+
+<Tabs groupId="platform">
+<TabItem value="android" label="Android">
+
+[国内](/docs/开发者文档/登录-通行证/Android-登录API/快速接入)
+
+[国外](/docs/开发者文档/登录-通行证/实名认证奖励道具/实名认证配置)
+
+</TabItem>
+<TabItem value="ios" label="iOS">
+
+[国内](/docs/开发者文档/登录-通行证/iOS-登录UI-国内/快速接入)
+
+[国外](/docs/开发者文档/登录-通行证/iOS-登录UI-国外/快速接入)
+
+</TabItem>
+<TabItem value="unity" label="Unity">
+
+[国内](/docs/开发者文档/登录-通行证/Unity-登录API/快速接入)
+
+[国外](/docs/开发者文档/登录-通行证/Unity-登录API/快速接入)
+
+</TabItem>
+</Tabs>
+
+### 获取玩家年龄
+
+登录成功后，返回结构体中包含玩家年龄信息。
+
+| 字段 | 类型 | 说明 |
+| --- | --- | --- |
+| age | number | 用户年龄，根据实名信息获取 |
+
+<Tabs groupId="platform">
+<TabItem value="android" label="Android">
+
+客户端调用[登录通行证接口](/docs/开发者文档/登录-通行证/Android-登录API/快速接入)
+
+</TabItem>
+<TabItem value="ios" label="iOS">
+
+客户端调用[登录通行证接口](/docs/开发者文档/登录-通行证/实名认证奖励道具/实名认证配置)
+
+</TabItem>
+<TabItem value="unity" label="Unity">
+
+客户端调用[登录通行证接口](/docs/开发者文档/登录-通行证/Unity-登录API/快速接入)
+
+</TabItem>
+<TabItem value="harmony" label="鸿蒙">
+
+客户端调用[登录通行证接口](/docs/开发者文档/登录-通行证/Android-登录API/快速接入)
+
+</TabItem>
+</Tabs>
+
+### 获取剩余时长
+
+登录成功后，返回结构体中包含玩家游戏剩余时长。
+
+| 字段 | 类型 | 说明 |
+| --- | --- | --- |
+| aas | number | 当 flag 有防沉迷标记时，表示用户剩余游戏时间（秒） |
+
+<Tabs groupId="platform">
+<TabItem value="android" label="Android">
+
+客户端调用[登录通行证接口](/docs/开发者文档/登录-通行证/Android-登录API/快速接入)
+
+</TabItem>
+<TabItem value="ios" label="iOS">
+
+客户端调用[登录通行证接口](/docs/开发者文档/登录-通行证/实名认证奖励道具/实名认证配置)
+
+</TabItem>
+<TabItem value="unity" label="Unity">
+
+客户端调用[登录通行证接口](/docs/开发者文档/登录-通行证/Unity-登录API/快速接入)
+
+</TabItem>
+<TabItem value="harmony" label="鸿蒙">
+
+客户端调用[登录通行证接口](/docs/开发者文档/登录-通行证/Android-登录API/快速接入)
+
+</TabItem>
+</Tabs>
+
+### 消费限制
+
+调用瑞需下单支付接口时，参数 `indulge_auth = 1`（防沉迷支付验证开启）。返回错误码为 `302412` 时，说明用户触发防沉迷充值机制不可充值。
+
+<Tabs groupId="platform">
+<TabItem value="android" label="Android">
+
+客户端调用，参考 `下单支付接口`
+
+</TabItem>
+<TabItem value="ios" label="iOS">
+
+客户端调用，参考 `下单支付接口`
+
+</TabItem>
+<TabItem value="unity" label="Unity">
+
+服务端调用[下单支付接口](/docs/开发者文档/支付/Unity-接入/快速接入)
+
+</TabItem>
+<TabItem value="harmony" label="鸿蒙">
+
+客户端调用，参考 `下单支付接口`
+
+</TabItem>
+</Tabs>
+
+---
+
+## 中宣部接入文档
+
+- [网络游戏防沉迷实名认证系统接口对接技术规范 v1.8](https://oss.ruixueyun.com/zhongxuanbu/%E7%BD%91%E7%BB%9C%E6%B8%B8%E6%8E%A7%E9%98%B2%E6%B2%89%E8%BF%B7%E5%AE%9E%E5%90%8D%E8%AE%A4%E8%AF%81%E7%B3%BB%E7%BB%9F%E6%8E%A5%E5%8F%A3%E5%AF%B9%E6%8E%A5%E6%8A%80%E6%9C%AF%E8%A7%84%E8%8C%83v1.8(1)(1).pdf)
+- [网络游戏防沉迷实名认证系统用户操作手册](https://oss.ruixueyun.com/zhongxuanbu/%E7%BD%91%E7%BB%9C%E6%B8%B8%E6%88%8F%E9%98%B2%E6%B2%89%E8%BF%B7%E5%AE%9E%E5%90%8D%E8%AE%A4%E8%AF%81%E7%B3%BB%E7%BB%9F%E7%94%A8%E6%88%B7%E6%93%8D%E4%BD%9C%E6%89%8B%E5%86%8C(4).pdf)
+
+---
+
+## 常见问题
+
+### 个人 / 团体的开发者需要接入防沉迷吗？
+
+按照国家新闻出版署[《关于进一步严格管理切实防止未成年人沉迷网络游戏的通知》](https://www.nppa.gov.cn/xxfb/tzgs/202108/t20210830_666285.html)，各游戏出版运营企业均须在游戏内落实游戏实名认证和防沉迷新策略。
+
+### 防沉迷和登录是什么关系？
+
+防沉迷弹窗需要项目组自定义弹出时机。集成望舒登录后（**必须启用实名认证**），望舒会返回用户年龄、用户剩余游戏时长（根据实名信息计算）。一般项目会根据以上信息自行计算何时弹出防沉迷弹窗。
+
+用户充值时，需要项目组传参是否启用防沉迷校验。如果启用防沉迷校验，调用支付接口后，望舒会返回具体的[错误码](/docs/开发者文档/入门指南/错误码对照表)。
+
+### 如何配置实名认证与防沉迷服务？
+
+登录望舒系统，菜单位置：**基础配置 > 法务相关 > 防沉迷配置**。

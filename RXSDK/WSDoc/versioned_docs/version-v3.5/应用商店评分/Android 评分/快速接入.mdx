@@ -1,0 +1,55 @@
+---
+title: "快速接入"
+---
+
+## 跳转到应用商店
+
+**接口原型**
+
+```java
+/**
+ * 跳转当前渠道手机应用商店
+ */
+boolean jumpToAppStore(Activity activity);
+```
+
+**调用示例**
+
+```java
+//跳转应用商店
+ RuiXueSdk.getRXSdkApi().jumpToAppStore(activity);
+```
+
+![](https://guanwangyun.oss-cn-beijing.aliyuncs.com/document/positioning/MKzqbXPVMoUDYBx8uKLcwEj3nCe.png)
+
+## 应用内评分弹框
+
+仅支持 Google Play 商店,用户提交 Play 商店的评分和评价，而无需退出您的应用或游戏
+您的应用需要遵循有关何时请求[应用内评价](https://developer.android.google.cn/guide/playcore/in-app-review?hl=zh-cn#when-to-request)和[评价提示](https://developer.android.google.cn/guide/playcore/in-app-review?hl=zh-cn#design-guidelines)设计的严格的准则。>
+**接口原型**
+
+```java
+/**
+ * 应用内评分弹框 ，仅支持 Google Play 商店
+ */
+- void alertAppReview(Activity activity, RXJSONCallback callback);
+```
+
+**调用示例**
+
+```java
+GoogleSdkWrapper.getInstance().alertAppReview(activity, new RXJSONCallback() {
+            @Override
+            public void onSuccess(@Nullable JSONObject data) {
+                
+            }
+
+            @Override
+            public void onFailed(@NonNull JSONObject cause) {
+
+            }
+        });
+```
+
+针对用户的应用内评价流程
+![](https://developer.android.google.cn/static/images/google/play/in-app-review/iar-flow.jpg?hl=zh-cn)

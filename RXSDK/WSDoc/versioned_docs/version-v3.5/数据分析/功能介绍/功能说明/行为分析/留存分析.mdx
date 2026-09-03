@@ -1,0 +1,165 @@
+---
+title: "留存分析"
+---
+
+# 留存分析
+
+:::tip
+1. 留存分析是基于两个事件——初始事件和回访事件建立的模型。
+2. 可统计有做过初始事件的用户中，在未来的日期内有做过回访事件的人数和比例，如新注册用户的次日留存、七日留存、LTV、ROI等。
+:::
+
+## 留存分析的意义
+
+留存分析主要分析用户的整体参与程度、活跃程度的情况，考查进行某项初始行为的用户中，会进行回访行为的人数和比例。
+
+通过留存分析模型，可以分析一段时间内，完成某项初始事件用户的回访情况，从而对事件的影响能进行宏观把控，优化决策。
+
+以从用户活跃到消费举例来说，可以解决如下问题：
+
+1. 用户使用产品后的 1 个月内，进行消费转化的人数和占比情况？
+2. 用户使用产品后的 1 个月内，完成消费，且消费金额达到 200 元的人数和占比情况？
+3. 上海用户使用产品后的 1 个月内，进行消费转化的人数和占比情况？
+4. 一线城市用户使用产品后的 1 个月内，完成消费，且消费金额达到 200 元的人数和占比情况？
+5. 全用户的 30 日 LTV 情况如何
+
+## 留存分析使用方法
+
+1. 进入望舒平台首页，点击左侧菜单：**大数据分析平台**。
+2. 点击页面上方「行为分析」，选择「留存分析」后点击进入。
+
+![](https://guanwangyun.oss-cn-beijing.aliyuncs.com/document/dataAnalysis/Neqzb5wluooqYVxPJpecJR0pnec.png)
+
+### 初始事件
+
+#### 选择初始事件
+
+1. 有过初始事件行为的用户将作为分析样本的数据源，并在整个分析中起作用。
+2. 选框中可以选择某事件。含义即是在特定日期中做过该事件的用户。
+
+![](https://guanwangyun.oss-cn-beijing.aliyuncs.com/document/dataAnalysis/BC3IbNvgBo5b4Wx3qcMc4dOfnXL.png)
+
+#### 添加条件
+
+1. 点击【添加条件】可对当前的初始事件增加限制条件。
+2. 添加多个条件时，条件之间可设置且和或的逻辑关系。最多支持 2 层逻辑嵌套
+3. 筛选项目与筛选逻辑间关系
+
+|  筛选项目的数据类型    |   举例   | 可支持的筛选逻辑关键字    |
+| --- | --- | --- |
+| 数值  | 消费金额 | 等于、不等于、小于、小于等于、大于、大于等于、有值、无值、区间 |
+| 文本  | 省份  | 等于、不等于、包含、不包含、有值、无值 |
+| 列表  | ID 名单 | 存在元素、不存在元素、元素位置、有值、无值 |
+| 时间  | 注册时间、最后活跃日期（yyyy-MM-dd HH:mm:ss.SSS 或 yyyy-MM-dd HH:mm:ss） | 位于区间、小于等于、大于等于、相对当前日期、相对事件发生时刻、有值、无值 |
+| 布尔  | Wifi 使用 | 为真、为假、有值、无值 |
+
+![](https://guanwangyun.oss-cn-beijing.aliyuncs.com/document/dataAnalysis/Jh7DbhBmboUrirxVTfYc8OFPn0g.png)
+
+### 回访事件
+
+#### 选择回访事件
+
+1. 回访用户是指满足初始事件用户在特定时间后，完成回访事件的用户。
+2. 选框中可以选择某“元事件”或“任意事件”。即是在特定日期中做过该回访事件的用户。
+
+![](https://guanwangyun.oss-cn-beijing.aliyuncs.com/document/dataAnalysis/WJrCbP28XoTSgIx3ACcccIFRnke.png)
+
+#### 添加条件
+
+1. 点击【添加条件】可对当前的回访事件增加限制条件。
+2. 添加多个条件时，条件之间可设置且和或的逻辑关系。最多支持 2 层逻辑嵌套
+3. 筛选项目与筛选逻辑间关系
+
+| 筛选项目的数据类型 | 举例  | 可支持的筛选逻辑关键字 |
+| --- | --- | --- |
+| 数值  | 消费金额 | 等于、不等于、小于、小于等于、大于、大于等于、有值、无值、区间 |
+| 文本  | 省份  | 等于、不等于、包含、不包含、有值、无值 |
+| 列表  | ID 名单 | 存在元素、不存在元素、元素位置、有值、无值 |
+| 时间  | 注册时间、最后活跃日期（yyyy-MM-dd HH:mm:ss.SSS 或 yyyy-MM-dd HH:mm:ss） | 位于区间、小于等于、大于等于、相对当前日期、相对事件发生时刻、有值、无值 |
+| 布尔  | Wifi 使用 | 为真、为假、有值、无值 |
+
+![](https://guanwangyun.oss-cn-beijing.aliyuncs.com/document/dataAnalysis/AfYRbYXTHoYeiBxycfucJxnunne.png)
+
+#### 同时展示
+
+##### 同时展示选项的意义
+
+在分析筛选留存用户的同时，我们可能会对留存下的用户做一些更深入的分析。
+
+如独立分析留存用户的活跃、付费、LTV 等数据，此时可以通过同时展示功能深度分析一些特定指标
+
+##### 同时展示选项的入口
+
+在 回访事件 后会展示「同时展示」开关。
+
+![](https://guanwangyun.oss-cn-beijing.aliyuncs.com/document/dataAnalysis/HirVbBd2XoN0v2x72nTcLsrXnwq.png)
+
+打开「同时展示」时，会出现需要分析的内容，可通过下拉框选取需要的事件和分析角度
+
+![](https://guanwangyun.oss-cn-beijing.aliyuncs.com/document/dataAnalysis/CoCXb6uewoDH9ZxjIWdcW1tFnNh.png)
+
+##### 同时展示的分析角度
+
+和事件分析的分析指标类似，同时展示指标可以是 「事件」 + 「属性」 + 「计算方法」 或直接 「事件」 + 「计算方法」：
+
+![](https://guanwangyun.oss-cn-beijing.aliyuncs.com/document/dataAnalysis/YYQIbxG4fo5cpExitsgczY0WnQg.png)
+
+根据事件描述、指标描述的数据类型不同，将呈现不一样的可分析角度
+
+| 事件描述 | 指标描述/数据类型 | 分析角度 |
+| --- | --- | --- |
+| 元事件 |     | 总次数、触发用户数、人均次数 |
+| 元事件 | 事件属性（数值型） | 总和、人均值、阶段累计总和、阶段累计人均值 |
+| 元事件 | 事件属性（布尔型） | 为真数、为假数、为空数、不为空数 |
+| 元事件 | 事件属性（其他） | 去重数 |
+
+#### 同时展示的取值与计算逻辑
+
+1. 初始事件、回访事件的筛选对同时展示有效
+2. 阶段累计总和概念
+
+   a. 第 N 天的阶段累计总和，对于留存来说，即 M 名初始用户作为样本，从第 0 天开始至第 N 天，所有用户在这 N 天内该事件属性值全部数量的总和
+3. 阶段累计人均概念
+
+   a. 第 N 天的阶段累计总和，对于留存来说，即 M 名初始用户作为样本，从第 0 天开始至第 N 天=（所有用户在这 N 天该事件属性值全部数量的总和/M）
+4. 阶段值中数据的计算逻辑为阶段总和。
+
+#### 作为公式的同时展示指标
+
+除了直接以 「事件」 + 「属性」 + 「计算方法」 或直接 「事件」 + 「计算方法」来构建同时展示指标，还可以像事件分析一样将公式作为同时展示指标，点击“开启指标编辑”按钮进入公式编辑弹窗
+
+![](https://guanwangyun.oss-cn-beijing.aliyuncs.com/document/dataAnalysis/QNhSbhzyjoryWYxXP6TcLADlnSK.png)
+
+1. 仅回访用户指标
+
+![](https://guanwangyun.oss-cn-beijing.aliyuncs.com/document/dataAnalysis/VRRSbh6r0o5AeFxnISGcBglhnhg.png)
+
+在回访用户指标下，可以切换为指标公式，操作和事件分析公式编辑一致。
+
+2. 回访日期指标结合初始日期指标
+
+在公式编辑弹窗内，还可增加“初始日期指标”，并定义其与“回访用户指标”的运算
+
+![](https://guanwangyun.oss-cn-beijing.aliyuncs.com/document/dataAnalysis/OSWMbdkkmoPqfdxSy8wcDeuVnYg.png)
+
+除了同时展示指标会以指标计算的结果显示，在数据表样式下还会新增一列“初始日期指标”
+
+### 全局筛选
+
+#### 添加条件
+
+1. 点击【添加条件】可设置多个条件。非必须设置。
+2. 视图筛选条件对添加的所有分析指标全部生效。
+3. 视图筛选条件可根据用户属性、事件属性进行限制。
+4. 其他逻辑与事件的【添加条件】一致。查看第三点内容。
+
+![](https://guanwangyun.oss-cn-beijing.aliyuncs.com/document/dataAnalysis/QbyTbTCLOoLB9pxMbQ3c9F1CnWc.png)
+
+### 分组项
+
+#### 添加分组项
+
+1. 点击【添加分组项】可设置多个分组。
+2. 分组项可根据用户属性、事件属性进行不同粒度划分数据。
+
+![](https://guanwangyun.oss-cn-beijing.aliyuncs.com/document/dataAnalysis/YU8bb0f1So7FerxqrW3cOr1Qnkl.png)

@@ -1,0 +1,362 @@
+---
+sidebar_position: 4
+title: 元数据上报 API
+description: "望舒SDK 数据分析 元数据上报 API服务端文档，提供接口请求参数与响应说明。"
+---
+
+# 埋点事件接口文档
+
+## 接口1：创建事件
+
+**接口地址**： POST /v1/data/api/upload/event
+
+**接口说明**：创建事件。用于向系统中批量新增或更新用户行为事件，需传入事件列表（包含事件基本信息及关联属性）、处理逻辑（丢弃/新增/覆盖）及上传用户信息。处理逻辑为"丢弃"时，若事件已存在则不做操作；"新增"时仅添加新事件，不覆盖原有事件；"覆盖"时将替换已存在的同名事件。适用于初始化事件定义、批量更新事件信息等场景。
+
+**请求参数**：
+
+| 参数名 | 类型 | 位置 | 必填 | 说明 |
+| --- | --- | --- | --- | --- |
+| data | pb.UploadEvent | body | 是 | 包含事件列表、处理逻辑及上传用户信息等 |
+
+
+**请求格式**： application/json
+
+**响应**：
+
+| 状态码 | 说明 | 引用类型 |
+| --- | --- | --- |
+| 0 | success 成功 | domain.Response&lt;pb.UploadMetadataResult> |
+| 500 | Internal Server Error | domain.Response |
+
+
+**响应格式**： application/json
+
+**认证方式:** [CPSign](/docs/开发者文档/入门指南/服务端接入须知)
+
+## 接口2：创建用户属性
+
+**接口地址**： POST /v1/data/api/upload/user/attr
+
+**接口说明**：上传用户属性。用于向系统中批量新增全局用户属性，需传入属性列表（包含属性数据类型、名称、描述等）及上传用户信息。新增的用户属性将适用于所有用户，支持后续用户数据的收集与分析。适用于初始化用户属性体系、补充新增用户信息维度等场景。
+
+**请求参数**：
+
+| 参数名 | 类型 | 位置 | 必填 | 说明 |
+| --- | --- | --- | --- | --- |
+| data | pb.UploadUserAttr | body | 是 | 包含用户属性列表及上传用户信息等 |
+
+
+**请求格式**： application/json
+
+**响应**：
+
+| 状态码 | 说明 | 引用类型 |
+| --- | --- | --- |
+| 0 | success 成功 | domain.Response&lt;pb.UploadMetadataResult> |
+| 500 | Internal Server Error | domain.Response |
+
+
+**响应格式**： application/json
+
+**认证方式:** [CPSign](/docs/开发者文档/入门指南/服务端接入须知)
+
+## 接口3：创建维度表
+
+**接口地址**： POST /v1/data/api/upload/dimension
+
+**接口说明**：上传维度。用于向系统中新增数据表（维度），需传入维度的基本信息（名称、Key ）、属性定义（字段名、数据类型等）及初始数据值。支持批量上传维度数据，上传成功后系统将生成唯一的维度 ID 和 UUID ，用于后续的关联、查询等操作。适用于新建数据维度、导入外部数据表等场景。
+
+**请求参数**：
+
+| 参数名 | 类型 | 位置 | 必填 | 说明 |
+| --- | --- | --- | --- | --- |
+| data | pb.UploadDimensionAttr | body | 是 | 包含维度基本信息、属性列表、初始数据值及上传用户信息等 |
+
+
+**请求格式**： application/json
+
+**响应**：
+
+| 状态码 | 说明 | 引用类型 |
+| --- | --- | --- |
+| 0 | success 成功 | domain.Response&lt;pb.UploadMetadataResult> |
+| 500 | Internal Server Error | domain.Response |
+
+
+**响应格式**： application/json
+
+**认证方式:** [CPSign](/docs/开发者文档/入门指南/服务端接入须知)
+
+## 接口4：创建维度关联属性
+
+**接口地址**： POST /v1/data/api/dimension/relation/attr
+
+**接口说明**：维度关联属性。用于建立数据表（维度）与事件属性或用户属性的关联关系，实现维度数据与属性数据的联动查询分析。支持批量关联多个属性，关联后可通过维度快速筛选、统计关联属性的相关数据。适用于数据建模、多维度分析等业务场景。
+
+**请求参数**：
+
+| 参数名 | 类型 | 位置 | 必填 | 说明 |
+| --- | --- | --- | --- | --- |
+| data | pb.DimensionRelationAttr | body | 是 | 包含维度 ID、维度 UUID 及待关联的属性列表等信息 |
+
+
+**请求格式**： application/json
+
+**响应**：
+
+| 状态码 | 说明 | 引用类型 |
+| --- | --- | --- |
+| 0 | success 成功 | domain.Response&lt;pb.UploadMetadataResult> |
+| 500 | Internal Server Error | domain.Response |
+
+
+**响应格式**： application/json
+
+**认证方式:** [CPSign](/docs/开发者文档/入门指南/服务端接入须知)
+
+## 数据模型定义
+
+## domain.Response
+
+| 字段名 | 类型 | 说明 |
+| --- | --- | --- |
+| code | integer | 状态 0: 成功，其它失败 |
+| message | string | 错误信息 |
+| toast_message | string | 弹窗信息 |
+| data | any | 如果有数据返回的时候才有值 |
+
+
+## pb.AddEvent
+
+| 字段名 | 类型 | 说明 |
+| --- | --- | --- |
+| attributes | array&lt;pb.EventAttribute> | 事件关联的属性列表 |
+| event_info | pb.Event | 事件基本信息 |
+
+
+## pb.Attribute
+
+| 字段名 | 类型 | 说明 |
+| --- | --- | --- |
+| data_type | string | **必填** |
+| name | string | **必填** |
+| 可选值： double、array、boolean、string、datetime |  |  |
+| description | string |  |
+| show_name | string | **必填** |
+
+
+属性数据类型
+
+属性描述
+
+最多 60 字
+
+属性名
+
+以字母开头，最大长度： 32
+
+属性显示名
+
+## pb.DimensionRelationAttr
+
+| 字段名 | 类型 | 说明 |
+| --- | --- | --- |
+| attrs | array&lt;pb.RelationAttr> | 关联的属性列表 |
+| dimension_id | integer | 数据表 id |
+| dimension_uuid | string | 数据表 uuid |
+
+
+## pb.DimensionTitle
+
+| 字段名 | 类型 | 说明 |
+| --- | --- | --- |
+| column | string | **必填** |
+| data_type | string | **必填** |
+
+
+属性名
+
+数据类型
+description
+
+| string | 属性说明 |
+| --- | --- |
+| is_primary_key | boolean |
+| **必填** |  |
+| string | **必填** |
+| 是否为主键， true 是， false 不是 |  |
+| show_name | string |
+
+
+**必填**
+
+显示名
+
+uuid ，每个属性不可重复
+
+## pb.DimensionValue
+
+| 字段名 | 类型 | 说明 |
+| --- | --- | --- |
+| values | map[string]string | 数据表的具体数据值，键为属性名，值为对应属性的具体内容 |
+
+
+## pb.Event
+
+| 字段名 | 类型 | 说明 |
+| --- | --- | --- |
+| description | string | 事件描述，说明事件的业务含义（如"用户完成登录操作"） |
+| event_type | string | 事件类型（ track ），用户属性（ user ） |
+| name | string | 事件名称（唯一标识，如"user_login"） |
+| rete | integer | 事件数据保留天数，超过天数后数据将自动清理 |
+| show_name | string | 事件显示名（用于前端展示，如"用户登录"） |
+
+
+## pb.RelationAttr
+
+| 字段名 | 类型 | 说明 |
+| --- | --- | --- |
+| attribute | pb.Attribute | 关联的属性，需填写属性的名称或唯一标识 |
+| attribute_table | string | 属性表类型： 1:事件属性， 2:用户属性 |
+
+
+## pb.RespUploadDimension
+
+| 字段名 | 类型 | 说明 |
+| --- | --- | --- |
+| dimension_id | integer | 数据表 id ，系统生成的唯一标识 |
+| dimension_uuid | string | 数据表 uuid ，系统生成的唯一标识（用于全局唯一识别） |
+
+
+## pb.UploadDimensionAttr
+
+| 字段名 | 类型 | 说明 |
+| --- | --- | --- |
+| dimension_values | array&lt;pb.DimensionValue> | 数据表值，包含多条维度数据记录 |
+| key | string | 数据表 key ，用于快速检索维度 |
+| name | string | 数据表名（如"商品分类表"） |
+| titles | array&lt;pb.DimensionTitle> | 数据表属性，定义维度的字段信息 |
+| user_id | integer | 上传用户 id ，标识上传操作的执行者 |
+| user_name | string | 上传用户名，标识上传操作的执行者名称 |
+
+
+## pb.UploadEvent
+
+| 字段名 | 类型 | 说明 |
+| --- | --- | --- |
+| events | array&lt;pb.AddEvent> | 事件列表，包含多个待上传的事件信息 |
+| method | integer | 处理逻辑： 1 丢弃、2 新增、3 覆盖 |
+| user_id | integer | 上传用户 id ，标识上传操作的执行者 |
+| user_name | string | 上传用户名，标识上传操作的执行者名称 |
+
+
+## pb.UploadUserAttr
+
+| 字段名 | 类型 | 说明 |
+| --- | --- | --- |
+| attrs | array&lt;pb.UserAttribute> | 属性列表，包含多个待上传的用户属性信息 |
+| user_id | integer | 上传用户 id ，标识上传操作的执行者 |
+| user_name | string | 上传用户名，标识上传操作的执行者名称 |
+
+
+## pb.UserAttribute
+
+| 字段名 | 类型 | 说明 |
+| --- | --- | --- |
+| data_type | string | **必填** |
+| name | string | 属性名 |
+| 可选值： double, array, boolean, string, datetime, obj, obj_array |  |  |
+| description | string |  |
+
+
+属性数据类型
+
+属性描述
+
+最多 60 字
+
+以字母开头
+show_name
+| string | 属性显示名 |
+| --- | --- |
+| update_type | string |
+| **必填** |  |
+
+更新类型
+
+可选值：
+
+- user_setonce ：属性值仅可设置一次，后续不可修改
+
+- user_set ：属性值可多次更新
+object_attributes
+| array&lt;pb.UserAttribute> | 对象、对象组子属性 |
+| --- | --- |
+
+## pb.EventAttribute
+
+| 字段名 | 类型 | 说明 |
+| --- | --- | --- |
+| data_type | string | **必填** |
+| name | string | 属性名 |
+| 可选值： double, array, boolean, string, datetime, obj, obj_array |  |  |
+| description | string |  |
+
+
+属性数据类型
+
+属性描述
+
+最多 60 字
+
+以字母开头
+show_name
+| string | 属性显示名 |
+| --- | --- |
+| object_attributes | array&lt;pb.EventAttribute> |
+| 对象、对象组子属性 |  |
+
+## pb.UploadPublicAttr
+
+| 字段名 | 类型 | 说明 |
+| --- | --- | --- |
+| attrs | arrary&lt;pb.EventAttribute> | **必填** |
+
+
+事件属性
+
+## pb.UploadDimensionRelationAttr
+
+| 字段名 | 类型 | 说明 |
+| --- | --- | --- |
+| dimension | pb.UploadDimensionAttr | **必填** |
+
+
+数据表信息
+attrs
+| array&lt;pb.RelationAttr> | 关联的属性 |
+| --- | --- |
+
+## pb.UploadIntegration
+
+| 字段名 | 类型 | 说明 |
+| --- | --- | --- |
+| upload_event | pb.UploadEvent | **非必填** |
+| upload_public_attr | pb.UploadPublicAttr | **非必填** |
+| 上传事件&事件属性 |  |  |
+| upload_user_attr | pb.UploadUserAttr |  |
+| upload_dimension | pb.UploadDimensionRelationAttr | **非必填** |
+
+
+**非必填**
+
+上传用户属性
+
+上传用户属性
+
+上传数据表并关联属性
+user_id
+| int64 | 上传的用户 id |
+| --- | --- |
+| user_name | string |
+| 上传的用户名 |  |

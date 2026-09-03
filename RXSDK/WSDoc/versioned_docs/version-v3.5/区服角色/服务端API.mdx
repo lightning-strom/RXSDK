@@ -1,0 +1,322 @@
+---
+sidebar_position: 2
+title: "服务端API"
+---
+
+# 角色
+:::warning
+存储结构： cpid + region_tag + cp_role_id 是唯一值
+:::
+
+## ~~「废弃」创建游戏角色~~
+
+> **POST:** `/v1/report/cp/role`
+> **认证方式：** [CPSign](/docs/v3.5/入门指南/服务端接入须知)
+
+```bash
+curl --location --request POST '{{接口域名}}/v1/report/cp/role' \
+--header 'ruixue-productid:{{产品 ID}}' \
+--header 'ruixue-channelid:{{渠道 ID}}' \
+--header 'ruixue-language: {{语言}}' \
+--header 'ruixue-cpid: {{cpid}}' \
+--header 'ruixue-cpts: {{时间戳}}' \
+--header 'ruixue-traceid: {{TraceID}}' \
+--header 'ruixue-cpsign: {{签名}}' 
+--data-raw '{
+    "rx_openid":"xxxasxxsasax",
+    "region_tag":"default",
+    "cp_role_id":"1234",
+    "extension":{"nickname":"昵称","avatar":"头像url","sex":0,"level":"VIP8","attr1":"1","attr2":2,"attr...":false}
+}'
+```
+
+> ***
+>
+> **POST:** `/v1/report/sdk/role`
+> **认证方式：** [Accesstoken](/docs/v3.5/入门指南/服务端接入须知)
+
+```bash
+curl --location --request POST '{{接口域名}}/v1/report/sdk/role' \
+--header 'ruixue-productid:{{产品 ID}}' \
+--header 'ruixue-channelid:{{渠道 ID}}' \
+--header 'ruixue-language: {{语言}}' \
+--header 'ruixue-cpid: {{cpid}}' \
+--header 'ruixue-traceid: {{TraceID}}' \
+--header 'ruixue-accesstoken: {{accesstoken}}' 
+--data-raw '{
+    "rx_openid":"xxxasxxsasax",
+    "region_tag":"default",
+    "cp_role_id":"1234",
+    "extension":{"nickname":"昵称","avatar":"头像url","sex":0,"level":"VIP8","attr1":"1","attr2":2,"attr...":false}
+}'
+```
+
+### 请求参数（JSON）
+
+| **字段** | **类型** | **是否必填** | **说明** | **示例** |
+| --- | --- | ---- | --- | --- |
+| rx\_openid | String | 是 | 望舒openid |  |
+| region\_tag | String | 是 | 区服 (非区服项目 默认值: default) |  |
+| cp\_role\_id | String | 是 | 角色id（非区服项目 值传 cp\_userid） |  |
+| extension | json | 是 | 扩展信息符合json格式的数据（非区服项目 按需传扩展字段） |  |
+| extension.nickname | String | 是 | 角色昵称 |  |
+| extension.avatar | String | 是 | 角色头像地址 |  |
+| extension.sex | Number | 是 | 角色性别 -1 未知 0 女 1男 |  |
+| extension.level | string | 否 | 用户等级 | VIP8 |
+
+### 响应参数（JSON）
+
+**HTTP 状态码：**`200 OK`
+
+| **字段** | **类型** | **是否必填** | **说明** | **示例** |
+| --- | --- | ---- | --- | --- |
+| code | Number | 是 | 响应状态码，0为成功，非0表示出错 | 0 |
+| msg | String | 否 | 响应信息，仅在code为非0时不为空 |  |
+| data | Data | 否 | 响应内容 |  |
+
+**响应示例**
+
+```json
+{
+    "code": 0,
+    "msg": "string"
+}
+```
+
+## 创建、修改游戏角色
+
+> **PUT:** `/v1/report/cp/role`
+> 如果修改的角色信息不存在，会直接创建一条
+> **认证方式：** [CPSign](/docs/v3.5/入门指南/服务端接入须知)
+```bash
+curl --location --request PUT '{{接口域名}}/v1/report/cp/role' \
+--header 'ruixue-productid:{{产品 ID}}' \
+--header 'ruixue-channelid:{{渠道 ID}}' \
+--header 'ruixue-language: {{语言}}' \
+--header 'ruixue-cpid: {{cpid}}' \
+--header 'ruixue-cpts: {{时间戳}}' \
+--header 'ruixue-traceid: {{TraceID}}' \
+--header 'ruixue-cpsign: {{签名}}' 
+--data-raw '{
+    "rx_openid":"xxxasxxsasax",
+    "region_tag":"default",
+    "cp_role_id":"1234",
+    "extension":{"nickname":"昵称","avatar":"头像url","sex":0,"attr1":"1","attr2":2,"attr...":false}
+}'
+```
+>
+> ***
+>
+> **PUT:** `/v1/report/sdk/role`
+> **认证方式：** [Accesstoken](/docs/v3.5/入门指南/服务端接入须知)
+
+```bash
+curl --location --request PUT '{{接口域名}}/v1/report/sdk/role' \
+--header 'ruixue-productid:{{产品 ID}}' \
+--header 'ruixue-channelid:{{渠道 ID}}' \
+--header 'ruixue-language: {{语言}}' \
+--header 'ruixue-cpid: {{cpid}}' \
+--header 'ruixue-traceid: {{TraceID}}' \
+--header 'ruixue-accesstoken: {{accesstoken}}' 
+--data-raw '{
+    "rx_openid":"xxxasxxsasax",
+    "region_tag":"default",
+    "cp_role_id":"1234",
+    "extension":{"nickname":"昵称","avatar":"头像url","sex":0,"attr1":"1","attr2":2,"attr...":false}
+}'
+```
+
+### 请求参数（JSON）
+
+| **字段** | **类型** | **是否必填** | **说明** | **示例** |
+| --- | --- | ---- | --- | --- |
+| rx\_openid | String | 是 | 望舒openid |  |
+| region\_tag | String | 是 | 区服 (非区服项目 默认值: default) |  |
+| cp\_role\_id | String | 是 | 角色id（非区服项目 传 cp\_userid） |  |
+| extension | json | 是 | 扩展信息符合json格式的数据（非区服项目 按需传扩展字段） |  |
+| extension.nickname | String | 是 | 角色昵称 |  |
+| extension.avatar | String | 是 | 角色头像地址 |  |
+| extension.sex | Number | 是 | 角色性别 -1 未知 0 女 1男 |  |
+| extension.level | string | 否 | 用户等级 |  |
+
+### 响应参数（JSON）
+
+**HTTP 状态码：**`200 OK`
+
+| **字段** | **类型** | **是否必填** | **说明** | **示例** |
+| --- | --- | ---- | --- | --- |
+| code | Number | 是 | 响应状态码，0为成功，非0表示出错 | 0 |
+| msg | String | 否 | 响应信息，仅在code为非0时不为空 |  |
+| data | Data | 否 | 响应内容 |  |
+
+**响应示例**
+
+```json
+{
+    "code": 0,
+    "msg": "string"
+}
+```
+
+## 删除游戏角色
+
+> **DELETE:** `/v1/report/cp/role`
+> **认证方式：** [CPSign](/docs/v3.5/入门指南/服务端接入须知)
+```bash
+curl --location --request DELETE '{{接口域名}}/v1/report/cp/role' \
+--header 'ruixue-productid:{{产品 ID}}' \
+--header 'ruixue-channelid:{{渠道 ID}}' \
+--header 'ruixue-language: {{语言}}' \
+--header 'ruixue-cpid: {{cpid}}' \
+--header 'ruixue-cpts: {{时间戳}}' \
+--header 'ruixue-traceid: {{TraceID}}' \
+--header 'ruixue-cpsign: {{签名}}' 
+--data-raw '{
+    "rx_openid":"xxxasxxsasax",
+    "region_tag":"default",
+    "cp_role_id":"1234",
+ 
+}'
+```
+> ***
+>
+> **DELETE:** `/v1/report/sdk/role`
+> **认证方式：** [Accesstoken](/docs/v3.5/入门指南/服务端接入须知)
+
+```bash
+curl --location --request DELETE '{{接口域名}}/v1/report/sdk/role' \
+--header 'ruixue-productid:{{产品 ID}}' \
+--header 'ruixue-channelid:{{渠道 ID}}' \
+--header 'ruixue-language: {{语言}}' \
+--header 'ruixue-cpid: {{cpid}}' \
+--header 'ruixue-traceid: {{TraceID}}' \
+--header 'ruixue-accesstoken: {{accesstoken}}' 
+--data-raw '{
+    "rx_openid":"xxxasxxsasax",
+    "region_tag":"default",
+    "cp_role_id":"1234",
+ 
+}'
+```
+
+### 请求参数（JSON）
+
+| **字段** | **类型** | **是否必填** | **说明** | **示例** |
+| --- | --- | ---- | --- | --- |
+| rx\_openid | String | 是 | 望舒openid |  |
+| region\_tag | String | 是 | 区服 (非区服项目 默认值: default) |  |
+| cp\_role\_id | String | 是 | 角色id（非区服项目 值是cp\_userid） |  |
+
+### 响应参数（JSON）
+
+**HTTP 状态码：**`200 OK`
+
+| **字段** | **类型** | **是否必填** | **说明** | **示例** |
+| --- | --- | ---- | --- | --- |
+| code | Number | 是 | 响应状态码，0为成功，非0表示出错 | 0 |
+| msg | String | 否 | 响应信息，仅在code为非0时不为空 |  |
+| data | Data | 否 | 响应内容 |  |
+
+**响应示例**
+
+```json
+{
+    "code": 0,
+    "msg": "string"
+}
+```
+
+## 查询指定用户角色列表
+
+> **GET:** `/v1/report/cp/role/list`
+> **认证方式：** [CPSign](/docs/v3.5/入门指南/服务端接入须知)
+```bash
+curl --location --request GET '{{接口域名}}/v1/report/cp/role/list?rx_openid=xxxasxxsasax' \
+--header 'ruixue-productid:{{产品 ID}}' \
+--header 'ruixue-channelid:{{渠道 ID}}' \
+--header 'ruixue-language: {{语言}}' \
+--header 'ruixue-cpid: {{cpid}}' \
+--header 'ruixue-cpts: {{时间戳}}' \
+--header 'ruixue-traceid: {{TraceID}}' \
+--header 'ruixue-cpsign: {{签名}}' 
+```
+> ***
+>
+> **GET:** `/v1/report/sdk/role/list`
+> **认证方式：** [Accesstoken](/docs/v3.5/入门指南/服务端接入须知)
+
+```bash
+curl --location --request GET '{{接口域名}}/v1/report/sdk/role/list?rx_openid=xxxasxxsasax' \
+--header 'ruixue-productid:{{产品 ID}}' \
+--header 'ruixue-channelid:{{渠道 ID}}' \
+--header 'ruixue-language: {{语言}}' \
+--header 'ruixue-cpid: {{cpid}}' \
+--header 'ruixue-traceid: {{TraceID}}' \
+--header 'ruixue-accesstoken: {{accesstoken}}' 
+```
+
+### 请求参数（Query）
+
+| **字段** | **类型** | **是否必填** | **说明** | **示例** |
+| --- | --- | ---- | --- | --- |
+| rx\_openid | String | 是 | 望舒openid\~\~\~\~ |  |
+| extension | String | 否 | 全部：extension=\*
+指定：extension=nickname,avatar,sex
+忽略：extension= |
+
+### 响应参数（JSON）
+
+**HTTP 状态码：**`200 OK`
+
+| **字段** | **类型** | **是否必填** | **说明** | **示例** |
+| --- | --- | ---- | --- | --- |
+| code | Number | 是 | 响应状态码，0为成功，非0表示出错 | 0 |
+| msg | String | 否 | 响应信息，仅在code为非0时不为空 |  |
+| data | Data | 否 | 响应内容 |  |
+
+#### Data
+
+| **字段** | **类型** | **是否必填** | **说明** | **示例** |
+| --- | --- | ---- | --- | --- |
+| list | []Item | 是 | 角色列表 |  |
+
+#### Item
+
+| **字段** | **类型** | **是否必填** | **说明** | **示例** |
+| --- | --- | ---- | --- | --- |
+| region\_tag | String | 是 | 区服 (非区服项目 默认值: default) |  |
+| cp\_role\_id | String | 是 | 角色id（非区服项目 值是cp\_userid） |  |
+| extension | json | 是 | 扩展信息符合json格式的数据 |
+| extension.nickname | String | 是 | 角色昵称 |  |
+| extension.avatar | String | 是 | 角色头像地址 |  |
+| extension.sex | Number | 是 | 角色性别 -1 未知 0 女 1男 |  |
+
+**响应示例**
+
+```json
+{
+    "data": {
+        "list": [
+            {
+                "rx_openid": "xxxasxxsasax",
+                "region_tag": "default",
+                "cp_role_id": "123",
+                "extension": {
+                    "nickname": "bbb"
+                },
+                "report_time": 1761368961
+            },
+            {
+                "rx_openid": "xxxasxxsasax",
+                "region_tag": "default",
+                "cp_role_id": "1234",
+                "extension": {
+                    "nickname": "bbb"
+                },
+                "report_time": 1761368961
+            }
+        ]
+    },
+    "code": 0
+}
+```

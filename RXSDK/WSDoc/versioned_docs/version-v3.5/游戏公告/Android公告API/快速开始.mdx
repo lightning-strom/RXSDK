@@ -1,0 +1,62 @@
+---
+title: "快速开始"
+---
+
+## 获取公告
+
+**接口原型**
+
+```java
+    /**
+     * 获取公告列表
+     * @param limit 获取条数
+     * @param callback 回调
+     */
+    public void getAnnouncement(int limit, RXRequestCallback callback);
+```
+
+**调用示例**
+
+```java
+    RuiXueSdk.getRXSdkApi().getAnnouncement(10, new RXRequestCallback() {
+        @Override
+        public void onResponse(JSONObject jsonObject) {
+            Log.d("fasfasfas", "onResponse： " + jsonObject.toString());
+        }
+    });
+```
+
+### 请求参数
+
+| **参数** | **类型**                                             | **备注** |
+| -------- | ---------------------------------------------------- | -------- |
+| limit     | String                                               | 返回条数 最多100条， 按公告开始时间倒序 |
+
+### 响应结构(JSON)
+
+| **参数** | **类型**                                             | **备注** |
+| -------- | ---------------------------------------------------- | -------- |
+| code     | Number                                               | 0 为成功 |
+| msg      | String                                               | 失败信息 |
+| data     | [][Data](/docs/v3.5/入门指南/准备工作)            |          |
+
+##### data
+
+| **参数**   | **类型**  | **说明** |
+| ---------- | ----------| -------- |
+| id | Number    | 公告id|
+| type      | Number    | 1版本更新公告 3常规公告 |
+| timezone    | Number    | 时区|
+| start    | String    | 开始时间|
+| end    | Start    | 结束时间
+| content_type    | Number    | 1图文2图片|
+| is_popup    | Number    | 是否弹出 1是 2否|
+| title    | String    | 公告标题|
+| content    | String    | 图文时的内容|
+| images    |  [][Images](/docs/v3.5/入门指南/准备工作)     | 图片时的内容|
+
+##### images
+| **参数**   | **类型**  | **说明** |
+| ---------- | ----------| -------- |
+| image_url | String    | 图片url|
+| link_url      | String    | 跳转地址 |

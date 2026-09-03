@@ -1,0 +1,99 @@
+---
+sidebar_position: 1
+title: 数据行为上报
+description: "望舒SDK 三方服务 数据行为上报 小游戏 接入文档，提供完整的接口调用说明与示例。"
+---
+
+渠道方文档地址: 无请联系商务在对接群内获取
+
+## CP游戏行为数据上报接口
+
+> **POST：** `/v1/thirdparty/api/channel_gateway/minigame_oppo/report_server`
+>
+> **认证方式：** [CPSign](/docs/开发者文档/入门指南/服务端接入须知)
+
+### CURL 示例
+
+```bash
+curl --location --request POST '{{接口域名}}/v1/thirdparty/api/channel_gateway/minigame_oppo/report_server' \
+--header 'ruixue-cpid: {{CPID}}' \
+--header 'ruixue-cpts: {{时间戳}}' \
+--header 'ruixue-traceid: {{TraceID}}' \
+--header 'ruixue-cpsign: {{请求签名}}' \
+```
+
+### 请求参数（POST）
+
+| 字段 | 类型 | 是否必填 | 说明 |
+| --- | --- | --- | --- |
+| rx_openid | String | 是 | 望舒 openid |
+| actionCode | String | 是 | 游戏行为编码 |
+| actionFinishTime | String | 是 | 用户在游戏中完成游戏行为的时间格式： yyyy-MM-dd HH:mm:ss |
+| dataUniqueId | String | 是 | 数据唯一标识, 用于幂等, 重试的请求该字段保持不变(长度为 32 个的十六进制 uuid, 例如如:123e4567e89b12d3a456426614174000) |
+
+**响应示例**
+
+```json
+{
+ "code": 0,
+ "data": {
+ "errCode":"xxxxxxxxxxxx",
+ "errMsg":"",
+ "data":true
+ }
+}
+```
+
+### 响应结构（JSON）
+
+| 字段名 | 类型 | 描述 |
+| --- | --- | --- |
+| code | Number | 望舒错误码 |
+| data.errCode | String | 响应码 |
+| data.errMsg | String | 响应信息 |
+| data.data | Boolean | 上报数据是否成功(true:成功,false:失败) |
+
+
+## CP上报游戏行为数据查询接口
+
+> **POST：** `/v1/thirdparty/api/channel_gateway/minigame_oppo/get_cp_report`
+>
+> **认证方式：** [CPSign](/docs/开发者文档/入门指南/服务端接入须知)
+
+### CURL 示例
+
+```bash
+curl --location --request POST '{{接口域名}}/v1/thirdparty/api/channel_gateway/minigame_oppo/get_cp_report' \
+--header 'ruixue-cpid: {{CPID}}' \
+--header 'ruixue-cpts: {{时间戳}}' \
+--header 'ruixue-traceid: {{TraceID}}' \
+--header 'ruixue-cpsign: {{请求签名}}' \
+```
+
+### 请求参数（POST）
+
+| 字段 | 类型 | 是否必填 | 说明 |
+| --- | --- | --- | --- |
+| rx_openid | String | 是 | 望舒 openid |
+| actionCode | String | 是 | 游戏行为编码 |
+
+**响应示例**
+
+```json
+{
+ "code": 0,
+ "data": {
+ "errCode":"xxxxxxxxxxxx",
+ "errMsg":"",
+ "data":true
+ }
+}
+```
+
+### 响应结构（JSON）
+
+| 字段名 | 类型 | 描述 |
+| --- | --- | --- |
+| code | Number | 望舒错误码 |
+| data.errno | String | 响应码 |
+| data.data | array | 上报的数据 |

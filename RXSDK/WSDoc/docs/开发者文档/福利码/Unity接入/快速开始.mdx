@@ -1,0 +1,115 @@
+---
+sidebar_position: 1
+title: 快速开始
+description: "望舒SDK 福利码 快速开始 Unity 接入文档，提供完整的接口调用说明与示例。"
+---
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
+
+### 接入方式
+* Package Manager 导入 RuiXue.Base
+
+## SDK 集成
+
+<Tabs groupId="platform">
+
+<TabItem value="ios" label="iOS">
+
+iOS依赖的相关SDK已通过脚本自动引用到工程中，您无需手动引用。受网络环境等因素影响，相关SDK有可能引用失败，所以在生成iOS工程后，您需要检查工程中的Podfile文件中的SDK名称，在Podfile.lock文件中是否存在，如果Podfile中的SDK名称在Podfile.lock中未存在，说明SDK未完全下载成功，您需要进入Podfile文件所在路径，执行以下命令安装SDK：
+```objectivec
+pod install 
+```
+
+</TabItem>
+
+<TabItem value="android" label="Android">
+
+Android无需配置
+
+</TabItem>
+
+</Tabs>
+
+## 获取福利码
+
+**接口原型**
+
+```csharp
+/// <summary>
+/// 获取达人游戏内显示福利码
+/// </summary>
+/// <param name="authRefresh">是否自动刷新</param>
+/// <param name="onResponse"></param>
+/// <param name="onError"></param>
+public void GetPromoDisplayKEY(bool authRefresh, RequestResponseDelegate onResponse, RequestErrorDelegate onError);
+```
+
+**调用示例**
+
+```csharp
+public void getPromo()
+    {
+        RuiXueSdk.GetPromoDisplayKEY(true, getPromoSuccessDelegate, getPromoErrorDelegate);
+    }
+```
+
+### 响应结构(JSON)
+
+| **参数** | **类型**                                             | **备注** |
+| -------- | ---------------------------------------------------- | -------- |
+| code     | Number                                               | 0 为成功 |
+| msg      | String                                               | 失败信息 |
+| data     | Data            |          |
+
+##### data
+
+| **参数**   | **类型**  | **说明** |
+| ---------- | ----------| -------- |
+| refresh_period | Number    | 刷新周期 单位分钟|
+| promo_name      | String    | 福利码名称 |
+| gift_name    | String    | 礼包名称|
+| promo_valid_start    | String    | 福利码创建时间|
+| promo_valid_end    | String    | 福利码有效期结束时间|
+| promo_code    | String    | 游戏内显示福利码|
+| refresh_period_exp    | Number    | 刷新周期过期时间，小于1时轮询|
+| polling    | Number    | 轮询间隔时间 秒|
+
+## 兑换福利码
+
+**接口原型**
+
+```csharp
+/// <summary>
+/// 兑换福利码
+/// </summary>
+/// <param name="cdKey">福利码</param>
+/// <param name="onResponse"></param>
+/// <param name="onError"></param>
+public void exchangePromoCDKEY(string cdKey, RequestResponseDelegate onResponse,
+            RequestErrorDelegate onError);
+```
+
+**调用示例**
+
+```csharp
+public void exchange()
+    {
+        RuiXueSdk.exchangePromoCDKEY(cdKey:cdKey, FeedbackResponseDelegate, FeedbackErrorDelegate);
+    }
+```
+
+### 响应结构(JSON)
+
+| **参数** | **类型**                                             | **备注** |
+| -------- | ---------------------------------------------------- | -------- |
+| code     | Number                                               | 0 为成功 |
+| msg      | String                                               | 失败信息 |
+| data     | []Data            |          |
+
+##### data
+
+| **参数**   | **类型**  | **说明** |
+| ---------- | ----------| -------- |
+| prop_id | String    | 道具标识|
+| prop_name      | String    | 道具名称 |
+| prop_num    | String    | 道具数量|

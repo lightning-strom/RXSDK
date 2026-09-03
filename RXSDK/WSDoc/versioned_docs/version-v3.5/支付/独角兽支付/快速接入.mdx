@@ -1,0 +1,286 @@
+---
+title: "快速接入"
+---
+
+## 望舒支付配置
+
+## 下单支付
+
+### 参数说明
+
+| **字段**
+ | **类型**
+      | **是否必填**
+ | **备注**
+     |
+| ------------ | ----------------- | ---------------- | ---------------- |
+| params
+   | IPay
+          | 是
+           | 参数
+         |
+| callback
+ | IMethodParams
+ | 是
+           | 回调函数集合
+ |
+
+> IPay 说明
+
+| **字段**
+        | **类型**
+ | **是否必填**
+ | **备注**
+                                                                                    |
+|-------------------|------------|--------------|-----------------------------------------------------------------------------------------------|
+| pay_type
+      | string
+ | 是
+        | 支付的类型
+                                                                                     |
+| goods_tag
+     | string
+ | 是
+        | 计费点标识
+                                                                                     |                                                                                        |
+| trade_no
+      | string
+ | 是
+        | CP 订单号
+                                                                                    |
+| serverid
+      | string
+ | 是
+        | 区服ID，自定义，一般是指角色所在的区服标识
+                                                                                    |
+| username
+      | string
+ | 是
+        | 游戏内的角色名称
+                                                                                    |
+| currency
+      | string
+ | 否
+        | 币种 默认传: CNY  根据支付币种传递[国家编码 币种字典](/docs/v3.5/支付/功能介绍) 
+                |
+| indulge_auth
+  | number
+ | 是
+        | 是否进行防沉迷支付验证 ，0 不验证 1 验证，默认不验证
+如果为 1 age 必传
+                                         |
+| notify_url
+    | string
+ | 否
+           | 支付成功通知 CP 发货地址 
+                                                                           |
+| age
+           | number
+ | 否
+        | 用户年龄
+indulge_auth 为 1 时必传该字段
+                                                       |
+| is_debug
+      | number
+ | 否
+        | 是否测试订单，0 正式 1 为测试订单，默认为 0 
+                                                                |
+| env
+           | number
+ | 否
+        | 是否使用沙盒环境支付，0 正式 1 沙盒，默认为 0 
+                                                               |
+| game_info         | object     | 否            | 游戏自定义数据， 上报区服和角色需要在 game_info 中传入属性，具体使用方式参考下方 game_info 字段说明  |
+| bigdata_report     | object     | 否           | 商业化支付参数， 通过商业化触发的支付行为要传以下参数，否则数据统计会有丢失，具体使用方式参考下方 bigdata_report 字段说明  |
+
+> `bigdata_report` 字段说明
+
+| **字段**  | **类型** | **是否必填** | **备注** |
+| --------- | ------  | ----------- |---------|
+| scene_identifier| string| 否             | 场景标识                           |
+| scene_name     | string| 否            | 场景名称                          |
+| trigger_button_identifier     | string| 否            | 触发按钮标识                         |
+| trigger_button_name     | string| 否            | 触发按钮名称                         |
+| window_identifier     | string| 否            | 窗口标识                         |
+| window_name     | string| 否            | 窗口名称                         |
+| window_sequence     | string| 否            | 窗口展示顺序                         |
+| gift_package     | object     | 否            | 礼包	                         |
+
+> `gift_package` 字段说明
+
+| **字段**  | **类型** | **是否必填** | **备注** |
+| --------- | ------  | ----------- |---------|
+| identifier| string| 否             | 礼包标识                           |
+| name     | string| 否            | 礼包名称                          |
+| purchase_medium     | string| 否            | 购买礼包介质                         |
+| price     | number| 否            | 礼包价格                         |
+| billing_point     | string| 否            | 礼包计费点                         |
+
+> `game_info` 字段说明
+
+| **字段**  | **类型** | **是否必填** | **备注** |
+| --------- | ------  | ----------- |---------|
+| cp_game_character_id| string| 否             | 角色 id                           |
+| cp_game_area_id     | string| 否            | 区服 id                           |
+
+> pay_type 说明
+
+| **字段**
+          | **备注**
+    |
+|---------------------|---------------|
+| unicornh5
+ | 支付
+ |
+
+> IMethodParams 说明
+
+| **字段**
+ | **备注**
+                                                  |
+| ------------ | ------------------------------------------------------------- |
+| complete
+ | (data) => void
+complete：为函数且必传，data 为结果数据
+ |
+
+**调用示例**
+
+```javascript
+sdk.pay(
+  {
+    pay_type: "unicornh5",
+    goods_tag: "bytest",
+    trade_no: "" + new Date().getTime(),
+    transmit_args: "a=1&b=2",
+    indulge_auth: 1,
+    age: 18,
+    serverid: "serverid",
+    username: "username"
+    
+    
+    // 商业化下单参数示例
+    // 'bigdata_report': {
+    //   'scene_identifier': 'xxx',
+    //   'scene_name': 'xxx',
+    //   'trigger_button_identifier': 'xxx',
+    //   'trigger_button_name': 'xxx',
+    //   'window_identifier': 'xxx',
+    //   'window_name': 'xxx',
+    //   'window_sequence': 'xxx',
+    //   'gift_package': {
+    //     'identifier': 'xxx',
+    //     'name': 'xxx',
+    //     'purchase_medium': 'xxx',
+    //     'price': 100,
+    //     'billing_point': 'xxx',
+    //   },
+    // }
+           
+    // 游戏自定义数据示例
+    // 'game_info': {
+    //   'cp_game_character_id': 'test',
+    //   'cp_game_area_id': 'testarea',
+    // }
+  },
+  {
+    complete: (data) => {
+      console.log(data);
+    },
+  }
+);
+```
+
+### 响应结构
+
+| **字段**
+ | **类型**
+ | **备注**
+      |
+| ------------ | ------------ |-----------------|
+| code
+     | number
+   | 0 : 表示拉起支付面板成功（支付成功状态监听不到）
+   |
+
+## 支付错误码
+
+| 错误码
+ | 含义
+                                                                             |
+| ---------- | ------------------------------------------------------------------------------------ |
+| 0
+      | 成功,无错误
+                                                                      |
+| 142601
+ | 服务内部错误
+                                                                     |
+| 142602
+ | 服务内部错误 2
+                                                                   |
+| 152403
+ | 服务内部错误 3
+                                                                   |
+| 152404
+ | 服务内部错误 4
+                                                                   |
+| 312605
+ | 望舒内部下单失败
+                                                                 |
+| 152406
+ | 客户端支付回调请求验单失败
+                                                       |
+| 152407
+ | 客户端支付回调望舒失败（客户端需重新发起重试）
+                                   |
+| 152408
+ | 客户端望舒回调金额错误
+                                                           |
+| 152409
+ | 获取订单失败（订单不存在）
+                                                       |
+| 152410
+ | 望舒请求三方 HTTP 请求失败
+                                                       |
+| 152411
+ | 望舒解析三方请求失败
+                                                             |
+| 152412
+ | 防沉迷提示语不存在 望舒后台未配置
+                                                |
+| 152413
+ | 微信小游戏 sessionkey 过期  SDK 需重新同步用户信息刷新 sessionkey 在重试一次下单
+ |
+| 302402
+ | SDK 请求参数错误
+                                                                 |
+| 302403
+ | SDK 请求支付类型字段 pay_type 未传
+                                               |
+| 302404
+ | SDK 请求非法商品(检查 goods_tag 请求参数和望舒后台计费点配置)
+                    |
+| 302405
+ | SDK 请求用户 openid 未传
+                                                         |
+| 302406
+ | SDK 请求支付类型未配置
+                                                           |
+| 302407
+ | SDK 支付回调 order_no 订单号未传
+                                                 |
+| 302408
+ | SDK 支付重复回调订单(订单已处理过)
+                                               |
+| 302409
+ | SDK 支付回调支付凭证错误
+                                                         |
+| 302410
+ | SDK 支付回调用户三方余额不足(扣款失败)
+                                           |
+| 302411
+ | SDK 支付回调支付凭证解析结果状态为未支付
+                                         |
+| 302412
+ | 用户触发防沉迷充值机制 不可充值
+                                                  |

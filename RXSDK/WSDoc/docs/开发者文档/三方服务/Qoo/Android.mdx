@@ -1,0 +1,230 @@
+---
+sidebar_position: 1
+title: Android
+description: Qoo Android 端接入指南，包含 SDK 集成、配置说明及接口调用示例。
+---
+
+## 望舒快速接入（必接）
+
+[快速接入文档](/docs/开发者文档/入门指南/快速开始/Unity-初始化/快速开始)
+
+## 三方渠道接入说明（必读）
+
+[三方渠道接入说明](/docs/开发者文档/三方服务/三方接入说明)
+
+## Qoo 官方文档
+
+[Qoo 官方文档](https://open.qoo-app.com/website/zh-CN/docs/open_sdk_guide)
+
+---
+
+## SDK 集成
+
+
+:::tip[版本说明]
+`version` 为 SDK 版本号（替换为实际版本号），最新版本请从 [更新日志](/docs/开发者文档/入门指南/更新日志/Android) 中查看。
+:::
+
+```groovy
+ implementation 'com.ruixue:rxsdk_qoo:${version}'
+```
+
+## 配置说明
+
+非常重要：请确保 package name 尾部包含关键字.qooapp ，否则可能导致用户已安装此游戏的其它商店版本，会被此版本覆盖而引起数据丢失，我们的商店审核人员亦可能会因此而拒绝发布您的游戏。
+
+在 AndroidManifest.xml 配置
+
+```xml
+ meta-data
+ android:name="com.qooapp.APP_ID"
+ android:value="SANDd42a9224fd6611ee8acd06a4094a134e"/>
+ meta-data
+ android:name="com.qooapp.PUBLIC_KEY"
+ android:value="@string/qoo_public_key"/>
+
+ meta-data
+ android:name="com.qooapp.ENC_VERSION"
+ android:value="2" />
+```
+
+## 混淆配置
+
+在应用级根目录下打开混淆配置文件 `proguard-rules.pro` ，加入排除 SDK 的混淆配置
+
+```proguard
+ -keep class com.qooapp.opensdk.common.model.* {*;}
+ -keep class com.qooapp.opensdk.common.* {*;}
+ -keep class com.qooapp.opensdk.QooAppOpenSDK {
+ public ;
+ }
+```
+
+## 登录
+
+[点此跳转到 登录方式](/docs/开发者文档/登录-通行证/服务端接入/服务端-API)
+
+## 支付
+
+[点此跳转到 Android 渠道支付](/docs/开发者文档/支付/功能介绍)
+
+## 附加功能
+
+如果在 AndroidManifest.xml 中配置了
+
+```xml
+
+ meta-data
+ android:name="com.qooapp.ENC_VERSION"
+ android:value="2" />
+```
+
+如需解析 qoo 渠道返回的 data 中的数据，需要解码
+
+```java
+    @Override
+    public void onSuccess(@Nullable JSONObject data) {
+    Log.e("rxsdk", "restorePurchases onSuccess " +
+    QooSdkHelper.getDataFromResponse(data.optString("msg"))
+    );
+    }
+```
+
+或者
+
+```java
+    String dataString = new String(Base64.decode(data.optString("msg"), DEFAULT), "UTF-8");
+```
+
+## 防盗检测
+
+完成 SDK 初始化之后，付费游戏应立即调用此接口检测当前用户是否已付费。
+
+```java
+
+    QooSdkHelper.checkLicense(new RXRequestCallback() {
+    @Override
+    public void onResponse(JSONObject jsonObject) {
+    int code = jsonObject.optInt("code", -1);
+    if (code == 0) {
+    //todo 成功
+    }else {
+    //todo 失败
+    }
+    }
+    });
+
+```
+
+如果检测到用户已付费，应允许用户继续进入游戏；
+
+## 恢复已购商品
+
+包含内购的游戏，每次启动时都应调用此接口检查是否有未完成发放商品的订单，并完成正常的订单流程。
+
+```java
+    QooSdkHelper.restorePurchases(new RXRequestCallback() {
+    @Override
+    public void onResponse(JSONObject jsonObject) {
+
+    }
+    });
+```
+
+此接口将返回一个数组，包含不可消耗商品的订单 以及 包含可消耗商品但未完成消耗的订单
+
+## 消耗订单 (可消耗商品)
+
+如果订单包含可消耗商品，游戏在发放商品后必须调用此接口完成消耗已标记订单完成。
+
+```java
+    QooSdkHelper.consume("SOP0000020405",
+    "4cba9072d05f448b87214e9620cd4136", new RXRequestCallback() {
+    @Override
+    public void onResponse(JSONObject jsonObject) {
+
+    }
+    });
+```
+
+必须传入正确的 purchase_id 和 token。
+
+## 获取商品清单 (可选)
+
+游戏可调用此接口获取所有登记在 QooApp Developer Console 的商品信息。
+
+```java
+    QooSdkHelper.queryProducts(new RXRequestCallback() {
+    @Override
+    public void onResponse(JSONObject jsonObject) {
+
+    }
+    });
+```
+
+## 获取部分商品信息 (可选)
+
+游戏可调用此接口获取登记在 QooApp Developer Console 的部分商品信息。
+
+```java
+    QooSdkHelper.queryProductInfo("com.ruixue.sdk1", new RXRequestCallback() {
+    @Override
+    public void onResponse(JSONObject jsonObject) {
+
+    }
+    });
+```
+
+productIds ：多个商品 id 使用”,”分割
+
+## 分页获取商品清单(可选)
+
+分页获取商品清单(可选)游戏可调用此接口分页获取登记在 QooApp Developer Console 的商品信息。
+
+```java
+    QooSdkHelper.queryProducts(1, 2, new RXRequestCallback() {
+    @Override
+    public void onResponse(JSONObject jsonObject) {
+
+    }
+    });
+```
+
+## 从 QooApp 游戏商店开启您的游戏详情页面 (可选)
+
+游戏可调用此接口从 QooApp 游戏商店开启您的游戏详情页面。
+
+```java
+    QooSdkHelper.openGameDetail(QooActivity.this);
+```
+
+注意:
+
+若用户的设备未安装 QooApp 游戏商店 Android 应用程式，将使用 webview 开启 web 版游戏详情页面。
+
+只有在开放平台通过审核的游戏才有 QooApp 游戏商店的游戏详情页面。
+
+该接口无需登入即可调用。
+
+## 从QooApp获取最新的游戏版本号 (可选)
+
+该接口可以获取您的游戏在 QooApp 游戏商店的最新版本号，无需登入即可调用。
+
+```java
+    QooSdkHelper.latestVersionCode(new RXRequestCallback() {
+    @Override
+    public void onResponse(JSONObject jsonObject) {
+
+    }
+    });
+```
+
+## 設定OpenSDK的語言 (可選)
+
+该接口可以设定 OpenSDK 页面展示的语言，无需登入即可调用。
+
+```java
+    QooSdkHelper.setLocale("en_US")
+```
+
+该接口可以设定 OpenSDK 页面展示的语言，无需登入即可调用。设定成功之后， OpenSDK 将会展示设定的语言，若设定了 OpenSDK 不支援的语言，将展示英文。

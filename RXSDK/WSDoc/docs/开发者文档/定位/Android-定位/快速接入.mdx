@@ -1,0 +1,222 @@
+---
+sidebar_position: 1
+title: 快速接入
+description: "望舒SDK 快速接入 Android 接入文档，提供完整的接口调用说明与示例。"
+---
+
+## 配置说明
+
+Maven 引用
+
+
+:::tip[版本说明]
+`version` 为 SDK 版本号（替换为实际版本号），最新版本请从 [更新日志](/docs/开发者文档/入门指南/更新日志/Android) 中查看。
+:::
+
+```groovy
+implementation " com.ruixue:rxsdk_gaode:${version}"
+```
+
+` 或 ` aar 引入方式
+
+```groovy
+implementation files("libs/rxsdk_rxsdk_gaode-${version}.aar")
+```
+
+### 参数说明
+
+| 字段 | 类型 | 是否必填 | 说明 |
+| --- | --- | --- | --- |
+| apikey | String | 是 | 高德开放平台获取 |
+
+```xml
+</application>
+ -->
+ meta-data
+ android:name="com.amap.api.v2.apikey"
+ android:value="apikey 参数值" />
+</application>
+```
+
+## 初始化定位
+
+**接口原型**
+
+```java tab={"label":"接口原型"}
+/**
+ * 初始化定位
+ */
+public static void initLocation(Activity activity)
+```
+
+```java tab={"label":"调用示例"}
+GpsUtil.initLocation(activaty);
+```
+## 获取GPS状态的字符串
+
+**接口原型**
+
+```java tab={"label":"接口原型"}
+/**
+ * 获取GPS状态的字符串
+ * @param statusCode GPS状态码
+ * @return
+ */
+public static String getGPSStatusString(int statusCode)
+
+```
+
+```java tab={"label":"调用示例"}
+GpsUtil.getGPSStatusString(AMapLocationQualityReport.GPS_STATUS_OK);
+```
+## 重置定位配置
+
+**接口原型**
+
+```java tab={"label":"接口原型"}
+/**
+ * @param cbAddress 设置是否需要显示地址信息
+ * @param cbGpsFirst 设置是否优先返回GPS定位结果，如果30秒内GPS没有返回定位结果则进行网络定位,注意：只有在高精度模式下的单次定位有效，其他方式无效
+ * @param cbCacheAble 设置是否开启缓存
+ * @param cbOnceLocation 设置是否单次定位
+ * @param cbOnceLastest 设置是否等待设备wifi刷新，如果设置为true,会自动变为单次定位，持续定位时不要使用
+ * @param cbSensorAble 设置是否使用传感器
+ * @param strInterval 设置发送定位请求的时间间隔,最小值为1000，如果小于1000，按照1000算
+ * @param strTimeout 设置网络请求超时时间
+ */
+public static void resetOption(boolean cbAddress, boolean cbGpsFirst, boolean cbCacheAble, boolean cbOnceLocation, boolean cbOnceLastest,
+ boolean cbSensorAble, long strInterval, long strTimeout)
+```
+
+```java tab={"label":"调用示例"}
+GpsUtil.resetOption(true, true, true, true, true, true ,true, 1000, 12000);
+```
+## 开始定位
+
+**接口原型**
+
+```java tab={"label":"接口原型"}
+/**
+ * 开始定位
+ * @param activity
+ * @param cbAddress 设置是否需要显示地址信息
+ * @param cbGpsFirst 设置是否优先返回GPS定位结果，如果30秒内GPS没有返回定位结果则进行网络定位,注意：只有在高精度模式下的单次定位有效，其他方式无效
+ * @param cbCacheAble 设置是否开启缓存
+ * @param cbOnceLocation 设置是否单次定位
+ * @param cbOnceLastest 设置是否等待设备wifi刷新，如果设置为true,会自动变为单次定位，持续定位时不要使用
+ * @param cbSensorAble 设置是否使用传感器
+ * @param strInterval 设置发送定位请求的时间间隔,最小值为1000，如果小于1000，按照1000算
+ * @param strTimeout 设置网络请求超时时间
+ * @param channelCallback
+ */
+public static void startLocation(Activity activity, boolean cbAddress, boolean cbGpsFirst, boolean cbCacheAble, boolean cbOnceLocation, boolean cbOnceLastest,
+ boolean cbSensorAble, long strInterval, long strTimeout, RXStringCallback channelCallback)
+
+```
+
+```java tab={"label":"调用示例"}
+GpsUtil.startLocation(activity, true, true, true, true, true ,true, true, 1000, 12000, channelCallback);
+```
+## 开始定位(默认配置定位)
+
+**接口原型**
+
+```java tab={"label":"接口原型"}
+/**
+ * 开始定位
+ * 默认配置定位
+ * @param activity
+ * @param types 坐标分组，由 CP 自定义。
+ * @param duration 单位秒，需要传入大于30秒以上的秒数
+ * @param channelCallback
+ */
+public static void startLocation(Activity activity, String[] types, int duration, RXStringCallback channelCallback)
+```
+
+```java tab={"label":"调用示例"}
+GpsUtil.startLocation(activity, types, 30, channelCallbck);
+```
+## 停止定位 销毁定位
+
+**接口原型**
+
+```java tab={"label":"接口原型"}
+/**
+ * 停止定位 销毁定位
+ * @author hongming.wang
+ * @since 2.8.0
+ */
+public static void stopLocation()
+```
+
+```java tab={"label":"调用示例"}
+GpsUtil.stopLocation();
+```
+## 输入GCJ-02经纬度 转WGS纬度
+
+**接口原型**
+
+```java tab={"label":"接口原型"}
+/**
+ * 输入GCJ-02经纬度 转WGS纬度
+ * @param lat 纬度
+ * @param lon 经度
+ * @return WGS纬度
+ */
+public static double WGSLat(double lat, double lon)
+```
+
+```java tab={"label":"调用示例"}
+GpsUtil.WGSLat(12212323.2121, 223232312.23232);
+```
+## 输入GCJ经纬度 转WGS经度
+
+**接口原型**
+
+```java tab={"label":"接口原型"}
+/**
+ * 输入GCJ经纬度 转WGS经度
+ * @param lat 纬度
+ * @param lon 经度
+ * @return WGS经度
+ */
+public static double WGSLon(double lat, double lon)
+```
+
+```java tab={"label":"调用示例"}
+GpsUtil.WGSLon(12212323.2121, 223232312.23232);
+```
+## 坐标转换算法 转换经度所需
+
+**接口原型**
+
+```java tab={"label":"接口原型"}
+/**
+ * 坐标转换算法 转换经度所需
+ * @param x longitude
+ * @param y latitude
+ * @return longitude
+ */
+public static double transformLon(double x, double y)
+```
+
+```java tab={"label":"调用示例"}
+GpsUtil.transformLon(12212323.2121, 223232312.23232);
+```
+## 坐标转换算法 转换纬度所需
+
+**接口原型**
+
+```java tab={"label":"接口原型"}
+/**
+ * 坐标转换算法 转换纬度所需
+ * @param x longitude
+ * @param y latitude
+ * @return latitude
+ */
+public static double transformLat(double x, double y)
+```
+
+```java tab={"label":"调用示例"}
+GpsUtil.transformLat(12212323.2121, 223232312.23232);
+```

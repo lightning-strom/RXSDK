@@ -1,0 +1,212 @@
+---
+sidebar_position: 1
+title: 快速开始
+description: "望舒SDK 意见反馈 快速开始 iOS 接入文档，提供完整的接口调用说明与示例。"
+---
+
+## 准备工作
+
+接入请前先做好准备工作。
+
+已经接入过**RXSDK_Pure**组件，无需重复接入，只需要更新到**3.5.28 及以上版本**即可。
+
+未接入过，则可通过 **pod** 方式接入 **RXSDK_Pure** 组件，安装**3.5.28 及以上版本**，并使用 **RXSDK_Pure** 公告相关功能。
+
+在需要使用功能的类中引用头文件 `#import <RXSDK_Pure/RXSDK_Pure.h>`
+
+## SDK 集成
+
+编辑 Podfile 文件，添加如下配置，并注意安装**3.5.28 及以上版本**：
+
+```objectivec
+pod 'RXSDK_Pure'
+```
+
+## 创建反馈
+
+**接口原型**
+
+```objectivec
+/**
+ * 创建反馈
+ * content 反馈内容，必填
+ * attachments 附件地址数组，非必填
+ * phone 手机号，非必填
+ * tags 游戏透传标识
+ */
+- (void)feedbackCreateWithContent:(NSString *)content attachments:(NSArray *)attachmentsArray phone:(NSString *)phone tags:(NSArray *)tagArray complete:(void(^)(NSDictionary * _Nullable response, RX_CommonRequestError * _Nullable error))complete;
+```
+
+**调用示例**
+
+```objectivec
+[[RXSDK sharedSDK] feedbackCreateWithContent:@"反馈内容" attachments:@["反馈附件地址"] phone:@"your phoneNum" tags:@[@"游戏透传标识"] complete:^(NSDictionary * _Nullable response, RX_CommonRequestError * _Nullable error) {
+ if (!error) {
+ NSLog(@"请求成功：%@",response);
+ }else{
+ NSLog(@"请求失败：%@",error.responesObject);
+ }
+}];
+```
+
+### 响应结构（JSON）
+
+**HTTP 状态码：**`200 OK`
+
+| 字段 | 类型 | 是否必填 | 说明 | 示例 |
+| --- | --- | --- | --- | --- |
+| code | Number | 是 | 响应状态码， 0 为成功，非 0 表示出错 | 0 |
+| msg | String | 否 | 响应信息，仅在 code 非 0 时返回 |  |
+
+**响应示例**
+
+```json
+{"code": 0}
+```
+
+## 获取反馈列表
+
+**接口原型**
+
+```objectivec
+/**
+ * 获取反馈列表
+ * page 页数，必填
+ * size 每页个数，必填
+ * status 默认传0即可
+ */
+- (void)getFeedbackListWithPage:(int)page size:(int)size status:(int)status complete:(void(^)(NSDictionary * _Nullable response, RX_CommonRequestError * _Nullable error))complete;
+
+```
+
+**调用示例**
+
+```objectivec
+[[RXSDK sharedSDK] getFeedbackListWithPage:page size:size status:0 complete:^(NSDictionary * _Nullable response, RX_CommonRequestError * _Nullable error) {
+ if (!error) {
+ NSLog(@"请求成功：%@",response);
+ }else{
+ NSLog(@"请求失败：%@",error.responesObject);
+ }
+}];
+```
+
+### 响应结构(JSON)
+
+| 参数 | 类型 | 备注 |
+| --- | --- | --- |
+| code | Number | 0 为成功 |
+| msg | String | 失败提示 |
+| data | Data | 返回数据 |
+
+> Data 说明
+
+
+| 字段 | 类型 | 说明 |
+| --- | --- | --- |
+| page | Number | size |
+| Number | total | String |
+| list | list[] | 列表数据 |
+
+
+> list说明
+
+| 字段 | 类型 | 说明 |
+| --- | --- | --- |
+| id | Number | id |
+| content | String | 反馈内容 |
+| created_at | String | 反馈时间 |
+| status | Number | 1 未处理 2 已处理 |
+| recover_at | String | 回复时间 |
+| is_prop | Number | 0 无道具 1 有道具 |
+
+## 获取反馈详情
+
+**接口原型**
+
+```objectivec
+/**
+ * 获取反馈详情
+ * feedbackID 反馈id
+ */
+- (void)getFeedbackDetailWithFeedbackID:(int)feedbackID complete:(void(^)(NSDictionary * _Nullable response, RX_CommonRequestError * _Nullable error))complete;
+```
+
+**调用示例**
+
+```objectivec
+[[RXSDK sharedSDK] getFeedbackDetailWithFeedbackID:feedbackId complete:^(NSDictionary * _Nullable response, RX_CommonRequestError * _Nullable error) {
+ if (!error) {
+ NSLog(@"请求成功：%@",response);
+ }else{
+ NSLog(@"请求失败：%@",error.responesObject);
+ }
+}];
+```
+
+### 响应结构(JSON)
+
+| 参数 | 类型 | 备注 |
+| --- | --- | --- |
+| code | Number | 0 为成功 |
+| msg | String | 失败提示 |
+| data | Data | 返回数据 |
+
+> Data 说明
+
+| 字段 | 类型 | 说明 |
+| --- | --- | --- |
+| id | Number | id |
+| content | String | 反馈内容 |
+| attachments | String[] | 反馈附件 |
+| created_at | String | 反馈时间 |
+| status | Number | 1 未处理 2 已处理 |
+| recover_at | String | 回复时间 |
+| recover_content | String | 回复内容 |
+| recover_attachments | String[] | 回复道具 |
+| is_prop | Number | 0 无道具 1 有道具 |
+| get_prop | Number | 1 已领取 |
+| prop | Prop | 道具 |
+
+> Prop 说明
+
+| 字段 | 类型 | 说明 |
+| --- | --- | --- |
+| name | String | 道具名 |
+| tag | String | 道具标识 |
+| num | Number | 道具数量 |
+| time_limit | Number | 有效期（天） 0 永久有效 |
+| icon | String | 图标 |
+| count | String | 道具数量字符串 |
+| describe | String | 描述 |
+
+## 领取道具
+
+**接口原型**
+
+```objectivec
+/**
+ * 领取反馈回复中的道具
+ * feedbackID 反馈id
+ */
+- (void)feedbackGetpropWithFeedbackID:(int)feedbackID complete:(void(^)(NSDictionary * _Nullable response, RX_CommonRequestError * _Nullable error))complete;
+```
+
+**调用示例**
+
+```objectivec
+[[RXSDK sharedSDK] feedbackGetpropWithFeedbackID:feedbackId complete:^(NSDictionary * _Nullable response, RX_CommonRequestError * _Nullable error) {
+ if (!error) {
+ NSLog(@"请求成功：%@",response);
+ }else{
+ NSLog(@"请求失败：%@",error.responesObject);
+ }
+}];
+```
+
+### 响应结构(JSON)
+
+| 参数 | 类型 | 备注 |
+| --- | --- | --- |
+| code | Number | 0 为成功 |
+| msg | String | 失败提示 |

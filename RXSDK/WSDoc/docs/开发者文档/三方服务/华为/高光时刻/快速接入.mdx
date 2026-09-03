@@ -1,0 +1,427 @@
+---
+sidebar_position: 1
+title: 快速接入
+description: "望舒SDK 三方服务 快速接入文档，提供详细的功能说明与接入指引。"
+---
+
+# 接入前需要先接入华为渠道
+
+[接入文档](/docs/开发者文档/推送/服务端接入/推送常见错误及解决方法)
+
+## 高光时刻开通及设置官方文档
+
+[官方文档](https://developer.huawei.com/consumer/cn/doc/AppGallery-connect-Guides/game-highlight-agc-0000001637877338)
+
+## 隐私声明
+
+[SDK 隐私声明](https://developer.huawei.com/consumer/cn/doc/AppGallery-connect-Guides/game-highlight-sdk-privacy-statement-0000001687088401)
+
+[SDK 合规使用指南](https://developer.huawei.com/consumer/cn/doc/AppGallery-connect-Guides/game-highlight-sdkcompliance-0000001710796201)
+
+使用方根据自己的使用情况结合上面文档做必要的处理。
+
+## 华为后台获取参数
+
+登录 [AppGallery Connect](https://developer.huawei.com/consumer/cn/)，位置：**AppGallery Connect > 项目设置**。获取**应用**下的 `APP ID`,**项目**下的 `Client ID`,`Client Secret`,`API 密钥（凭据） `。
+
+![](https://haiqi-ruixue-test.oss-cn-beijing.aliyuncs.com/docOnline/image-1736754929771.png)
+
+---
+
+## SDK 集成
+
+
+:::tip[版本说明]
+`version` 为 SDK 版本号（替换为实际版本号），最新版本请从 [更新日志](/docs/开发者文档/入门指南/更新日志/Android) 中查看。
+:::
+
+```groovy
+implementation 'com.ruixue:rxsdk_huawei_replay:${version}'
+```
+
+## 动态申请权限
+
+在初始化前，需要动态申请权限以保证录制高光时刻功能正常使用。参考代码
+
+在游戏页面，初始化该 SDK 之前，调用如下代码申请权限
+
+```java
+// REQUEST_PERMISSION 这个变量定义为页面全局变量即可。
+if (ContextCompat.checkSelfPermission(this, Manifest.permission.RECORD_AUDIO) != PackageManager.PERMISSION_GRANTED
+    && ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED
+    && ContextCompat.checkSelfPermission(this, Manifest.permission.READ_PHONE_STATE) != PackageManager.PERMISSION_GRANTED) {
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+    requestPermissions(new String[]{Manifest.permission.RECORD_AUDIO, Manifest.permission.READ_PHONE_STATE, Manifest.permission.WRITE_EXTERNAL_STORAGE}, REQUEST_PERMISSION);
+    } else {
+    Toast.makeText(this, "缺少文件读写权限，可能会导致高光时刻录功能无法使用", Toast.LENGTH_SHORT).show();
+    }
+}
+```
+
+在游戏界面，覆写如下方法
+
+```java
+@Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+    super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+    if (requestCode == REQUEST_PERMISSION) {
+    RXLogger.d("rxsdk", "grant results " + Arrays.toString(grantResults));
+    // 游戏根据权限是否赋予，处理逻辑，如果用户未赋予权限，则高光时刻功能不能使用。
+    }
+}
+```
+
+## 初始化
+
+API 定义
+
+```java
+/**
+    * 初始化
+    * @param context 上下文，一般为 activity
+    * @param params Map，具体参数参考下边示例代码
+    * @param callback 回调
+    */
+public void init(Context context, @NonNull Map<String, Object> params, OnInitCallback callback)
+```
+
+params Map 结构说明
+
+| 字段 | 类型 | 是否必填 | 说明 |
+| --- | --- | --- | --- |
+| agcAppId | String | 是 | 对应 AGC 应用中“APP ID |
+| clientId | String | 是 | 华为后台参数获取 clientId |
+| clientSecret | String | 是 | 华为后台参数获取 clientSecret |
+| openId | String | 是 | 玩家的唯一 ID 标识 cp 方自己设置 |
+| apiKey | String | 是 | 华为后台参数获取 API 秘钥 |
+| outputPath | String | 是 | 录制视频的存储目录 |
+
+示例代码
+
+```java
+Map<String, Object> params = new HashMap<>();
+params.put("agcAppId", "对应AGC应用中“APP ID");
+params.put("clientId", "华为后台参数获取 clientId");
+params.put("clientSecret", "华为后台参数获取 clientSecret");
+params.put("openId", "玩家的唯一ID标识");
+params.put("apiKey", "华为后台参数获取 API 秘钥");
+File file = getExternalFilesDir(null);
+String outputPath = file != null ? file.getAbsolutePath() : getFilesDir().getAbsolutePath();
+params.put("outputPath", outputPath); // 录制视频的存储目录
+HuaweiReplayHelper.getInstance().init(this, params, new OnInitCallback() {
+    @Override
+    public void onInit(int code, String msg) {
+    // 游戏自己处理逻辑，code=0 为成功，否则为失败
+    }
+
+    @Override
+    public void onError(RecordResult recordResult) {
+    // 通用错误回调，游戏根据自己的业务处理 recordResult.code=0 为成功，否则为失败
+    }
+});
+```
+
+## 开启手动录制
+
+使用注意点
+
+调用该方法后，需要手动调用停止录制方法，并且成对出现，不能调用开启手动录制，然后又马上调起自动录制，会导致程序异常，逻辑错误
+
+API 定义
+
+```java
+/**
+    * 手动录制
+    * @param activity null: 系统录制模式(支持录制设备显示的wet全部画面) not null: 应用内录制模式(仅支持录制应用内显示画面)
+    * 如需使用应用内录制模式，游戏须有且仅有一个SurfaceView。
+    * @param filename 录制的文件名
+    * @param duration 手动录制的最大时长，最长为1小时，单位为秒
+    */
+public void startManualRecord(@Nullable Activity activity, String filename, int duration, OnRecordCallback callback)
+```
+
+示例代码
+
+```java
+String filename = "huawei_replay_" + System.currentTimeMillis() + ".mp4";
+HuaweiReplayHelper.getInstance().startManualRecord(this, filename, 10, new OnRecordCallback() {
+    @Override
+    public void onStart(RecordResult recordResult) {
+    // recordResult.code=0 则开启成功，无需处理了多余逻辑
+    }
+
+    @Override
+    public void onStop(RecordResult recordResult) {
+    // recordResult.code=0 则为成功
+    // recordResult.code=401003，手动录制已达到录制最大时长。自动录制结束，回调此方法
+    // 如果是手动录制，停止录制后，recordResult.filePath 返回录制视频的绝对路径
+    }
+});
+```
+
+## 开启自动录制
+
+使用注意
+
+调用接口开启自动录制后，可通过多次调用游戏高光时刻生成接口录制多个视频小片段。
+
+建议您在一局游戏开始时，调用该方法开启自动录制视频。
+
+建议在适当的时候（比如一局结束）调用，停止录制，避免影响下一次录制的使用。
+
+API 定义
+
+```java
+/**
+    * 开启自动录制
+    * @param activity null: 系统录制模式(支持录制设备显示的wet全部画面) not null: 应用内录制模式(仅支持录制应用内显示画面)
+    */
+public void startAutoRecord(@Nullable Activity activity, OnRecordCallback callback)
+```
+
+示例代码
+
+```java
+HuaweiReplayHelper.getInstance().startAutoRecord(null, new OnRecordCallback() {
+    @Override
+    public void onStart(RecordResult recordResult) {
+    // recordResult.code=0 则开启成功，无需处理了多余逻辑
+    }
+
+    @Override
+    public void onStop(RecordResult recordResult) {
+    // recordResult.code=0 则为成功
+    // 如果是自动录制，停止录制后，recordResult.filePath 为空
+    }
+});
+```
+
+## 生成高光时刻
+
+使用注意
+
+前提是开启自动录制
+
+API 定义
+
+```java
+/**
+    * 生成高光时刻
+    * @param filename 文件名
+    * @param duration 生成高光时刻视频的时长，注意这里是从当前时刻往前 duration 作为视频起始时间
+    * @param callback 回调
+    */
+public void clipVideo(String filename, int duration, OnVideoClippedCallback callback)
+```
+
+示例代码
+
+```java
+String filename = "huawei_replay_" + System.currentTimeMillis() + ".mp4";
+// 从当前向前截取 10 s，并输出视频
+HuaweiReplayHelper.getInstance().clipVideo(filename, 10, new OnVideoClippedCallback() {
+    @Override
+    public void onVideoClipped(RecordResult recordResult) {
+    // recordResult.code=0，表示截取成功
+    // recordResult.filePath 输出视频的绝对路径
+    }
+});
+```
+
+## 停止录制
+
+API 定义
+
+```java
+/**
+    * 结束录制
+    */
+public void stopRecord()
+```
+
+示例代码
+
+```java
+HuaweiReplayHelper.getInstance().stopRecord();
+```
+
+## 查询可用模版
+
+API 定义
+
+```java
+/**
+    * 通过查询可用模板，可以查看当前游戏可使用的模板列表，用于后续视频的剪辑与导出。
+    * @param callback
+    */
+public void queryTemplates(OnQueryTemplatesCallback callback)
+```
+
+示例代码
+
+```java
+HuaweiReplayHelper.getInstance().queryTemplates(new OnQueryTemplatesCallback() {
+    @Override
+    public void onQueryTemplates(TemplateResult templateResult) {
+    if (templateResult != null && templateResult.templates != null) {
+    for (int i = 0; i templateResult.templates.size(); i++) {
+    TemplateDetail detail = templateResult.templates.get(i);
+    // 使用方根据需要处理逻辑，主要的就是 detail.templateId
+    }
+    }
+    }
+});
+```
+
+## 使用模版导出视频
+
+API 定义
+
+```java
+/**
+    * 导出视频
+    * @param filename 导出文件名
+    * @param templateId 模板ID
+    * @param importFilePaths 包含视频文件名的绝对路径列表,视频文件必须为.mp4格式,按顺序替换模板中的视频片段
+    * @param replaceWords 用于替换视频模板文案的文字片段,最长30个字符,按顺序替换模板中的文字片段,为空则删除模板中的原文案内容,为null则不替换
+    * @param replaceStickerPaths 包含图片文件名的绝对路径列表,图片文件仅支持.jpg/.png/.gif格式,按顺序替换模板中的图片,为空或为null则不替换
+    * @param replaceAudioPaths 包含音频文件名的绝对路径列表,音频文件仅支持.mp3格式,按顺序替换模板中的音频片段,为空或为null则不替换
+    */
+public void exportVideo(String filename,
+    String templateId,
+    List<String> importFilePaths,
+    List<String> replaceWords,
+    List<String> replaceStickerPaths,
+    List<String> replaceAudioPaths, OnVideoExportedCallback callback)
+```
+
+示例代码
+
+```java
+String oneLandscapeTemplateId = "华为后台配置的模版";
+String filename = "huawei_replay_export_" + System.currentTimeMillis() + ".mp4";
+List<String> importFilePaths = new ArrayList<>();
+// 这里的视频就是用上面自动或者手动录制的视频
+importFilePaths.add("/storage/emulated/0/Android/data/com.yourpackage/files/huawei_replay_1736318835746.mp4");
+importFilePaths.add("/storage/emulated/0/Android/data/com.yourpackage/files/huawei_replay_1736318863012.mp4");
+importFilePaths.add("/storage/emulated/0/Android/data/com.yourpackage/files/huawei_replay_1736318883224.mp4");
+
+// 这些业务方根据自己生成的模版，传递对应的文字参数
+List<String> replaceWords = new ArrayList<>();
+replaceWords.add("Test By Ruixue");
+replaceWords.add("AAAAAA");
+
+// 这些业务方根据自己生成的模版，传递对应的音频文件，这里支持本地文件路径，如果是远程的需要自行实现下载，或者使用后面提供的一键分享功能
+List<String> replaceAudioPaths = new ArrayList<>();
+replaceAudioPaths.add("/storage/emulated/0/Android/data/com.yourpackage/files/ruixue_test.mp3");
+HuaweiReplayHelper.getInstance().exportVideo(filename, oneLandscapeTemplateId, importFilePaths, replaceWords, null, replaceAudioPaths, new OnVideoExportedCallback() {
+    @Override
+    public void onVideoExported(RecordResult recordResult) {
+    // recordResult.code=0，表示导出成功
+    // recordResult.filePath 导出视频的绝对路径
+    }
+
+    @Override
+    public void onExportProgress(int percent) {
+    // 获取导出视频的进度
+    RXLogger.d("rxsdk", "onVideoExported progress:" + percent);
+    }
+});
+```
+
+## 申请分享视频链接
+
+使用注意
+
+前提条件
+
+已使用模版导出视频
+
+您使用的模版已在华为后台关联分享落地页
+
+API 定义
+
+```java
+/**
+    * 申请分享链接
+    * @param filepath 使用模版生成的视频本地路径
+    * @param templateId 模版 ID
+    * @param callback 回调
+    */
+public void applyShare(String filepath, String templateId, OnApplyShareCallback callback)
+```
+
+示例代码
+
+```java
+String oneLandscapeTemplateId = "选择你想使用的华为后台配置的模版 ID";
+// 导出视频的本地路径
+String filepath = "/storage/emulated/0/Android/data/app.yourpackagei/files/huawei_replay_1736403166240.mp4";
+HuaweiReplayHelper.getInstance().applyShare(filepath, oneLandscapeTemplateId, new OnApplyShareCallback() {
+    @Override
+    public void onApplyShare(ShareResult shareResult) {
+    RXLogger.d("rxsdk", "onApplyShare url:" + shareResult.getUrl());
+    // 使用方可以使用 shareResult.getUrl() 自己做分享
+    }
+});
+```
+
+## 一键生成视频或链接并分享
+
+使用注意
+
+望舒实现了方便实用的分享
+
+类似于望舒分享，目前只支持系统分享
+
+[望舒配置说明](/docs/开发者文档/三方服务/银联/配置说明)
+
+API 定义
+
+```java
+/**
+    * 一键分享
+    * @param activity 调用对应的 activity
+    * @param filePaths 用于导出视频的高光时刻视频列表
+    * @param shareReqMap 分享参数 参考示例代码
+    * @param callback 回调
+    */
+public void share(Activity activity, List<String> filePaths, Map<String, Object> shareReqMap, RXJSONCallback callback)
+```
+
+shareReqMap 结构说明
+
+| 字段 | 类型 | 是否必填 | 说明 |
+| --- | --- | --- | --- |
+| func | String | 是 | 埋点标识数组 |
+| region | String | 否 | [望舒地区码](https://pan.jiaxianghudong.com/disk/s/pdEzbPRkDS9) |
+| protocol_android | String | 是 | cp 方 android app scheme |
+| protocol_ios | String | 是 | cp 方 启动 ios app scheme |
+| auto_report | boolean | 否 | 是否自动上报分享结果 true 自动上报， false 不自动上报，默认 true |
+
+示例代码
+
+```java
+Map<String, Object> shareReqMap = new HashMap<>();
+shareReqMap.put("func", "111");//分享埋点
+shareReqMap.put("protocol_android", "jixiang433://");//android 客户端scheme cp 方 android app scheme
+shareReqMap.put("protocol_ios", "jixiang433://");//iOS 客户端scheme cp 方 启动 ios app scheme
+shareReqMap.put("auto_report", true); // 是否自动上报分享结果
+
+List<String> filePaths = new ArrayList<>();
+filePaths.add("/storage/emulated/0/Android/data/app.yourpackage/files/huawei_replay_1736403166240.mp4");
+filePaths.add("/storage/emulated/0/Android/data/app.yourpackage/files/huawei_replay_1736403173681.mp4");
+filePaths.add("/storage/emulated/0/Android/data/app.yourpackage/files/huawei_replay_1736403177626.mp4");
+
+HuaweiReplayHelper.getInstance().share(this, filePaths, shareReqMap, new RXJSONCallback() {
+    @Override
+    public void onSuccess(@Nullable JSONObject data) {
+    RXLogger.d("rxsdk", "share success");
+    }
+
+    @Override
+    public void onFailed(@NonNull JSONObject cause) {
+    RXLogger.d("rxsdk", "share failed:" + cause);
+    }
+});
+```

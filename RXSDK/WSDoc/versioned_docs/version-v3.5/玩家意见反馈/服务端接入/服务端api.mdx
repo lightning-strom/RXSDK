@@ -1,0 +1,288 @@
+---
+title: "服务端api"
+---
+
+## 创建玩家反馈
+
+> **POST: **  `/v1/feedbackapi/player_feedback/create`
+> **认证方式：** [AccessToken](/docs/v3.5/入门指南/服务端接入须知)
+
+### CURL 示例
+
+```bash
+curl --location --request POST '{{接口域名}}/v1/feedbackapi/player_feedback/create' \
+--header 'ruixue-language: {{语言}}' \
+--header 'ruixue-cpid: {{CPID}}' \
+--header 'ruixue-productid: {{产品标识}}' \
+--header 'ruixue-cpts: {{时间戳}}' \
+--header 'ruixue-traceid: {{TraceID}}' \
+--header 'ruixue-accesstoken: {{登录token}}' \
+--header 'ruixue-devicecode: {{设备码}}' \
+--header 'ruixue-channelid: {{渠道标识}}' \
+--header 'ruixue-platformid: {{平台标识}}' \
+--data-raw '{    
+    "content":"",    
+    "phone":"",
+    "attachments": [""],
+    "tags": [""]
+}'
+```
+
+### 请求参数（JSON）
+
+| **字段** | **类型** | **是否必填** | **说明**           | **示例** |
+| --- |--------| --- |------------------|--------|
+| content | String | 是   | 反馈内容             |        |
+| phone | String | 否   | 联系电话            |        |
+| attachments | []String | 否   | 附件， 支持图片和视频            |        |
+| tags | []String | 否   | 反馈标签           |        |
+
+**请求示例**
+
+```json
+{
+    "content":"",    
+    "phone":"",
+    "attachments": [""],
+    "tags": [""]
+}
+```
+### 响应参数（JSON）
+
+**HTTP 状态码：**`200 OK`
+
+| **字段** | **类型** | **是否必填** | **说明** | **示例** |
+| --- | --- | --- | --- | --- |
+| code | Number | 是   | 响应状态码，0为成功，非0表示出错 | 0   |
+| msg | String | 否   | 响应信息，仅在status为非0时不为空 |     |
+
+**响应示例**
+
+```json
+{"code": 0}
+```
+
+## 玩家反馈列表
+
+> **GET: **  `/v1/feedbackapi/player_feedback/list`
+> **认证方式：** [AccessToken](/docs/v3.5/入门指南/服务端接入须知)
+
+### CURL 示例
+
+```bash
+curl --location --request GET '{{接口域名}}/v1/feedbackapi/player_feedback/list?page=1&size=10' \
+--header 'ruixue-language: {{语言}}' \
+--header 'ruixue-cpid: {{CPID}}' \
+--header 'ruixue-productid: {{产品标识}}' \
+--header 'ruixue-cpts: {{时间戳}}' \
+--header 'ruixue-traceid: {{TraceID}}' \
+--header 'ruixue-accesstoken: {{登录token}}' \
+--header 'ruixue-devicecode: {{设备码}}' \
+--header 'ruixue-channelid: {{渠道标识}}' \
+--header 'ruixue-platformid: {{平台标识}}'
+```
+
+### 请求参数（JSON）
+
+| **字段** | **类型** | **是否必填** | **说明**           | **示例** |
+| --- |--------| --- |------------------|--------|
+| page | Number | 是   | 第几页             |        |
+| size | Number | 是   | 每页的条数            |        |
+
+### 响应参数（JSON）
+
+**HTTP 状态码：**`200 OK`
+
+| **字段** | **类型** | **是否必填** | **说明** | **示例** |
+| --- | --- | --- | --- | --- |
+| code | Number | 是   | 响应状态码，0为成功，非0表示出错 | 0   |
+| msg | String | 否   | 响应信息，仅在status为非0时不为空 |     |
+| data | Data | 否   | 响应内容 |     |
+
+#### Data
+| **字段** | **类型** | **是否必填** | **说明** | **示例** |
+| --- | --- | --- | --- | --- |
+| page | Number | 是   | 第几页 | 0   |
+| size | Number | 否   | 每页条数 |     |
+| total | Number | 是   | 总数量 |     |
+| list | []List | 否   | 响应内容 |     |
+
+#### List
+| **字段** | **类型** | **是否必填** | **说明** | **示例** |
+| --- | --- | --- | --- | --- |
+| id | Number | 是   | 唯一标识 | 0   |
+| content | String | 是   | 反馈内容 |     |
+| created_at | String | 是   | 反馈时间 |     |
+| status | Number | 是   | 1待回复 1已回复 |     |
+| recover_at | String | 是   | 回复时间 |     |
+| is_prop | Number | 是   | 0无道具 1有道具 |     |
+
+**响应示例**
+
+```json
+{
+    "data": {
+        "page": 1,
+        "size": 20,
+        "total": 23,
+        "list": [
+            {
+                "id": 11,
+                "content": "测试",
+                "created_at": "2024-09-12 18:40:58",
+                "status": 2,
+                "recover_at": "2024-09-12 19:04:26",
+                "is_prop": 1
+            },
+        ],
+    "code": 0
+}
+```
+
+## 玩家反馈详情
+
+> **GET: **  `/v1/feedbackapi/player_feedback/detail`
+> **认证方式：** [AccessToken](/docs/v3.5/入门指南/服务端接入须知)
+
+### CURL 示例
+
+```bash
+curl --location --request GET '{{接口域名}}/v1/feedbackapi/player_feedback/detail?id=1' \
+--header 'ruixue-language: {{语言}}' \
+--header 'ruixue-cpid: {{CPID}}' \
+--header 'ruixue-productid: {{产品标识}}' \
+--header 'ruixue-cpts: {{时间戳}}' \
+--header 'ruixue-traceid: {{TraceID}}' \
+--header 'ruixue-accesstoken: {{登录token}}' \
+--header 'ruixue-devicecode: {{设备码}}' \
+--header 'ruixue-channelid: {{渠道标识}}' \
+--header 'ruixue-platformid: {{平台标识}}'
+```
+
+### 请求参数（JSON）
+
+| **字段** | **类型** | **是否必填** | **说明**           | **示例** |
+| --- |--------| --- |------------------|--------|
+| id | Number | 是   | 唯一标识             |        |
+
+### 响应参数（JSON）
+
+**HTTP 状态码：**`200 OK`
+
+| **字段** | **类型** | **是否必填** | **说明** | **示例** |
+| --- | --- | --- | --- | --- |
+| code | Number | 是   | 响应状态码，0为成功，非0表示出错 | 0   |
+| msg | String | 否   | 响应信息，仅在status为非0时不为空 |     |
+| data | []Data | 否   | 响应内容 |     |
+
+#### Data
+| **字段** | **类型** | **是否必填** | **说明** | **示例** |
+| --- | --- | --- | --- | --- |
+| id | Number | 是   | 唯一标识 | 0   |
+| content | String | 是   | 反馈内容 |     |
+| attachments | []String | 是   | 反馈附件 支持图片和视频 |     |
+| created_at | String | 是   | 反馈时间 |     |
+| status | Number | 是   | 1待回复 1已回复 |     |
+| recover_at | String | 是   | 回复时间 |     |
+| recover_attachments | []String | 是   | 回复附件 支持图片和视频 |     |
+| recover_content | String | 是   | 回复内容 |     |
+| is_prop | Number | 是   | 0无道具 1有道具 |     |
+| get_prop | Number | 是   | 道具是否领取  0未领取 1已领取 |     |
+| prop | []Prop | 是   | 道具信息 |     |
+
+#### Prop
+| **字段** | **类型** | **是否必填** | **说明** | **示例** |
+| --- | --- | --- | --- | --- |
+| name | String | 是   | 道具名称 |    |
+| tag | String | 是   | 道具标识 |     |
+| num | String | 是   | 道具数量 |     |
+| count | String | 是   | 道具显示数量 |     |
+| time_limit | Number | 是   | 有效期（天） 0时为永久有效 |     |
+| icon | String | 是   | 道具图标 |     |
+| describe | String | 是   | 道具描述 |     |
+
+**响应示例**
+
+```json
+{
+    "data": {
+        "id": 11,
+        "content": "测试",
+        "attachments": [
+            ""
+        ],
+        "created_at": "2024-09-12 18:40:58",
+        "status": 2,
+        "recover_at": "2024-09-12 19:04:26",
+        "recover_attachments": [
+            ""
+        ],
+        "recover_content": "回复",
+        "is_prop": 1,
+        "prop": [
+            {
+                "name": "1",
+                "tag": "测试1",
+                "num": "50",
+                "time_limit": 0,
+                "icon": "",
+                "count": "50",
+                "describe": ""
+            }
+        ],
+        "get_prop": 0
+    },
+    "code": 0
+}
+```
+
+## 领取玩家反馈道具
+
+> **PUT: **  `/v1/feedbackapi/player_feedback/getprop`
+> **认证方式：** [AccessToken](/docs/v3.5/入门指南/服务端接入须知)
+
+### CURL 示例
+
+```bash
+curl --location --request POST '{{接口域名}}/v1/feedbackapi/player_feedback/getprop' \
+--header 'ruixue-language: {{语言}}' \
+--header 'ruixue-cpid: {{CPID}}' \
+--header 'ruixue-productid: {{产品标识}}' \
+--header 'ruixue-cpts: {{时间戳}}' \
+--header 'ruixue-traceid: {{TraceID}}' \
+--header 'ruixue-accesstoken: {{登录token}}' \
+--header 'ruixue-devicecode: {{设备码}}' \
+--header 'ruixue-channelid: {{渠道标识}}' \
+--header 'ruixue-platformid: {{平台标识}}' \
+--data-raw '{    
+    "id":1
+}'
+```
+
+### 请求参数（JSON）
+
+| **字段** | **类型** | **是否必填** | **说明**           | **示例** |
+| --- |--------| --- |------------------|--------|
+| id | Number | 是   | 反馈id             |        |
+
+**请求示例**
+
+```json
+{
+    "id":1
+}
+```
+### 响应参数（JSON）
+
+**HTTP 状态码：**`200 OK`
+
+| **字段** | **类型** | **是否必填** | **说明** | **示例** |
+| --- | --- | --- | --- | --- |
+| code | Number | 是   | 响应状态码，0为成功，非0表示出错 | 0   |
+| msg | String | 否   | 响应信息，仅在status为非0时不为空 |     |
+
+**响应示例**
+
+```json
+{"code": 0}
+```

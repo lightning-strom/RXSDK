@@ -1,0 +1,90 @@
+---
+sidebar_position: 1
+title: 服务端 API
+description: "望舒SDK 游戏公告 服务端 API服务端文档，提供接口请求参数与响应说明。"
+---
+
+## 获取公告
+
+> **GET: ** `/v1/operationtoolsapi/maintain/get`
+>
+> **认证方式:** 无
+
+### CURL 示例
+
+```bash
+curl --location --request GET '{{接口域名}}/v1/operationtoolsapi/maintain/get?limit=1&product_id=1&channel_id=1' \
+--header 'ruixue-language: {{语言}}' \
+--header 'ruixue-cpid: {{CPID}}' \
+--header 'ruixue-productid: {{产品标识}}' \
+--header 'ruixue-cpts: {{时间戳}}' \
+--header 'ruixue-traceid: {{TraceID}}' \
+--header 'ruixue-accesstoken: {{登录token}}' \
+--header 'ruixue-devicecode: {{设备码}}' \
+--header 'ruixue-channelid: {{渠道标识}}' \
+--header 'ruixue-platformid: {{平台标识}}'
+```
+
+### 请求参数
+
+| 参数 | 类型 | 备注 |
+| --- | --- | --- |
+| limit | Number | 返回条数 最多 100 条， 按公告开始时间倒序 |
+| product_id | String | 产品 id |
+| channel_id | String | 渠道 id |
+
+**响应示例**
+
+```json
+{
+ "data": [{
+ "id": 1,
+ "type": 1,
+ "timezone": 8,
+ "start": "2006-01-02:15:04:05",
+ "end": "2006-01-02:15:04:05",
+ "content_type": 1,
+ "is_popup":1,
+ "title": "",
+ "content": "",
+ "images": [
+ {
+ "image_url": "",
+ "link_url": ""
+ }
+ ]
+ }],
+ "msg": "success",
+ "code": 0
+}
+```
+
+### 响应结构(JSON)
+
+| 参数 | 类型 | 备注 |
+| --- | --- | --- |
+| code | Number | 0 为成功 |
+| msg | String | 失败信息 |
+| data | [][Data](/docs/开发者文档/意见反馈/Unity-接入) |  |
+
+#### data
+
+| 参数 | 类型 | 说明 |
+| --- | --- | --- |
+| id | Number | 公告 id |
+| type | Number | 1 版本更新公告 3 常规公告 |
+| timezone | Number | 时区 |
+| start | String | 开始时间 |
+| end | Start | 结束时间 |
+| content_type | Number | 1 图文 2 图片 |
+| is_popup | Number | 是否弹出 1 是 2 否 |
+| title | String | 公告标题 |
+| content | String | 图文时的内容 |
+| images | [][Images](/docs/开发者文档/意见反馈/Unity-接入) | 图片时的内容 |
+
+##### images
+
+| 参数 | 类型 | 说明 |
+| --- | --- | --- |
+| image_url | String | 图片 url |
+| link_url | String | 跳转地址 |

@@ -1,0 +1,78 @@
+---
+sidebar_position: 2
+title: Unity 接入
+description: Reddit Unity 端接入指南，包含 SDK 集成、配置说明及接口调用示例。
+---
+
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
+
+### 接入方式
+
+Package Manager 导入 RuiXue.Reddit
+
+[Reddit 开发者](https://www.reddit.com/prefs/apps) 中创建项目项目，并获取相关参数
+
+## SDK集成
+
+<Tabs groupId="platform">
+  <TabItem value="ios-sdk" label="iOS" default>
+
+iOS Reddit服务相关的SDK与工程配置已自动集成，在调用以下初始化方法后，使用时直接参照您所使用的功能模块（例如登录、分享）的Unity文档说明即可。
+
+</TabItem>
+  <TabItem value="android-sdk" label="Android">
+
+打开 mainTemplate.gradle 文件，在 dependencies 中新增：
+```groovy
+    implementation 'com.ruixue:rxsdk_reddit:${version}'
+```
+
+</TabItem>
+</Tabs>
+
+
+## 参数说明
+
+| 参数 | 类型 | 说明 |
+| --- | --- | --- |
+| reddit_clientid | String | redit 后台获取 |
+| reddit_redirecturi | String | redit 后台获取 |
+
+
+## 初始化
+
+<Tabs groupId="platform">
+  <TabItem value="ios-init" label="iOS" default>
+
+```csharp
+RXReddit.init("your client id","your redirecturi");
+```
+
+</TabItem>
+  <TabItem value="android-init" label="Android">
+
+```csharp
+Dictionary<string, object> map = new();
+map.Add("reddit_clientid", "dmRjS23kxHeuXPSFeAJwrg");
+map.Add("reddit_redirecturi", "http://localhost");
+RuiXueSdk.InitThirdSdk(map, InitThirdSdkResponseDelegate, InitThirdSdkErrorDelegate);
+
+public void InitThirdSdkResponseDelegate(string data)
+{
+    LogUtil.Log("EventManager", $"RequestResponseDelegate: {data}");
+}
+public void InitThirdSdkErrorDelegate(string data)
+{
+    LogUtil.Log("EventManager", $"RequestErrorDelegate: {data}");
+}
+
+```
+
+</TabItem>
+</Tabs>
+
+
+## 登录
+
+[点此跳转到 登录方式](/docs/开发者文档/登录-通行证/服务端接入/服务端-API)

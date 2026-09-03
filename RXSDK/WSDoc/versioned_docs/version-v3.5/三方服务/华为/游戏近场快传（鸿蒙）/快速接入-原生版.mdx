@@ -1,0 +1,1023 @@
+---
+title: "快速接入-原生版"
+---
+
+本模块提供接入鸿蒙 Nex的游戏近场快传能力。
+**系统版本要求**
+- 鸿蒙系统起始版本：5.1.0(API Level 18)
+- 兼容性校验：可通过 NearbyTransferService.isSupport() 方法检测当前设备是否满足版本要求
+- 更多功能说明 ：参照[华为官方文档](https://developer.huawei.com/consumer/cn/doc/harmonyos-guides/gameservice-nearbytransfer-introduction)
+
+# 导入模块
+```typescript
+import { NearbyTransferService, NearbyEventType } from 'hmssdk';
+```
+# 开发准备
+在工程的entry模块module.json5文件中，新增metadata并配置app_id，同时新增requestPermissions并配置如下权限。
+```json
+"module": {
+  "name": "entry",
+  "type": "entry",
+  "description": "xxxx",
+  "mainElement": "xxxx",
+  "deviceTypes": [
+    "phone"
+  ],
+  "deliveryWithInstall": true,
+  "pages": "$profile:main_pages",
+  "abilities": [],
+  "metadata": [ // 配置如下信息
+    {
+      "name": "app_id",
+      "value": "xxxxxx" // 配置为前面步骤中获取的APP ID
+    }
+  ],
+   "requestPermissions": [ // 配置权限
+     {
+       "name": "ohos.permission.INTERNET" // 允许使用Internet网络权限
+     },
+     {
+       "name": "ohos.permission.GET_NETWORK_INFO"  // 允许应用获取数据网络信息权限
+     },
+     {
+       "name": "ohos.permission.SET_NETWORK_INFO" // 允许应用配置数据网络权限
+     },
+     {
+       "name": "ohos.permission.DISTRIBUTED_DATASYNC", // 允许不同设备间的数据交换权限
+       "reason": "$string:distributed_permission",
+       "usedScene": {
+         "abilities": [
+           "EntryAbility"
+         ],
+         "when": "inuse"
+       }
+     }
+   ]
+}
+```
+
+# 基础类型定义
+参考手册 [应用沙箱目录](https://developer.huawei.com/consumer/cn/doc/harmonyos-guides/app-sandbox-directory)
+```typescript
+/**
+ * 附近传输服务事件类型枚举
+ * 定义了所有可能触发的事件类型，覆盖初始化、连接、发现、传输、错误等场景
+ */
+enum NearbyEventType {
+  /** 初始化事件：服务初始化完成/失败时触发 */
+  init = "init",
+  /** 连接通知事件：设备连接状态变化时触发（如连接成功、断开等） */
+  connectNotify = "connectNotify",
+  /** 发现事件：发送端执行附近设备发现操作时触发 */
+  discovery = "discovery",
+  /** 错误事件：服务运行过程中出现错误时触发 */
+  error = "error",
+  /** 传输通知事件：数据传输状态变化时触发（如开始传输、传输完成等） */
+  transferNotify = "transferNotify",
+  /** 传输数据包事件：接收到或发送数据包时触发 */
+  transferPackageData = "transferPackageData",
+  /** 接收包信息事件：收到其他设备发送的包信息时触发 */
+  receivePackageInfo = "receivePackageInfo",
+  /** 回复包信息结果事件：回复包信息后的结果回调 */
+  replyPackageInfoResult = "replyPackageInfoResult",
+  /** 发送包信息事件：发送包信息操作触发 */
+  sendPackageInfo = "sendPackageInfo",
+  /** 销毁事件：服务销毁时触发 */
+  destroy = "destroy",
+  /** 自动绑定附近游戏事件：触发自动绑定附近游戏逻辑时回调 */
+  autoBindNearbyGame = "autoBindNearbyGame",
+  /** 发布附近游戏事件：发布游戏到附近设备时触发 */
+  publishNearbyGame = "publishNearbyGame",
+  /** 绑定附近游戏事件：主动绑定附近游戏时触发 */
+  bindNearbyGame = "bindNearbyGame",
+
+}
+
+/**
+ * 事件回调参数接口
+ * 所有 NearbyEventType 事件触发时传递的参数结构
+ */
+interface EventArgs {
+  /** 事件类型，对应 NearbyEventType 枚举值 */
+  event: NearbyEventType;
+
+  /** 事件附带数据，可选，根据不同事件类型携带不同业务数据 */
+  data?: ESObject;
+
+  /** 状态码：0 表示成功，非 0 表示错误码 */
+  code: number;
+
+  /** 事件描述信息：错误时为错误提示，成功时可为空 */
+  message?: string;
+}
+
+type NearbyEvent = (params: EventArgs) => void;
+
+//gameNearbyTransfer(游戏近场快传) 类型定义
+gameNearbyTransfer {
+    /**
+     * 创建服务的参数配置
+     *
+     * @typedef CreateParameters
+     */
+    interface CreateParameters {
+        /**
+         * 模块名称，字符长度范围：[1, 1024]
+         *
+         * @type { string }
+         */
+        moduleName: string;
+        /**
+         * Ability名称，字符长度范围：[1, 1024]
+         *
+         * @type { string }
+         */
+        abilityName: string;
+        /**
+         * 是否需要显示系统UI，true：展示false：不展示 默认为false
+         *
+         * @type { ?boolean }
+         */
+        needShowSystemUI?: boolean;
+        /**
+         * Ability的上下文对象。当needShowSystemUI设置为true时，该参数为必填项
+         *
+         * @type { ?common.UIAbilityContext }
+         */
+        context?: common.UIAbilityContext;
+        /**
+         * 连接模式，默认为API模式
+         *
+         * @type { ?Mode }
+         */
+        mode?: Mode;
+    }
+
+    /**
+     * 连接相关通知信息
+     *
+     * @typedef ConnectNotification
+     */
+    interface ConnectNotification {
+        /**
+         * 连接状态
+         *
+         * @type { ConnectState }
+         */
+        connectState: ConnectState;
+        /**
+         * 连接结果描述信息
+         *
+         * @type { ?string }
+         */
+        message?: string;
+        /**
+         * 远端设备名称
+         *
+         * @type { ?string }
+         */
+        remoteDeviceName?: string;
+    }
+
+    /**
+     * 绑定附近传输服务的参数
+     *
+     * @typedef BindParameters
+     */
+    interface BindParameters {
+        /**
+         * 设备ID
+         *
+         * @type { string }
+         */
+        deviceId: string;
+        /**
+         * 设备的网络ID
+         *
+         * @type { string }
+         */
+        networkId: string;
+    }
+
+    /**
+     * 发现的设备信息
+     *
+     * @typedef NearbyGameDevice
+     */
+    interface NearbyGameDevice {
+        /**
+         * 设备名称
+         *
+         * @type { string }
+         */
+        deviceName: string;
+        /**
+         * 设备ID
+         *
+         * @type { string }
+         */
+        deviceId: string;
+        /**
+         * 设备的网络ID
+         *
+         * @type { string }
+         */
+        networkId: string;
+    }
+
+    /**
+     * 设备发现结果
+     *
+     * @typedef DiscoveryResult
+     */
+    interface DiscoveryResult {
+        /**
+         * 附近游戏设备列表
+         *
+         * @type { Array }
+         */
+        nearbyGameDevices: Array;
+    }
+
+    /**
+     * 附近传输服务的连接模式枚举
+     *
+     * @enum { number }
+     */
+    enum Mode {
+        /**
+         * API模式
+         */
+        API = 1,
+        /**
+         * 碰一碰模式
+         */
+        KNOCK = 2
+    }
+
+    /**
+     * 创建服务的结果返回
+     *
+     * @typedef CreateResult
+     */
+    interface CreateResult {
+        /**
+         * 本地设备名称
+         *
+         * @type { string }
+         */
+        localDeviceName: string;
+    }
+
+    /**
+     * 连接状态枚举
+     *
+     * @enum { number }
+     */
+    enum ConnectState {
+        /**
+         * 已建立连接
+         *
+         */
+        CONNECTED = 0,
+        /**
+         * 已断开连接
+         *
+         */
+        DISCONNECTED = 1
+    }
+
+    /**
+     * 传输相关通知信息
+     *
+     * @typedef TransferNotification
+     */
+    interface TransferNotification {
+        /**
+         * 数据包传输状态
+         *
+         * @type { TransferState }
+         */
+        transferState: TransferState;
+        /**
+         * 传输详情信息
+         *
+         * @type { TransferInfo }
+         */
+        transferInfo: TransferInfo;
+        /**
+         * 文件存储路径，接收端已接收文件的存储目录沙箱路径，传输完成后返回。
+         *
+         * @type { ?string }
+         */
+        fileStoragePath?: string;
+    }
+
+    /**
+     * 数据包传输状态枚举
+     *
+     * @enum { number }
+     */
+    enum TransferState {
+        /**
+         * 即将开始发送
+         *
+         */
+        SEND_START = 0,
+        /**
+         * 发送中
+         *
+         */
+        SEND_PROCESS = 1,
+        /**
+         * 发送完成
+         *
+         */
+        SEND_FINISH = 2,
+        /**
+         * 发送失败
+         *
+         */
+        SEND_ERROR = 3,
+        /**
+         * 开始接收
+         *
+         */
+        RECEIVE_START = 4,
+        /**
+         * 接收中
+         *
+         */
+        RECEIVE_PROCESS = 5,
+        /**
+         * 接收完成
+         *
+         */
+        RECEIVE_FINISH = 6,
+        /**
+         * 接收失败
+         *
+         */
+        RECEIVE_ERROR = 7
+    }
+
+    /**
+     * 文件信息
+     *
+     * @typedef FileInfo
+     */
+    interface FileInfo {
+        /**
+         * 文件路径，使用沙箱路径。字符长度范围：[1, 2048]。
+         *
+         * @type { string }
+         */
+        path: string;
+        /**
+         * 文件哈希值
+         *
+         * @type { ?string }
+         */
+        hash?: string;
+    }
+
+    /**
+     * 数据包信息
+     *
+     * @typedef PackageInfo
+     */
+    interface PackageInfo {
+        /**
+         * 数据包名称，字符长度范围：[0, 2048]
+         *
+         * @type { ?string }
+         */
+        name?: string;
+        /**
+         * 版本号，格式自定义。字符长度范围：[0, 256]
+         *
+         * @type { ?string }
+         */
+        version?: string;
+        /**
+         * 文件列表，最多10000条
+         *
+         * @type { ?Array }
+         */
+        files?: Array;
+        /**
+         * 数据包的额外数据，字符长度范围：[0, 2048]
+         *
+         * @type { ?string }
+         */
+        extraData?: string;
+    }
+
+    /**
+     * 数据包文件信息
+     *
+     * @typedef PackageFile
+     */
+    interface PackageFile {
+        /**
+         * 源文件路径，为发送端应用沙箱路径。字符长度范围：[1, 2048]。完整路径。
+         * @type { string }
+         */
+        srcPath: string;
+        /**
+         * 目标文件路径，为接收端应用沙箱路径。字符长度范围：[1, 2048]。相对路径，完整路径为fileStoragePath+destPath
+         * @type { string }
+         */
+        destPath: string;
+    }
+
+    /**
+     * 数据包数据
+     *
+     * @typedef PackageData
+     */
+    interface PackageData {
+        /**
+         * 数据包名称，字符长度范围：[0, 2048]
+         *
+         * @type { ?string }
+         */
+        name?: string;
+        /**
+         * 版本号，字符长度范围：[0, 256]
+         *
+         * @type { ?string }
+         */
+        version?: string;
+        /**
+         * 数据包文件列表，最多10000条
+         *
+         * @type { Array }
+         */
+        files: Array;
+    }
+
+    /**
+     * 通用返回结果
+     *
+     * @typedef ReturnResult
+     */
+    interface ReturnResult {
+        /**
+         * 返回码
+         *
+         * @type { number }
+         */
+        code: number;
+        /**
+         * 返回描述信息
+         *
+         * @type { ?string }
+         */
+        message?: string;
+    }
+
+    /**
+     * 数据包信息结果码枚举
+     *
+     * @enum { number }
+     */
+    enum PackageInfoResultCode {
+        /**
+         * 错误
+         *
+         */
+        ERROR = -1,
+        /**
+         * 对比后发现数据包可用
+         *
+         */
+        PACKAGE_AVAILABLE_COMPARED = 0,
+        /**
+         * 对比后发现数据包不可用
+         *
+         */
+        PACKAGE_UNAVAILABLE_COMPARED = 1
+    }
+
+    /**
+     * 数据包对比结果
+     *
+     * @typedef PackageInfoResult
+     */
+    interface PackageInfoResult {
+        /**
+         * 结果码
+         *
+         * @type { PackageInfoResultCode }
+         */
+        packageInfoResultCode: PackageInfoResultCode;
+        /**
+         * 返回描述信息
+         *
+         * @type { ?string }
+         */
+        message?: string;
+    }
+
+    /**
+     * 传输详情信息
+     *
+     * @typedef TransferInfo
+     */
+    interface TransferInfo {
+        /**
+         * 预计传输时长（秒）
+         *
+         * @type { number }
+         */
+        expectedTime: number;
+        /**
+         * 已传输数据包大小（字节）
+         *
+         * @type { number }
+         */
+        transferredPackageSize: number;
+        /**
+         * 待传输数据包总大小（字节）
+         *
+         * @type { number }
+         */
+        totalPackageSize: number;
+        /**
+         * 传输速度（字节/秒）
+         *
+         * @type { number }
+         */
+        rate: number;
+    }
+
+    /**
+     * 附近传输错误码枚举
+     *
+     * @enum { number }
+     */
+    enum NearbyTransferErrorCode {
+        /**
+         * 系统内部错误
+         *
+         */
+        INTERNAL_ERROR = 1018300001,
+        /**
+         * 认证失败
+         *
+         */
+        AUTH_FAILED = 1018300002,
+        /**
+         * 请求无效
+         *
+         */
+        INVALID_REQUEST = 1018300003,
+        /**
+         * 无可用服务
+         *
+         */
+        NO_SERVICE_AVAILABLE = 1018300004,
+        /**
+         * 无线网络和蓝牙需同时开启
+         *
+         */
+        WLAN_BLUETOOTH_MUST_BE_ON = 1018300005,
+        /**
+         * 发布失败
+         *
+         */
+        PUBLISH_FAILED = 1018300006,
+        /**
+         * 发现设备失败
+         *
+         */
+        DISCOVERY_FAILED = 1018300007,
+        /**
+         * 参数无效
+         */
+        INVALID_PARAMETER = 1018300008
+    }
+}
+```
+
+# 服务初始化与创建
+- API 定义
+```typescript
+public async create(
+  uiContext: UIContext, 
+  initParam?: gameNearbyTransfer.CreateParameters, 
+  event?: NearbyEvent
+): Promise
+```
+
+- 参数说明
+
+| **字段**         | **类型** | **是否必填** | **说明**                                                          |
+| ---------------- | -------- | ------------ | ----------------------------------------------------------------- |
+| uiContext	             | UIContext   | 是           | UI 上下文对象，用于关联 Ability 生命周期                                              |
+| initParam           | gameNearbyTransfer.CreateParameters	   | 否           |  初始化参数，默认包含 abilityName、moduleName 等信息                                                  |
+| event | (params: EventArgs) => void   | 是           |  接收初始化结果事件通知                                          |
+ 
+
+- 示例代码
+```typescript
+    let uiAbilityContext = this.getUIContext().getHostContext() as common.UIAbilityContext
+    let initParam: gameNearbyTransfer.CreateParameters = {
+      abilityName: uiAbilityContext.abilityInfo.name,
+      moduleName: uiAbilityContext.abilityInfo.moduleName,
+      needShowSystemUI: true // 是否展示系统UI，true为展示，false为不展示，默认为false
+    };
+
+    NearbyTransferService.getInstance().create(this.getUIContext(), initParam, (ret) => {
+      if (ret.code == 0) {
+        // data 示例： {"localDeviceName":"Lee156的Mate 60 Pro"}
+        let data: ESObject = ret.data
+        //todo 成功逻辑
+      } else {
+        let msg = ret.message
+        //todo 失败
+      }
+    })
+```
+
+# 事件回调注册
+- API 定义
+```typescript
+/**
+ * 注册附近传输服务的事件回调函数
+ * @param event - 全局事件回调函数，用于接收所有类型的 NearbyEventType 事件通知及数据
+ *                回调参数为 EventArgs 类型，包含事件类型、状态码、数据及错误信息等
+ */
+public registerCallback(event?: NearbyEvent)
+```
+
+- 示例代码
+```typescript
+      NearbyTransferService.getInstance().registerCallback((result) => {
+      // this.showText("连接事件 ", result)
+      if (result.event == NearbyEventType.connectNotify) {
+        if (result.code == 0) {
+          let p = result.data.isSender ? "客户端" : "服务端"
+          if (result.data.isSender) {
+            this.showText(`连接服务成功，,当前为${p} `, result);
+          } else {
+            this.showText(`收到连接，当前为${p} `, result);
+          }
+        } else {
+          this.showText(`连接状态异常， code= ${result.code},message=` + result.message);
+          // await NearbyTransferService.getInstance().destroy();
+          // TransferDialogManager.getInstance(uiContext)?.destroy();
+        }
+      } else if (result.event == NearbyEventType.receivePackageInfo) {
+        let pi = result.data as gameNearbyTransfer.PackageInfo
+        this.showText(`收到包信息`, result.data);
+
+        let packageInfoResult: gameNearbyTransfer.PackageInfoResult = {
+          packageInfoResultCode: gameNearbyTransfer.PackageInfoResultCode.PACKAGE_AVAILABLE_COMPARED,
+          message: "包信息比对结果"
+        };
+        NearbyTransferService.getInstance().replyPackageInfoResult(packageInfoResult, (re) => {
+          Logger.d("replyPackageInfoResult:", re)
+        })
+
+      } else if (result.event == NearbyEventType.transferNotify) {
+
+        if (result.data.transferState == 6) {
+          // todo文件接收完成，拷贝接收到的 patch文件到游戏脚本目录
+        } else {
+          Logger.d("传输状态：", result)
+        }
+      } else {
+        Logger.d("状态监听：", result)
+      }
+
+    })
+```
+
+ # 注销事件监听
+- API 定义
+```typescript
+  /**
+   * 注销附近传输服务的所有事件监听
+   * @description 移除底层 `gameNearbyTransfer` 相关原生事件（如连接通知、传输通知、错误等）的监听函数，
+   *              停止接收各类事件回调，避免内存泄漏或无效的事件处理
+   * @note 该方法会注销所有已注册的原生事件监听，调用后 `registerCallback` 注册的全局回调将不再生效；
+   *       若需重新接收事件，需再次调用 `registerCallback`
+   * @throws 内部捕获事件注销过程中的异常并记录日志，不会向外抛出错误
+   */
+  public unregisterCallback()
+```
+
+- 示例代码
+```typescript
+NearbyTransferService.getInstance().unregisterCallback()
+```
+
+ # 发布近场快传服务
+- API 定义
+```typescript
+  /**
+   * 发布近场快传服务，使当前设备可被附近设备发现并建立连接
+   * @param event - 事件回调函数，用于接收发布过程中的状态通知（如发布成功/失败、设备发现等事件）
+   *                回调参数为 EventArgs 类型，包含事件类型、状态码、数据及错误信息等
+   * @returns Promise - 异步发布操作的结果，无返回值（失败时会抛出异常或通过event回调错误）
+   * @description 该方法会启动设备的可发现性，允许附近设备搜索并连接当前设备的近场快传服务，
+   *              通常在作为服务端/发送端时调用，发布成功后会触发 `NearbyEventType.publishNearbyGame` 事件
+   * @throws {BusinessError} 发布失败时抛出错误，包含错误码和错误信息（如不支持的设备、权限不足等）
+   */
+  public async publishNearbyGame(event?: NearbyEvent): Promise
+```
+
+- 示例代码
+```typescript
+ NearbyTransferService.getInstance().publishNearbyGame((ret) => {
+                  // 返回数据示例：{"event":"publishNearbyGame","code":0}
+                  if (ret.code == 0) {
+                    //todo 成功逻辑
+                  } else {
+                    let msg = ret.message
+                    //todo 失败
+                  }
+                })
+```
+
+ # 自动绑定发现的设备
+- API 定义
+```typescript
+  /**
+   * 自动绑定已发现的附近设备
+   * @param event - 事件回调函数，用于接收自动绑定过程中的状态通知（如绑定成功/失败、设备信息等事件）
+   *                回调参数为 EventArgs 类型，包含事件类型（autoBindNearbyGame）、状态码、设备数据及错误信息等
+   * @returns Promise - 异步绑定操作的结果，无返回值（失败时会通过event回调错误或抛出异常）
+   * @description 该方法会自动筛选已发现的附近设备列表，选择匹配的设备完成绑定流程，无需手动指定设备ID；
+   *              绑定成功后会触发 `NearbyEventType.autoBindNearbyGame` 事件，携带绑定设备的详细信息；
+   *              若未发现可绑定设备或绑定失败，会通过事件回调返回错误码及原因
+   * @throws {BusinessError} 绑定过程中出现异常时抛出错误（如设备不支持、连接超时等）
+   */
+  public async autoBindNearbyGame(event?: NearbyEvent): Promise
+```
+
+- 示例代码
+```typescript
+NearbyTransferService.getInstance().autoBindNearbyGame((ret) => {
+                  //返回数据示例：{"event":"autoBindNearbyGame","code":0}
+                  if (ret.code == 0) {
+                    //todo 成功逻辑
+                  } else {
+                    let msg = ret.message
+                    //todo 失败
+                  }
+```
+
+# 发现附近设备
+- API 定义
+```typescript
+  /**
+   * 手动触发附近设备发现操作
+   * @param event - 事件回调函数，用于接收发现过程中的状态通知（如发现结果、错误信息等）
+   *                回调参数为 EventArgs 类型：
+   *                - 事件类型为 `NearbyEventType.discovery` 时，表示发现成功，`data` 字段为 `DiscoveryResult` 类型（包含已发现设备列表）；
+   *                - 事件类型为 `NearbyEventType.error` 时，表示发现失败，`data` 字段包含错误详情。
+   * @returns Promise - 异步发现操作的结果，无返回值
+   * @description 该方法会主动扫描附近开启近场快传服务的设备，扫描完成后通过事件回调返回发现结果：
+   *              1. 发现成功：触发 `NearbyEventType.discovery` 事件，`data` 携带 `DiscoveryResult`（含 `nearbyGameDevices` 设备列表）；
+   *              2. 发现失败：触发 `NearbyEventType.error` 事件，返回错误码及原因（如权限不足、设备不支持、服务未初始化等）。
+   * @throws {BusinessError} 发现操作启动失败时抛出异常（如服务未初始化、系统能力不足）
+   */
+  public async discovery(event?: NearbyEvent): Promise 
+```
+
+- 示例代码
+```typescript
+NearbyTransferService.getInstance().discovery((ret) => {
+                  //返回数据示例：{"event":"discovery","code":0,"data":{"nearbyGameDevices":[{"deviceName":"SDK Dev的Mate X5 典藏","deviceId":"4b411a84","networkId":"4b411a84"}]}}
+                  let data = ret.data as gameNearbyTransfer.DiscoveryResult
+                  this.nearbyGameDevices = ret.data.nearbyGameDevices
+                  if (ret.code == 0) {
+                    //todo 成功逻辑
+                  } else {
+                    let msg = ret.message
+                    //todo 失败
+                  }
+                })
+```
+
+# 绑定指定的设备
+- API 定义
+```typescript
+  /**
+   * 绑定指定的近场快传服务设备
+   * @description 与指定的附近游戏设备建立绑定关系，完成设备间的连接配对，
+   *              绑定成功后可进行数据传输、协作等操作
+   * @param deviceInfo - 待绑定的设备信息对象（类型为 gameNearbyTransfer.NearbyGameDevice）
+   * @param deviceInfo.deviceId - 设备唯一标识ID
+   *   - 类型：string
+   *   - 约束：字符长度范围 [1, 128]，超出范围将导致绑定失败
+   *   - 说明：由设备发现阶段（discovery）返回的唯一设备标识
+   * @param deviceInfo.networkId - 设备网络标识ID
+   *   - 类型：string
+   *   - 约束：字符长度范围 [1, 128]，超出范围将导致绑定失败
+   *   - 说明：设备在近场网络中的标识，与deviceId共同确保绑定设备的准确性
+   * @param event - 事件回调函数，用于接收绑定过程中的状态通知
+   *                回调参数为 EventArgs 类型：
+   *                - 事件类型为 `NearbyEventType.bindNearbyGame` 时，表示绑定结果通知；
+   *                - 事件类型为 `NearbyEventType.error` 时，表示绑定失败，包含错误码及原因
+   * @returns Promise - 异步绑定操作的结果，无返回值
+   * @throws {BusinessError} 绑定操作启动失败时抛出异常（如参数无效、服务未初始化、设备不在线等）
+   */
+  public async bindNearbyGame(deviceInfo: gameNearbyTransfer.NearbyGameDevice, event?: NearbyEvent): Promise 
+```
+
+```typescript
+let device:gameNearbyTransfer.NearbyGameDevice=要绑定的设备数据
+NearbyTransferService.getInstance().bindNearbyGame(device, (ret) => {
+                    if (ret.code == 0) {
+                      //todo 成功逻辑
+                    } else {
+                      let msg = ret.message
+                      //todo 失败
+                    }
+                  })
+```
+
+# 处理协作授权
+:::tip
+- 注意必须添加，否则无法连接附近设备
+:::- API 定义
+```typescript
+  /**
+   * 处理协作请求（需在 UIAbility 的 onCollaborate 生命周期函数中调用）
+   * @description 接收并处理外部设备发起的协作请求，完成协作参数解析、设备绑定及协作流程初始化，
+   *              通常与系统协作机制联动，由 UIAbility 的 onCollaborate 生命周期触发调用
+   * @param acceptParameters - 协作请求参数（来自系统传递的 wantParam）
+   *                           包含协作所需的设备信息、请求类型等关键数据，结构为键值对形式
+   * @returns Promise - 异步协作处理结果，无返回值（处理结果通过事件回调反馈）
+   * @example
+  * // 在 UIAbility 中集成调用示例
+   * onCollaborate(wantParam: Record): AbilityConstant.CollaborateResult {
+   *   // 异步处理协作请求（不阻塞生命周期返回）
+   *   NearbyTransferService.acceptCollaboration(wantParam).catch(err => {
+   *     LogUtil.error("协作请求处理失败：", err);
+   *   });
+   *   // 同步返回接受协作的结果给系统
+   *   return AbilityConstant.CollaborateResult.ACCEPT;
+   * }
+   * @throws {BusinessError} 协作处理异常时抛出错误（如参数无效、协作服务未初始化、设备连接失败等）
+   */
+  public static async acceptCollaboration(acceptParameters: Record): Promise 
+```
+
+- 示例代码
+```typescript
+   //EntryAbility.ets 文件中添加
+  onCollaborate(wantParam: Record): AbilityConstant.CollaborateResult {
+    NearbyTransferService.acceptCollaboration(wantParam);
+    return AbilityConstant.CollaborateResult.ACCEPT;
+  }
+```
+
+# 发送包信息
+- API 定义
+```typescript
+  /**
+   * 接收端向发送端发送自身的文件包信息
+   * @description 接收端主动将本地的文件包元信息（如名称、版本、文件列表等）发送给已连接的发送端，
+   *              用于发送端确认接收端的文件状态，以便进行后续的文件传输或同步操作
+   * @param packageInfo - 文件包信息对象（类型为 gameNearbyTransfer.PackageInfo），包含文件包的名称、版本、文件列表等元数据
+   *                      具体字段包括：
+   *                      - name?: string：文件包名称
+   *                      - version?: string：文件包版本
+   *                      - files?: Array：文件列表（含文件路径、哈希值）
+   *                      - extraData?: string：额外附加数据
+   * @param event - 事件回调函数，用于接收发送结果通知
+   *                回调参数为 EventArgs 类型：
+   *                - 事件类型为 `NearbyEventType.sendPackageInfo` 时，表示发送结果；
+   *                - 事件类型为 `NearbyEventType.error` 时，表示发送失败，包含错误码及原因
+   * @returns Promise - 异步发送操作的结果，无返回值
+   * @note 需在设备成功连接（`isConnected` 为 true）后调用，否则会触发错误事件；
+   * @throws {BusinessError} 发送操作异常时抛出错误（如未连接设备、参数无效、传输通道异常等）
+   */
+  public sendPackageInfo(packageInfo: gameNearbyTransfer.PackageInfo, event?: NearbyEvent)
+```
+
+- 示例代码
+```typescript
+const context = this.getUIContext().getHostContext() as common.UIAbilityContext;
+let packageInfo: gameNearbyTransfer.PackageInfo = {
+  name: "sendpackageinfo",
+  version: "1.1.0",
+  files: FileUtil.getFileList(context.filesDir).map((p) => ({
+    path: p
+  } as gameNearbyTransfer.FileInfo))
+}
+NearbyTransferService.getInstance().sendPackageInfo(packageInfo, (d) => {
+  this.showText("sendPackageInfo data=" + JSON.stringify(packageInfo) + " ,result=" + JSON.stringify(d));
+})
+```
+
+# 响应包信息对比结果
+```typescript
+  /**
+   * 发送端向近场快传服务上报文件包信息对比结果
+   * @description 发送端接收接收端的文件包信息后，进行版本或内容对比，将对比结果上报给近场快传服务，
+   *              服务根据该结果决定后续的文件传输策略（如是否需要发送差异文件、全量文件等）
+   * @param packageInfoResult - 文件包信息对比结果对象（类型为 gameNearbyTransfer.PackageInfoResult），包含：
+   *                            - packageInfoResultCode: PackageInfoResultCode 枚举值（对比结果码，如可用/不可用/错误）
+   *                            - message?: string：对比结果描述信息（可选）
+   * @param event - 事件回调函数，用于接收上报结果通知
+   *                回调参数为 EventArgs 类型：
+   *                - 事件类型为 `NearbyEventType.replyPackageInfoResult` 时，表示上报成功；
+   *                - 事件类型为 `NearbyEventType.error` 时，表示上报失败，包含错误码及原因
+   * @returns Promise - 异步上报操作的结果，无返回值
+   * @note 需在发送端角色（`isSender` 为 true）且已获取接收端文件包信息后调用；
+   *       对比结果码（PackageInfoResultCode）包含：ERROR(-1)、PACKAGE_AVAILABLE_COMPARED(0)、PACKAGE_UNAVAILABLE_COMPARED(1)
+   * @throws {BusinessError} 上报操作异常时抛出错误（如参数无效、未建立连接、服务未初始化等）
+   */
+  public async replyPackageInfoResult(packageInfoResult: gameNearbyTransfer.PackageInfoResult, event?: NearbyEvent)
+```
+
+- 示例代码
+```typescript
+let packageInfoResult: gameNearbyTransfer.PackageInfoResult = {
+  packageInfoResultCode: gameNearbyTransfer.PackageInfoResultCode.PACKAGE_AVAILABLE_COMPARED,
+  message: "包信息比对结果"
+};
+NearbyTransferService.getInstance().replyPackageInfoResult(packageInfoResult, (ret) => {
+  if (ret.code == 0) {
+    //todo 成功逻辑
+  } else {
+    let msg = ret.message
+    //todo 失败
+  }
+  Logger.d("replyPackageInfoResult:", ret)
+```
+
+# 开始传输包数据
+- API 定义
+```typescript
+  /**
+   * 开始传输包数据
+   * @description 用于启动近场包数据传输，可指定包名、版本号及传输文件列表，并通过回调监听传输事件
+   * @param package - 传输的包数据信息对象
+   * @param package.name - 包名（可选参数，但若使用则为必填项）
+   *   - 类型：string
+   *   - 约束：字符长度范围 [0, 2048]，超出范围可能导致传输失败
+   *   - 说明：标识传输包的名称，为空字符串时表示不指定具体名称
+   * @param package.version - 版本号（可选参数，但若使用则为必填项）
+   *   - 类型：string
+   *   - 约束：字符长度范围 [0, 256]，超出范围可能导致传输失败
+   *   - 说明：传输包的版本标识，用于区分不同版本的包数据
+   * @param package.files - 传输文件列表（可选参数）
+   *   - 类型：Array
+   *   - 约束：最多包含10000条文件记录，超出数量限制会触发异常
+   *   - 说明：需传输的文件集合，为空时表示仅传输包元数据（名称、版本号）
+   * @param event - 传输事件回调（可选）
+   *   - 类型：NearbyEvent
+   *   - 说明：用于监听传输过程中的事件（如开始、进度、完成、失败等），可获取实时状态
+   */
+  public transferPackageData(packageData: gameNearbyTransfer.PackageData, event?: NearbyEvent)
+```
+
+- 示例代码
+```typescript
+//传输更新 patch 文件
+const context = this.getUIContext().getHostContext() as common.UIAbilityContext;
+let packageData: gameNearbyTransfer.PackageData = {
+  files:  gameNearbyTransfer.PackageFile 类型 patch文件列表 ))
+}
+NearbyTransferService.getInstance().transferPackageData(packageData, (ret) => {
+  // 返回数据示例：{"event":"transferPackageData","code":0}
+  if (ret.code == 0) {
+    //todo 成功逻辑
+  } else {
+    let msg = ret.message
+    //todo 失败
+  }
+  this.showText(" transferPackageData  result=" + JSON.stringify(ret));
+})
+```
+
+# 销毁游戏近场快传服务
+- API 定义
+```typescript
+  /**
+   * 销毁游戏近场快传服务实例
+   * @description 释放近场快传服务占用的系统资源（如连接、监听、线程等），终止所有正在进行的传输或发现操作；
+   *              服务销毁后无法再使用相关功能，需重新调用 `create` 方法初始化才能再次使用
+   * @param event - 事件回调函数，用于接收销毁操作的状态通知
+   *                回调参数为 EventArgs 类型：
+   *                - 事件类型为 `NearbyEventType.destroy` 时，表示销毁成功；
+   *                - 事件类型为 `NearbyEventType.error` 时，表示销毁失败，包含错误码及原因
+   * @returns Promise - 异步销毁操作的结果，无返回值
+   * @note 建议在服务不再使用时（如页面退出、应用后台）调用，避免资源泄漏；
+   *       销毁后 `isNearbyServiceInitted` 状态会置为 `false`，需重新初始化
+   * @throws {BusinessError} 销毁操作异常时抛出错误（如服务未初始化、存在未完成的传输任务等）
+   */
+  public async destroy(event?: NearbyEvent): Promise 
+```
+
+- 示例代码
+```typescript
+NearbyTransferService.getInstance().destroy()
+```

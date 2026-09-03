@@ -1,0 +1,80 @@
+---
+sidebar_position: 1
+title: APP 客服接入文档
+description: "望舒SDK 客服 APP 客服接入文档服务端文档，提供接口请求参数与响应说明。"
+---
+
+> 如何接入 APP 网页客服？
+>
+> 答：CP 客户端请求 CP 服务器拉取参数以及签名后，拼接参数跳转到望舒的客服系统网页端
+
+## 接口信息
+
+### 跳转网页客服地址信息
+
+跳转地址 **： API 域名 +/static/service#/welcome**
+
+跳转方式 **： URL 跳转**
+
+传参方式 **： GET**
+
+### 参数
+
+| 参数 | 名称 | 含义 | 必填 | 注意 |
+| --- | --- | --- | --- | --- |
+| ruixue-accesstoken | accesstoken | 望舒登陆下发的令牌 | 否 | param_ui |
+| 自定义 ui | 穿透给客服面板的参数 | 使用 json 形式 例如 `{"对局 id": "1001"}` | 否 | |
+| 否 |  |  |  |  |
+| nickname | 昵称 | 客服对话中用户的昵称 | 否 |  |
+| head_img_url | 头像 | 客服对话中用户的头像 | 否 |  |
+| game_user_id | 游戏 id | 用户的游戏 id | 否 |  |
+| queue_name | 队列名称 | 在望舒客服系统设置的接入点名称 不填写默认为 default | 否 |  |
+| ruixue-channelid | 渠道名称 | 应用的渠道 | 是 |  |
+| ruixue-cpid | cpid | 应用的 cpid | 是 |  |
+| ruixue-productid | 产品 id | 应用的产品 id | 是 |  |
+| sign | 参数签名 | 是 | cpkey 请勿暴露给客户端，请服务端验证所有参数后再进行签名。 |  |
+
+
+
+## FAQ
+
+### 如何进行签名
+
+将参数按照参数名字符的 ASCII 递增排序
+
+将排序后的参数用参数**=**参数值的格式连接，两个参数之间用**&**字符拼接
+
+在拼接后的字符后面追加 cpkey
+
+将上面的字符串进行 32 位 md5 加密并且转换为小写
+
+例 lower(md5_32("game_user_id=&head_img_url=&nickname=&param_ui&queue_name=&ruixue-accesstoken=&ruixue-channelid=&ruixue-cpid=&ruixue-productid="))
+
+#### GO 示例
+
+```go
+package example
+import (
+
+ "sort"
+ "strings"
+
+ "git.jiaxianghudong.com/go/util"
+
+)
+func Sign(param map[string]string, cpKey string) (sign string) {
+ keys := make([]string, 0, len(param))
+ signParams := make([]string, 0, len(param))
+
+ for key, _ := range param {
+ keys = append(keys, key)
+ }
+ sort.Strings(keys) // 1.将参数按照参数名字符的ASCII递增排序
+ for _, key := range keys {
+ signParams = append(signParams, key+"="+param[key]) // 2.将排序后的参数 用参数**=**参数值的格式连接
+ }
+ signStr := strings.Join(signParams, "&") // 3.两个参数之间用**&**字符拼接
+ signStr += cpKey // 4.在拼接后的字符后面追加cpkey
+ return strings.ToLower(util.StringMD5(signStr)) // 5.将上面的字符串进行32位md5加密并且转换为小写
+}
+```

@@ -1,0 +1,169 @@
+---
+sidebar_position: 3
+title: 原生接入
+description: 望舒 openinstall iOS / Android 端原生接入指南，包含 SDK 集成与接口调用说明。
+---
+
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
+
+## SDK 集成
+
+<Tabs groupId="platform">
+
+<TabItem value="ios" label="iOS">
+
+RXSDK_Pure 3.8.6 以上支持
+
+### 国内
+
+```objectivec
+pod 'RXOpeninstallSDK'
+```
+
+### 海外
+
+```objectivec
+pod 'RXOpeninstallOSSDK'
+```
+
+</TabItem>
+
+<TabItem value="android" label="Android">
+
+3.7.33 以上支持。
+
+### 国内
+
+:::tip[版本说明]
+`version` 为 SDK 版本号（替换为实际版本号），最新版本请从 [更新日志](/docs/开发者文档/入门指南/更新日志/Android) 中查看。
+:::
+
+```groovy
+implementation 'com.ruixue:rxsdk_openinstall:${version}'
+```
+
+### 海外
+
+```groovy
+implementation 'com.ruixue:rxsdk_openinstall_os:${version}'
+// 如果"下载配置"中的下载地址配置的是应用的Google Play地址，
+// 则可以添加以下依赖，用于提升 Google Play 商店下载时参数还原精度
+implementation "com.android.installreferrer:installreferrer:2.2"
+```
+
+</TabItem>
+
+</Tabs>
+
+## 工程配置
+
+<Tabs groupId="platform">
+
+<TabItem value="ios" label="iOS">
+
+### Universal Link
+
+在 Xcode 中配置 openinstall 为当前应用生成的关联域名（Associated Domains）：
+
+![](https://res.cdn.openinstall.io/doc/ios-associated-domains.png)
+
+![](https://guanwangyun.oss-cn-beijing.aliyuncs.com/document/%E4%B8%89%E6%96%B9/20251125-103039.jpeg)
+
+### URL Types
+
+在 Xcode 里选中 Target -> Info -> URL Types ，配置 openinstall 为当前应用生成的 Scheme:
+
+![](https://www.openinstall.com/doc/resources/ios10.png)
+
+### Info.plist
+
+在 Info.plist 文件中配置 appKey 键值对: **com.ruixue.APP_KEY**，value 为 openinstall AppKey
+
+![](https://guanwangyun.oss-cn-beijing.aliyuncs.com/document/tripartite/20260106-131111.jpeg)
+
+</TabItem>
+
+<TabItem value="android" label="Android">
+
+在 AndroidManifest.xml 中配置：
+
+- meta-data 配置 appkey
+- 一键拉起配置（一般为 MainActivity 中配置 scheme）
+
+```xml
+</application>
+
+<meta-data
+ android:name="com.ruixue.APP_KEY"
+ android:value="CP 方在 openinstall 申请的 appkey"/>
+
+<activity
+ android:name="com.ruixue.demo.MainActivity"
+ android:configChanges="orientation|screenSize|smallestScreenSize|density"
+ android:exported="true"
+ android:launchMode="singleTask"
+ android:screenOrientation="sensor"
+ android:theme="@style/ThemeTranslucent">
+ ...
+ <intent-filter>
+ <action android:name="android.intent.action.VIEW">
+ <category android:name="android.intent.category.DEFAULT">
+ <category android:name="android.intent.category.BROWSABLE">
+ <data android:scheme="CP 方在 openinstall 申请的 scheme">
+ </intent-filter>
+</activity>
+</application>
+```
+
+</TabItem>
+
+</Tabs>
+
+## 初始化
+
+在SDK 初始化方法之前调用。
+
+<Tabs groupId="platform">
+
+<TabItem value="ios" label="iOS">
+
+**调用示例**
+
+```objectivec
+[[RXOpeninstallService sharedSDK] regist];
+```
+
+</TabItem>
+
+<TabItem value="android" label="Android">
+
+引入 SDK 即可，无需额外初始化调用。
+
+</TabItem>
+
+</Tabs>
+
+## 唤醒协议（iOS）
+
+iOS 端两种都需要配置：
+
+```objectivec
+/**
+ * 通用链接
+ */
+- (BOOL)application:(UIApplication *)application continueUserActivity:(NSUserActivity *)userActivity restorationHandler:(void (^)(NSArray * _Nullable))restorationHandler
+{
+ [[RXOpeninstallService sharedSDK] continueUserActivity:userActivity];
+ return YES;
+}
+
+/**
+ * openURL
+ */
+- (BOOL)application:(UIApplication *)app openURL:(NSURL *)url options:(NSDictionary<UIApplicationOpenURLOptionsKey,id> *)options
+{
+ [[RXOpeninstallService sharedSDK] handleOpenUrl:url];
+ return YES;
+}
+```

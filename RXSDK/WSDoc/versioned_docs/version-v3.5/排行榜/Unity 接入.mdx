@@ -1,0 +1,224 @@
+---
+sidebar_position: 5
+title: "Unity 接入"
+---
+
+### 接入方式
+* Package Manager 导入 RuiXue.Rank
+
+## SDK 集成
+
+* ( ) iOS::rankinglist1
+* ( ) Android::rankinglist2
+
+## 增加用户分数
+
+**接口原型**
+
+```csharp
+
+public void AddScore(string rank_id, int score,
+            RequestResponseDelegate onResponse, RequestErrorDelegate onError);
+
+```
+
+### 参数说明
+
+| **字段** | **类型** | **是否必填** | **备注**        |
+| -------- | -------- | ------------ | --------------- |
+| rank_id  | string   | 是           | 排行榜 ID       |
+| score    | int      | 是           | 增加的分数值    |
+
+**调用示例**
+
+```csharp
+    public void OnAddScore()
+    {
+        RXRank.AddScore(_rankID, 80, RankResponseDelegate, RankErrorDelegate);
+    }
+```
+
+### 响应结构
+
+**HTTP 状态码：**`200 OK`
+
+| **字段** | **类型** | **是否必填** | **说明** | **示例** |
+| --- | --- | --- | --- | --- |
+| code | Number | 是   | 响应状态码，0为成功，非0表示出错 | 0   |
+| msg | String | 否   | 响应信息，仅在status为非0时不为空 |     |
+
+## 设置用户分数
+
+**接口原型**
+
+```csharp
+public void SetScore(string rank_id, int score,
+            RequestResponseDelegate onResponse, RequestErrorDelegate onError);
+```
+
+### 参数说明
+
+| **字段** | **类型** | **是否必填** | **备注**        |
+| -------- | -------- | ------------ | --------------- |
+| rank_id  | string   | 是           | 排行榜 ID       |
+| score    | int      | 是           | 增加的分数值    |
+
+**调用示例**
+
+```csharp
+    public void OnSetScore()
+    {
+        RXRank.SetScore(_rankID, 80, RankResponseDelegate, RankErrorDelegate);
+    }
+```
+
+### 响应结构
+
+**HTTP 状态码：**`200 OK`
+
+| **字段** | **类型** | **是否必填** | **说明** | **示例** |
+| --- | --- | --- | --- | --- |
+| code | Number | 是   | 响应状态码，0为成功，非0表示出错 | 0   |
+| msg | String | 否   | 响应信息，仅在status为非0时不为空 |     |
+
+## 查询用户分数
+
+**接口原型**
+
+```csharp
+    public void QueryUserRank(string rank_id, string open_id, 
+                RequestResponseDelegate onResponse, RequestErrorDelegate onError);
+```
+
+### 参数说明
+
+| **字段** | **类型** | **是否必填** | **备注**                                                                                                              |
+| -------- | -------- | ------------ | --------------------------------------------------------------------------------------------------------------------- |
+| rank_id  | string   | 是           | 字符串本身带有类型信息，格式为：Flag_榜单容量_重置周期_自定义标识（flag 是一个 int64 位标记，用以扩展和规定绑定属性） |
+| open_id  | string   | 是           | 目标用户 OpenID                                                                                                       |
+
+**调用示例**
+
+```csharp
+    public void OnQueryUserRank()
+    {
+        RXRank.QueryUserRank(_rankID, _openID, RankResponseDelegate, RankErrorDelegate);
+    }
+```
+
+### 响应结构
+
+**HTTP 状态码：**`200 OK`
+
+| **字段** | **类型**                         | **是否必填** | **说明** | **示例** |
+| --- |--------------------------------| --- | --- | --- |
+| code | Number                         | 是   | 响应状态码，0为成功，非0表示出错 | 0   |
+| msg | String                         | 否   | 响应信息，仅在status为非0时不为空 |     |
+| data | [DataO](/docs/v3.5/排行榜/服务端接入/服务端 API) | 否   | 结果数据集 |     |
+
+##### DataO
+
+| **字段** | **类型**                         | **是否必填** | **说明** | **示例** |
+| --- |--------------------------------| --- | --- | --- |
+| score | Number                         | 是   | 排行榜分数 |     |
+| rank | Number                         | 是   | 排行榜排名 |     |
+| user | [UserO](/docs/v3.5/排行榜/服务端接入/服务端 API) | 是   | 用户信息数据集 |     |
+
+##### UserO
+
+| **字段** | **类型** | **是否必填** | **说明** | **示例** |
+| --- | --- | --- | --- | --- |
+| openid | String | 是   | 用户望舒 OpenID |     |
+| nickname | String | 是   | 用户昵称 |     |
+| birthday | String | 否   | 用户生日日期 |     |
+| remarks | String | 否   | 当前用户对其的备注 |     |
+| avatar | String | 否   | 用户头像 |     |
+| custom | String | 否   | CP 自定义信息 |     |
+| time | Number | 否   | 关系形成时间戳（单位：秒） |     |
+| sex | Number | 否   | 用户性别，1:男；0:女 |     |
+
+## 获取排行榜列表
+
+**接口原型**
+
+```csharp
+    public void GetRankList(string rank_id, int start_rank, int end_rank, 
+                RequestResponseDelegate onResponse, RequestErrorDelegate onError);
+```
+
+### 参数说明
+
+| **字段**   | **类型** | **是否必填** | **备注**                                                                                                              |
+| ---------- | -------- | ------------ | --------------------------------------------------------------------------------------------------------------------- |
+| rank_id    | string   | 是           | 字符串本身带有类型信息，格式为：Flag_榜单容量_重置周期_自定义标识（flag 是一个 int64 位标记，用以扩展和规定绑定属性） |
+| start_rank | int      | 是           | 获取排行榜开始排名。取值[1,榜单容量)。可以用于分页加载                                                                |
+| end_rank   | int      | 是           | 获取排行榜结束排名。取值[1,榜单容量]。可以用于分页加载                                                                |
+
+**调用示例**
+
+```csharp
+    public void OnGetRankList()
+    {
+        RXRank.GetRankList(_rankID, 1, 100, RankResponseDelegate, RankErrorDelegate);
+    }
+```
+
+### 响应结构
+
+**HTTP 状态码：**`200 OK`
+
+| **字段** | **类型**                         | **是否必填** | **说明** | **示例** |
+| --- |--------------------------------| --- | --- | --- |
+| code | Number                         | 是   | 响应状态码，0为成功，非0表示出错 | 0   |
+| msg | String                         | 否   | 响应信息，仅在status为非0时不为空 |     |
+| data | [][Node](/docs/v3.5/排行榜/服务端接入/服务端 API) | 否   | 结果 数组结构 |     |
+
+##### Node
+
+| **字段** | **类型**                         | **是否必填** | **说明** | **示例** |
+| --- |--------------------------------| --- | --- | --- |
+| score | Number                         | 是   | 排行榜分数 |     |
+| rank | Number                         | 是   | 排行榜排名 |     |
+| user | [UserO](/docs/v3.5/排行榜/服务端接入/服务端 API) | 是   | 用户信息数据集 |     |
+
+## 获取好友排行榜列表
+
+**接口原型**
+
+```csharp
+public void FriendsRank(string rank_id, 
+            RequestResponseDelegate onResponse, RequestErrorDelegate onError);
+```
+
+### 参数说明
+
+| **字段** | **类型** | **是否必填** | **备注**                                                                                                              |
+| -------- | -------- | ------------ | --------------------------------------------------------------------------------------------------------------------- |
+| rank_id  | string   | 是           | 字符串本身带有类型信息，格式为：Flag_榜单容量_重置周期_自定义标识（flag 是一个 int64 位标记，用以扩展和规定绑定属性） |
+
+**调用示例**
+
+```csharp
+    public void OnFriendsRank()
+    {
+        RXRank.FriendsRank(_rankID, RankResponseDelegate, RankErrorDelegate);
+    }
+```
+
+### 响应结构
+
+**HTTP 状态码：**`200 OK`
+
+| **字段** | **类型**                                 | **是否必填** | **说明** | **示例** |
+| --- |----------------------------------------| --- | --- | --- |
+| code | Number                                 | 是   | 响应状态码，0为成功，非0表示出错 | 0   |
+| msg | String                                 | 否   | 响应信息，仅在status为非0时不为空 |     |
+| data | [][ListNode](/docs/v3.5/排行榜/服务端接入/服务端 API) | 否   | 结果 数组结构 |     |
+
+##### ListNode
+
+| **字段** | **类型**                         | **是否必填** | **说明** | **示例** |
+| --- |--------------------------------| --- | --- | --- |
+| score | Number                         | 是   | 排行榜分数 |     |
+| rank | Number                         | 是   | 排行榜排名 |     |
+| user | [UserO](/docs/v3.5/排行榜/服务端接入/服务端 API) | 是   | 用户信息数据集 |     |

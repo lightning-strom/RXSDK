@@ -1,0 +1,1068 @@
+---
+sidebar_position: 3
+title: 小游戏
+description: "望舒SDK 小游戏文档，提供详细的功能说明与接入指引。"
+---
+
+## 获取商业化窗口信息
+
+### 参数说明
+
+| 字段 | 类型 | 是否必填 | 备注 |
+| --- | --- | --- | --- |
+| callback | IMethodParams | 是 | 回调函数集合 |
+
+> IMethodParams 说明
+
+| 字段 | 备注 |
+| --- | --- |
+| complete | (data) => void |
+
+complete ：为函数且必传， data 为结果数据
+
+**调用示例**
+
+```js
+sdk.getOperationScene(
+ {
+     complete: res => {
+        console.log(res)
+ }
+})
+```
+
+### 响应结构
+
+| 字段 | 类型 | 备注 |
+| --- | --- | --- |
+| code | int | 状态 0: 成功, 其它失败 |
+| data | object | 返回数据 |
+
+> data 结构说明
+
+| 字段 | 类型 | 备注 |
+| --- | --- | --- |
+| list | array[object] | 场景列表 |
+
+> data.list 结构说明
+
+| 字段 | 类型 | 备注 |
+| --- | --- | --- |
+| button_list | array[object] | 触发按钮配置列表 |
+| id | int | 场景 id |
+| name | string | 场景名称，存在重复值 |
+| tag | string | 场景标识，项目内唯一 |
+
+> data.list.button_list 结构说明
+
+| 字段 | 类型 | 备注 |
+| --- | --- | --- |
+| window_list | array[object] | 关联窗口列表 |
+| description | int | 按钮描述 |
+| tag | string | 按钮标识 |
+| name | string | 按钮名称 |
+| type | string | 按钮类型, 0 点击按钮时， 1 自动触发 |
+
+> data.list.button_list.window_list 结构说明
+
+| 字段 | 类型 | 备注 |
+| --- | --- | --- |
+| gift_list | array[object] | 礼包列表 |
+| id | int | 窗口 id |
+| tag | string | 窗口标识 |
+| name | string | 窗口名称 |
+| version | string | 窗口版本 |
+
+> data.list.button_list.window_list.gift_list 结构说明
+
+| 字段 | 类型 | 备注 |
+| --- | --- | --- |
+| id | int | 礼包 id |
+| tag | string | 礼包标识 |
+| name | string | 礼包名称 |
+| amount | string | 价格，购买介质=代币类道具（ buy_type.id 大于 0 ），此时展示价格 |
+| buy_type | object | 购买介质 |
+| goods | object | 计费点，购买介质=法定货币（ buy_type.id=-1 ），此时展示计费点 |
+| rx_gift | object | 望舒礼包信息, 购买介质=无需付费或代币类道具时使用此数据（ buy_type.id=-2 或 buy_type.id 大于 0 ） |
+
+> data.list.button_list.window_list.gift_list.buy_type 结构说明
+
+| 字段 | 类型 | 备注 |
+| --- | --- | --- |
+| id | int | 购买介质 id ， 0 未知， -1 法定货币， -2 无需付费， 正整数为实际为道具 id |
+| name | string | 显示名称，列表接口会返回该字段， 创建、新增接口不需要 |
+
+> data.list.button_list.window_list.gift_list.goods 结构说明
+
+| 字段 | 类型 | 备注 |
+| --- | --- | --- |
+| id | int | 计费点 id |
+| goods_name | string | 计费点名称 |
+| goods_tag | string | 计费点标签 |
+| status | int | '1 启用 -1 禁用' |
+| props | array[object] | 道具信息 |
+
+> data.list.button_list.window_list.gift_list.goods.props 结构说明
+
+
+| 字段 | 类型 | 备注 |
+| --- | --- | --- |
+| alias | string | 别名 |
+| default_image | string | 默认图片 |
+| default_language | string | 默认语言 |
+| icon | string | 列表展示图标 |
+| id | int | 道具 id |
+| is_permanent | int | 是否永久有效 0 永久 1 非永久 |
+| language | string | 语言列表 |
+| max | string | 操作的最大数量 |
+| name | string | 名称 |
+| number | int | 道具数量 |
+| tag | string | 标识 |
+| time_limit | int | 非永久有效道具的有效期, 以天为单位 |
+| type | int | 道具类型， 0 普通道具， 1 代币道具 |
+| buy_type | object | 购买介质 |
+
+
+> data.list.button_list.window_list.gift_list.goods.props.buy_type 结构说明
+
+| 字段 | 类型 | 备注 |
+| --- | --- | --- |
+| id | int | 购买介质 id ， 0 未知， -1 法定货币， -2 无需付费， 正整数为实际为道具 id |
+| name | string | 显示名称，列表接口会返回该字段， 创建、新增接口不需要 |
+
+> data.list.button_list.window_list.gift_list.rx_gift 结构说明
+
+| 字段 | 类型 | 备注 |
+| --- | --- | --- |
+| id | int | 望舒礼包 id |
+| name | string | 望舒礼包名称 |
+| tag | string | 望舒礼包标识 |
+| list | array[object] | 包含的望舒道具列表 |
+
+> data.list.button_list.window_list.gift_list.rx_gift.list 结构说明
+
+
+| 字段 | 类型 | 备注 |
+| --- | --- | --- |
+| alias | string | 别名 |
+| default_image | string | 默认图片 |
+| default_language | string | 默认语言 |
+| icon | string | 列表展示图标 |
+| id | int | 道具 id |
+| is_permanent | int | 是否永久有效 0 永久 1 非永久 |
+| language | string | 语言列表 |
+| max | string | 操作的最大数量 |
+| name | string | 名称 |
+| number | int | 道具数量 |
+| tag | string | 标识 |
+| time_limit | int | 非永久有效道具的有效期, 以天为单位 |
+| type | int | 道具类型， 0 普通道具， 1 代币道具 |
+| buy_type | object | 购买介质 |
+
+
+> data.list.button_list.window_list.gift_list.rx_gift.list.buy_type 结构说明
+
+| 字段 | 类型 | 备注 |
+| --- | --- | --- |
+| id | int | 购买介质 id ， 0 未知， -1 法定货币， -2 无需付费， 正整数为实际为道具 id |
+| name | string | 显示名称，列表接口会返回该字段， 创建、新增接口不需要 |
+
+**响应示例**
+
+```json
+{
+    "trace_id": "8B5FB029-314C-4220-A789-D5FD2792B9EF",
+    "data": {
+        "list": [{
+                "button_list": [{
+                    "type": 1,
+                    "window_list": [{
+                        "version": "8fcd03a965c9104b62b209fca6d18fa0",
+                        "id": 20008,
+                        "gift_list": [{
+                                "amount": 0,
+                                "buy_type": {
+                                    "id": -1,
+                                    "name": "法定货币",
+                                    "tag": ""
+                                },
+                                "rx_gift": null,
+                                "id": 1030,
+                                "goods": {
+                                    "status": 1,
+                                    "goods_tag": "quick_android",
+                                    "id": 141,
+                                    "props": [{
+                                            "id": 662,
+                                            "buy_type": null,
+                                            "default_language": "",
+                                            "max": 100,
+                                            "type": 0,
+                                            "tag": "aa1",
+                                            "is_permanent": 0,
+                                            "alias": "",
+                                            "language": "",
+                                            "default_image": "",
+                                            "time_limit": 0,
+                                            "icon": "https:\/\/rxfile-test.ruixuecloud.com\/ruixue\/profile\/2024\/12\/19\/1734574731892.png",
+                                            "number": 1,
+                                            "name": "aa"
+                                        },
+                                        {
+                                            "id": 661,
+                                            "buy_type": null,
+                                            "default_language": "",
+                                            "max": 111,
+                                            "type": 0,
+                                            "tag": "aa",
+                                            "is_permanent": 0,
+                                            "alias": "",
+                                            "language": "",
+                                            "default_image": "",
+                                            "time_limit": 0,
+                                            "icon": "https:\/\/rxfile-test.ruixuecloud.com\/ruixue\/profile\/2024\/12\/25\/1735119295081.jpeg",
+                                            "number": 1,
+                                            "name": "普通道具1"
+                                        },
+                                        {
+                                            "id": 660,
+                                            "buy_type": null,
+                                            "default_language": "",
+                                            "max": 1121,
+                                            "type": 0,
+                                            "tag": "开始付款时间话费卡身份卡花洒开发好吧vb1=%2Fproje",
+                                            "is_permanent": 0,
+                                            "alias": "",
+                                            "language": "",
+                                            "default_image": "",
+                                            "time_limit": 0,
+                                            "icon": "https:\/\/rxfile-test.ruixuecloud.com\/ruixue\/profile\/2024\/10\/16\/1729067659212.jpg",
+                                            "number": 1,
+                                            "name": "久啊亟待解决啊急急急123=%2Fpro"
+                                        }
+                                    ],
+                                    "goods_name": "quick_android"
+                                },
+                                "tag": "fa_ding1",
+                                "name": "法定的"
+                            },
+                            {
+                                "amount": 11,
+                                "buy_type": {
+                                    "id": 670,
+                                    "name": "ddd",
+                                    "tag": "hi"
+                                },
+                                "rx_gift": {
+                                    "id": 35,
+                                    "list": [{
+                                            "id": 329,
+                                            "buy_type": null,
+                                            "default_language": "",
+                                            "max": 9999,
+                                            "type": 0,
+                                            "tag": "60006",
+                                            "is_permanent": 0,
+                                            "alias": "",
+                                            "language": "",
+                                            "default_image": "",
+                                            "time_limit": 0,
+                                            "icon": "",
+                                            "number": 100,
+                                            "name": "6级穿透宝石"
+                                        },
+                                        {
+                                            "id": 472,
+                                            "buy_type": null,
+                                            "default_language": "",
+                                            "max": 89,
+                                            "type": 0,
+                                            "tag": "Dj016",
+                                            "is_permanent": 0,
+                                            "alias": "",
+                                            "language": "",
+                                            "default_image": "",
+                                            "time_limit": 0,
+                                            "icon": "",
+                                            "number": 88,
+                                            "name": "道具119"
+                                        },
+                                        {
+                                            "id": 406,
+                                            "buy_type": null,
+                                            "default_language": "",
+                                            "max": 9999,
+                                            "type": 0,
+                                            "tag": "71005",
+                                            "is_permanent": 0,
+                                            "alias": "",
+                                            "language": "",
+                                            "default_image": "",
+                                            "time_limit": 0,
+                                            "icon": "",
+                                            "number": 999,
+                                            "name": "正气剑使"
+                                        }
+                                    ],
+                                    "name": "窗口运营测试2",
+                                    "tag": "a3"
+                                },
+                                "id": 1029,
+                                "goods": {
+                                    "status": 0,
+                                    "goods_tag": "",
+                                    "id": 0,
+                                    "props": [],
+                                    "goods_name": ""
+                                },
+                                "tag": "a3",
+                                "name": "窗口运营测试2"
+                            },
+                            {
+                                "amount": 0,
+                                "buy_type": {
+                                    "id": -2,
+                                    "name": "无需付费",
+                                    "tag": ""
+                                },
+                                "rx_gift": {
+                                    "id": 34,
+                                    "list": [{
+                                            "id": 324,
+                                            "buy_type": null,
+                                            "default_language": "",
+                                            "max": 9999,
+                                            "type": 0,
+                                            "tag": "60001",
+                                            "is_permanent": 0,
+                                            "alias": "",
+                                            "language": "",
+                                            "default_image": "",
+                                            "time_limit": 0,
+                                            "icon": "",
+                                            "number": 999,
+                                            "name": "1级穿透宝石"
+                                        },
+                                        {
+                                            "id": 336,
+                                            "buy_type": null,
+                                            "default_language": "",
+                                            "max": 9999,
+                                            "type": 0,
+                                            "tag": "60013",
+                                            "is_permanent": 0,
+                                            "alias": "",
+                                            "language": "",
+                                            "default_image": "",
+                                            "time_limit": 0,
+                                            "icon": "",
+                                            "number": 999,
+                                            "name": "3级弟子宝石"
+                                        },
+                                        {
+                                            "id": 369,
+                                            "buy_type": null,
+                                            "default_language": "",
+                                            "max": 9999,
+                                            "type": 0,
+                                            "tag": "60046",
+                                            "is_permanent": 0,
+                                            "alias": "",
+                                            "language": "",
+                                            "default_image": "",
+                                            "time_limit": 0,
+                                            "icon": "",
+                                            "number": 999,
+                                            "name": "6级治疗宝石"
+                                        }
+                                    ],
+                                    "name": "窗口运营测试",
+                                    "tag": "a2"
+                                },
+                                "id": 1028,
+                                "goods": {
+                                    "status": 0,
+                                    "goods_tag": "",
+                                    "id": 0,
+                                    "props": [],
+                                    "goods_name": ""
+                                },
+                                "tag": "a2",
+                                "name": "窗口运营测试"
+                            }
+                        ],
+                        "name": "ck1_v2",
+                        "tag": "cktag1_v2"
+                    }],
+                    "description": "",
+                    "name": "",
+                    "tag": ""
+                }],
+                "id": 300029,
+                "name": "cj1",
+                "tag": "cjtag1"
+            },
+            {
+                "button_list": [{
+                        "type": 1,
+                        "window_list": [{
+                            "version": "8fcd03a965c9104b62b209fca6d18fa0",
+                            "id": 20008,
+                            "gift_list": [{
+                                    "amount": 0,
+                                    "buy_type": {
+                                        "id": -1,
+                                        "name": "法定货币",
+                                        "tag": ""
+                                    },
+                                    "rx_gift": null,
+                                    "id": 1030,
+                                    "goods": {
+                                        "status": 1,
+                                        "goods_tag": "quick_android",
+                                        "id": 141,
+                                        "props": [{
+                                                "id": 662,
+                                                "buy_type": null,
+                                                "default_language": "",
+                                                "max": 100,
+                                                "type": 0,
+                                                "tag": "aa1",
+                                                "is_permanent": 0,
+                                                "alias": "",
+                                                "language": "",
+                                                "default_image": "",
+                                                "time_limit": 0,
+                                                "icon": "https:\/\/rxfile-test.ruixuecloud.com\/ruixue\/profile\/2024\/12\/19\/1734574731892.png",
+                                                "number": 1,
+                                                "name": "aa"
+                                            },
+                                            {
+                                                "id": 661,
+                                                "buy_type": null,
+                                                "default_language": "",
+                                                "max": 111,
+                                                "type": 0,
+                                                "tag": "aa",
+                                                "is_permanent": 0,
+                                                "alias": "",
+                                                "language": "",
+                                                "default_image": "",
+                                                "time_limit": 0,
+                                                "icon": "https:\/\/rxfile-test.ruixuecloud.com\/ruixue\/profile\/2024\/12\/25\/1735119295081.jpeg",
+                                                "number": 1,
+                                                "name": "普通道具1"
+                                            },
+                                            {
+                                                "id": 660,
+                                                "buy_type": null,
+                                                "default_language": "",
+                                                "max": 1121,
+                                                "type": 0,
+                                                "tag": "开始付款时间话费卡身份卡花洒开发好吧vb1=%2Fproje",
+                                                "is_permanent": 0,
+                                                "alias": "",
+                                                "language": "",
+                                                "default_image": "",
+                                                "time_limit": 0,
+                                                "icon": "https:\/\/rxfile-test.ruixuecloud.com\/ruixue\/profile\/2024\/10\/16\/1729067659212.jpg",
+                                                "number": 1,
+                                                "name": "久啊亟待解决啊急急急123=%2Fpro"
+                                            }
+                                        ],
+                                        "goods_name": "quick_android"
+                                    },
+                                    "tag": "fa_ding1",
+                                    "name": "法定的"
+                                },
+                                {
+                                    "amount": 11,
+                                    "buy_type": {
+                                        "id": 670,
+                                        "name": "ddd",
+                                        "tag": "hi"
+                                    },
+                                    "rx_gift": {
+                                        "id": 35,
+                                        "list": [{
+                                                "id": 329,
+                                                "buy_type": null,
+                                                "default_language": "",
+                                                "max": 9999,
+                                                "type": 0,
+                                                "tag": "60006",
+                                                "is_permanent": 0,
+                                                "alias": "",
+                                                "language": "",
+                                                "default_image": "",
+                                                "time_limit": 0,
+                                                "icon": "",
+                                                "number": 100,
+                                                "name": "6级穿透宝石"
+                                            },
+                                            {
+                                                "id": 472,
+                                                "buy_type": null,
+                                                "default_language": "",
+                                                "max": 89,
+                                                "type": 0,
+                                                "tag": "Dj016",
+                                                "is_permanent": 0,
+                                                "alias": "",
+                                                "language": "",
+                                                "default_image": "",
+                                                "time_limit": 0,
+                                                "icon": "",
+                                                "number": 88,
+                                                "name": "道具119"
+                                            },
+                                            {
+                                                "id": 406,
+                                                "buy_type": null,
+                                                "default_language": "",
+                                                "max": 9999,
+                                                "type": 0,
+                                                "tag": "71005",
+                                                "is_permanent": 0,
+                                                "alias": "",
+                                                "language": "",
+                                                "default_image": "",
+                                                "time_limit": 0,
+                                                "icon": "",
+                                                "number": 999,
+                                                "name": "正气剑使"
+                                            }
+                                        ],
+                                        "name": "窗口运营测试2",
+                                        "tag": "a3"
+                                    },
+                                    "id": 1029,
+                                    "goods": {
+                                        "status": 0,
+                                        "goods_tag": "",
+                                        "id": 0,
+                                        "props": [],
+                                        "goods_name": ""
+                                    },
+                                    "tag": "a3",
+                                    "name": "窗口运营测试2"
+                                },
+                                {
+                                    "amount": 0,
+                                    "buy_type": {
+                                        "id": -2,
+                                        "name": "无需付费",
+                                        "tag": ""
+                                    },
+                                    "rx_gift": {
+                                        "id": 34,
+                                        "list": [{
+                                                "id": 324,
+                                                "buy_type": null,
+                                                "default_language": "",
+                                                "max": 9999,
+                                                "type": 0,
+                                                "tag": "60001",
+                                                "is_permanent": 0,
+                                                "alias": "",
+                                                "language": "",
+                                                "default_image": "",
+                                                "time_limit": 0,
+                                                "icon": "",
+                                                "number": 999,
+                                                "name": "1级穿透宝石"
+                                            },
+                                            {
+                                                "id": 336,
+                                                "buy_type": null,
+                                                "default_language": "",
+                                                "max": 9999,
+                                                "type": 0,
+                                                "tag": "60013",
+                                                "is_permanent": 0,
+                                                "alias": "",
+                                                "language": "",
+                                                "default_image": "",
+                                                "time_limit": 0,
+                                                "icon": "",
+                                                "number": 999,
+                                                "name": "3级弟子宝石"
+                                            },
+                                            {
+                                                "id": 369,
+                                                "buy_type": null,
+                                                "default_language": "",
+                                                "max": 9999,
+                                                "type": 0,
+                                                "tag": "60046",
+                                                "is_permanent": 0,
+                                                "alias": "",
+                                                "language": "",
+                                                "default_image": "",
+                                                "time_limit": 0,
+                                                "icon": "",
+                                                "number": 999,
+                                                "name": "6级治疗宝石"
+                                            }
+                                        ],
+                                        "name": "窗口运营测试",
+                                        "tag": "a2"
+                                    },
+                                    "id": 1028,
+                                    "goods": {
+                                        "status": 0,
+                                        "goods_tag": "",
+                                        "id": 0,
+                                        "props": [],
+                                        "goods_name": ""
+                                    },
+                                    "tag": "a2",
+                                    "name": "窗口运营测试"
+                                }
+                            ],
+                            "name": "ck1_v2",
+                            "tag": "cktag1_v2"
+                        }],
+                        "description": "",
+                        "name": "",
+                        "tag": ""
+                    },
+                    {
+                        "type": 0,
+                        "window_list": [{
+                            "version": "8fcd03a965c9104b62b209fca6d18fa0",
+                            "id": 20008,
+                            "gift_list": [{
+                                    "amount": 0,
+                                    "buy_type": {
+                                        "id": -1,
+                                        "name": "法定货币",
+                                        "tag": ""
+                                    },
+                                    "rx_gift": null,
+                                    "id": 1030,
+                                    "goods": {
+                                        "status": 1,
+                                        "goods_tag": "quick_android",
+                                        "id": 141,
+                                        "props": [{
+                                                "id": 662,
+                                                "buy_type": null,
+                                                "default_language": "",
+                                                "max": 100,
+                                                "type": 0,
+                                                "tag": "aa1",
+                                                "is_permanent": 0,
+                                                "alias": "",
+                                                "language": "",
+                                                "default_image": "",
+                                                "time_limit": 0,
+                                                "icon": "https:\/\/rxfile-test.ruixuecloud.com\/ruixue\/profile\/2024\/12\/19\/1734574731892.png",
+                                                "number": 1,
+                                                "name": "aa"
+                                            },
+                                            {
+                                                "id": 661,
+                                                "buy_type": null,
+                                                "default_language": "",
+                                                "max": 111,
+                                                "type": 0,
+                                                "tag": "aa",
+                                                "is_permanent": 0,
+                                                "alias": "",
+                                                "language": "",
+                                                "default_image": "",
+                                                "time_limit": 0,
+                                                "icon": "https:\/\/rxfile-test.ruixuecloud.com\/ruixue\/profile\/2024\/12\/25\/1735119295081.jpeg",
+                                                "number": 1,
+                                                "name": "普通道具1"
+                                            },
+                                            {
+                                                "id": 660,
+                                                "buy_type": null,
+                                                "default_language": "",
+                                                "max": 1121,
+                                                "type": 0,
+                                                "tag": "开始付款时间话费卡身份卡花洒开发好吧vb1=%2Fproje",
+                                                "is_permanent": 0,
+                                                "alias": "",
+                                                "language": "",
+                                                "default_image": "",
+                                                "time_limit": 0,
+                                                "icon": "https:\/\/rxfile-test.ruixuecloud.com\/ruixue\/profile\/2024\/10\/16\/1729067659212.jpg",
+                                                "number": 1,
+                                                "name": "久啊亟待解决啊急急急123=%2Fpro"
+                                            }
+                                        ],
+                                        "goods_name": "quick_android"
+                                    },
+                                    "tag": "fa_ding1",
+                                    "name": "法定的"
+                                },
+                                {
+                                    "amount": 11,
+                                    "buy_type": {
+                                        "id": 670,
+                                        "name": "ddd",
+                                        "tag": "hi"
+                                    },
+                                    "rx_gift": {
+                                        "id": 35,
+                                        "list": [{
+                                                "id": 329,
+                                                "buy_type": null,
+                                                "default_language": "",
+                                                "max": 9999,
+                                                "type": 0,
+                                                "tag": "60006",
+                                                "is_permanent": 0,
+                                                "alias": "",
+                                                "language": "",
+                                                "default_image": "",
+                                                "time_limit": 0,
+                                                "icon": "",
+                                                "number": 100,
+                                                "name": "6级穿透宝石"
+                                            },
+                                            {
+                                                "id": 472,
+                                                "buy_type": null,
+                                                "default_language": "",
+                                                "max": 89,
+                                                "type": 0,
+                                                "tag": "Dj016",
+                                                "is_permanent": 0,
+                                                "alias": "",
+                                                "language": "",
+                                                "default_image": "",
+                                                "time_limit": 0,
+                                                "icon": "",
+                                                "number": 88,
+                                                "name": "道具119"
+                                            },
+                                            {
+                                                "id": 406,
+                                                "buy_type": null,
+                                                "default_language": "",
+                                                "max": 9999,
+                                                "type": 0,
+                                                "tag": "71005",
+                                                "is_permanent": 0,
+                                                "alias": "",
+                                                "language": "",
+                                                "default_image": "",
+                                                "time_limit": 0,
+                                                "icon": "",
+                                                "number": 999,
+                                                "name": "正气剑使"
+                                            }
+                                        ],
+                                        "name": "窗口运营测试2",
+                                        "tag": "a3"
+                                    },
+                                    "id": 1029,
+                                    "goods": {
+                                        "status": 0,
+                                        "goods_tag": "",
+                                        "id": 0,
+                                        "props": [],
+                                        "goods_name": ""
+                                    },
+                                    "tag": "a3",
+                                    "name": "窗口运营测试2"
+                                },
+                                {
+                                    "amount": 0,
+                                    "buy_type": {
+                                        "id": -2,
+                                        "name": "无需付费",
+                                        "tag": ""
+                                    },
+                                    "rx_gift": {
+                                        "id": 34,
+                                        "list": [{
+                                                "id": 324,
+                                                "buy_type": null,
+                                                "default_language": "",
+                                                "max": 9999,
+                                                "type": 0,
+                                                "tag": "60001",
+                                                "is_permanent": 0,
+                                                "alias": "",
+                                                "language": "",
+                                                "default_image": "",
+                                                "time_limit": 0,
+                                                "icon": "",
+                                                "number": 999,
+                                                "name": "1级穿透宝石"
+                                            },
+                                            {
+                                                "id": 336,
+                                                "buy_type": null,
+                                                "default_language": "",
+                                                "max": 9999,
+                                                "type": 0,
+                                                "tag": "60013",
+                                                "is_permanent": 0,
+                                                "alias": "",
+                                                "language": "",
+                                                "default_image": "",
+                                                "time_limit": 0,
+                                                "icon": "",
+                                                "number": 999,
+                                                "name": "3级弟子宝石"
+                                            },
+                                            {
+                                                "id": 369,
+                                                "buy_type": null,
+                                                "default_language": "",
+                                                "max": 9999,
+                                                "type": 0,
+                                                "tag": "60046",
+                                                "is_permanent": 0,
+                                                "alias": "",
+                                                "language": "",
+                                                "default_image": "",
+                                                "time_limit": 0,
+                                                "icon": "",
+                                                "number": 999,
+                                                "name": "6级治疗宝石"
+                                            }
+                                        ],
+                                        "name": "窗口运营测试",
+                                        "tag": "a2"
+                                    },
+                                    "id": 1028,
+                                    "goods": {
+                                        "status": 0,
+                                        "goods_tag": "",
+                                        "id": 0,
+                                        "props": [],
+                                        "goods_name": ""
+                                    },
+                                    "tag": "a2",
+                                    "name": "窗口运营测试"
+                                }
+                            ],
+                            "name": "ck1_v2",
+                            "tag": "cktag1_v2"
+                        }],
+                        "description": "desc",
+                        "name": "btnname",
+                        "tag": "btntag"
+                    }
+                ],
+                "id": 300030,
+                "name": "cj2_v2",
+                "tag": "cjtag2"
+            }
+        ]
+    },
+    "code": 0
+}
+```
+
+## 商业化信息上报
+
+### 参数说明
+
+| 字段 | 类型 | 是否必填 | 备注 |
+| --- | --- | --- | --- |
+| params | Params | 是 | 参数 |
+| callback | IMethodParams | 是 | 回调函数集合 |
+
+> Params说明
+
+| 字段 | 类型 | 是否必填 | 备注 |
+| --- | --- | --- | --- |
+| scene_identifier | string | 否 | 场景标识，**data.list[].tag** |
+| scene_name | string | 否 | 场景名称，**data.list[].name** |
+| trigger_button_identifier | string | 否 | 场景名称，**data.list[].button_list[].tag** |
+| trigger_button_name | string | 否 | 触发按钮名称，**data.list[].button_list[].name** |
+| window_identifier | string | 否 | 窗口标识，**data.list[].button_list[].window_list[].tag** |
+| window_name | string | 否 | 窗口名称，**data.list[].button_list[].window_list[].name** |
+| window_sequence | string | 否 | 窗口展示顺序，**data.list[].button_list[].window_list[] 中的数组的 key （第几个窗口）** |
+| gift_package | array[object] | 否 | 礼包，**data.list[].button_list[].window_list[].gift_package[]** |
+
+> gift_package 结构说明
+
+| 字段 | 类型 | 是否必填 | 备注 |
+| --- | --- | --- | --- |
+| identifier | string | 否 | 礼包标识，**data.list[].button_list[].window_list[].gift_package[].tag** |
+| name | string | 否 | 礼包名称，**data.list[].button_list[].window_list[].gift_package[].name** |
+| purchase_medium | string | 否 | 购买礼包介质名称，**data.list[].button_list[].window_list[].gift_package[].buy_type.name** |
+| trigger_button_name | string | 否 | 触发按钮名称，**data.list[].button_list[].name** |
+| price | int | 否 | 礼包名称，**data.list[].button_list[].window_list[].gift_package[].amount** |
+| billing_point | string | 否 | 礼包计费点，**data.list[].button_list[].window_list[].gift_package[].goods.goods_tag** |
+
+> IMethodParams 说明
+
+| 字段 | 备注 |
+| --- | --- |
+| complete | (data) => void |
+
+complete ：为函数且必传， data 为结果数据
+
+**调用示例**
+
+```js
+sdk.reportWindowExposure({
+        scene_identifier: 'scene_identifier'，
+        scene_name: 'scene_name'，
+        trigger_button_identifier: 'trigger_button_identifier'，
+        trigger_button_name: 'trigger_button_name'，
+        window_identifier: 'window_identifier'，
+        window_name: 'window_name'，
+        window_sequence: 'window_sequence'，
+        gift_package: {
+ identifier: 'identifier',
+ name: 'name',
+ purchase_medium: 'purchase_medium',
+ price: 100,
+ billing_point: 'billing_point',
+ }
+    }, {
+        complete(res) {
+            console.log('reportWindowExposure complete:', res)
+        }
+})
+```
+
+## 道具兑换
+
+商业化窗口中非付费的道具兑换需要使用**道具兑换**接口。
+
+通过支付接口中的参数区分**付费**还是**道具兑换**。
+
+### 参数说明
+
+| 字段 | 类型 | 是否必填 | 备注 |
+| --- | --- | --- | --- |
+| params | Params | 是 | 参数 |
+| callback | IMethodParams | 是 | 回调函数集合 |
+
+> Params说明
+
+| 字段 | 类型 | 是否必填 | 备注 |
+| --- | --- | --- | --- |
+| mode | int | 否 | 扣除发放模式 1 一次性事务扣除, 默认 1 |
+| scene_tag | string | 是 | 场景标识 |
+| window_id | int | 否 | 扣除发放模式 1 一次性事务扣除, 默认 1 |
+| window_version | string | 是 | 窗口版本 |
+| cp_gift_tag | string | 是 | cp 侧礼包标识，校验道具是否一致 |
+| cp_prop_tag | string | 是 | cp 侧待消费的 道具标识，校验道具是否一致 |
+| cp_prop_number | string | 是 | cp 侧待消费的 道具数量，校验道具是否一致 |
+| item_list | array[object] | 是 | 待兑换道具列表 |
+
+> item_list 结构说明
+
+
+| 字段 | 类型 | 是否必填 | 备注 |
+| --- | --- | --- | --- |
+| number | int | 是 | 待发放的 道具数量 |
+| tag | string | 是 | 待发放的 道具标识 |
+
+
+> IMethodParams 说明
+
+| 字段 | 备注 |
+| --- | --- |
+| complete | (data) => void |
+
+complete ：为函数且必传， data 为结果数据
+
+**调用示例**
+
+```js
+sdk.exchangeItemProp({
+ "mode": 1，
+ "scene_tag": "string",
+ "window_id": 0,
+ "window_version": "string",
+ "cp_gift_tag": "string",
+ "cp_prop_tag": "string",
+ "cp_prop_number": 0,
+ "item_list": [
+ {
+ "number": 0,
+ "tag": "string"
+ }
+ ]
+ }, {
+     complete: (data) => {
+            console.log(data)
+    }
+)
+```
+
+### 响应结构
+
+| 字段 | 类型 | 备注 |
+| --- | --- | --- |
+| order_no | string | 望舒订单号 |
+| trade_no | string | CP 订单号 |
+| window | object | 签名的窗口信息 |
+
+> window 结构说明
+
+| 字段 | 类型 | 备注 |
+| --- | --- | --- |
+| window_key | string | 窗口唯一标识 |
+| buttons | array | 按钮列表 |
+| payment | object | 支付配置 |
+| rewards | array | 奖励配置 |
+| sign | string | 窗口签名，商业化道具兑换校验用 |
+
+> payment 结构说明
+
+| 字段 | 类型 | 备注 |
+| --- | --- | --- |
+| type | int | 支付方式 1 无消耗 2 道具 3 计费点 |
+| billing_point | object | 计费点配置 |
+| props | object | 道具配置 |
+
+> payment.billing_point 结构说明
+
+| 字段 | 类型 | 备注 |
+| --- | --- | --- |
+| billing_point_key | string | 计费点标识 |
+
+> payment.props 结构说明
+
+| 字段 | 类型 | 备注 |
+| --- | --- | --- |
+| props_key | string | 道具标识 |
+| num | int | 道具数量 |
+
+> rewards 结构说明
+
+| 字段 | 类型 | 备注 |
+| --- | --- | --- |
+| props_key | string | 奖励的道具标识 |
+| num | int | 奖励的道具数量 |
+
+**响应示例**
+
+```json
+{
+ "data": {
+ "rewards": [
+ {
+ "props_key": "1001",
+ "num": 1
+ },
+ {
+ "props_key": "1002",
+ "num": 2
+ },
+ {
+ "props_key": "1003",
+ "num": 3
+ }
+ ],
+ "order_no": "rx202306250904414867726793708",
+ "trade_no": "fada1111"
+ },
+ "code": 0
+}
+```

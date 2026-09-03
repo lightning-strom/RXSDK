@@ -1,0 +1,87 @@
+---
+sidebar_position: 1
+title: 模拟器检测
+description: "望舒SDK 风控检测 模拟器检测 Android 接入文档，提供完整的接口调用说明与示例。"
+---
+
+## 设置自定义判断条件
+
+**接口原型**
+
+```java
+    /**
+    * 设置自定义判断条件
+    * @param map 自定义条件
+    */
+    public void setCustomSimulatorDetectionParams(Map<String, Object> map);
+```
+
+**调用示例**
+
+```java
+    HashMap<String, Object> test = new HashMap<>();
+    test.put("key1", "value1");
+    test.put("key2", 222);
+    test.put("key3", true);
+    SimulatorDetectTool.getSingleInstance().setCustomSimulatorDetectionParams(test);
+```
+
+该接口必须在 模拟器检测 和 登录 接口前调用，并且添加自定义规则需要通知望舒，望舒服务端根据自定义条件调整规则
+
+## 模拟器检测 (登录之前调用)
+
+**接口原型**
+
+```java
+    /**
+    * 模拟器检测
+    * @param context context
+    * @param type 0:只返回是否为模拟器, 1:如果是模拟器，返回符合模拟器的判断指标, 2:不管是否是模拟器都返回所有判断指标
+    * @param callBack 结果回调
+    */
+    public void simulatorDetection(Context context, int type, RXRequestCallback callBack);
+```
+
+**调用示例**
+
+```java
+    SimulatorDetectTool.getSingleInstance().simulatorDetection(MainActivity.this, 1, new RXRequestCallback(){
+
+    @Override
+    public void onResponse(JSONObject jsonObject) {
+
+    if ("phone".equals(jsonObject.optJSONObject("data").optString("device"))) {
+    TextView cpu111 = findViewById(R.id.cpu111);
+    cpu111.setText("结果：真机");
+    }
+
+    }
+    });
+```
+
+**返回值 json 接口**
+
+风险概率大于等于 **90** 基本可以认为该设备为模拟器，具体情况以实际为准。注意：此结果仅为参考值。
+
+```json
+{
+	"data": {
+		"simulator_info": 90.00, // 模拟器风险概率
+		"des": null, // 判断模拟器的指标详情,type = 2 时返回,type=0时没有此字段
+		"invalid_des": { // 不符合真机条件的指标详情,type = 1 时返回,type=0时没有此字段
+			"flavor": ""
+		}
+	},
+	"code": 0
+}
+```
+
+登录之前调用
+
+## 准确率
+
+此检测方法在主流模拟器和机型上均测试通过。
+
+由于 Android 模拟器和真机 机型众多， 目前只测试主流的准确率。不保证能覆盖 100% 准确率。
+
+随着模拟器的更新，它们的防检测能力也在加强，目前只能保证当前模拟器版本的识别准确率。

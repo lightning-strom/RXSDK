@@ -1,0 +1,1089 @@
+---
+title: "快速接入-原生版"
+---
+
+## 自定义望舒API请求
+
+**接口原型**
+
+```typescript
+/**
+ * @param options - 请求配置对象
+ * @param options.method - HTTP请求方法，支持标准方法或自定义枚举值
+ * @param options.path - 请求路径（相对路径或绝对URL）
+ * @param [options.data] - 请求数据，可为字符串或对象（对象会自动JSON序列化）
+ * @param [options.headers] - 请求头对象，可自定义任何HTTP头信息
+ * 
+ * @param [callback] - 可选的回调函数，支持传统回调模式（与Promise并存）
+ * 
+ * @returns 返回一个Promise，解析为统一的响应结果对象
+ *          包含状态码、数据、错误信息等标准字段
+ */
+request(options: RequestOptions, callback?: RCallback): Promise>
+```
+
+**调用示例**
+
+```typescript
+
+ RXRequest.request({
+      path: 'https://rxfile-test.ruixueyun.com/sdk' ,
+      method: 'GET',
+      headers: {
+        '自定义 key': '自定义 value'
+      },
+       body:  请求数据 object 或 string
+    }) .then((resp: RXResult) => {
+      this.showText(resp)
+    }).catch((e: BusinessError) => {
+      this.showText(e)
+    })
+        
+```
+
+## 望舒通行证API
+
+### 注册
+
+**接口原型**
+
+```typescript
+  /**
+   * @param username    用户名
+   * @param password    password
+   * @param captchaCode 验证码
+   * @param ext         "nickname" : "昵称",      // string
+   *                    "avatarUrl" : "头像地址"  // string
+   *                    "sex" : 0     // 0男 1女  number
+   */
+  register(username: string, password: string, captchaCode: string, ext: object, callback?: RCallback)
+```
+
+**参数说明**
+
+| **字段** | **类型** | **是否必填** | **说明** |
+| --- | --- | ---- | --- |
+| username | string | 是 | 用户名 |
+| password | string | 是 | 密码 |
+| nickname | string | 否 | 昵称 |
+| captcha\_code | string | 否 | 使用 `sendCaptcha` 接口获取 |
+| avatarUrl | string | 否 | 头像地址 |
+| user\_attrs | object | 否 | 设置大数据用户属性，仅对本次登录新注册的用户有效 |
+| sex | integer | 否 | 性别,1:男,0:女 |
+| migrate\_args | 任意合法的 json 类型, 比如 string, number, array, object | 否 | 账号迁移用的参数, 调用 CP account-query 及 account-queryandbind 接口时透传给 CP. |
+
+**调用示例**
+
+```typescript
+    RXApi.getInstance().passport().register(this.userName, this.password,  {}, (ret: RXResult) => {
+        //todo cp 义务逻辑
+      if (ret.code == 0) {
+ 
+      }
+    })
+```
+
+#### 响应结构
+
+| **字段** | **类型** | **是否必填** | **说明** | **示例** |
+| --- | --- | ---- | --- | --- |
+| captcha\_code | String | 否 | 发送到"username"字段所指地址的，用于注册的验证码。 |  |
+| sex | Number | 否 | 0 表示女性，1 表示男性 |  |
+| distinct\_id | String | 是 | 客户端随机生成的 ID，在用户注册前作为这个用户的唯一标识。 |  |
+| username | String | 是 | 用户名，可以是手机号，邮箱地址，或者任意其他形式的用户名。 |  |
+| password | String | 否 | 密码，客户端传的密码，可以是用户输入的密码本身，或者将其经过特定步骤转化的结构。为保护用户隐私，建议将用户输入的密码原文进行 hash 运算后作为 password 参数的值。该值将作为登录接口 password 参数的值。 |  |
+| nickname | String | 否 | 昵称。 |  |
+| avatarUrl | String | 否 | 头像地址。 |  |
+| device | [Device](/docs/v3.5/登录（通行证）/鸿蒙登录/快速接入-团结版) | 是 | 客户端设备信息。具体结构参考下文 device 结构说明。 |  |
+| activate | [Activate](/docs/v3.5/登录（通行证）/鸿蒙登录/快速接入-团结版) | 否 | 激活相关信息，一个设备仅需在第一次调用登录或注册接口需要传递 |  |
+| user\_attrs | Map[String]Any | 否 | 设置大数据用户属性 |  |
+| user\_source | [UserSource](/docs/v3.5/登录（通行证）/鸿蒙登录/快速接入-团结版) | 否 | 用户推广来源。具体结构参考下文 user\_soruce 结构说明。 |  |
+| migrate\_args | 任意合法的 json 类型, 比如 String, Number 等 | 否 | 账号迁移用的参数, 调用 CP account-query 及 account-queryandbind 接口时透传给 CP. |  |
+| user\_transmits | 任意合法的 json 类型, 比如 String, Number 等 | 否 | 透传参数，如果有需要透传给cp侧的数据，放到里面，望舒侧在响应时透传给cp侧 |  |
+
+**Device**
+
+| **字段** | **类型** | **是否必填** | **说明** | **示例** |
+| --- | --- | ---- | --- | --- |
+| idfa | String | 否 | 仅用于 iOS 设备。目前 iOS 系统主流的广告获取设备标识符方式。用户可开启、关闭，每次切换会改变为新的取值。10 以下的版本关闭时也能取到唯一值, >=10 的 iOS 版本关闭时取到的值为 00000000000 ；系统大版本升级（如 11 到 12） IDFA 也会发生变化。 |  |
+| android\_id | String | 否 | 仅用于 Android 设备。Android 版本 = 8.0，应用签名、用户（即系统上的用户账号）和设备的每个组合都具有唯一的 ANDROID\_ID 值，即使系统升级也不变。 |  |
+| imei | String | 否 | 仅用于 Android 设备。Android 版本 < 6.0，只需要 READ\_PHONE\_STATE 静态权限（安装 App 时即可获取到该权限），即可通过系统 API TelephonyManager#getDeviceId API 获取准确值；6.0 &lt;= Android 版本 &lt;= 9.0，READ\_PHONE\_STATE 升级为动态权限，安装 App 时不会获得该权限，需要在 App 运行时用户在弹窗确认授权后才可以获取；Android 版本 >= 10.0，设备不可变 ID 的隐私保护得到进一步升级，需要 READ\_PRIVILEGED\_PHONE\_STATE 权限才可以获取 IMEI，而该权限只有系统级别的应用才可以获得，因此一般 App 无法获取到 IMEI。 |  |
+| oaid | String | 否 | 仅用于 Android 设备。移动安全联盟（简称 MSA）制定的匿名设备标识符。可用于 android 系统的补充设备标示，通常 android10 以上的国内主流设备都可以获取。具体 OAID 介绍以及最新覆盖厂商范围请详见 MSA 官网：[http://msa-alliance.cn](http://msa-alliance.cn)。 |  |
+| mac | String | 否 | 仅用于 Android 设备。设备 Mac 地址。 |  |
+| user\_agent | String | 否 | 一种方式获取的 user\_agent，若为空，则取 user-agent header 的值 |  |
+| user\_agent1 | String | 否 | 其他方式获取的 user\_agent |  |
+| user\_agent2 | String | 否 | 其他方式获取的 user\_agent |  |
+| ipv4 | String | 否 | 客户端检测到的自身外网 IPv4 地址，如果客户端调用本激活接口时是使用 IPv4，则激活接口服务端自动检测客户端的 IPv4 地址用于归因，否则使用此字段传的值。 |  |
+| ipv6 | String | 否 | 客户端检测到的自身外网 IPv6 地址，如果客户端调用本激活接口时是使用 IPv6，则激活接口服务端自动检测客户端的 IPv6 地址用于归因，否则使用此字段传的值。 |  |
+
+**Activate**
+
+| **字段** | **类型** | **是否必填** | **说明** | **示例** |
+| --- | --- | ---- | --- | --- |
+| result | Object | 否 | 若调用激活接口成功，则传激活接口返回的 json 信息中的 data 部分。若调用激活接口超时，则传 null 或不传此字段 |  |
+| args | [SourceAd](/docs/v3.5/登录（通行证）/鸿蒙登录/快速接入-团结版) | 否 | 若调用激活接口失败，则在此传递激活相关的参数。source\_ad 结构参考激活接口文档。 |  |
+
+**SourceAd**
+
+| **字段** | **类型** | **是否必填** | **说明** | **示例** |
+| --- | --- | ---- | --- | --- |
+| click\_id | String | 否 | *若客户端调用激活接口失败，则通过此字段传递用户激活的参数* |  |
+
+**UserSource**
+
+| **字段** | **类型** | **是否必填** | **说明** | **示例** |
+| --- | --- | ---- | --- | --- |
+| share | [Share](/docs/v3.5/登录（通行证）/鸿蒙登录/快速接入-团结版) | 否 | 分享来源信息，仅当是分享用户时才传递这个字段。具体结构参考下文 share 结构说明。 |  |
+| guide | [Guide](/docs/v3.5/登录（通行证）/鸿蒙登录/快速接入-团结版) | 否 | 导量来源信息，仅当是导量用户时才传递这个字段。具体结构参考下文 guide 结构说明。 |  |
+| sub\_package | [SubPackage](/docs/v3.5/登录（通行证）/鸿蒙登录/快速接入-团结版) | 否 | 用户自定义子包标识主要用于android分包。 |  |
+
+**Share**
+
+| **字段** | **类型** | **是否必填** | **说明** | **示例** |
+| --- | --- | ---- | --- | --- |
+| landing\_id | String | 否 | 广告推广来源信息。具体结构参考下文 ad 结构说明。 |  |
+| trigger\_id | String | 否 | 埋点 ID。 |  |
+| trigger\_tag | String | 是 | 埋点唯一标识。 |  |
+| trigger\_type | String | 是 | 埋点类型。 |  |
+| material\_type | String | 是 | 分享素材类型。 |  |
+| material\_id | String | 是 | 分享素材类型。 |  |
+| strategy\_type | String | 是 | 策略类型。 |  |
+| strategy\_id | String | 是 | 策略唯一 ID。 |  |
+| share\_time | String | 是 | 分享时间。 |  |
+| share\_type | String | 是 | 游戏客户端自定义的分享类型。 |  |
+| inviter\_region | String | 否 | 分享者所在地区编码。 |  |
+| inviter\_openid | String | 是 | 分享者的望舒 openid。 |  |
+| inviter\_productid | String | 否 | 分享者的产品 ID, 若为空, 则通行证通过 inviter\_openid 获取关联信息 |  |
+| inviter\_channelid | String | 否 | 分享者的渠道 ID, 若为空, 则通行证通过 inviter\_openid 获取关联信息 |  |
+| inviter\_subchannelid | String | 否 | 分享者的子渠道 ID, 若为空, 则通行证通过 inviter\_openid 获取关联信息 |  |
+
+**Guide**
+
+| **字段** | **类型** | **是否必填** | **说明** | **示例** |
+| --- | --- | ---- | --- | --- |
+| guide\_platform | String | 否 | 导量来源游戏平台。 |  |
+| guide\_app | String | 否 | 导量来源游戏 app 标识。 |  |
+
+**响应示例**
+
+```json
+{
+    "code": 0,
+    "data": {
+        "id": 2031,
+        "openid": "rxuIR2c1N1EdU9s/gkE8I8bEQ=="
+    }
+}
+```** SubPackage**
+| **字段**       | **类型** | **是否必填** | **说明**                | **示例** |
+| -------------- | -------- | ------------ | ----------------------- | -------- |
+| sub_channel_id | String   | 否           | 子渠道标识      |          |
+
+**响应示例**
+
+```json
+{
+
+        "sub_channel_id": "1235"
+    
+}
+```
+
+### 登录
+
+**接口原型**
+
+```typescript
+/**
+ * 用户登录接口，支持多种登录方式（密码、第三方、验证码等）
+ * 
+ * @param params - 登录请求参数
+ * @param params.method - 登录方式（可选），默认使用密码登录
+ * @param params.username - 用户名（密码登录时必填）
+ * @param params.password - 密码（密码登录时必填）
+ * @param params.login_openid - 第三方登录授权码（如微信、QQ登录）
+ * @param params.user_attrs - 用户扩展属性（JSON字符串格式）
+ * @param params.sign_fields - 需要签名的字段列表（用于安全验证）
+ * @param params.migrate_args - 账号迁移参数（如旧系统迁移）
+ * @param params.user_transmits - 用户透传数据（会原样返回给客户端）
+ * @param params.device - 设备信息（如设备ID、型号、系统版本等）
+ * @param params.distinct_id - 客户端唯一标识（首次登录时生成并传递）
+ * @param params.ext - 扩展参数（如验证码信息、额外安全校验参数）
+ * 
+ * @param callback - 可选的回调函数，用于接收登录结果
+ * 
+ * @returns 返回Promise，解析为包含登录数据的统一响应结构
+ */
+login(params: LoginParams, callback?: RXCallback>): Promise> 
+```
+
+#### 参数说明
+
+| **字段** | **类型** | **是否必填** | **说明** |
+| --- | --- | ---- | --- |
+| method | string | 否 | 登录方式 （默认 harmony） |
+| login\_openid | string | 否 | 上次登录返回的 login\_openid 数据，同时 method 也要使用上次登录获取 login\_openid 时使用的登录方式 |
+| user\_attrs | object | 否 | 设置大数据用户属性，仅对本次登录新注册的用户有效 |
+| sign\_fields | []string | 否 | 指定对登录成功后返回的特定字段, 使用 CPKEY 计算签名. CP 服务器可重新计算签名并与登录返回的签名比对, 作为对望舒登录数据的校验. 支持的字段包括: nickname, avatar, openid, region, sex, age, 计算签名的逻辑会对指定字段进行排序, 此处传参与顺序无关. |
+| migrate\_args | 任意合法的 json 类型, 比如 string, number, array, object | 否 | 账号迁移用的参数, 调用 CP account-query 及 account-queryandbind 接口时透传给 CP. |
+
+**调用示例**
+
+```typescript
+ RXApi.getInstance().login({ method:"username", username: 'test', password: '123456' })
+    .then(res => console.log('登录成功', res.data.token))
+```
+
+### 鸿蒙UnionLogin登录
+
+**接口原型**
+
+```typescript
+ /**
+ * 发起联合登录流程，支持多平台统一认证与授权
+ * 
+ * @template T - 响应数据的泛型类型，默认为 LoginData
+ * 
+ * @param params - 登录配置参数
+ * @param params.accountInfos - 预填充的账号信息列表（用于自动填充或快速切换）
+ * @param params.showLoginDialog - 是否显示内置登录对话框（true: 显示，false: 静默登录）
+ * @param params.loginPanelType - 登录面板样式类型（0: 标准，1: 简化，2: 高级）
+ * @param params.scopes - 请求的用户权限范围（如 ['user_info', 'phone_number']）
+ * @param params.permissions - 请求的系统权限列表（如 ['camera', 'storage']）
+ * @param params.forceAuthorization - 是否强制重新授权（忽略已授权状态）
+ * @param params.fromUnionLogin - 是否标记为联合登录来源
+ * @param params.ext - 扩展配置参数（用于特定业务场景）
+ * @param params.loginMethods - 支持的登录方式列表（如 [{ method: 'wechat' }]）
+ * @param params.indulgeAuth - 是否开启实名认证（1: 开启，0: 关闭）
+ * @param params.firstNeedSetPassword - 首次登录是否需要设置密码
+ * @param params.quickLoginEnable - 是否启用快捷登录（如一键登录）
+ * @param params.isDeregisterShow - 是否显示注销账号选项
+ * @param params.privacyEnable - 是否启用隐私协议功能
+ * @param params.privacyText1 - 隐私协议第一行文本
+ * @param params.privacyText2 - 隐私协议第二行文本
+ * @param params.privacyText3 - 隐私协议第三行文本
+ * @param params.privacyUrl1 - 第一个隐私协议链接
+ * @param params.privacyUrl2 - 第二个隐私协议链接
+ * @param params.privacyUrl3 - 第三个隐私协议链接
+ * @param params.logoResource - 登录界面Logo资源（图片URL或组件）
+ * 
+ * @param uiContext - 登录界面上下文对象，用于控制UI显示逻辑
+ *                    （如自定义登录页面、加载状态管理等）
+ * 
+ * @param callback - 可选的回调函数，用于接收登录结果
+ *                   （支持传统回调模式与Promise模式并存）
+ * 
+ * @returns 返回Promise，解析为统一的响应结果对象
+ *          包含状态码、数据、错误信息等标准字段
+ */
+unionLogin(params: RXLoginConfig, uiContext: UIContext, callback?: RXCallback>): Promise>
+```
+
+#### 参数说明
+
+RXLoginConfig 主要字段
+
+| **字段** | **类型** | **是否必填** | **说明** |
+| --- | --- | ---- | --- |
+| showLoginDialog | bool | 否 | 是否强制弹出联合登录对话框，允许玩家选择重新登录，默认true |
+| indulgeAuth | number | 否 | 1 开启实名认证， 0 关闭 未实名用户登录成功后是否需要强制实名认证，默认读取望舒后台配置。 注：强制实名后登录数据将在实名认证成功后返回。 |
+| canCloseRealAuth | bool | 否 | 实名认证是否可关闭，默认读取望舒后台配置 |
+| accountInfos | object | 否 | 可在union login 添加一个游戏官方账号类型 |
+| privacyText1 | string | 否 | 第一个协议文本，默认用户协议 |
+| privacyUrl1 | string | 否 | 第er个协议文本的链接，默认用户协议链接 |
+| privacyText2 | string | 否 | 第二个协议文本，默认隐私政策 |
+| privacyUrl2 | string | 否 | 第二个协议文本的链接，默认隐私政策链接 |
+| privacyText3 | string | 否 | 第三个协议文本，默认空 |
+| privacyUrl4 | string | 否 | 第三个协议文本的链接，默认空 |
+| loginMethods | List\> | 否 | 显示在望舒ui 中的其他登录方式，默认读取后台配置 |
+| ext | Dictionary\ | 否 | cp 自定义扩展参数 |
+
+**调用示例**
+
+```typescript
+// union login demo 
+ let parm: RXLoginConfig = {
+  accountInfos: [{ accountName: "微乐游戏账号", accountIcon: "app.media.app_icon" }],
+  // showLoginDialog: true,
+  scopes: ['profile'],
+  forceAuthorization: true,
+  privacyUrl3: "https://umusblhbv.wjhmqn.com/static/landing/#/v1/legal/terms/142/100/00005",
+  privacyText3: "儿童隐私",
+  loginPanelType: gamePlayer.LoginPanelType.BUTTON,
+  indulgeAuth: 1,
+  logoResource: "app.media.logo_2",
+  // ext: {
+  //   method: "harmony",
+  //   login_openid: "H0Z6B/BtXiAgworc+pzS7beYPFUoKuZyKk/dnW7dkl+pH5sUoAEuq6rNXJHhTv2ZMo1qZzQjBjXJshw0mXgPX62I2xDDPFEdBD8SKc8MOsFW3V8RykaYjKbQxBr3JkBOzC6HKsG/6BcMfiWkHAL+gpvvxrqNTnmXI+xLhMonU/wZdboVonK4AbgSABHACqQs09NwJcQ5wte9+LK700ubBGqf/a5xfqn3nTi1DVABB/VdhRCD/TN+cMrP//el7X2xzZn43JgR65ZqJbDnhjCRYh8UTaCyhrHOCn/o0k5e/U6O8alWbicjghx4odYqkTvPRGH6hxrdsjKWwaG0XI2CPSctRRIuYfQws9E66gyQugD0urMcVWNTRBRALjtHMhFUtd4CIjH0LDSF6B4Ctu+oa83JGFLMvkRLSuCkdrikGmWxkpvyflgyr6lK7kS4D38Gwf4LpEaRLC3WQWCjw6+EJVLsLyuo2vyQOnioxbymM0FjZhuMbnDd3L+U3ZpyNVgrzIfihyE7Sd4t3tsuxNqAhkPOiBz4bglZAFNH6QkwXddbDexi9+na44UWbsApul1t5uGKvLHzXhADOKGDwxzUVcj+CH77NkEzbGrKlC0JMpAuQ2H2NJ/uRRUxBMgNH2diwZkxj8SRmLArz43DUfbv3nxsCoEJkLVt8LACB2ZHcnIrvjlT+FQDhtjujap78TKWUIZVK2vgcoOza/lws70Lopg9uAW3eslbM8trdh12avq85mrXn6MBcoZabGYVhxQxEgEd5wbWqHNpyBethbDn5AOGnuKMfAW2blwIai6IatRPzMeAkF0Y0DLiKcgEUoHNTB+K663/afHqqJHhYp79Mi43PMTrEl13eZGzeE3+UmJE6clOTog6KdsJv3ipdTZ8/5gCpB8aPi+vRiMJREXnwgKliVgepKpg9yuuUQ14yZ8="
+  // }
+};
+
+RXApi.getInstance().unionLogin(parm, this.getUIContext(), (err: RXError, ret?: RXResult) => {
+  if (err) {
+    Logger.e(err.message);
+    promptAction.showToast({ message: "登录失败：" + JSON.stringify(err.message) });
+  } else {
+    Logger.e("登录结果：" + JSON.stringify(ret));
+    promptAction.showToast({ message: "登录结果：" + JSON.stringify(ret) });
+  }
+});
+```
+
+### 解绑鸿蒙账号
+
+**接口原型**
+
+```typescript
+unbindPlayer(): Promise
+```
+
+**调用示例**
+
+```
+//用于账号和鸿蒙解绑
+ RXApi.getInstance().unBindPlayer();
+```
+
+### 获取验证码（发送验证码）
+
+**接口原型**
+
+```typescript
+sendCaptcha(uiContext: UIContext, params: SendCaptchaParams, callback?: RCallback): Promise
+```
+
+#### 参数说明
+
+| **params字段** | **类型** | **是否必填** | **备注** |
+| --- | --- | ---- | --- |
+| email | string | 否 | 接收验证码的邮箱地址，邮箱手机号二选一 |
+| phone | string | 否 | 接收验证码的手机号，邮箱手机号二选一 |
+| purpose | string | 是 | 验证码的用途 |
+
+> `purpose` 字段值 验证码用途说明
+
+| **字段** | 备注 |
+| --- | --- |
+| register | 注册 |
+| bindphone | 绑定手机 |
+| unbindphone | 解绑手机 |
+| resetpwd | 重置密码 |
+| bindemail | 绑定邮箱 |
+| unbindemail | 解绑邮箱 |
+| login | 登录 |
+| setpwd | 设置密码 |
+
+**调用示例**
+
+```typescript
+data = 
+{
+    phone = "1395xxxxxxx",
+    purpose = "xxxxxx"
+};
+ RXApi.getInstance().sendCaptcha(data, callback);
+```
+
+#### 响应结构
+
+```json
+{
+    "code": 0,
+    "data": {
+        "interval": 60,
+        "surplus": 60
+    }
+}
+```
+
+### 校验验证码
+
+:::tip
+用途和手机号或邮箱需要和调用发送验证码时一致。
+
+:::
+
+**接口原型**
+
+```typescript
+verifyCaptcha(type: CaptchaType, target: string, purpose: Purpose, captcha_code: string, callback?: RCallback): Promise>
+```
+
+#### 参数说明
+
+| **字段** | **类型** | **是否必填** | **备注** |
+| --- | --- | ---- | --- |
+| phone | string | 是 | 接收验证码的邮箱地址，邮箱手机号二选一 |
+| email | string | 是 | 接收验证码的邮箱地址，邮箱手机号二选一 |
+| purpose | string | 是 | 验证码的用途 |
+| captcha\_code | string | 是 | 验证码 |
+
+> `purpose` 字段值 验证码用途说明
+
+| **字段** | 备注 |
+| --- | --- |
+| register | 注册 |
+| bindphone | 绑定手机 |
+| unbindphone | 解绑手机 |
+| resetpwd | 重置密码 |
+| bindemail | 绑定邮箱 |
+| unbindemail | 解绑邮箱 |
+| login | 登录 |
+| setpwd | 设置密码 |
+
+**调用示例**
+
+```typescript
+RXApi.getInstance().passport().verifyCaptcha(type,target,captcha_code,callback);
+```
+
+#### 响应结构
+
+不返回 data 信息，验证码不正确会直接返回相应的错误。
+
+```json
+{
+    "code": 0
+}
+```
+
+### 绑定邮箱
+
+**接口原型**
+
+```typescript
+bindEmail(email: string, password: string, captcha_code: string, migrate_args: object, callback?: RCallback): Promise>
+```
+
+#### 参数说明
+
+| **字段** | **类型** | **是否必填** | **备注** |
+| --- | --- | ---- | --- |
+| captcha\_code | string | 是 | 使用 `sendCaptcha` 接口获取 |
+| password | string | 是 | 邮箱账号的密码 |
+| email | string | 是 | 邮箱账号 |
+| migrate\_args | 任意合法的 json 类型 | 否 | 账号迁移用的参数, 调用 CP account-query 及 account-queryandbind 接口时透传给 CP. |
+
+**调用示例**
+
+```typescript
+ 
+    email = "lipeng@jixiang.cn",
+    password = "111111",
+    captcha_code = "0001",
+    migrate_args=''
+ 
+RXApi.getInstance().passport().bindEmail(email,password,captcha_code,migrate_args, callback);
+```
+
+#### 响应结构
+
+```json
+{
+    "code": 0
+}
+```
+
+### 绑定手机号
+
+**接口原型**
+
+```typescript
+bindPhone(phone: string, password: string, captcha_code: string, migrate_args: object, callback?: RCallback)
+```
+
+#### 参数说明
+
+| **字段** | **类型** | **是否必填** | **说明** |
+| --- | --- | ---- | --- |
+| phone | string | 是 | 手机号码 |
+| password | string | 是 | 密码 |
+| captcha\_code | string | 是 | 使用 `SendCaptcha` 接口获取 |
+| migrate\_args | 任意合法的 json 类型, 比如 string, number, array, object | 否 | 账号迁移用的参数, 调用 CP account-query 及 account-queryandbind 接口时透传给 CP. |
+
+**调用示例**
+
+```typescript
+
+    phone = phone1,
+    password = "111111",
+    captcha_code = "0001",
+
+RXApi.getInstance().passport().bindPhone(phone,password,captcha_code, callback);
+```
+
+#### 响应结构
+
+```json
+{
+    "code": 0
+}
+```
+
+### 修改手机号
+
+**接口原型**
+
+```typescript
+changePhone(newphone: string, newphone_captcha: string, oldphone_captcha: string, migrate_args: object, callback?: RCallback)
+```
+
+#### 参数说明
+
+| **字段** | **类型** | **是否必\*\*\*\*填** | **说明** |
+| --- | --- | -------- | --- |
+| oldphone\_captcha | string | 当前登录的手机号的 purpose =`unbindphone` 验证码。 | 使用 `sendCaptcha` 接口获取 |
+| newphone | string | 新的手机号。 | 手机号码 |
+| newphone\_captcha | string | 新手机号的 purpose=`bindphone` 验证码。 | 使用 `sendCaptcha` 接口获取 |
+| migrate\_args | 任意合法的 json 类型 | 账号迁移用的参数, 调用 CP account-query 及 account-queryandbind 接口时透传给 CP. |  |
+
+**调用示例**
+
+```typescript
+
+oldphone_captcha = phone1,
+newphone = phone2,
+newphone_captcha ="1234",
+
+RXApi.getInstance().passport().changePhone(newphone,newphone_captcha,oldphone_captcha,undefined, callback);
+```
+
+#### 响应结构
+
+```json
+{
+    "code": 0
+}
+```
+
+### 获取用户信息
+
+* 接口原型
+
+```typescript
+getUserInfo(callback?: RCallback): Promise>
+```
+
+**调用示例**
+
+```typescript
+RXApi.getInstance().passport().getUserInfo(callback);
+```
+
+#### 响应结构
+
+```json
+{
+    "code": 0,
+    "data": {
+        "avatarurl": "",
+        "mobile_phone": "159****7520",
+        "nickname": "rssllyn",
+        "openid": "rxuWFnlHRbTZ5ED5TkwAG5XVQ==",
+        "sex": 0,
+        "user_state": 0,
+        "attr": 0
+    }
+}
+```
+
+### 修改用户信息
+
+**接口原型**
+
+```typescript
+updateUserInfo(params: UserInfoParams, callback?: RCallback): Promise> 
+```
+
+**参数说明**
+
+| **字段** | **类型** | **是否必\*\*\*\*填** | **说明** |
+| --- | --- | -------- | --- |
+| avatarurl | string | 否 | 头像 |
+| nickname | string | 否 | 用户昵称 |
+| sex | number | 否 | 性别 1 男 0 女，无改动传-1，不传会默认修改为女性 |
+| wechat\_avatarurl | string | 否 | 微信原始头像 |
+
+**调用示例**
+
+```typescript
+data = 
+{
+    avatarurl = "https://pics5.baidu.com/feed/f9198618367adab4ae93d01f4d2fd5158601e435.jpeg?token=dc16fc242c33735fa67c32567ce5fc0c",
+    sex = -1,
+    wechat_avatarurl = "https://thirdwx.qlogo.cn/mmopen/vi_32/Q0j4TwGTfTK7I2LkIqgwO1cunedHjwesjdRYn3rlJvib9ovibCGG30nibnLI6TCYxjVnuunFw4ZtrRLjf6uuW8L7w/132",
+    nickname = "你的神"
+};
+RXApi.getInstance().passport().updateUserInfo(data, callback);
+```
+
+#### 响应结构
+
+```json
+{
+    "nickname":"小吉",
+    "avatarurl":"图片地址",
+    "region":"220122",
+    "sex":0
+}
+```
+
+### 修改密码
+
+**接口原型**
+
+```typescript
+changePassword(old_password: string, new_password: string, callback?: RCallback): Promise> 
+```
+
+#### 参数说明
+
+| **字段** | **类型** | **是否必\*\*\*\*填** | **说明** |
+| --- | --- | -------- | --- |
+| old\_password | string | 是 | 旧密码 |
+| new\_password | string | 是 | 新密码 |
+
+**调用示例**
+
+```typescript
+ 
+    old_password = "111111",
+    new_password = "222222",
+ 
+RXApi.getInstance().passport().changePassword(data, callback);
+```
+
+#### 响应结构
+
+```json
+{
+    "code": 0
+}
+```
+
+### 重置密码
+
+**接口原型**
+
+```typescript
+resetPassword(username: string, password: string, captcha_code: string, migrate_args: object, callback?: RCallback): Promise>
+```
+
+**参数说明**
+
+| **字段** | **类型** | **是否必\*\*\*\*填** | **说明** |
+| --- | --- | -------- | --- |
+| username | string | 是 | 已经注册过账号的手机号或者邮箱地址用户名。 |
+| password | string | 是 | 新密码编码规则与注册账号时传递的密码编码规则相同。 |
+| captcha\_code | string | 是 | 使用 `sendCaptcha` 接口获取用于重置密码的验证码， |
+
+**调用示例**
+
+```typescript
+ 
+    username = phone1,
+    password = "222222",
+    captcha_code = 1234
+    migrate_args=undefined
+
+RXApi.getInstance().passport().resetPassword(username,password,captcha_code,migrate_args, callback);
+```
+
+#### 响应结构
+
+```json
+{
+    "code": 0
+}
+```
+
+### 绑定三方账号
+
+:::tip
+暂时只支持微信。
+:::
+
+**接口原型**
+
+```typescript
+/**
+ * 绑定账号
+ * @param map 说明
+ * "method" : "wechat"  登录方式，暂时只支持微信
+ */
+ bindAccount(params: BindAccountParams, callback?: RCallback): Promise>
+```
+
+#### 参数说明
+> ext 说明
+
+| **字段**     | **类型** | **是否必填** | **备注**                                                                                                                                             |
+| ------------ | -------- | ------------ | ------------------ |
+| method     | String | 是           | 登录方式，暂时只支持微信   |
+| wx_appid     | String | 是           |  微信appid   |
+
+> method 说明
+
+| **字段**     | **说明** | 
+| ------------ | -------- |
+| wechat     | 微信 | 
+
+**调用示例**
+
+```typescript
+ let b: BindAccountParams = {
+     method: "wechat",
+     wx_appid: "wechat"
+}
+RXApi.getInstance().bindAccount(b);
+```
+
+**响应示例**
+
+```json
+{
+    "code": 0
+}
+```
+
+## 合规
+
+### 协议声明
+
+**UI示例**
+
+![](http://guanwangyun.oss-cn-beijing.aliyuncs.com/document/login/feishu-protocol.jpeg)
+
+**接口原型**
+
+```typescript
+/**
+ * 显示隐私协议相关UI组件，支持多协议模块化展示
+ * 
+ * @param uiContext - 当前页面的UI上下文对象，用于定位渲染位置
+ * @param config - 隐私协议配置选项
+ * @param config.key_list - 需要展示的隐私协议模块列表
+ *                           （如["00001", "00002"]对应服务条款和隐私政策）
+ * @param config.key - 默认选中的协议模块Key
+ *                      （如"00001"表示默认展示服务条款）
+ * 
+ * @example
+ * // 同时展示服务条款和隐私政策，默认选中服务条款
+ * showPrivacyUI(this.getUIContext(), { 
+ *   key_list: ["00001", "00002"], 
+ *   key: "00001" 
+ * });
+ * 
+ * @example
+ * // 仅展示隐私政策
+ * showPrivacyUI(this.getUIContext(), { 
+ *   key_list: ["00002"], 
+ *   key: "00002" 
+ * });
+ */
+showPrivacyUI(uiContext: UIContext, config: { key_list: string[]; key: string }, callback?: RCallback): IBaseDialog 
+```
+
+#### 参数说明
+
+> keyList 说明
+
+| **key** | **备注** |
+| --- | --- |
+| 00001 | 用户服务协议 |
+| 00002 | 隐私保护指引 |
+| 00003 | 第三方 SDK 目录 |
+| 00004 | 健康游戏公告 |
+| 00005 | 适龄提示 |
+| 00006 | 绿色游戏公告 |
+| 00007 | 版号信息 |
+| 00008 | 游戏账号注销条件 |
+| 00009 | 游戏账号注销协议 |
+| 00010 | 其他 |
+
+**调用示例**
+
+```typescript
+ RXApi.getInstance().showPrivacyUI(this.getUIContext(), { key_list: ["00001", "00002"], key: "00001" })
+```
+
+### 实名认证
+
+**接口原型**
+
+```typescript
+realAuth(realname: string, idcard: string, isFastAuth?: boolean, callback?: RCallback): Promise>
+```
+
+#### 参数说明
+
+| **字段** | **类型** | **是否必\*\*\*\*填** | **说明** |
+| --- | --- | -------- | --- |
+| realname | string | 是 | 真实姓名 |
+| idcard | string | 是 | 身份证号码 |
+| isFastAuth | boolean | 否 | 是否使用快速认证 默认值为 false |
+
+**调用示例**
+
+```typescript
+
+let idcard = "130532197901235712",
+let realname = "乐淳雅"
+let isFastAuth = false
+
+RXApi.getInstance().passport().realAuth(realname,idcard,isFastAuth, callback);
+```
+
+#### 响应结构
+
+```json
+{
+    "code": 0,
+    "data": {
+        "age": 18
+    }
+}
+```
+
+## 用户中心
+
+:::tip
+在操作的结果页产生事件时会通过回调不同的 type，具体说明请参考响应结构。
+
+:::
+
+### 展示用户信息
+
+**UI示例**
+
+![](https://guanwangyun.oss-cn-beijing.aliyuncs.com/document/passportUI/JRY5bZ3JColj63xe5Y5cUaGBnsf.png)
+
+**接口原型**
+
+```typescript
+/**
+ * 显示用户中心UI面板，支持自定义配置和回调处理
+ * 
+ * @param uiContext - 当前页面的UI上下文，用于定位和渲染用户中心
+ * @param config - 用户中心配置参数（可选）
+ * @param config.config_prams - 核心配置参数
+ * @param config.config_prams.btns - 显示的功能按钮列表（如["profile", "settings", "help"]）
+ * @param config.custom_params - 自定义扩展参数
+ * @param config.custom_params.transmit_args - 透传参数（用于业务逻辑传递）
+ * @param config.custom_params.game_user_id - 用户ID（必填）
+ * @param config.custom_params.nickname - 用户昵称（选填）
+ * @param config.custom_params.head_img_url - 用户头像URL（选填）
+ * @param config.custom_params.queue_name - 排队名称（选填）
+ * @param callback - 操作回调函数（可选），支持传统回调模式
+ * 
+ * @returns 返回Promise，解析为基础对话框接口实例
+ * 
+ * @example
+ * // 显示完整功能的用户中心
+ * showUserCenterUI(this.getUIContext(), {
+ *   config_prams: { btns: ["profile", "settings", "help", "logout"] },
+ *   custom_params: { 
+ *     game_user_id: "123456",
+ *     nickname: "游戏玩家",
+ *     head_img_url: "https://example.com/avatar.jpg"
+ *   }
+ * });
+ * 
+ * @example
+ * // 仅显示帮助和设置按钮
+ * showUserCenterUI(this.getUIContext(), {
+ *   config_prams: { btns: ["help", "settings"] },
+ *   custom_params: { 
+ *     game_user_id: "789012",
+ *     queue_name: "匹配队列A"
+ *   }
+ * }, (result) => {
+ *   console.log("用户操作结果:", result);
+ * });
+ */
+showUserCenterUI(uiContext: UIContext, config?: UserCenterConfig, callback?: RCallback): Promise
+```
+
+#### 参数说明
+> UserCenterConfig 结构说明
+> 
+| **字段** | **备注** |
+| --- | --- |
+| custom_params| 自定义扩展参数 |
+| config_prams | 配置参数 |
+
+> custom_params 结构说明
+
+| **字段** | **类型** | **备注** |
+| --- | --- | --- |
+| transmit\_args | String | 透传数据，使用 jsonString 形式 |
+| game\_user\_id | String | 用户的游戏 id，不传在望舒后台不会账号注销页面不显示游戏侧的用户id |
+| nickname | String | 用户昵称 |
+| head\_img\_url | String | 用户头像 |
+| queue\_name | String | 在望舒客服系统设置的接入点名称 不填写默认为 default |
+
+> config_prams 结构说明
+
+| **字段** | **类型** | **备注** |
+| --- | --- | --- |
+| btns | Array | 配置用户中心入口 |
+
+> btns 说明
+
+| **字段** | **备注** |
+| --- | --- |
+| real\_name | 实名认证 |
+| privacy\_policy | 隐私政策 |
+| acount\_cancel | 账号注销 |
+| phone\_management | 手机号管理 |
+| change\_pwd | 修改密码 |
+
+**调用示例**
+
+```typescript
+    // 配置用户中心参数
+    const customConfig: UserCenterConfig = {
+      // 核心配置：显示的功能按钮
+      config_prams: {
+        btns: ["profile", "settings", "help", "logout"] // 显示个人资料、设置、帮助和退出按钮
+      },
+      
+      // 自定义参数：用户信息
+      custom_params: {
+        game_user_id: "U123456789",         // 用户ID（必填）
+        nickname: "勇者小明",                // 用户昵称
+        head_img_url: "https://example.com/avatar.jpg", // 头像URL
+        queue_name: "排位赛-钻石段位",         // 当前排队名称
+        transmit_args: JSON.stringify({     // 透传业务参数
+          game_mode: "battle_royale",
+          match_id: "MATCH_20230615_12345"
+        })
+      }
+    };
+
+ RXApi.getInstance().showUserCenterUI(this.getUIContext(),customConfig, (json) =>
+        {
+            // {
+            //     type:"用户中心回调事件类型"
+            // }
+            Debug.Log("UserCenterUI callback:" + json);
+
+        });
+```
+
+#### 响应结构
+
+> type 回调说明
+
+| **字段** | **备注** |
+| --- | --- |
+| switch\_user | 切换账号 |
+| underegister | 撤销注销 |
+| binding\_phone | 绑定手机 |
+| change\_phone | 换绑手机 |
+| real\_auth | 实名认证 |
+| resetpwd | 修改密码 |
+| logBackIn | 重新登陆 |
+
+**响应示例**
+
+```json
+{
+    "code" : 0,
+    "data" : {
+        "type" : "switch_user"
+    }
+}
+```
+
+### 申请账号注销
+
+显示注销申请 webview 窗口，如已处于注销中显示撤销注销。
+
+**UI示例**
+
+![image.png](https://haiqi-ruixue-test.oss-cn-beijing.aliyuncs.com/docOnline/image-1724032060422.png)
+
+**接口原型**
+```typescript
+/**
+ * 帮助中心配置参数，用于自定义用户界面和传递用户信息
+ */
+export interface HelperCenterArgs {
+  /**
+   * 透传参数（可选）
+   * 用于在不同系统间传递自定义数据，将原样返回给回调
+   */
+  transmit_args?: string;
+
+  /**
+   * 用户游戏ID
+   * 唯一标识用户的游戏账号，用于系统识别和验证
+   */
+  game_user_id: string;
+
+}
+
+/* * 申请注销用户界面的入口函数
+ * 启动帮助中心的账号注销流程，引导用户完成必要步骤
+ * 
+ * @param uiContext - 必需，UI上下文对象，用于定位和展示界面
+ * @param config - 可选，帮助中心配置参数
+ * @param callback - 可选，操作结果回调函数
+ */
+applyForDeregisterUI(uiContext: UIContext, config?: HelperCenterArgs, callback?: RCallback)
+```
+**调用示例**
+```typescript
+    // 配置参数
+    const customConfig: HelperCenterArgs = {
+ 
+    };
+
+ RXApi.getInstance().applyForDeregisterUI(this.getUIContext(),customConfig, (json) =>
+        {
+            // {
+            //     type:"回调事件类型"
+            // }
+            Debug.Log("UserCenterUI callback:" + json);
+
+        });
+```
+
+## 身份证键盘
+
+**UI示例**
+![](https://guanwangyun.oss-cn-beijing.aliyuncs.com/sdk/help-image/img_v3_02ml_887e5df6-3de5-4db2-841d-4af26c85747g.png)
+
+**接口原型**
+```typescript
+customKeyboard(value: CustomBuilder, options?: KeyboardOptions): TextInputAttribute;
+```
+**调用示例**
+```typescript
+  private controller1: TextInputController = new TextInputController();
+
+  @Builder
+  customKeyboardBuilder1() {
+    IdCardKeyboard({
+      inputValue: "",
+      onKeyboardEvent: this.onKeyboardEvent.bind(this),
+      placeholder: "请输入...",
+      controller: this.controller1
+    })
+  }
+  
+  build() {
+    TextInput({
+        text: $$this.inputValue1,
+        placeholder: this.placeholder,
+        controller: this.controller
+      })
+        .id(TEXT_INPUT_ID)
+        .type(InputType.Normal)
+        .customKeyboard(this.customKeyboardBuilder(), { supportAvoidance: true })
+        .height(48)
+        .margin({ top: 24 })
+        
+ }
+```

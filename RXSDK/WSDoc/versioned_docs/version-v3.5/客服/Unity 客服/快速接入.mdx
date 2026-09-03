@@ -1,0 +1,79 @@
+---
+title: "快速接入"
+---
+
+### 接入方式
+* Package Manager 导入 RuiXue.Help
+
+## 帮助中心
+
+### 展示帮助中心
+
+**UI示例**
+
+![](https://guanwangyun.oss-cn-beijing.aliyuncs.com/document/charts/helpdark.png)
+![](https://guanwangyun.oss-cn-beijing.aliyuncs.com/document/charts/helpligth.png)
+
+**接口原型**
+
+```csharp
+public void HelperCenterUI(Dictionary dic, 
+            RequestResponseDelegate responseDelegate, RequestErrorDelegate errorDelegate);
+```
+
+#### 参数说明
+
+> Dictionary 结构说明
+
+| **字段**      | **备注**                                            |
+| ------------- | --------------------------------------------------- |
+| transmit_args | 透传数据，使用 jsonString 形式                      |
+| game_user_id  | 用户的游戏 id                                       |
+| nickname      | 用户昵称                                            |
+| head_img_url  | 用户头像                                            |
+| queue_name    | 在望舒客服系统设置的接入点名称 不填写默认为 default |
+
+**调用示例**
+
+```csharp
+    public void OnHelperCenterUI()
+    {
+        Dictionary dic = new();
+        RXHelp.HelperCenterUI(dic, HelperCenterUIResponseDelegate, HelperCenterUIErrorDelegate);
+    }
+```
+
+### 客服会话
+
+**UI示例**
+
+![](https://guanwangyun.oss-cn-beijing.aliyuncs.com/document/chatService/HrMKbwZDDo5CayxoqPWcQfLinfw.png)
+
+**接口原型**
+
+```csharp
+public void ChatServiceUI(Dictionary dic, 
+            RequestResponseDelegate responseDelegate, RequestErrorDelegate errorDelegate);
+```
+
+#### 参数说明
+
+> Dictionary 结构说明
+
+| **字段**      | **备注**                                            |
+| ------------- | --------------------------------------------------- |
+| transmit_args | 透传数据，使用 jsonString 形式                      |
+| game_user_id  | 用户的游戏 id                                       |
+| nickname      | 用户昵称                                            |
+| head_img_url  | 用户头像                                            |
+| queue_name    | 在望舒客服系统设置的接入点名称 不填写默认为 default |
+
+**调用示例**
+
+```csharp
+    public void ChatServiceUI()
+    {
+        Dictionary dic = new();
+        RXHelp.ChatServiceUI(dic, ChatServiceUIResponseDelegate, ChatServiceUIErrorDelegate);
+    }
+```

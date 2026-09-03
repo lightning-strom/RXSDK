@@ -1,0 +1,93 @@
+---
+sidebar_position: 1
+title: 功能介绍
+description: "望舒SDK 防沉迷 功能介绍文档，提供详细的功能说明与接入指引。"
+---
+
+## 准备工作
+
+### 注册中宣部实名认证系统
+
+在 [中宣部网络游戏防沉迷实名认证系统](https://wlc.nppa.gov.cn/fcm_company/index.html#/login?redirect=%2F) 完成注册，通过接口测试，并获取相关凭证：
+
+游戏备案识别码 `bizId`
+
+应用标识 `APPID`
+
+应用密钥 `Secret Key`
+
+![](https://guanwangyun.oss-cn-beijing.aliyuncs.com/document/preventing/BSJZbftuTo3ufkxW5Txc2aRdnBe.png)
+
+![](https://guanwangyun.oss-cn-beijing.aliyuncs.com/document/preventing/QlHjbuHyIoKBnHxwFvhcKPi8nJe.png)
+
+![](https://guanwangyun.oss-cn-beijing.aliyuncs.com/document/preventing/DGLgbQApNoSbJaxujRMc5U1ynsf.png)
+
+并把望舒首页的出口 IP 添加到[中宣部网络游戏防沉迷实名认证系统](https://wlc.nppa.gov.cn/fcm_company/index.html#/login?redirect=%2F) 的白名单配置中。
+
+![](https://haiqi-ruixue-test.oss-cn-beijing.aliyuncs.com/image.png)
+
+### 望舒系统中配置防沉迷信息
+
+菜单位置：**法务管理 > 法务合规配置 > 防沉迷配置**
+
+前置条件：先创建产品信息
+
+![](https://guanwangyun.oss-cn-beijing.aliyuncs.com/document/share/fangchenmi1.png)
+
+## 接入 RDS 实名认证和防沉迷服务
+
+完成准备工作后，可接入 RDS 实名认证和防沉迷服务。
+
+游戏实名认证（使用望舒通行证时，设置开启实名认证，具体参考：[通行证登录](/docs/开发者文档/登录-通行证/功能介绍) ）
+
+防沉迷弹窗（需项目组实现逻辑判断）
+
+### 游戏实名认证与防沉迷
+
+按照国家新闻出版署[《关于进一步严格管理切实防止未成年人沉迷网络游戏的通知》](https://www.nppa.gov.cn/nppa/contents/279/98792.shtml)，各游戏出版运营企业均须在游戏内落实游戏实名认证和防沉迷新策略。
+
+#### 实名认证
+
+《通知》中要求，所有用户必须使用真实有效身份信息进行游戏账号注册并登录网络游戏。RDS 已为开发者自动对接了中宣部网络游戏防沉迷实名认证系统，并以开发者主体进行信息上报，符合中宣部对游戏企业接入的合规要求。
+
+业务流程：
+
+在玩家登录后，调用 SDK 实名认证的接口，如账号为未实名状态，则会触发实名认证界面，完成真实信息填写。
+
+完成填写后， RDS 会将信息提交至中宣部系统中进行真实性校验（请先确认已完成开发者中心的配置工作，否则无法成功校验）。
+
+![](https://guanwangyun.oss-cn-beijing.aliyuncs.com/document/preventing/T8P4bFUONoT5LtxpveScVJOFnjg.png)
+
+#### 界面预览
+
+![](https://guanwangyun.oss-cn-beijing.aliyuncs.com/document/preventing/EiPab0WAto3QG9x1TwlcQ4oznQc.png)
+
+### 防沉迷策略
+
+《通知》中要求，游戏企业必须严格管理未成年的游戏时间以及付费额度。 SDK 封装了相应接口，游戏可通过 RDS 云端查询未成年玩家是否处于可以游戏的时间段内，以及未成年玩家的某笔消费是否受限。
+
+![](https://guanwangyun.oss-cn-beijing.aliyuncs.com/document/preventing/ToL1bWcxBoABsPx4bDhc5hZTnFl.png)
+
+#### 游戏时间限制
+
+渠道开启防沉迷后， 18 岁以下用户无法登录。
+
+仅允许未成年人在**周五、周六、周日和法定节假日的 20:00 至 21:00** 进行游戏。
+
+#### 充值额度限制
+
+不满 8 岁，无法在游戏内进行充值。
+
+**同一网络游戏企业**所提供的游戏付费服务需要满足:
+
+满 8 岁，不满 16 岁的用户，单次充值 ≤ 50 元 ，单月充值累计 ≤ 200 元
+
+满 16 岁，不满 18 岁的用户，单次充值 ≤ 100 元 ，单月充值累计 ≤ 400 元
+
+注意，计算限制时，同一企业的所有网络游戏的充值共同累计。 例如，假定一家企业名下有两款网络游戏，一个满 8 岁，不满 16 岁的用户某月在其中一款游戏下累计充值了 100 元，那么他在另一款游戏下最多只能再充 100 元。
+
+### 中宣部接入文档
+
+[网络游戏防沉迷实名认证系统接口对接技术规范 v1.8](https://oss.ruixueyun.com/zhongxuanbu/%E7%BD%91%E7%BB%9C%E6%B8%B8%E6%88%8F%E9%98%B2%E6%B2%89%E8%BF%B7%E5%AE%9E%E5%90%8D%E8%AE%A4%E8%AF%81%E7%B3%BB%E7%BB%9F%E6%8E%A5%E5%8F%A3%E5%AF%B9%E6%8E%A5%E6%8A%80%E6%9C%AF%E8%A7%84%E8%8C%83v1.8(1)(1).pdf)
+
+[网络游戏防沉迷实名认证系统用户操作手册](https://oss.ruixueyun.com/zhongxuanbu/%E7%BD%91%E7%BB%9C%E6%B8%B8%E6%88%8F%E9%98%B2%E6%B2%89%E8%BF%B7%E5%AE%9E%E5%90%8D%E8%AE%A4%E8%AF%81%E7%B3%BB%E7%BB%9F%E7%94%A8%E6%88%B7%E6%93%8D%E4%BD%9C%E6%89%8B%E5%86%8C(4).pdf)

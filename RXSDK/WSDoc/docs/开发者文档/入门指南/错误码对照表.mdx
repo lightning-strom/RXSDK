@@ -1,0 +1,149 @@
+---
+sidebar_position: 5
+title: 错误码对照表
+description: "望舒SDK 错误码对照表文档，提供详细的功能说明与接入指引。"
+---
+
+SDK 3.2.x 以后版本错误码重新规范，使用下面格式返回。原渠道原始错误码通过 thirdcode、thirdmsg 字段返回。
+
+返回数据结构为 json ： 如果三方 SDK ，具体三方信息通过扩展信息返回。
+
+```json
+{
+ "code" : 望舒错误码,
+ "msg" : "望舒错误描述",
+ "thirdmsg" : "三方原始错误描述",
+ //无三方错误码时候不返回字段 "thirdcode" : 三方原始错误码,
+ //无三方错误消息时候不返回字段 "data" : {}
+}
+```
+
+## 错误码说明
+
+> 1000 &lt;= x &lt; 2000 为网络相关错误
+>
+> 2000 &lt;= x &lt; 3000 为初始化相关错误
+>
+> 3000 &lt;= x &lt; 4000 为登录相关错误
+>
+> 4000 &lt;= x &lt; 5000 为支付相关错误
+>
+> 5000 &lt;= x &lt; 6000 为分享相关错误
+>
+> 6000 &lt;= x &lt; 7000 为权限和应用未安装相关错误
+
+| 错误码 | 错误描述 | 建议解决方案 |
+| --- | --- | --- |
+| 1000 | 1100 | 网络连接错误 |
+| 检查网络设置 | 1110 | 证书错误 |
+| 联系相关人员进行处理 | 1111 | 证书验证错误 |
+| 证书过期或失效 | 1120 | 未知主机错误，检查网络连通性 |
+| 检查网络连通性，网卡，网关 ，域名 等 | 1130 | 网络中断 |
+| 常见数据传输过程中的网络中断情况 | 1131 | 超时错误，连接或请求数据超时 |
+| 检查网络连接速度，连接或请求数据超时 | 1300 | 表示要完成请求，需要进一步操作。 通常，这些状态代码用来重定向。 |
+| 1400 | 错误请求 服务器不理解请求的语法。 | url 格式不符合规范 |
+| 1500 | 服务器内部错误 | 响应数据格式错误，或数据不完整 |
+| 1502 | 错误网关 | 服务器作为网关或代理，从上游服务器收到无效响应。 |
+| 1503 | 服务不可用 | 服务器目前无法使用（由于超载或停机维护）。 通常，这只是暂时状态。 |
+| 1504 | 网关超时 | 服务器作为网关或代理，但是没有及时从上游服务器收到请求。 |
+| 1505 | HTTP 版本不受支持 | 服务器不支持请求中所用的 HTTP 协议版本。 |
+| 2000 | 初始化参数错误 | 检查初始化参数,详情见 msg |
+| 2002 | 三方初始化错误，或未初始化 | 详情参考三方扩展数据 thirdcode 和 thirdmsg |
+| 3000 | 登录配置错误或三方登录错误 | 检查登录参数配置, 详情参考三方扩展数据 thirdcode 和 thirdmsg |
+| 3001 | 登录取消 | 确认是否同意授权 |
+| 3002 | 三方登录错误 | 详情参考三方扩展数据 thirdcode 和 thirdmsg |
+| 3003 | 未登录，请先登录 | 请先登录 |
+| 3004 | token 空错误 | 3005 |
+| 其他方式登录 | 3100 | 密码正则验证错误 |
+| 3101 | 密码不能为空 | 3102 |
+| 新旧密码不一致 | 3201 | 账号注销取消 |
+| 3301 | 实名认证错误 | 3302 |
+| 三方实名认证错误 | 详情参考三方扩展数据 thirdcode 和 thirdmsg | 4000 |
+| 支付参数错误 | 拉起支付错误，检查拉起支付参数 | 4001 |
+| 支付取消 | 4002 | 三方支付错误 |
+| 详情参考三方扩展数据 thirdcode 和 thirdmsg | 4100 | 重复下单，或订单请求中 |
+| 4101 | 订单参数错误 | 下单参数错误,详情见 msg |
+| 4102 | 订单数据错误 | 下单返回数据错误,详情见 msg |
+| 4200 | iap （苹果支付）异常 | 详情参考三方扩展数据 thirdcode 和 thirdmsg |
+| 4201 | 补单失败 | 联系望舒成员进行处理 |
+| 4202 | 没有商品 | 检查望舒后台配置的商品信息是否正确 |
+| 4203 | 不支持内购 | 检查支付设置 |
+| 5000 | 分享参数错误 | 5001 |
+| 分享取消 | 检查分享参数及数据格式，或用户主动取消 | 5002 |
+| 三方分享错误 | 详情参考三方扩展数据 thirdcode 和 thirdmsg | 5003 |
+| 拉起分享超时 | 6000 | 隐私协议拒绝 |
+| 6001 | 权限被拒绝或未开启 | 6002 |
+| 权限被永久拒绝 | 6003 | 用户信息授权被拒绝 |
+| 6010 | 关闭窗口 | 6020 |
+| 定位失败 | 6021 | 定位被拒绝 |
+| 6101 | 微信未安装 | 6102 |
+| 支付宝未安装 | 6201 | 切换账号 |
+| 7000 | h5 错误码 | 8000 |
+| 未知三方错误码 | 详情参考三方扩展数据 thirdcode 和 thirdmsg | 9000 |
+| 未知错误 | 联系望舒相关人员进行排查 | 10000 |
+| 广告加载超时 |  |  |
+
+## 三方文档说明
+
+### 小游戏
+
+| 渠道 | 错误码列表 |
+| --- | --- |
+| 微信小游戏 | [微信小游戏错误码](https://developers.weixin.qq.com/minigame/dev/guide/runtime/debug/PublicErrno.html#%E6%9C%80%E4%BD%B3%E5%AE%9E%E8%B7%B5) |
+| QQ 小游戏 | [qq 小游戏错误码](https://q.qq.com/wiki/develop/game/API/MGOBE/error_code.html) |
+| 抖音小游戏 | [抖音小游戏文档](https://developer.open-douyin.com/docs/resource/zh-CN/mini-game/develop/api/open-capacity/log-in/tt-login) |
+| 华为小游戏 | [华为快游戏](https://developer.huawei.com/consumer/cn/doc/quickApp-Guides/quickgame-runtime-account-kit-0000001113458340#section7770103716175) |
+| OPPO 小游戏 | [OPPO 常见问题](https://open.oppomobile.com/new/developmentDoc/info?id=12799) |
+| vivo 小游戏 | [vivo 常见问题](https://minigame.vivo.com.cn/documents/#/lesson/question/question-common) |
+| 荣耀小游戏 | [荣耀开放平台搜索](https://developer.honor.com/cn/docs/game_center/guides/miniGame/filing) |
+| 淘宝小游戏 | [淘宝开放平台搜索](https://miniapp.open.taobao.com/doc.htm?docId=121732&docType=1&tag=game-info) |
+| 支付宝小游戏 | [支付宝开放平台搜索](https://opendocs.alipay.com/mini-game/08v96k?pathHash=75b68418#%E9%94%99%E8%AF%AF%E7%A0%81) |
+| 快手小游戏 | [快手开放平台搜索](https://ks-game-docs.kuaishou.com/minigame/start/start.html) |
+| 小米小游戏 | [小米小游戏常见问题](https://dev.mi.com/xiaomihyperos/documentation/detail?pId=1961) |
+| 4399 小游戏 | [4399 平台搜索](https://open.4399.cn/console/doc#/h5mini/api/base?id=%E4%B8%89%E3%80%81%E5%B8%B8%E8%A7%81%E9%97%AE%E9%A2%98%E8%A7%A3%E7%AD%94) |
+| 4399H5 小游戏 | [4399 平台搜索](https://open.4399.cn/console/doc#/h5mini/api/base?id=%E4%B8%89%E3%80%81%E5%B8%B8%E8%A7%81%E9%97%AE%E9%A2%98%E8%A7%A3%E7%AD%94) |
+| 美团小游戏 | [美团开放平台搜索](https://game.meituan.com/#/docs) |
+| 爱微游小游戏 | 最右小游戏 |
+| [最右小游戏常见错误](https://gamedocs.izuiyou.com/qa) | 迅雷小游戏 |
+| [迅雷小游戏常见问题](http://docs.game.xunlei.com/docs/access/front-end/web/question) | BiliBili 小游戏 |
+| [哔哩哔哩小游戏平台搜索](https://miniapp.bilibili.com/small-game-doc/api/intro/) | 群黑小游戏 |
+| 好游快爆小游戏 | [好游快爆平台搜索](https://open.3839.com/applet/docs/developer/index.html#/api/doc/%E7%95%8C%E9%9D%A2/gamebox.getMenuButtonBoundingClientRect) |
+| 007 小游戏 | 百度小游戏 |
+| [百度小游戏常见问题](https://smartprogram.baidu.com/docs/game/tutorials/faq/common/) | 七七小游戏 |
+| Quick 小游戏 | [Quick 常见问题](https://www.quicksdk.com/docs/faqs/fid/15) |
+| VNG 小游戏 | [VNG](https://sdkguide.mto.zing.vn/products/101bd02a7aa65f2ab001de00375f4fb8/sdk-version/156#subarticle-initial-setup-get-started-add-sdk) |
+| 京东小游戏 | [京东平台搜索](https://mp-docs.jd.com/doc/minigame/gamdedev/gameapi/2987#heading-1) |
+| UC 小游戏 | [UC 小游戏常见错误码](https://minigame.uc.cn/tutorial/faq/errorcode) |
+
+### 三方渠道
+
+| 渠道 | 错误码列表 |
+| --- | --- |
+| Wechat | [WeChat 错误码列表](https://docs.msdk.qq.com/v5/zh-CN/FAQS/ac41cc974f20cb93cedc5e6641a7128b/ef42aaca7d88b317ee14fb21ed30c74d.html) |
+| QQ | [QQ 错误码列表](https://docs.msdk.qq.com/v5/zh-CN/FAQS/ac41cc974f20cb93cedc5e6641a7128b/71120475f7e765b2a93423df2e85201e.html) |
+| Facebook | [错误码列表](https://developers.facebook.com/docs/marketing-api/error-reference/) |
+| Google | [官方文档](https://developers.google.com/android/reference/com/google/android/gms/common/ConnectionResult) |
+| 苹果 | [苹果开放平台搜索](https://developer.apple.com/documentation/) |
+| 华为 | [华为接入 FAQ](https://developer.huawei.com/consumer/cn/doc/HMSCore-Guides/faq-0000001050039708#section32859289126) |
+| 荣耀 | [荣耀接入 FAQ](https://developer.honor.com/cn/docs/game_center/guides/jieruzhinan/lianyunfaq) |
+| 小米 | [小米接入 SDK 错误码](https://dev.mi.com/distribute/doc/details?pId=1105) |
+| OPPO | [OPPO 三方接入 FAQ](https://open.oppomobile.com/new/developmentDoc/info?id=12249) |
+| 4399 | [4399 开放平台搜索](https://open.4399.cn/console/doc#/) |
+| 九游 | [九游常见问题](https://game.open.9game.cn/document/doc/detail/323) |
+| 雷电模拟器 | [雷电开放平台](https://docs.ldmnq.com/) |
+| TapTap | [TapTap 常见错误码](https://developer.taptap.cn/docs/sdk/tap-adn/tds-tapad/#sdk-%E5%B8%B8%E8%A7%81%E9%94%99%E8%AF%AF%E7%A0%81%E6%B1%87%E6%80%BB) |
+| BIlibili | [Bilibili 开放平台搜索](https://open.bilibili.com/doc) |
+| vivo | [vivo 开放平台搜索](https://dev.vivo.com.cn/documentCenter?from=header) |
+| 抖音 | [抖音开放平台搜索](https://developer.open-douyin.com/) |
+| 百度 | [百度游戏开放平台搜索](https://g.baidu.com/gpbusiness/#/doc/23) |
+| 快手 | [快手常见错误码](https://mp.kuaishou.com/platformDocs/other/errorCode) |
+| Line | [Line 开发平台](https://developers.line.biz/zh-hant/docs/) |
+| 应用宝 | [ysdk 常见错误码](https://wikinew.open.qq.com/index.html#/iwiki/4008529342) |
+| Zalo | [Zalo 开发平台](https://mini.zalo.me/documents/open-apis/) |
+| TikTok | [抖音开放平台](https://developer.open-douyin.com/) |
+| Snapchat | [Snapchat 开发者服务](https://developers.snap.com/?utm_source=creators_snap_com&utm_medium=referral&utm_content=global_nav_item&utm_campaign=universal_navigation&lang=zh-Hans) |
+| mumu | [mumu 开放平台搜索](https://open.mumu.163.com/help/20240129/40126_1135130.html) |
+
+## 服务端错误码
+
+常见服务端错误码[望舒后台查看说明](/docs/开发者文档/概览)

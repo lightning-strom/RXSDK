@@ -1,0 +1,189 @@
+---
+title: "快速接入-原生版"
+---
+
+## 帮助中心
+
+### 展示帮助中心
+
+**UI示例**
+
+![](https://guanwangyun.oss-cn-beijing.aliyuncs.com/document/charts/helpdark.png)
+![](https://guanwangyun.oss-cn-beijing.aliyuncs.com/document/charts/helpligth.png)
+
+**接口原型**
+
+```typescript
+/**
+ * 显示帮助中心UI面板，支持自定义配置和回调处理
+ * 
+ * @param uiContext - 当前页面的UI上下文，用于定位和渲染帮助中心
+ * @param config - 帮助中心配置参数（可选）
+ * @param config.transmit_args - 透传参数（用于业务逻辑传递）
+ * @param config.game_user_id - 用户ID（必填）
+ * @param config.nickname - 用户昵称（选填）
+ * @param config.head_img_url - 用户头像URL（选填）
+ * @param config.queue_name - 排队名称（选填）
+ * @param callback - 操作回调函数（可选）
+ *                   回调参数格式：{ type: string, data?: any }
+ * @param url - 自定义帮助中心URL（可选）
+ *              指定此参数时将加载自定义URL内容
+ * 
+ * @returns 返回帮助中心对话框实例，可用于控制UI行为
+ */
+showHelperCenterUI(uiContext: UIContext, config?: HelperCenterArgs, callback?: RCallback, url?: string): IBaseDialog
+```
+
+#### 参数说明
+
+> HelperCenterArgs 结构说明
+
+| **字段**      | **备注**                                            |
+| ------------- | --------------------------------------------------- |
+| transmit_args | 透传数据，使用 jsonString 形式                      |
+| game_user_id  | 用户的游戏 id                                       |
+| nickname      | 用户昵称                                            |
+| head_img_url  | 用户头像                                            |
+| queue_name    | 在望舒客服系统设置的接入点名称 不填写默认为 default |
+
+**调用示例**
+
+```typescript
+    const callback: RCallback = (result) => {
+       
+    };
+
+RXApi.getInstance().showHelperCenterUI(this.getUIContext(), {
+ *   game_user_id: "123456",
+ *   nickname: "游戏玩家",
+ *   head_img_url: "https://example.com/avatar.jpg"
+ * }, callback);
+```
+
+### 客服会话
+
+**UI示例**
+
+![](https://guanwangyun.oss-cn-beijing.aliyuncs.com/document/chatService/HrMKbwZDDo5CayxoqPWcQfLinfw.png)
+
+**接口原型**
+
+```typescript
+/**
+ * 显示在线客服聊天界面，支持自定义配置和回调处理
+ * 
+ * @param uiContext - 当前页面的UI上下文，用于定位和渲染聊天界面
+ * @param config - 聊天界面配置参数（必填）
+ * @param config.game_user_id - 用户ID（必填）
+ * @param config.nickname - 用户昵称（选填）
+ * @param config.head_img_url - 用户头像URL（选填）
+ * @param config.queue_name - 在望舒客服系统设置的接入点名称 不填写默认为 default 
+ * @param callback - 操作回调函数（可选）
+ *                   回调参数格式：{ type: string, data?: any }
+ * @param url - 自定义聊天界面URL（可选）
+ *              指定此参数时将加载自定义URL内容
+ * 
+ * @returns 返回聊天界面对话框实例，可用于控制UI行为
+ */
+showChatServicesUI(uiContext: UIContext, config: Record, callback?: RCallback, url?: string): IBaseDialog
+```
+
+#### 参数说明
+
+> config 结构说明
+
+| **字段**      | **备注**                                            |
+| ------------- | --------------------------------------------------- |
+| transmit_args | 透传数据，使用 jsonString 形式                      |
+| game_user_id  | 用户的游戏 id                                       |
+| nickname      | 用户昵称                                            |
+| head_img_url  | 用户头像                                            |
+| queue_name    | 在望舒客服系统设置的接入点名称 不填写默认为 default |
+
+**调用示例**
+
+```typescript
+const config = {
+      game_user_id: "USER_789012",    // 用户ID（必填）
+      nickname: "勇者小莉",           // 用户昵称
+      head_img_url: "https://picsum.photos/200/200?random=1", // 用户头像 
+    };
+RXApi.getInstance().showChatServicesUI(this.getUIContext(), config);
+```
+## 获取客服消息未读数
+**接口原型**
+
+```typescript
+/**
+ * 获取客服消息未读数
+ */
+getServiceChatUnreadCount(callback?: RCallback): Promise 
+```
+
+**调用示例**
+
+```typescript
+try {
+  RXApi.getInstance().getServiceChatUnreadCount().then((resp) => {
+    promptAction.showToast({ message: JSON.stringify(resp) })
+
+  }).catch((error: object) => {
+    promptAction.showToast({ message: typeof (error) + " unknown error " + JSON.stringify(error) })
+  })
+} catch (e) {
+  promptAction.showToast({ message: JSON.stringify(e) })
+}
+```
+
+### 响应结构
+
+| **字段** | **类型**                                                                                          | **说明**         |
+| -------- | ------------------------------------------------------------------------------------------------- | ---------------- |
+| code     | Number                                                                                            | 状态码 0 为成功  |
+| msg      | String                                                                                            | 失败时的错误信息 |
+| data     | Object  | 返回信息         |
+
+> data 说明
+
+| **字段** | **类型**                                                           | **说明**         |
+| -------- | ----------------------------------------------- | ---------------- |
+| unread     | Number                                      | 未读数  |
+
+**响应示例**
+```json
+{
+    "code" : 0,
+    "data" : {
+        "unread" : 5
+    },
+    "trace_id" : "F989D228-6BBC-4508-B972-D45174E579A9"
+}
+```
+
+## 清空客服消息未读数
+:::tip
+连接客服会话后会自动清除未读数，需要在未连接时清空未读数调用此接口。
+:::
+**接口原型**
+
+```typescript
+/**
+ * 清空客服消息未读数
+ */
+clearServiceChatUnreadCount(callback?: RCallback): Promise 
+```
+
+**调用示例**
+
+```typescript
+try {
+  RXApi.getInstance().clearServiceChatUnreadCount().then((resp) => {
+    promptAction.showToast({ message: JSON.stringify(resp) })
+
+  }).catch((error: object) => {
+    promptAction.showToast({ message: typeof (error) + " unknown error " + JSON.stringify(error) })
+  })
+} catch (e) {
+   promptAction.showToast({ message: JSON.stringify(e) })
+}
+```

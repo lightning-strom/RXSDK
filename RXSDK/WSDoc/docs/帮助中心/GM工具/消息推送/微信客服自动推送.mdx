@@ -1,0 +1,66 @@
+---
+sidebar_position: 3
+title: "微信客服自动推送"
+description: "望舒帮助中心 微信客服自动推送 文档"
+---
+
+## 一、功能介绍
+
+在微信客服会话界面，用户发送相关卡片或关键字，系统命中后返回指定的内容给用户。回复内容形式包含：文本、图片链接、图片、卡片。
+
+## 二、用户端效果
+
+**接收类型说明**
+
+1. 文字：用户发送的文字消息属于文字类型。
+    ![](https://guanwangyun.oss-cn-beijing.aliyuncs.com/share/serverAccess/20230915-%E5%9B%BE%E6%96%87.jpeg)
+2. 卡片：用户的卡片消息或 user\_enter\_tmpsession 事件属于卡片类型。在客户端跳转客服会话页面会携带卡片信息，在右下角展示。点击卡片可发送。
+    ![](https://guanwangyun.oss-cn-beijing.aliyuncs.com/share/serverAccess/20230915-%E5%8D%A1%E7%89%87.jpeg)
+    **匹配关键字**
+    对于文字接收类型，用户发送的文字必须完全匹配该关键字。对于卡片接收类型，匹配用户的 user\_enter\_tmpsession 事件中的 SessionFrom.ui 属性。
+    **回复类型**
+3. 文本：系统回复的文字消息属于文字类型。适用于常规问答场景。
+4. 图文链接：系统回复的图文消息，如下。适用于引导用户跳转或支付的场景。
+    ![](https://guanwangyun.oss-cn-beijing.aliyuncs.com/share/serverAccess/20230915-163954.jpeg)
+5. 图片：系统回复的图片消息。适用于问答场景。
+    ![](https://guanwangyun.oss-cn-beijing.aliyuncs.com/share/serverAccess/20230915-163950.jpeg)
+6. 卡片：系统回复的卡片消息。适用于引导用户跳转或支付的场景。
+    ![](https://guanwangyun.oss-cn-beijing.aliyuncs.com/share/serverAccess/20230915-163959.jpeg)
+
+## 三、操作步骤
+
+点击左侧 **消息推送工具 > 微信客服自动推送** ，进入功能页面。顶部 TAB 展示产品列表，按照产品维度配置自动回复。
+
+```tip
+如果该产品下没有小游戏的渠道包，则不展示对应 TAB 项。
+```
+
+**添加回复**
+选择该产品下的微信小游戏渠道，设置接收的类型和回复类型，在用户发送信息时根据配置匹配内容并返回。
+![image.png](https://haiqi-ruixue-test.oss-cn-beijing.aliyuncs.com/docOnline/image-1768183650524.png)
+**渠道说明**
+下拉数据为该产品下已添加的小游戏渠道，按照ID+渠道名展示。
+:::warning
+1. 新的IOS不使用弹出卡片唤起支付的方式跳转客服公众号支付匹配关键字为 `ruixue_pay_wxpub_without_card`。
+2. `ruixue_pay_wxpub_without_card`关键字无内置参数，不支持参数替换。
+:::
+:::tip
+1. 带\*的字段为必填字段。
+2. ios跳转客服公众号支付匹配关键字固定为 `ruixue_pay_wxpub`，银联H5支付配关键字固定为 `ruixue_pay_aums_h5`。
+3. sdk 内置参数 \{priceYuan\} 在展示充值图文链接时 会替换为用户的充值金额
+4. sdk 内置参数 \{order\_no\} 在展示充值图文链接时 会替换为用户的订单号
+5. sdk 内置参数\{url\}为卡片跳转地址 请勿修改
+:::
+
+## 四、常见问题
+
+1.ios支付未响应，未收到发货通知
+需要在微信后台配置消息推送地址：
+绑定规则 ：API 域名 +v1/servicewechat/notify/ProductID/ChannelID
+Token : 固定值 ruixue
+ProductID : 瑞雪产品 ID
+ChannelID :瑞雪渠道 ID
+消息加密方式:明文
+数据格式:JSON
+2.支付如下提示时，确定初始化的baseurllist全部配置到微信公众号/商户号后台的js域名和网页安全域名中
+![img_v3_02ce_209594d2-ac5c-4feb-a50d-3fee08ecf85g.jpg](http://haiqi-ruixue-test.oss-cn-beijing.aliyuncs.com/1720072224172-img_v3_02ce_209594d2-ac5c-4feb-a50d-3fee08ecf85g.jpg)

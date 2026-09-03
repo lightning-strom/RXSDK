@@ -1,0 +1,754 @@
+---
+sidebar_position: 1
+title: Android
+description: "望舒SDK 分享 Android 快速接入文档，提供完整的接口调用说明与示例。"
+---
+
+## 配置分享信息
+
+[查看所需分享平台的分享配置](/docs/开发者文档/数据分析/服务端接入/上报插件-LogBus-使用指南)
+
+## 获取分享信息
+
+### 接口原型
+
+```java
+void getShareData(Map<String, Object> map, RXRequestCallback callback)
+```
+
+#### 参数说明
+
+> Map 结构说明
+
+| 字段 | 类型 | 是否必填 | 说明 |
+| --- | --- | --- | --- |
+| func | String | 是 | 埋点标识数组 |
+| region | String | 否 | [望舒地区码](https://pan.jiaxianghudong.com/disk/s/pdEzbPRkDS9) |
+| platform | String | 否 | 支持 wechat ， facebook |
+| transmits | String | 否 | 透传参数，原样返回， 请使用 key=value 形式，并使用 urlencode 编码，此数据在落地页中可以通过 key 获取到，示例： `"a=b&c={\"d\":\"e\"}"` |
+| protocol_android | String | 是 | cp 方 android app scheme |
+| protocol_ios | String | 是 | cp 方 启动 ios app scheme |
+| use_scheme | String | 否 | 由 cp 控制是否使用游戏协议，如传 0 则在落地页上操作不会尝试打开应用，直接跳转到对应商店，如传 1 则会尝试打开应用 |
+| custom_ext | Map | 否 | custom_ext ： cp 自定义数据，目前仅用于大数据预置事件透传参数场景 |
+| useShortUrl | bool | 否 | 是否使用短链，默认 false |
+
+> custom_ext 结构说明
+
+| 字段 | 类型 | 是否必填 | 备注 |
+| --- | --- | --- | --- |
+| bigdata_ext | Map | 否 | 大数据预置事件透传参数 |
+
+> [platform 说明](/docs/开发者文档/意见反馈/Unity-接入)
+
+**响应示例**
+
+```json
+{
+ "data": {
+ "trigger": { // 埋点数据
+ "id": 2, // 埋点ID
+ "tag" : "youdao", // 埋点标识
+ "title": "诱导类埋点", // 埋点标题
+ "failed_msg": "诱导类失败", // 错误提示
+ "type": 1 // 埋点类型 1 诱导类 3成就类 5特殊分享埋点类
+ },
+ "strategy": { // 策略数据
+ "id": 16, // 策略 ID
+ "platform": "wechat", // 平台
+ "share_type": 1, // 分享类型 1:app分享; 2:小游戏分享
+ "type": 2, // 策略类型：1 诱导类 3成就类 5特殊分享埋点类
+ "name": "拼图活动的分享任务策略", // 名称
+ "region": "-1", // 地区码
+ "channel_id": "-1", // 渠道 id
+ "status": 1
+ },
+ "content": { // 分享素材数据
+ "title": "诱导类链接标题", // 标题
+ "url": "https://domain-open.com/youdao?identity=9sz2oNCnR", // 链接
+ "material_type": "link", // 素材类型
+ "material_id": 1, // 素材ID
+ "landing_id": 1, // 落地页ID
+ "image": "https://rxfile.weilekuiming.com/operation_app/operation/20220601012849_weileshare.png", // 图片地址
+ "content": "诱导类链接文案", // 素材内容
+ "x": 0, // 图片类型时 二维码x轴坐标
+ "y": 0, // 图片类型时 二维码y轴坐标
+ "width": 0, // 图片类型时 二维码宽度
+ "height": 0, // 图片类型时 二维码高度
+ "meta_source": 0 // 1 手动维护 2 读取落地页信息
+ },
+ "platforms": { // 平台信息,代表某个平台可用的分享方式 -1代表不限制 用于CP方不接sdk的情况.sdk方式通过分享通路配置获取此项配置.
+ "wechat": -1 // 微信, 1:好友 2:朋友圈 -1:不限制
+ },
+ "platform": "wechat", // 当前分享的平台,即客户端传啥 给返回啥
+ "example_platforms": { // 正式时不返回,此项用于验证平台信息是否正确
+ "wechat": {
+ "lure": -1, // 诱导类
+ "achievement": 1, // 成就类
+ "special": 2 // 特殊类
+ }
+ },
+ "identity": "wx", // 平台标识,如果是微信时返回的为微信ID
+ "transmits": "a=2&b=3"
+ },
+ "code": 0
+}
+```
+
+### 响应结构（JSON）
+
+| 字段 | 类型 | 说明 |
+| --- | --- | --- |
+| code | Number | 状态码 0 为成功 |
+| msg | String | 失败时的错误信息 |
+| data | [Data](/docs/开发者文档/意见反馈/Unity-接入) | 返回信息 |
+
+#### 获取分享数据Data
+
+| 字段 | 类型 | 说明 |
+| --- | --- | --- |
+| trigger | [Trigger](/docs/开发者文档/意见反馈/Unity-接入) | 埋点数据 |
+| strategy | [Strategy](/docs/开发者文档/意见反馈/Unity-接入) | 策略数据 |
+| content | [Content](/docs/开发者文档/意见反馈/Unity-接入) | 返回信息 |
+| platforms | Platforms | 平台信息 值参考 [API](/docs/开发者文档/意见反馈/Unity-接入) |
+| platform | String | 当前分享平台 |
+| identity | String | 平台标识 |
+| transmits | String | 透传信息 |
+| scheduling | [scheduling](/docs/开发者文档/推送/服务端接入/服务端-API) | 分享调度配置埋点时返回 |
+
+##### 获取分享数据Trigger
+
+| 字段 | 类型 | 说明 |
+| --- | --- | --- |
+| id | Number | 埋点 id |
+| tag | String | 埋点标识 |
+| title | String | 埋点标题 |
+| failed_msg | String | 错误提示 |
+| type | Number | 类型 1:诱导 2:活动 3:成就 4:好友房 5:特殊分享埋点 |
+| status | Number | 状态 1, 正常; -1, 禁用 |
+| time_interval | Number | 触发间隔时间 |
+
+##### 分享策略内容StrategyContent
+
+| 字段 | 类型 | 说明 |
+| --- | --- | --- |
+| id | Number | 埋点 id |
+| strategy_id | Number | 策略 ID |
+| content_type | Number | 分享内容类型. 1:图片; 2:链接; 3:卡片; 4:落地页; 5:口令; 6:视频 |
+| content_id | Number | 内容 ID |
+| weight | Number | 权重 |
+| title | String | 标题 |
+| region | String | 按地区配置的策略，如果存在，优先获取 |
+
+##### 获取分享数据Strategy
+
+| 字段 | 类型 | 是否必须 | 说明 |
+| --- | --- | --- | --- |
+| id | Number | 是 | 策略 id |
+| platform | String | 是 | 平台标识 |
+| share_type | Number | 是 | 分享类型 1 app 2 小游戏 |
+| type | Number | 是 | 1:诱导 2:活动 3:成就 4:好友房 5:特殊分享埋点 |
+| name | String | 是 | 策略名称 |
+| region | Number | 是 | 地区码 -1 不限 |
+| product_id | String | 否 | 产品 |
+| channel_id | String | 否 | 渠道 id |
+| is_general | Number | 否 | 是否为通用。 0 为否 1 为是 策略为成就的才允许通用 小程序/App、每个类型下边只能有一个 |
+| triggers | [][*Trigger](/docs/开发者文档/意见反馈/Unity-接入) | 否 | 策略关联的埋点 ID 列表 |
+| contents | [][*StrategyContent](/docs/开发者文档/意见反馈/Unity-接入) | 否 | 策略关联的内容 |
+| status | Number | 否 | 状态 1:正常 -1:禁用 |
+
+##### 获取分享数据Content
+
+**分享内容素材类型 Content.material_type**
+
+| 标识 | 备注 |
+| --- | --- |
+| link | [链接](/docs/开发者文档/意见反馈/Unity-接入) |
+| image | [图片](/docs/开发者文档/意见反馈/Unity-接入) |
+| landing | [落地页](/docs/开发者文档/意见反馈/Unity-接入) |
+| card | [卡片](/docs/开发者文档/意见反馈/Unity-接入) |
+| words | [口令](/docs/开发者文档/意见反馈/Unity-接入) |
+| video | [视频](/docs/开发者文档/意见反馈/Unity-接入) |
+
+##### 素材内容Link
+
+| 字段 | 类型 | 备注 |
+| --- | --- | --- |
+| title | String | 标题 |
+| material_type | String | 素材类型，主要用于大数据上报 |
+| material_id | Number | 素材 ID ，主要用于大数据上报 |
+| image | String | 展示图片地址 |
+| content | string | 展示内容 |
+| url | String | 链接地址 |
+| landing_id | Number | 落地页 ID ，主要用于大数据上报 |
+| meta_source | Number | 1 使用望舒后台配置 2 落地页需为动态页，客户端传参 |
+
+---
+
+> 示例：
+`{/* ![](https://guanwangyun.oss-cn-beijing.aliyuncs.com/share/serverAccess/28a60aaa-bd14-4fc1-9e7c-847c16044029.png)*/`
+![](https://guanwangyun.oss-cn-beijing.aliyuncs.com/document/introduction/28a60aaa-bd14-4fc1-9e7c-847c16044029%201.png)
+
+---
+
+##### 素材内容Image
+
+| 字段 | 类型 | 备注 |
+| --- | --- | --- |
+| title | String | 标题 |
+| material_type | String | 素材类型，主要用于大数据上报 |
+| material_id | Number | 素材 ID ，主要用于大数据上报 |
+| image | String | 图片地址 |
+| x | Number | 图片上二维码 x 轴坐标，为 0 时不显示 |
+| y | Number | 图片上二维码 y 轴坐标，为 0 时不显示 |
+| width | Number | 图片上二维码宽度，为 0 时不显示 |
+| height | Number | 图片上二维码高度，为 0 时不显示 |
+| url | String | 链接地址，需要 sdk 根据二维码参数合成到图片上 |
+| landing_id | Number | 落地页 ID ，主要用于大数据上报 |
+
+> 示例：此种形式用于图片分享并增加二维码的场景，其中图片由后台控制。
+`{/*![](https://guanwangyun.oss-cn-beijing.aliyuncs.com/share/serverAccess/3ac1523e-9ed1-4ad2-a4fd-a228fc96688a.png)*/`
+![](https://guanwangyun.oss-cn-beijing.aliyuncs.com/document/introduction/3ac1523e-9ed1-4ad2-a4fd-a228fc96688a%201.png)
+
+---
+
+##### 素材内容Landing
+
+| 字段 | 类型 | 备注 |
+| --- | --- | --- |
+| title | String | 标题 |
+| material_type | String | 素材类型，主要用于大数据上报 |
+| material_id | Number | 素材 ID ，主要用于大数据上报 |
+| url | String | 落地页地址 |
+| landing_id | Number | 落地页 ID ，主要用于大数据上报 |
+
+> 示例：此种形式用于图片分享并增加二维码的场景，与图片的差别在于其中图片由客户端自己生成，二维码相关参数也由客户端自己写死。返回数据中有用的数据只有url，其他信息为上报使用。
+
+---
+
+##### 素材内容Card
+
+| 字段 | 类型 | 备注 |
+| --- | --- | --- |
+| title | String | 标题 |
+| material_type | String | 素材类型，主要用于大数据上报 |
+| material_id | Number | 素材 ID ，主要用于大数据上报 |
+| image | String | 卡片的缩略图地址 |
+| content | String | 卡片上显示的内容 |
+
+> 示例： 此种素材主要应用于小程序分享。
+>
+> ![](https://guanwangyun.oss-cn-beijing.aliyuncs.com/document/introduction/b3166acd-766c-45a8-91d3-ab6799f55a36%201%20(2).png?x-oss-process=image/resize,w_200,h_220)
+
+---
+
+##### 素材内容words
+
+| 字段 | 类型 | 备注 |
+| --- | --- | --- |
+| title | String | 标题 |
+| material_type | String | 素材类型，主要用于大数据上报 |
+| material_id | Number | 素材 ID ，主要用于大数据上报 |
+| content | String | 显示的内容 |
+| share_id | String | 抖音口令分享 ID |
+
+---
+
+##### 素材内容video
+
+| 字段 | 类型 | 备注 |
+| --- | --- | --- |
+| title | String | 标题 |
+| material_type | String | 素材类型，主要用于大数据上报 |
+| material_id | Number | 素材 ID ，主要用于大数据上报 |
+| video_contents | []String | 抖音视频分享话题内容 |
+
+### 分享调度
+
+当埋点配置了分享调度后，诱导类分享会根据分享调度策略决定用户是分享还是广告， 分享成功或者失败， 返回值中会增加 scheduling 对象，值如下：
+
+**scheduling_event** 分享结果仅代表根据望舒后台设置的成功率计算的结果，不表示实际的分享结果。**scheduling_event** 是在拉起分享前的预算的结果，三方平台的分享机制不同，建议根据平台处理实际结果。
+
+例如：**微信** 的机制是用户点击 **关闭、取消** 都算 **分享成功**，而 **Facebook** 有真实的回调，用户点击 **关闭、取消** 会返回 **取消分享** 结果。
+
+#### 获取分享调度Scheduling
+
+| 字段 | 类型 | 说明 |
+| --- | --- | --- |
+| scheduling_type | String | 值为 ad 时为广告， share 时为分享。 |
+| scheduling_sign | String | 调度策略当前可分享看广告总数密文, 需用 aes 解密，使用 cpkey 作为 key。 |
+| 解出值转为字符串， 格式: "type=share&count=10&uuid=xxx&ts=1695796034&ddid=a" [详情](/docs/开发者文档/意见反馈/Unity-接入) | scheduling_event | Number |
+| 1 分享成功 -1 分享失败 | scheduling_failed_msg | String |
+| 分享失败时的信息 |  |  |
+
+##### scheduling_sign对应标识
+
+| 字段 | 类型 | 说明 |
+| --- | --- | --- |
+| type | String | 值为 ad 时为广告， share 时为分享。 |
+| count | Number | 调度策略当前可分享看广告总数 |
+| uuid | String | 唯一标识 |
+| ts | Number | 时间戳 |
+| ddid | String | 调度标识 |
+
+#### 响应策略为分享时
+
+```json
+{
+ "data": {
+ "trigger": {// 埋点数据
+ ...
+ },
+ "strategy": { // 策略数据
+ ...
+ },
+ "content": { // 分享素材数据
+ ...
+ },
+ "platforms": { // 平台信息,代表某个平台可用的分享方式 -1代表不限制 用于CP方不接sdk的情况.sdk方式通过分享通路配置获取此项配置.
+ "wechat": -1 // 微信, 1:好友 2:朋友圈 -1:不限制
+ },
+ "platform": "wechat", // 当前分享的平台,即客户端传啥 给返回啥
+ "example_platforms": { // 正式时不返回,此项用于验证平台信息是否正确
+ ...
+ },
+ "identity": "wx", // 平台标识,如果是微信时返回的为微信ID
+ "transmits": "a=2&b=3",
+ "scheduling": {
+ "scheduling_type": "share",
+ "scheduling_sign": "xx",
+ "scheduling_event": -1,
+ "scheduling_failed_msg": "诱导类失败", // 错误提示
+ }
+ },
+ "code": 0
+}
+```
+
+#### 响应策略为广告时
+
+只返回埋点和透传信息
+
+```json
+{
+ "data": {
+ "trigger": { // 埋点数据
+ ...
+ },
+ "transmits": "a=2&b=3",
+ "scheduling": {
+ "scheduling_type": "ad",
+ "scheduling_sign": "xx"
+ }
+ },
+ "code": 0
+}
+```
+
+#### 分享调度失败原因参考下表
+
+| 错误码 | 错误描述 | 解决方法 |
+| --- | --- | --- |
+| 305405 | 操作频繁，请稍后再试 | 该用户触发了 基础配置=>分享管理=>埋点配置的触发时间间隔 |
+| 305406 | 今日分享次数已达上限 | 该用户触发了 商业化基础配置=>分享广告配置=>分享广告次数配置=>次数限制 |
+| 305407 | 今日循环调度次数已达上限 | 该用触发了 商业化基础配置=>分享广告配置=>分享广告调度策略=>循环次数限制 |
+| 305408 | 分享调度策略未命中 | 商业化基础配置=>分享广告配置=>分享广告调度策略中的调度策略没有覆盖用户的条件 |
+| 305409 | app 有效用户界定不存在 | 缺少配置信息： 商业化基础配置=>分享广告配置=>分享广告次数配置=>游戏&无效用界定=>APP |
+| 305410 | 小游戏有效用户界定不存在 | 缺少配置信息： 商业化基础配置=>分享广告配置=>分享广告次数配置=>游戏&无效用界定=>小游戏 |
+| 305411 | 分享失败提示语不存在 | 缺少配置信息： 商业化基础配置=>分享广告配置=>分享广告次数配置=>分享失败概率&提示 |
+| 305412 | 分享次数限制不存在 | 缺少配置信息： 商业化基础配置=>分享广告配置=>分享广告次数配置=>次数限制 |
+| 305413 | 分享调度策略不存在 | 商业化基础配置=>分享广告配置=>分享广告调度策略中没有用户的埋点或用户类型未配置 |
+| 305414 | 分享调度策略虽然命中但配置无效 | 商业化基础配置=>分享广告配置=>分享广告调度策略中未配置循环策略 |
+
+## 拉起分享
+
+**接口原型**
+
+```java
+/**
+    * 一键分享
+    * @param activity activity
+    * @param config 分享配置
+    * @param callback
+    */
+void share(Activity activity, RXShareConfig config, RXRequestCallback callback);
+
+/**
+    * 自定义分享
+    * @param activity activity
+    * @param config 分享配置
+    * @param callback
+    */
+void shareCustom(Activity activity, RXCustomShareConfig config, RXRequestCallback callback);
+```
+
+### 参数说明
+
+> RXShareConfig 结构说明
+
+| 字段 | 类型 | 是否必填 | 说明 |
+| --- | --- | --- | --- |
+| func | string | 是 | 埋点标识数组 |
+| region | string | 否 | [望舒地区码](https://pan.jiaxianghudong.com/disk/s/pdEzbPRkDS9) |
+| platform | string | 是 | 分享平台 |
+| transmits | string | 否 | 透传参数，原样返回， 请使用 key=value 形式，并使用 urlencode 编码，此数据在落地页中可以通过 key 获取到，示例： `"a=b&c={\"d\":\"e\"}"` |
+| androidScheme | string | 是 | cp 方 android app scheme |
+| iOSScheme | string | 是 | cp 方 启动 ios app scheme |
+| useScheme | string | 否 | 由 cp 控制是否使用游戏协议，如传 0 则在落地页上操作不会尝试打开应用，直接跳转到对应商店，如传 1 则会尝试打开应用 |
+| readCache | boolean | 否 | 默认 false ，是否读取缓存，默认不读取 |
+| autoReport | boolean | 否 | 是否自动上报分享结果 YES 自动上报， NO 不自动上报，默认 YES |
+| shareScene | int | 否 | 分享场景，[查看使用说明](/docs/开发者文档/意见反馈/Unity-接入) |
+| useShortUrl | boolean | 否 | 是否使用短链接 YES 使用短链接， NO 不使用短链接，默认 NO |
+
+ 在 link 分享类型时使用短链接 SDK 会将最终的分享 url 替换为短链接
+
+ 在 image 分享类型时使用短链接 SDK 会将原始的长链接转成短链接后生成二维码并拼接到图片中
+properties
+| Map | 否 | 使用自动分享上报时可以写入自定义数据，手动上报时该属性不生效 |
+| --- | --- | --- |
+| setCustomExt | Map | 否 |
+| cp 自定义数据，目前仅用于大数据预置事件透传参数场景 |  |  |
+
+> RXCustomShareConfig 结构说明
+
+| 字段 | 类型 | 是否必填 | 说明 |
+| --- | --- | --- | --- |
+| platform | string | 是 | 支持 wechat、system、facebook、messenger、line、tiktok、zalo、snapchat |
+| androidScheme | string | 是 | cp 方 android app scheme |
+| iOSScheme | string | 是 | cp 方 启动 ios app scheme |
+| useScheme | string | 否 | 由 cp 控制是否使用游戏协议，如传 0 则在落地页上操作不会尝试打开应用，直接跳转到对应商店，如传 1 则会尝试打开应用 |
+| shareScene | int | 否 | 分享场景，[查看使用说明](/docs/开发者文档/意见反馈/Unity-接入) |
+| thirdAppid | string | 是 | 三方 appid ，根据所需的平台传 |
+| materialType | string | 否 | 分享类型，[查看使用说明](/docs/开发者文档/意见反馈/Unity-接入) |
+| image | string | 否 | 分享图片， url 或本地路径，图片分享必填 |
+| url | string | 否 | 分享链接，链接分享必填 |
+| title | string | 否 | 分享标题 |
+| content | string | 否 | 分享描述 |
+| x | int | 否 | 分享图片带二维码 x 坐标 |
+| y | int | 否 | 分享图片带二维码 y 坐标 |
+| width | int | 否 | 分享图片带二维码 的 width |
+| height | int | 否 | 分享图片带二维码 的 height |
+| setBorderSize | int | 否 | 分享图片带二维码 的 白边框大小 |
+
+#### platform
+
+| 字段 | 备注 |
+| --- | --- |
+| system | 系统分享，展示的分享平台取决于该平台在系统分享中是否支持当前的要分享的内容，没展示说明三方不支持 |
+| wechat | 微信平台 请参考 [微信接入](/docs/开发者文档/商户发红包/商家转账服务端接入) |
+| facebook | facebook 平台 请参考 [Facebook 接入](/docs/开发者文档/三方服务/Facebook/原生接入) |
+| messenger | messenger 平台，归属于 Facebook ，参考 Facebook 接入文档 |
+| line | line 平台 请参考 [Line 接入](/docs/开发者文档/三方服务/Line/原生接入) |
+| tiktok | tiktok 平台 请参考 [Tiktok 接入](/docs/开发者文档/三方服务/TikTok/原生接入) |
+| zalo | zalo 平台 请参考 [Zalo 接入](/docs/开发者文档/三方服务/Zalo/原生接入) |
+| snapchat | Snapchat 平台 请参考 [Snapchat 接入](/docs/开发者文档/三方服务/SnapChat/原生接入) |
+
+#### materialType 说明
+
+| 类型 | 说明 |
+| --- | --- |
+| text | 文本类型，支持平台 wechat/system/line |
+| image | 图片类型，支持平台 wechat/system/facebook/messenger/tiktok/snapchat |
+| landing/link | 落地页/链接 类型，支持平台 wechat/facebook/messenger/zalo/line |
+| video | 视频类型，支持平台 tiktok/snapchat |
+
+#### shareScene 说明
+
+| 平台 | 说明 |
+| --- | --- |
+| facebook | 0 为弹框样式 1 为跳转到 fb app 分享，默认 1 |
+| wechat | 0 为好友 1 为朋友圈，默认 0 |
+| zalo | 0 为好友 1 为朋友圈，默认为用户自行选择分享 |
+
+**调用示例**
+
+```java
+
+// 一键分享
+RXShareConfig config = new RXShareConfig();
+config.func = "望舒后台创建的埋点";
+config.platform = "wechat";
+
+    // 构造大数据透传参数 可选
+Map<String, Object> bigdataExt = new HashMap<>();
+bigdataExt.put("event_name", "user_login"); // 示例大数据事件
+bigdataExt.put("event_value", "success"); // 示例事件值
+
+// 构造自定义透传参数 可选
+Map<String, Object> customExt = new HashMap<>();
+customExt.put("bigdata_ext", bigdataExt); // 将大数据透传参数添加到自定义透传参数中
+customExt.put("user_agent", "Android 10"); // 自定义参数（如用户设备信息）
+customExt.put("location", "New York"); // 自定义参数（如用户地理位置）
+
+config.setCustomExt(customExt);//可选
+RXSDK.getInstance().share(MainActivity.this, config, callback);
+
+// 自定义分享
+RXCustomShareConfig config = new RXCustomShareConfig();
+config.platform = "wechat";
+config.url = "http://
+config.title = "title";
+config.content = "content";
+config.materialType = "link";
+config.shareScene = 1;
+RXSDK.getInstance().shareCustom(MainActivity.this, config, callback);
+```
+
+## 分享/广告结果上报
+
+如果在望舒后台开启了分享调度功能，在上报时需要将调用 获取分享信息 时的 func、platform、region、transmits 传入。
+
+**接口原型**
+
+```java
+void shareSchedulingReport(String func, String platform, String region, boolean scheduling_event, String scheduling_type, String transmits, @NonNull Map<String, Object> properties, RXJSONCallback callback)
+```
+
+### 参数说明
+
+| 字段 | 类型 | 是否必填 | 备注 |
+| --- | --- | --- | --- |
+| func | String | 是 | 埋点标识 |
+| platform | String | 是 | 分享平台 |
+| region | String | 否 | 地区码 |
+| transmits | String | 否 | 透传参数，原样返回， 请使用 key=value 形式，并使用 urlencode 编码，此数据在落地页中可以通过 key 获取到 |
+| scheduling_event | Bool | 是 | 上报结果 true 成功 false 失败 |
+| scheduling_type | String | 是 | 上报类型 ad 广告 share 分享 |
+| properties | Map | 否 | 自定义属性， 上报区服和角色需要在 game_info 中传入属性，具体使用方式参考下方 game_info 字段说明 |
+
+> properties 结构说明
+
+| 字段 | 类型 | 是否必填 | 备注 |
+| --- | --- | --- | --- |
+| game_info | Map | 否 | 大数据预置事件透传参数 |
+| custom_ext | Map | 否 | 自定义透传参数 |
+
+>
+> `custom_ext` 结构说明
+
+| 字段 | 类型 | 是否必填 | 备注 |
+| --- | --- | --- | --- |
+| bigdata_ext | Map | 否 | 大数据预置属性透传参数 |
+
+>
+> `game_info` 字段说明
+
+| 字段 | 类型 | 是否必填 | 备注 |
+| --- | --- | --- | --- |
+| cp_game_character_id | string | 否 | 角色 id |
+| cp_game_area_id | string | 否 | 区服 id |
+
+**调用示例**
+
+```java
+Map<String, Object> shareReqMap = new HashMap<>();
+shareReqMap.put("func", "youdao");//分享埋点
+shareReqMap.put("platform", "wechat");//分享平台
+shareReqMap.put("protocol_android", "jixiang433://");//android 客户端scheme
+shareReqMap.put("protocol_ios", "jixiang433://");//iOS 客户端scheme
+
+    // 构造大数据透传参数 可选
+Map<String, Object> bigdataExt = new HashMap<>();
+bigdataExt.put("event_name", "user_login"); // 示例大数据事件
+bigdataExt.put("event_value", "success"); // 示例事件值
+
+// 构造自定义透传参数 可选
+Map<String, Object> customExt = new HashMap<>();
+customExt.put("bigdata_ext", bigdataExt); // 将大数据透传参数添加到自定义透传参数中
+customExt.put("user_agent", "Android 10"); // 自定义参数（如用户设备信息）
+customExt.put("location", "New York"); // 自定义参数（如用户地理位置）
+shareReqMap.put("custom_ext", customExt);
+
+//获取分享埋点数据
+RXSDK.getInstance().getShareData(shareReqMap, new RXRequestCallback() {
+    @Override
+    public void onResponse(JSONObject jsonObject) {
+    int code = jsonObject.optInt("code", -1);
+    if (code == 0) {
+    JSONObject data = jsonObject.optJSONObject("data");
+    if (data != null) {
+    ShareDataResult shareResult = new ShareDataResult();
+    shareResult.setData(ShareData.fromJson(data.toString()));
+    try {
+    Map<String, Object> shareMap = new HashMap<>();
+    shareMap.put("platform", "wechat");
+    shareMap.putAll(JSONUtil.toMap(data.getJSONObject("content")));
+
+    if (!shareMap.containsKey("appid")) {
+    shareMap.put("appid", data.optString("identity"));
+    }
+    if (!shareMap.containsKey("shareScene")) {
+    shareMap.put("shareScene", data.getJSONObject("platforms").optInt((String) shareMap.get("platform"), 1) - 1);
+    }
+    //拉起微信分享 或 可自行调用微信 sdk 分享接口。
+    RXSDK.getInstance().share(MainActivity.this, shareMap, new RXRequestCallback() {
+    @Override
+    public void onResponse(JSONObject jsonObject) {
+    shareReport();
+    }
+    });
+    } catch (JSONException e) {
+    e.printStackTrace();
+    // todo 失败
+    }
+    }
+    }else {
+    // todo 失败
+    }
+    }
+    });
+
+public void shareReport() {
+    String func = "sharefunc";
+    String platform= "wechat";
+    String region= "220101";
+    String transmits= "a=dffd&b=test";
+    String scheduling_event=true;
+    String scheduling_type = "share";
+    String scheduling_strategy_id="分享返回的策略id";
+
+    Map<String, Object> m = new HashMap<>();
+    // 构造自定义透传参数 可选
+    Map<String, Object> customExt = new HashMap<>();
+    Map<String, Object> bigdataExt = new HashMap<>();
+    bigdataExt.put("key", "value");
+    customExt.put("bigdata_ext", bigdataExt); // 将大数据透传参数添加到自定义透传参数中
+    Map<String, Object> properties = new HashMap<>();
+    properties.put("custom_ext", customExt);
+    m.put("properties", properties);
+    RXSDK.getInstance().shareSchedulingReport(func,platform,region,scheduling_event,scheduling_type,transmits,m,jsonCallback);
+}
+
+```
+
+#### 响应结构
+
+响应结果同『获取分享数据』 使用方法： 首次调用获取分享数据接口， 分享后， cp 主动调用此接口上报分享成功或者失败并获取下一次的分享数据
+
+#### 响应示例：
+
+```json
+{
+ "data": {
+ "trigger": { // 埋点数据
+ "id": 2, // 埋点ID
+ "tag" : "youdao", // 埋点标识
+ "title": "诱导类埋点", // 埋点标题
+ "failed_msg": "诱导类失败", // 错误提示
+ "type": 1 // 埋点类型 1 诱导类 3成就类 5特殊分享埋点类
+ },
+ "strategy": { // 策略数据
+ "id": 16, // 策略 ID
+ "platform": "wechat", // 平台
+ "share_type": 1, // 分享类型 1:app分享; 2:小游戏分享
+ "type": 2, // 策略类型：1 诱导类 3成就类 5特殊分享埋点类
+ "name": "拼图活动的分享任务策略", // 名称
+ "region": "-1", // 地区码
+ "channel_id": "-1", // 渠道 id
+ "status": 1
+ },
+ "content": { // 分享素材数据
+ "title": "诱导类链接标题", // 标题
+ "url": "https://domain-open.com/youdao?identity=9sz2oNCnR", // 链接
+ "material_type": "link", // 素材类型
+ "material_id": 1, // 素材ID
+ "landing_id": 1, // 落地页ID
+ "image": "https://rxfile.weilekuiming.com/operation_app/operation/20220601012849_weileshare.png", // 图片地址
+ "content": "诱导类链接文案", // 素材内容
+ "x": 0, // 图片类型时 二维码x轴坐标
+ "y": 0, // 图片类型时 二维码y轴坐标
+ "width": 0, // 图片类型时 二维码宽度
+ "height": 0, // 图片类型时 二维码高度
+ "meta_source": 0 // 1 手动维护 2 读取落地页信息
+ },
+ "platforms": { // 平台信息,代表某个平台可用的分享方式 -1代表不限制 用于CP方不接sdk的情况.sdk方式通过分享通路配置获取此项配置.
+ "wechat": -1 // 微信, 1:好友 2:朋友圈 -1:不限制
+ },
+ "platform": "wechat", // 当前分享的平台,即客户端传啥 给返回啥
+ "example_platforms": { // 正式时不返回,此项用于验证平台信息是否正确
+ "wechat": {
+ "lure": -1, // 诱导类
+ "achievement": 1, // 成就类
+ "special": 2 // 特殊类
+ }
+ },
+ "identity": "wx", // 平台标识,如果是微信时返回的为微信ID
+ "transmits": "a=2&b=3",
+ "scheduling": {
+ "scheduling_type": "ad",
+ "scheduling_sign": "xx",
+ "user_type": 1, // 1有效用户 2无效用户
+ }
+ },
+ "code": 0
+}
+```
+
+## 三方分享回调说明
+
+以下三方分享结果都是由三方机制控制，望舒只进行了回调包装，没有其他特殊处理。
+
+| 平台 | 成功 | 失败 | 取消 |
+| --- | --- | --- | --- |
+| system | 非真实回调， 拉起分享后，取消、关闭、分享 都返回成功回调 | 无失败回调 | 无失败回调 |
+| wechat | 跳转到微信后点击 取消、关闭、分享 都返回成功回调 | 无失败回调 | 无取消回调 |
+| facebook | 真实回调 | 真实回调 | 真实回调 |
+| messenger | 无真实回调 | 无真实回调 | 无真实回调 |
+| line | 无成功回调 | 无失败回调 | 无取消回调 |
+| tiktok | 真实回调 | 真实回调 | 真实回调 |
+| snapchat | 跳转到 snapchat 立刻返回成功回调，点击 关闭、分享 后无法返回 app ，需要用户手动返回 | 无失败回调 | 无取消回调 |
+
+## 获取自动重定向短链接
+
+如果拼接后的分享链接过长，可使用此接口获取自动重定向短链接。
+
+**接口原型**
+
+```java
+void getShortUrl(@NonNull Map<String, Object> hashMap, RXRequestCallback callback)
+```
+
+### 参数说明
+
+| 字段 | 类型 | 是否必填 | 备注 |
+| --- | --- | --- | --- |
+| url | String | 是 | 要生成短链接的 url |
+| title | String | 否 | 标题 |
+| content | String | 否 | 描述 |
+| image | String | 否 | 图片 |
+| ext | String | 否 | 参数 |
+
+**调用示例**
+
+```java
+Map<String, Object> m = new HashMap<>();
+m.put("url", "www.baidu.com");
+
+// 可传入 title、content、image 对短链接添加 og 标签
+// og 标签常用场景为三方平台通过链接中的 开放协议 解析展示的缩略图、标题、描述等，具体说明：https://cloud.tencent.com/developer/article/1820467
+
+m.put("title", "getShortUrl 标题");
+m.put("content", "getShortUrl 内容");
+m.put("image", "https://rxfile-test.ruixuecloud.com/share/2024/07/06/1720252159611.png");
+Map<String, Object> ext = new HashMap<>();
+ext.put("exttest", "测试。。。");
+m.put("ext", ext);
+RXSDK.getInstance().getShortUrl(m, jsonCallback);
+```
+
+#### 响应结构（JSON）
+
+| 字段 | 类型 | 说明 |
+| --- | --- | --- |
+| code | Number | 状态码 0 为成功 |
+| msg | String | 失败时的错误信息 |
+| data | Map | 短链接地址， 当请求短链接时自动重定向到原地址 |
+
+**响应示例**：
+
+```json
+{
+ "code": 0,
+ "msg":"",
+ "data": {"short_url": "{{接口域名}}/v1/url/redirect?d=xxxxx"}
+}
+```

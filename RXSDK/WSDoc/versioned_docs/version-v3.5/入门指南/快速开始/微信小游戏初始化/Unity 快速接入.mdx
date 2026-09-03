@@ -1,0 +1,146 @@
+---
+title: "Unity 快速接入"
+---
+
+## 准备工作
+请登录望舒系统初始化相关服务，如果还没有望舒账号请[查看准备工作说明](/docs/v3.5/入门指南/准备工作)。
+望舒系统地址，可登录企业管理后台 > 已部署项目中查看。
+
+## 环境要求
+
+- 基础库最低版本：2.11.2，最高版本请选择稳定版本
+
+## 接入 Unity Package
+
+1. 添加望舒 UnitySdk 包管理服务器地址, 如下图打开 Edit > ProjectSettings > PackageManager 界面，填入望舒UnitySdk包管理服务器地址
+   ::: tip
+   Name: RuiXueUnitySdk
+   URL: http://60.205.123.114:4873
+   Scope: com.ruixue
+   :::
+
+![](https://guanwangyun.oss-cn-beijing.aliyuncs.com/document/tripartite/20240715-093915.png)
+
+2. 在PackageManager中引入所需包(RuiXue.MiniGame.Weixin)
+   如下图打开Window > PackageManager界面，切换标签页至My Registries界面（ 如没有My Registries标签可能网络慢，稍等刷新，或可能地址填写有误）即可看到望舒所有包列表，选中所需包点击Install即可。
+
+![](https://guanwangyun.oss-cn-beijing.aliyuncs.com/document/tripartite/20240715-093905.png)
+
+3. 特别注意：关于LitJson.dll冲突问题
+   RuiXue.Base 包内Plugins 包含LitJson.dll，有可能和项目内已经有的LitJson库冲突，比如接入微信小游戏的时候，微信导出小游戏插件里也包含LitJson.dll,  那么删除其LitJson保留一个即可。
+
+## SDK 初始化
+
+### 接口传参初始化
+
+::: tip
+初始化 SDK 时需传入 `productId`、`channelId`、`cpid`、`baseUrlList` 参数信息。
+- `productId`、`channelId` 在望舒游戏发行平台获取（创建产品或渠道），[查看使用说明](/docs/v3.5/入门指南/准备工作)。
+- `cpid`、`baseUrlList` 在望舒企业管理后台获取（创建项目），[查看使用说明](/docs/v3.5/入门指南/准备工作)。
+- 初始化为异步调用，失败将不能使用 SDK 功能，请注意处理调用逻辑。
+:::
+
+#### 参数说明
+
+| **字段**    | **类型** | **是否必填** | **备注**                               |
+| ----------- | -------- | ------------ | -------------------------------------- |
+| cpid        | String | 是           | cpid                                   |
+| productId   | String | 是           | 产品 id                                |
+| channelId   | String | 是           | 渠道 id                                |
+| baseUrlList | Array  | 是           | 请求域名队列
+
+**调用示例**
+
+```csharp
+using System;
+using System.Collections.Generic;
+using UnityEngine;
+using UnityEngine.UI;
+using RuiXue;
+using RuiXue.Ad;
+using RuiXue.Analysis;
+using RuiXue.Business;
+using RuiXue.Feedback;
+using RuiXue.LBS;
+using RuiXue.Login;
+using RuiXue.Pay;
+using RuiXue.Rank;
+using RuiXue.Share;
+using RuiXue.Social;
+using RuiXue.VersionCheck;
+
+#if UNITY_WEBGL
+using RuiXue.MiniGame.WeiXin;
+#endif
+
+public class RuiXueWeiXinMiniGameDemo : MonoBehaviour {
+    private void OnInitSDK()
+    {
+        string cpId = "114";
+        string channelId = "minigamewxpay";
+        string productId = "pay";
+        List list = new()
+        {
+            "http://cn-api-test.ruixuecloud.com/"
+        };
+        
+        RuiXueSdk.Initialize(cpId, productId, channelId, list, OnResponse, OnError);
+        OnCheckAppVersion();
+    }
+
+    public void OnResponse(string data)
+    {
+        LogUtil.Log("RXDemo",$"Response: {data}");
+    }
+    public void OnError(string data)
+    {
+        LogUtil.Log("RXDemo", $"Error: {data}");
+    }
+}
+```
+
+初始化成功:
+
+```json
+{
+	"code": 0
+}
+```
+
+### 设置子渠道
+
+:::tip
+通行证记录来源（分包）、子渠道参数。
+必须在 登录 前调用。
+:::
+
+#### 参数说明
+
+| **字段**
+ | **类型**
+ | **是否必填**
+ | **备注**
+ |
+| ------------ | ------------ | ---------------- | ------------ |
+| params
+   | string
+ | 是
+           | 子渠道id
+     |
+
+**调用示例**
+
+```csharp
+   private void OnSetSubChannelId()
+   {
+      RuiXueSdk.SetSubChannelId("your sub_channel_id");
+   }
+```
+
+## 接入功能
+
+SDK 提供了众多功能。请在初始化 SDK 后，根据项目需要，参考相应功能的文档，接入相应功能。 绝大多数游戏都会接入望舒登录，所以我们推荐从这一功能开始。
+
+### 接入望舒登录
+
+请根据开发者指南，[登录（通行证）](/docs/v3.5/入门指南/快速开始/Android初始化/快速接入) 完成操作。

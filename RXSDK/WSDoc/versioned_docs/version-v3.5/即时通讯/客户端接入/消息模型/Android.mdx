@@ -1,0 +1,263 @@
+---
+title: "Android"
+---
+
+## 消息模型
+
+### 消息枚举定义
+
+```java
+/**
+ * 消息类型
+ */
+public enum MessageTypeInventory2 {
+    TIP(ServerClientControl.MessageType2.Tips),//TIP
+    TEXT(ServerClientControl.MessageType2.Text),//文本
+    FACE(ServerClientControl.MessageType2.Face),//表情
+    PIC(ServerClientControl.MessageType2.Image),//图片
+    AUDIO(ServerClientControl.MessageType2.Audio),//音频
+    POSITION(ServerClientControl.MessageType2.Position),//地理位置
+    FILE(ServerClientControl.MessageType2.File),//文件
+    VIDEO(ServerClientControl.MessageType2.Video),//视频
+    REPLY(ServerClientControl.MessageType2.Reply),//回复
+    CUSTOM(ServerClientControl.MessageType2.CPCustom),//自定义消息
+
+    SYS_MSG_READ(ServerClientControl.MessageType2.SysMsgRead),//消息已读
+    SYS_MSG_REVOKE(ServerClientControl.MessageType2.SysMsgRevoke),//消息撤回
+
+    UNRECOGNIZED(ServerClientControl.MessageType2.UNRECOGNIZED),//未识别的消息
+}
+
+/** 会话类型 */
+public enum ConversationType {
+     /**
+     * 依次分别为：未知、单聊、群聊、自定义单聊、频道
+     */
+    UNKNOWN, SINGLE, GROUP, CUSTOM_SINGLE, CHANNEL;
+}
+  
+/** 消息状态 */
+public class BaseMessage implements IJXModuleArgsMarker {
+    /** 消息发送中 */
+    public static final int MESSAGE_TRANSFORM_STATE_SENDING = 2;
+    /** 消息发送完成 */
+    public static final int MESSAGE_TRANSFORM_STATE_COMPLETE = 1;
+    /** 消息发送出现错误 */
+    public static final int MESSAGE_TRANSFORM_STATE_ERROR = -1;
+}
+/** 消息选项 */
+public class BaseMessage implements IJXModuleArgsMarker {
+    /** 开启离线消息和多端同步 */
+    public static final int MESSAGE_OPTION_ENABLE_SYNC = 0x01;
+    /** 保存历史消息 */
+    public static final int MESSAGE_OPTION_SAVE_HISTORY = 0x02;
+    /** 开启已读回执 */
+    public static final int MESSAGE_OPTION_ENABLE_READ_RECEIPT = 0x04;
+    /** MsgOptionSnapchat 阅后即焚 */
+    public static final int MESSAGE_OPTION_SNAP_CHAT = 0x08;
+}
+```
+
+### 消息体定义
+
+`接收到的消息体`：RXIMMessage，在使用 RXIMSSDK 的时候，产生的所有消息都是基于或是其子类，如：RXCommonNotifyMessage，RXSyncMessage 等
+
+> RXIMMessage 结构说明
+
+```java
+/**
+ * 消息id
+ */
+protected String msgId;
+/**
+ * 会话ID
+ */
+private String sessionID;
+/**
+ * 消息id,暂时无用
+ */
+protected List msgIDs; 
+/**
+ * 消息类型
+ */
+protected MessageTypeInventory2 msgType;
+/**
+ * 子消息类型，当{@link #msgType}为MessageTypeInventory2.CUSTOM时有效
+ */
+protected int subType;
+/**
+ * 会话类型
+ */
+protected ConversationType conversationType; 
+/**
+ * 发送者id
+ */
+protected String fromId;
+/**
+ * 接收人id
+ */
+protected String toId;
+/**
+ * 群聊表示 @ 用户列表；自定义单聊表示实际接收人 UserID 清单；单聊时务必设置null
+ */
+private List receivers;
+/**
+ * 存储在本地的id
+ */
+protected String localId;
+/**
+ * 信箱id
+ */
+private long inboxID;
+/**
+ * 是否是发送者
+ */
+protected boolean isSender;
+/**
+ * 消息属性
+ */
+private long attr;
+/**
+ * 消息时间戳
+ */
+protected long timestamp;
+/**
+ * 扩展字段，以key/value形式存放json
+ */
+protected String extend;
+/**
+ * 消息内容
+ */
+protected String content;
+/**
+ * 发送消息的选项
+ */
+private int option;
+
+private boolean isRead;
+/**
+ * 当前消息的未读数。单聊时只会是0或1，0表示对方已读；群聊表示具体还有多少人未读
+ */
+private int unReadCount;
+/**
+ * 用户在该消息中的接收者编号，只有大于 0 时才需要发送已读，且发送已读确认时需要发给服务器
+ */
+private int receiverNum;
+/**
+ * 发送方 CPID
+ */
+private int cpid;
+/**
+ * 产品 ID
+ */
+private String productID;
+/**
+ * 渠道 ID
+ */
+private String ChannelID;
+/**
+ * 发送状态
+ */
+private int sendState = MESSAGE_TRANSFORM_STATE_SENDING;
+```
+### 消息内容的包装类
+发送消息时，需要将消息内容进行包装，然后再调用发送方法，这里以文本消息为例做出说明：
+首先，文本消息的内容一定是一个字符串，我们需要将这个字符串作为参数构建出SenderTextMessageEntity的对象，然后再通过ConversationModule#sendMessage()方法进行发送
+其他包装类同理，故不再赘述
+#### 文本消息
+
+```java
+/**
+ * @param text 文本内容
+ */
+public SenderTextMessageEntity(String text) {
+    this.text = text;
+}
+```
+
+#### 图片消息
+
+```java
+/**
+ * @param localPath 本地图片路径
+ */
+public SenderPicMessageEntity(String localPath) {
+    this.localPath = localPath;
+}
+```
+
+#### 视频消息
+
+```java
+/**
+ * @param localPath 本地视频路径
+ */
+public SenderVideoMessageEntity(String localPath) {
+    this.localPath = localPath;
+}
+```
+
+#### 地理位置消息
+
+```java
+/**
+ * @param addressPicPath 地址图片路径
+ * @param name 地址名称
+ * @param lat 经度
+ * @param lon 纬度
+ */
+public SenderLocationMessageEntity(String addressPicPath, String name, double lat, double lon) {
+    this.addressPicPath = addressPicPath;
+    this.name = name;
+    this.lat = lat;
+    this.lon = lon;
+}
+```
+
+#### 语音消息
+
+```java
+/**
+ * @param localPath 本地录音路径
+ */
+public SenderAudioMessageEntity(String localPath)
+    this.localPath = localPath;
+}
+```
+
+#### 表情消息
+
+```java
+/**
+ * @param name 表情名称
+ * @param url remoteURL
+ */
+public SenderEmotionMessageEntity(String name, String url) {
+    this.name = name;
+    this.url = url;
+}
+```
+
+#### 文件消息
+
+```java
+/**
+ * @param localPath 本地文件路径
+ */
+public SenderFileMessageEntity(String localPath) {
+    this.localPath = localPath;
+}
+```
+
+#### 回复消息
+
+```java
+/**
+ * @param reply 回复内容
+ * @param rawMessage 回复的消息体
+ */
+public SenderReplyMessageEntity(String reply, RXContentMessage rawMessage) {
+    this.reply = reply;
+    this.rawMessage = rawMessage;
+}
+```

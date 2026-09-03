@@ -1,0 +1,674 @@
+---
+sidebar_position: 2
+title: 服务端 API
+description: "望舒SDK 排行榜 服务端 API服务端文档，提供接口请求参数与响应说明。"
+---
+
+> “排行榜”相关接口只能由 CP 方通过服务端接口调用，游戏方客户端仅支持数据上报
+
+以下是 CP 服务端请求接口，需要准备好 `cp_id` `product_id` `channel_id` `cp_key` 等参数。
+
+domain ：为产品对外域名
+
+请求头：[望舒服务端请求头](/docs/开发者文档/入门指南/服务端接入须知)
+
+## 创建排行榜
+
+> **POST：** `/v1/social/serverapi/createrank`
+>
+> **认证方式:** **[CPSign](/docs/开发者文档/入门指南/服务端接入须知)**
+
+### CURL 示例
+
+```bash
+curl --location --request POST '{{接口域名}}/v1/social/serverapi/createrank' \
+--header 'ruixue-language: {{语言}}' \
+--header 'ruixue-cpid: {{CPID}}' \
+--header 'ruixue-productid: {{产品标识}}' \
+--header 'ruixue-cpts: {{时间戳}}' \
+--header 'ruixue-traceid: {{TraceID}}' \
+--header 'ruixue-cpsign: {{请求签名}}' \
+--header 'ruixue-devicecode: {{设备码}}' \
+--header 'ruixue-channelid: {{渠道标识}}' \
+--header 'ruixue-platformid: {{平台标识}}' \
+--header 'Content-Type: application/json' \
+--data-raw '{
+ "rank_id":"0_100_168_weekly",
+ "start":"2022-08-16T08:00:00+08:00",
+ "destroy":"2022-08-17T08:00:00+08:00"
+}'
+```
+
+### 请求参数（JSON）
+
+| 字段 | 类型 | 是否必填 | 说明 | 示例 |
+| --- | --- | --- | --- | --- |
+| rank_id | String | 是 | 最长 64 字节。字符串本身带有类型信息，格式为： Flag_榜单容量_持续时间(单位小时)_自定义标识（ flag 是一个 int64 位标记，用以扩展和规定绑定属性); 持续时间如果 &lt;=0 表示排行榜永久有效 | 0_100_168_weekly |
+| start | String | 是 | 排行榜开始时间；格式为 RFC3339 | 2022-08-16T08:00:00+08:00 |
+| destroy | String | 是 | 排行榜所有数据销毁时间；格式为 RFC3339 |  |
+| 2022-08-17T08:00:00+08:00 |  |  |  |  |
+
+此时间要大于 start+周期时间
+
+**请求示例**
+
+```json
+{
+ "rank_id":"0_100_168_weekly",
+ "start":"2022-08-16T08:00:00+08:00",
+ "destroy":"2022-08-17T08:00:00+08:00"
+}
+```
+
+### 响应参数（JSON）
+
+**HTTP 状态码：**`200 OK`
+
+| 字段 | 类型 | 是否必填 | 说明 | 示例 |
+| --- | --- | --- | --- | --- |
+| code | Number | 是 | 响应状态码， 0 为成功，非 0 表示出错 | 0 |
+| msg | String | 否 | 响应信息，仅在 code 非 0 时返回 |  |
+
+**响应示例**
+
+```json
+{"code": 0}
+```
+
+---
+
+## 增加用户分数
+
+> **POST：** `/v1/social/serverapi/rankaddscore`
+>
+> **认证方式:** **[CPSign](/docs/开发者文档/入门指南/服务端接入须知)**
+
+### CURL 示例
+
+```bash
+curl --location --request POST '{{接口域名}}/v1/social/serverapi/rankaddscore' \
+--header 'ruixue-language: {{语言}}' \
+--header 'ruixue-cpid: {{CPID}}' \
+--header 'ruixue-productid: {{产品标识}}' \
+--header 'ruixue-cpts: {{时间戳}}' \
+--header 'ruixue-traceid: {{TraceID}}' \
+--header 'ruixue-cpsign: {{请求签名}}' \
+--header 'ruixue-devicecode: {{设备码}}' \
+--header 'ruixue-channelid: {{渠道标识}}' \
+--header 'ruixue-platformid: {{平台标识}}' \
+--header 'Content-Type: application/json' \
+--data-raw '{
+ "rank_id":"0_100_168_weekly",
+ "open_id":"rxuSl4QZoNk0G1HY2-Za6GlO7wO-p_ej",
+ "score":100
+}'
+```
+
+### 请求参数（JSON）
+
+| 字段 | 类型 | 是否必填 | 说明 | 示例 |
+| --- | --- | --- | --- | --- |
+| rank_id | String | 是 | 排行榜 ID 最长 64 字节 | 0_100_168_weekly |
+| open_id | String | 是 | 目标用户 OpenID | rxuSl4QZoNk0G1HY2-Za6GlO7wO-p_ej |
+| score | Number | 是 | 增加的分数值 | 100 |
+
+**请求示例**
+
+```json
+{
+ "rank_id":"0_100_168_weekly",
+ "open_id":"rxuSl4QZoNk0G1HY2-Za6GlO7wO-p_ej",
+ "score":100
+}
+```
+
+### 响应参数（JSON）
+
+**HTTP 状态码：**`200 OK`
+
+| 字段 | 类型 | 是否必填 | 说明 | 示例 |
+| --- | --- | --- | --- | --- |
+| code | Number | 是 | 响应状态码， 0 为成功，非 0 表示出错 | 0 |
+| msg | String | 否 | 响应信息，仅在 code 非 0 时返回 |  |
+
+**响应示例**
+
+```json
+{"code": 0}
+```
+
+---
+
+## 设置用户分数
+
+> **POST：** `/v1/social/serverapi/ranksetscore`
+>
+> **认证方式:** **[CPSign](/docs/开发者文档/入门指南/服务端接入须知)**
+
+全量设置分数
+
+### CURL 示例
+
+```bash
+curl --location --request POST '{{接口域名}}/v1/social/serverapi/ranksetscore' \
+--header 'ruixue-language: {{语言}}' \
+--header 'ruixue-cpid: {{CPID}}' \
+--header 'ruixue-productid: {{产品标识}}' \
+--header 'ruixue-cpts: {{时间戳}}' \
+--header 'ruixue-traceid: {{TraceID}}' \
+--header 'ruixue-cpsign: {{请求签名}}' \
+--header 'ruixue-devicecode: {{设备码}}' \
+--header 'ruixue-channelid: {{渠道标识}}' \
+--header 'ruixue-platformid: {{平台标识}}' \
+--header 'Content-Type: application/json' \
+--data-raw '{
+ "rank_id":"0_100_168_weekly",
+ "open_id":"rxuSl4QZoNk0G1HY2-Za6GlO7wO-p_ej",
+ "score":10
+}'
+```
+
+### 请求参数（JSON）
+
+| 字段 | 类型 | 是否必填 | 说明 | 示例 |
+| --- | --- | --- | --- | --- |
+| rank_id | String | 是 | 最长 64 字节。字符串本身带有类型信息，格式为： Flag_榜单容量_重置周期_自定义标识（ flag 是一个 int64 位标记，用以扩展和规定绑定属性） | 0_100_168_weekly |
+| open_id | String | 是 | 目标用户 OpenID | rxuSl4QZoNk0G1HY2-Za6GlO7wO-p_ej |
+| score | Number | 是 | 增加的分数值 | 100 |
+
+**请求示例**
+
+```json
+{
+ "rank_id":"0_100_168_weekly",
+ "open_id":"rxuSl4QZoNk0G1HY2-Za6GlO7wO-p_ej",
+ "score":10
+}
+```
+
+### 响应参数（JSON）
+
+**HTTP 状态码：**`200 OK`
+
+| 字段 | 类型 | 是否必填 | 说明 | 示例 |
+| --- | --- | --- | --- | --- |
+| code | Number | 是 | 响应状态码， 0 为成功，非 0 表示出错 | 0 |
+| msg | String | 否 | 响应信息，仅在 code 非 0 时返回 |  |
+
+**响应示例**
+
+```json
+{"code": 0}
+```
+
+---
+
+## 查询用户分数
+
+> **POST：** `/v1/social/serverapi/queryuserrank`
+>
+> **认证方式:** **[CPSign](/docs/开发者文档/入门指南/服务端接入须知)**
+
+### CURL 示例
+
+```bash
+curl --location --request POST '{{接口域名}}/v1/social/serverapi/queryuserrank' \
+--header 'ruixue-language: {{语言}}' \
+--header 'ruixue-cpid: {{CPID}}' \
+--header 'ruixue-productid: {{产品标识}}' \
+--header 'ruixue-cpts: {{时间戳}}' \
+--header 'ruixue-traceid: {{TraceID}}' \
+--header 'ruixue-cpsign: {{请求签名}}' \
+--header 'ruixue-devicecode: {{设备码}}' \
+--header 'ruixue-channelid: {{渠道标识}}' \
+--header 'ruixue-platformid: {{平台标识}}' \
+--header 'Content-Type: application/json' \
+--data-raw '{
+ "rank_id":"0_100_168_weekly",
+ "open_id":"rxuSl4QZoNk0G1HY2-Za6GlO7wO-p_ej"
+}'
+```
+
+### 请求参数（JSON）
+
+| 字段 | 类型 | 是否必填 | 说明 | 示例 |
+| --- | --- | --- | --- | --- |
+| rank_id | String | 是 | 最长 64 字节。字符串本身带有类型信息，格式为： Flag_榜单容量_重置周期_自定义标识（ flag 是一个 int64 位标记，用以扩展和规定绑定属性） | 0_100_168_weekly |
+| open_id | String | 是 | 目标用户 OpenID | rxuSl4QZoNk0G1HY2-Za6GlO7wO-p_ej |
+
+**请求示例**
+
+```json
+{
+ "rank_id":"0_100_168_weekly",
+ "open_id":"rxuSl4QZoNk0G1HY2-Za6GlO7wO-p_ej"
+}
+```
+
+### 响应参数（JSON）
+
+**HTTP 状态码：**`200 OK`
+
+| 字段 | 类型 | 是否必填 | 说明 | 示例 |
+| --- | --- | --- | --- | --- |
+| code | Number | 是 | 响应状态码， 0 为成功，非 0 表示出错 | 0 |
+| msg | String | 否 | 响应信息，仅在 code 非 0 时返回 | data |
+| [DataO](/docs/开发者文档/入门指南/快速开始/小游戏初始化/快速开始) | 否 | 结果数据集 |  |  |
+
+#### DataO
+
+
+| 字段 | 类型 | 是否必填 | 说明 |
+| --- | --- | --- | --- |
+| score | Number | 是 | 排行榜分数 |
+| rank | Number | 是 | 排行榜排名 |
+| user | [UserO](/docs/开发者文档/入门指南/快速开始/小游戏初始化/快速开始) | 是 | 用户信息数据集 |
+
+
+##### UserO
+
+
+| 字段 | 类型 | 是否必填 | 说明 |
+| --- | --- | --- | --- |
+| openid | String | 是 | 用户望舒 OpenID |
+| nickname | String | 是 | 用户昵称 |
+| birthday | String | 否 | 用户生日日期 |
+| remarks | String | 否 | 当前用户对其的备注 |
+| avatar | String | 否 | 用户头像 |
+| custom | String | 否 | CP 自定义信息 |
+| time | Number | 否 | 关系形成时间戳（单位：秒） |
+| sex | Number | 否 | 用户性别， 1:男； 0:女 |
+
+
+**响应示例**
+
+```json
+{
+ "data": {
+ "score": 100,
+ "rank": 1,
+ "user": {
+ "OpenID": "rxuSl4QZoNk0G1HY2-Za6GlO7wO-p_ej",
+ "NickName": "user"
+ }
+ },
+ "code": 0
+}
+```
+
+---
+
+## 获取排行榜列表
+
+> **POST：** `/v1/social/serverapi/getranklist`
+>
+> **认证方式:** **[CPSign](/docs/开发者文档/入门指南/服务端接入须知)**
+
+### CURL 示例
+
+```bash
+curl --location --request POST '{{接口域名}}/v1/social/serverapi/getranklist' \
+--header 'ruixue-language: {{语言}}' \
+--header 'ruixue-cpid: {{CPID}}' \
+--header 'ruixue-productid: {{产品标识}}' \
+--header 'ruixue-cpts: {{时间戳}}' \
+--header 'ruixue-traceid: {{TraceID}}' \
+--header 'ruixue-cpsign: {{请求签名}}' \
+--header 'ruixue-devicecode: {{设备码}}' \
+--header 'ruixue-channelid: {{渠道标识}}' \
+--header 'ruixue-platformid: {{平台标识}}' \
+--header 'Content-Type: application/json' \
+--data-raw '{
+ "rank_id":"0_100_168_weekly",
+ "start_rank":1,
+ "end_rank" : 2
+}'
+```
+
+### 请求参数（JSON）
+
+| 字段 | 类型 | 是否必填 | 说明 | 示例 |
+| --- | --- | --- | --- | --- |
+| rank_id | String | 是 | 最长 64 字节。字符串本身带有类型信息，格式为： Flag_榜单容量_重置周期_自定义标识（ flag 是一个 int64 位标记，用以扩展和规定绑定属性） | 0_100_168_weekly |
+| start_rank | Number | 是 | 获取排行榜开始排名。取值[1,榜单容量)。可以用于分页加载 | 1 |
+| end_rank | Number | 是 | 获取排行榜结束排名。取值[1,榜单容量]。可以用于分页加载 | 2 |
+
+**请求示例**
+
+```json
+{
+ "rank_id":"0_100_168_weekly",
+ "start_rank":1,
+ "end_rank" : 2
+}
+```
+
+### 响应参数（JSON）
+
+**HTTP 状态码：**`200 OK`
+
+| 字段 | 类型 | 是否必填 | 说明 | 示例 |
+| --- | --- | --- | --- | --- |
+| code | Number | 是 | 响应状态码， 0 为成功，非 0 表示出错 | 0 |
+| msg | String | 否 | 响应信息，仅在 code 非 0 时返回 | data |
+| [][Node](/docs/开发者文档/入门指南/快速开始/小游戏初始化/快速开始) | 否 | 结果 数组结构 |  |  |
+
+#### Node
+
+
+| 字段 | 类型 | 是否必填 | 说明 |
+| --- | --- | --- | --- |
+| score | Number | 是 | 排行榜分数 |
+| rank | Number | 是 | 排行榜排名 |
+| user | [UserO](/docs/开发者文档/入门指南/快速开始/小游戏初始化/快速开始) | 是 | 用户信息数据集 |
+
+
+**响应示例**
+
+```json
+{
+ "data": [
+ {
+ "score": 100,
+ "rank": 1,
+ "user": {
+ "OpenID": "rxuSl4QZoNk0G1HY2-Za6GlO7wO-p_ej",
+ "NickName": "user1"
+ }
+ },
+ {
+ "score": 90,
+ "rank": 2,
+ "user": {
+ "OpenID": "rxuSl4QZoNk0G1HY2-Za6GlO7wO-p_ej",
+ "NickName": "user2"
+ }
+ }
+ ],
+ "code": 0
+}
+```
+
+---
+
+## 获取好友排行榜列表
+
+> **POST：** `/v1/social/serverapi/friendsrank`
+>
+> **认证方式:** **[CPSign](/docs/开发者文档/入门指南/服务端接入须知)**
+
+### CURL 示例
+
+```bash
+curl --location --request POST '{{接口域名}}/v1/social/serverapi/friendsrank' \
+--header 'ruixue-language: {{语言}}' \
+--header 'ruixue-cpid: {{CPID}}' \
+--header 'ruixue-productid: {{产品标识}}' \
+--header 'ruixue-cpts: {{时间戳}}' \
+--header 'ruixue-traceid: {{TraceID}}' \
+--header 'ruixue-cpsign: {{请求签名}}' \
+--header 'ruixue-devicecode: {{设备码}}' \
+--header 'ruixue-channelid: {{渠道标识}}' \
+--header 'ruixue-platformid: {{平台标识}}' \
+--header 'Content-Type: application/json' \
+--data-raw '{
+ "rank_id":"0_100_168_weekly",
+ "open_id":"rxuSl4QZoNk0G1HY2-Za6GlO7wO-p_ej"
+}'
+```
+
+### 请求参数（JSON）
+
+| 字段 | 类型 | 是否必填 | 说明 | 示例 |
+| --- | --- | --- | --- | --- |
+| rank_id | String | 是 | 最长 64 字节。字符串本身带有类型信息，格式为： Flag_榜单容量_重置周期_自定义标识（ flag 是一个 int64 位标记，用以扩展和规定绑定属性） | 0_100_168_weekly |
+| open_id | String | 是 | 目标用户 OpenID | rxuSl4QZoNk0G1HY2-Za6GlO7wO-p_ej |
+
+**请求示例**
+
+```json
+{
+ "rank_id":"0_100_168_weekly",
+ "open_id":"rxuSl4QZoNk0G1HY2-Za6GlO7wO-p_ej"
+}
+```
+
+### 响应参数（JSON）
+
+**HTTP 状态码：**`200 OK`
+
+| 字段 | 类型 | 是否必填 | 说明 | 示例 |
+| --- | --- | --- | --- | --- |
+| code | Number | 是 | 响应状态码， 0 为成功，非 0 表示出错 | 0 |
+| msg | String | 否 | 响应信息，仅在 code 非 0 时返回 | data |
+| [][ListNode](/docs/开发者文档/入门指南/快速开始/小游戏初始化/快速开始) | 否 | 结果 数组结构 |  |  |
+
+#### ListNode
+
+
+| 字段 | 类型 | 是否必填 | 说明 |
+| --- | --- | --- | --- |
+| score | Number | 是 | 排行榜分数 |
+| rank | Number | 是 | 排行榜排名 |
+| user | [UserO](/docs/开发者文档/入门指南/快速开始/小游戏初始化/快速开始) | 是 | 用户信息数据集 |
+
+
+**响应示例**
+
+```json
+{
+ "data": [
+ {
+ "score": 100,
+ "rank": 1,
+ "user": {
+ "OpenID": "rxuSl4QZoNk0G1HY2-Za6GlO7wO-p_ej",
+ "NickName": "user1"
+ }
+ },
+ {
+ "score": 0,
+ "rank": 2,
+ "user": {
+ "OpenID": "rxuSl4QZoNk0G1HY2-Za6GlO7wO-p_ej",
+ "NickName": "user2"
+ }
+ }
+
+ ],
+ "code": 0
+}
+```
+
+---
+
+## 关闭排行榜
+
+> **POST：** `/v1/social/serverapi/closerank`
+>
+> **认证方式:** **[CPSign](/docs/开发者文档/入门指南/服务端接入须知)**
+
+### CURL 示例
+
+```bash
+curl --location --request POST '{{接口域名}}/v1/social/serverapi/closerank' \
+--header 'ruixue-language: {{语言}}' \
+--header 'ruixue-cpid: {{CPID}}' \
+--header 'ruixue-productid: {{产品标识}}' \
+--header 'ruixue-cpts: {{时间戳}}' \
+--header 'ruixue-traceid: {{TraceID}}' \
+--header 'ruixue-cpsign: {{请求签名}}' \
+--header 'ruixue-devicecode: {{设备码}}' \
+--header 'ruixue-channelid: {{渠道标识}}' \
+--header 'ruixue-platformid: {{平台标识}}' \
+--header 'Content-Type: application/json' \
+--data-raw '{"rank_id":"0_100_168_weekly"}'
+```
+
+### 请求参数（JSON）
+
+| 字段 | 类型 | 是否必填 | 说明 | 示例 |
+| --- | --- | --- | --- | --- |
+| rank_id | String | 是 | 最长 64 字节。字符串本身带有类型信息，格式为： Flag_榜单容量_重置周期_自定义标识（ flag 是一个 int64 位标记，用以扩展和规定绑定属性） | 0_100_168_weekly |
+
+**请求示例**
+
+```json
+{
+ "rank_id":"0_100_168_weekly"
+}
+```
+
+### 响应参数（JSON）
+
+**HTTP 状态码：**`200 OK`
+
+| 字段 | 类型 | 是否必填 | 说明 | 示例 |
+| --- | --- | --- | --- | --- |
+| code | Number | 是 | 响应状态码， 0 为成功，非 0 标识出错 | 0 |
+| msg | String | 否 | 响应信息，仅在 code 非 0 时返回 |  |
+
+**响应示例**
+
+```json
+{"code": 0}
+```
+
+---
+
+## 删除排行榜用户
+
+> **POST：** `/v1/social/serverapi/deleteuserscore`
+>
+> **认证方式:** **[CPSign](/docs/开发者文档/入门指南/服务端接入须知)**
+
+### CURL 示例
+
+```bash
+curl --location --request POST '{{接口域名}}/v1/social/serverapi/deleteuserscore' \
+--header 'ruixue-language: {{语言}}' \
+--header 'ruixue-cpid: {{CPID}}' \
+--header 'ruixue-productid: {{产品标识}}' \
+--header 'ruixue-cpts: {{时间戳}}' \
+--header 'ruixue-traceid: {{TraceID}}' \
+--header 'ruixue-cpsign: {{请求签名}}' \
+--header 'ruixue-devicecode: {{设备码}}' \
+--header 'ruixue-channelid: {{渠道标识}}' \
+--header 'ruixue-platformid: {{平台标识}}' \
+--header 'Content-Type: application/json' \
+--data-raw '{
+ "rank_id":"0_100_168_weekly",
+ "open_id":"rxuSl4QZoNk0G1HY2-Za6GlO7wO-p_ej"
+}'
+```
+
+### 请求参数（JSON）
+
+| 字段 | 类型 | 是否必填 | 说明 | 示例 |
+| --- | --- | --- | --- | --- |
+| rank_id | String | 是 | 排行榜 ID 最长 64 字节 | 0_100_168_weekly |
+| open_id | String | 是 | 目标用户 OpenID | rxuSl4QZoNk0G1HY2-Za6GlO7wO-p_ej |
+
+**请求示例**
+
+```json
+{
+ "rank_id":"0_100_168_weekly",
+ "open_id":"rxuSl4QZoNk0G1HY2-Za6GlO7wO-p_ej"
+}
+```
+
+### 响应参数（JSON）
+
+**HTTP 状态码：**`200 OK`
+
+| 字段 | 类型 | 是否必填 | 说明 | 示例 |
+| --- | --- | --- | --- | --- |
+| code | Number | 是 | 响应状态码， 0 为成功，非 0 表示出错 | 0 |
+| msg | String | 否 | 响应信息，仅在 code 非 0 时返回 |  |
+
+**响应示例**
+
+```json
+{"code": 0}
+```
+
+---
+
+## 获取排行榜详情
+
+> **POST：** `/v1/social/serverapi/rankdetail`
+>
+> **认证方式:** **[CPSign](/docs/开发者文档/入门指南/服务端接入须知)**
+
+### CURL 示例
+
+```bash
+curl --location --request POST '{{接口域名}}/v1/social/serverapi/rankdetail' \
+--header 'ruixue-language: {{语言}}' \
+--header 'ruixue-cpid: {{CPID}}' \
+--header 'ruixue-productid: {{产品标识}}' \
+--header 'ruixue-cpts: {{时间戳}}' \
+--header 'ruixue-traceid: {{TraceID}}' \
+--header 'ruixue-cpsign: {{请求签名}}' \
+--header 'ruixue-devicecode: {{设备码}}' \
+--header 'ruixue-channelid: {{渠道标识}}' \
+--header 'ruixue-platformid: {{平台标识}}' \
+--header 'Content-Type: application/json' \
+--data-raw '{
+ "rank_id":"0_100_168_weekly"
+}'
+```
+
+### 请求参数（JSON）
+
+| 字段 | 类型 | 是否必填 | 说明 | 示例 |
+| --- | --- | --- | --- | --- |
+| rank_id | String | 是 | 排行榜 ID 最长 64 字节 | 0_100_168_weekly |
+
+**请求示例**
+
+```json
+{
+ "rank_id":"0_100_168_weekly"
+}
+```
+
+### 响应参数（JSON）
+
+**HTTP 状态码：**`200 OK`
+
+| 字段 | 类型 | 是否必填 | 说明 | 示例 |
+| --- | --- | --- | --- | --- |
+| code | Number | 是 | 响应状态码， 0 为成功，非 0 表示出错 | 0 |
+| msg | String | 否 | 响应信息，仅在 code 非 0 时返回 | data |
+| [RankDetial](/docs/开发者文档/入门指南/快速开始/小游戏初始化/快速开始) | 否 | 排行榜详细信息 |  |  |
+
+#### RankDetail
+
+
+| 字段 | 类型 | 是否必填 | 说明 |
+| --- | --- | --- | --- |
+| rank_id | String | 是 | 排行榜 ID |
+| capacity | Number | 是 | 排行榜容量 |
+| continue_hour | Number | 是 | 排行榜持续时间 单位（小时） |
+| flag | String | 是 | CP 自定义 Flag |
+| start_time | String | 是 | 排行榜开启时间 |
+| destroy_time | String | 是 | 排行榜销毁时间， 销毁之前允许有一定的时间查看排行榜 |
+
+
+**响应示例**
+
+```json
+{
+ "code": 0,
+ "data" : {
+ "rank_id" : "0_100_168_weekly",
+ "capacity" : 100,
+ "continue_hour" : 168,
+ "flag" : "weekly",
+ "start_time" : "2023-10-01 12:00:00:00",
+ "destroy_time" : "2023-12-31 12:00:00:00"
+ }
+}
+```

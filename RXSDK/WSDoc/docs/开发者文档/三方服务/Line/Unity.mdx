@@ -1,0 +1,68 @@
+---
+sidebar_position: 2
+title: Unity 接入
+description: Line Unity 端接入指南，包含 SDK 集成、配置说明及接口调用示例。
+---
+
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
+
+### 接入方式
+
+Package Manager 导入 RuiXue.Line
+
+## SDK集成
+
+<Tabs groupId="platform">
+  <TabItem value="ios-sdk" label="iOS" default>
+
+iOS Line相关SDK已自动集成。
+
+</TabItem>
+  <TabItem value="android-sdk" label="Android">
+
+```groovy
+    // 海外渠道引用此库
+    implementation 'com.ruixue:rxsdk_overseas:${version}'
+    // 接入line
+    implementation 'com.ruixue:rxsdk_line:${version}'
+```
+
+</TabItem>
+</Tabs>
+
+
+## 配置说明
+
+<Tabs groupId="platform">
+  <TabItem value="ios-config" label="iOS" default>
+
+- 打开Assets/RuiXueSettings/RuiXueSDK_LineXcodeSetting.asset 文件，在文件中填写
+```
+ChannelID: Line相关的ChannelID
+```
+
+</TabItem>
+  <TabItem value="android-config" label="Android">
+
+```csharp
+
+    Dictionary<string, object> map = new();        
+    map.Add("line_channel_id", "1660717706");
+    RuiXueSdk.InitThirdSdk(map, InitThirdSdkResponseDelegate, InitThirdSdkErrorDelegate);
+    
+    
+    public void InitThirdSdkResponseDelegate(string data)
+    {
+        LogUtil.Log("EventManager", $"RequestResponseDelegate: {data}");
+    }
+    public void InitThirdSdkErrorDelegate(string data)
+    {
+        LogUtil.Log("EventManager", $"RequestErrorDelegate: {data}");
+    }
+
+```
+
+</TabItem>
+</Tabs>
+

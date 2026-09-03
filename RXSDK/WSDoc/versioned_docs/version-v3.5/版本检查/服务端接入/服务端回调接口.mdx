@@ -1,0 +1,788 @@
+---
+title: "服务端回调接口"
+---
+
+## 自动打包
+
+目的：解决人工上传历史版本包太过耗时的自动化程序。
+流程：策划创建并提交版本后， 开发人员在版本详情中点击自动打包， 望舒通知打包机， 打包机处理完成后再主动调用望舒将打包信息返回来。
+
+### 一、 开始打包
+
+#### 方式1. 望舒调用 CP 提供的自动打包程序（队列打包）
+
+> 类型：同步
+> Action: version-auto\_packing
+
+##### 请求参数
+
+| **字段** | **类型** |  **说明** |
+| --- | --- | --- |
+| vid | int | 版本id |
+| creator\_id | int  | 操作人的id |
+| product\_id | string  | 产品id |
+| channel\_id | string  | 渠道id |
+| version | string  | 版本号 |
+| package\_type | int  | 包类型，1app产品包 2大厅组件 3活动组件 4小程序 5 h5大厅 6 h5子游戏 7 子游戏 8游戏服务器 9 底层服务器 |
+| module\_id | int  | 模块（大厅，游戏， 活动）id |
+| module | string  | 模块别名 |
+| plat\_form | int  | 11:iOS,12:Android |
+| update\_type | int  | 1:小版本热更新,2:大版本整包更新 |
+| script\_type | int  | 1:lua脚本，2:js脚本, 3:u3d |
+| creator\_phone | string  | 打包人手机号 |
+| creator\_feishu | string  | 打包人飞书号 |
+| creator\_dingding | string  | 打包人钉钉号 |
+| version\_params | map[string]any  | 扩展字段 |
+| rely_version | RelyVersion  | 增量打包依赖版本信息 |
+
+##### RelyVersion
+
+| **字段** | **类型** | **说明** |
+| --- | --- |  --- |
+| is_incr | int | 是否增量打包 0 否 1 是 |
+| vid | int  | 依赖版本 ID |
+| url | string  | 依赖版本包地址(目录) |
+| zip_url | string  | 依赖版本包地址(压缩地址) |
+
+##### 请求示例
+
+```json
+{   "vid":1,  
+    "creator_id":1  ,
+    "product_id":   "1002",  
+    "channel_id":   "100",  
+    "version":      "1.0.1",  
+    "package_type": 1,  
+    "module_id": 1,  
+    "module":    "88888888",  
+    "plat_form":    12,   
+    "update_type":  1,  
+    "script_type": 1,
+    "version_params": {
+        "a": 1,
+        "b": "1"
+    },
+    "rely_version":{
+      "is_incr":1,
+      "vid":111,
+      "url":"",
+      "zip_url":""
+    }
+}
+```
+
+#### 方式2. 望舒调用 CP 提供的自动打包程序（批量打包）
+
+> 类型：同步
+> Action: version-batch\_auto\_packing
+
+##### 请求参数
+
+| **字段** | **类型** | | **说明** |
+| --- | --- | ----  |
+| data | array |  批量打包数据 |
+
+##### 批量打包数据
+
+| **字段** | **类型**  | **说明** |
+| --- | --- | ---- | 
+| vid | int | 版本id |
+| creator\_id | int | 操作人的id |
+| product\_id | string  | 产品id |
+| channel\_id | string  | 渠道id |
+| version | string | 版本号 |
+| package\_type | int  | 包类型，1app产品包 2大厅组件 3活动组件 4小程序 5 h5大厅 6 h5子游戏 7 子游戏 8游戏服务器 9 底层服务器 |
+| module\_id | int  | 模块（大厅，游戏， 活动）id |
+| module | string  | 模块别名 |
+| plat\_form | int  | 11:iOS,12:Android |
+| update\_type | int  | 1:小版本热更新,2:大版本整包更新 |
+| script\_type | int  | 1:lua脚本，2:js脚本, 3:u3d |
+| creator\_phone | string  | 打包人手机号 |
+| creator\_feishu | string  | 打包人飞书号 |
+| creator\_dingding | string  | 打包人钉钉号 |
+| version\_params | map[string]any  | 扩展字段 |
+| rely_version | RelyVersion  | 增量打包依赖版本信息 |
+
+##### RelyVersion
+
+| **字段** | **类型** | **说明** |
+| --- | --- |  --- |
+| is_incr | int | 是否增量打包 0 否 1 是 |
+| vid | int  | 依赖版本 ID |
+| url | string  | 依赖版本包地址(目录) |
+| zip_url | string  | 依赖版本包地址(压缩地址) |
+
+##### 请求示例
+
+```json
+{
+    "data": [
+        {
+            "vid":1,  
+            "creator_id":1  ,
+            "product_id":   "1002",  
+            "channel_id":   "100",  
+            "version":      "1.0.1",  
+            "package_type": 1,  
+            "module_id": 1,  
+            "module":    "88888888",  
+            "plat_form":    12,   
+            "update_type":  1,  
+            "script_type": 1,
+            "version_params": {
+        "a": 1,
+        "b": "1"
+    }
+        },
+        ...
+    ]
+}
+```
+
+#### 方式3：自动打包程序调用望舒接口（需加白名单）
+
+> **POST：** `api/v1/versions/unlogin_auto_packing`
+> **认证方式：** 需加白名单
+
+##### 请求参数
+
+| **参数** | **类型** | **是否必填** | **备注** |
+| --- | --- | --- | --- |
+| vid | int | 是 |版本id |
+
+##### 请求示例
+
+`{{adminapi接口域名}}/api/v1/versions/unlogin_auto_packing`
+参数
+
+```json
+{
+    "vid": 1
+}
+```
+
+##### 响应示例
+
+```json
+{
+    "code": 0,
+    "msg": ""
+}
+```
+
+### 二. CP方调用望舒接口获取文件上传地址（api接口域名）
+
+> **GET：** `v1/developapi/oss/versionpath`
+> **认证方式：** [CPSign](/docs/v3.5/入门指南/服务端接入须知)
+
+##### 请求参数
+
+| **参数** | **类型** | **备注** |
+| --- | --- | --- |
+| vid | int | 版本id |
+| file\_name | string | 文件名称 |
+
+##### 请求示例
+
+`{{api接口域名}}/v1/developapi/oss/versionpath?vid=180&file_name=1.zip`
+
+##### 响应示例
+
+```json
+{
+    "path":"", 
+    "file_name":""
+}
+```
+
+##### 响应结构
+
+| **参数** | **类型** | **备注** |
+| --- | --- | --- |
+| path | string | CP 把包上传至望舒文件路径上 |
+| file\_name | string | 文件名称 |
+
+### 三. CP方调用获取望舒的 sts 上传权限 (api接口域名)
+
+> **GET：** `v1/thirdparty/api/autopackage_oss_sts`
+> **认证方式：** [CPSign](/docs/v3.5/入门指南/服务端接入须知)
+
+##### 请求示例
+
+`{{api接口域名}}/v1/thirdparty/api/autopackage_oss_sts`
+
+##### 阿里云响应示例
+
+```json
+{
+    "data": {
+        "provider": "ali",
+        "domain": "https://rxfile-test.ruixuecloud.com",
+        "region": "oss-cn-beijing",
+        "bucket": "haiqi-ruixue-test",
+        "credentials": {
+            "access_key_secret": "2mPU2UEfJr1KSTocr8vTzWurqCn6rBk2ji5QkgS8nJqo",
+            "start_unix_time": 0,
+            "expiration": "2024-09-21T01:42:31Z",
+            "expiration_unix_time": 0,
+            "access_key_id": "STS.NSyctzoRbBsrkD6ZxL4py8x44",
+            "security_token": "CAISxQJ1q6Ft5B2yfSjIr5DMKM7Ogo1D9bGZaWKHvngZOP9V172f1jz2IHhMf3VsCeAWt/s1nm1X7f4YlqZJTJtIfkHfdsp36LJe9A75ggNTQgXvv9I+k5SANTW5KXyShb3/AYjQSNfaZY3eCTTtnTNyxr3XbCirW0ffX7SClZ9gaKZ8PGD6F00kYu1bPQx/ssQXGGLMPPK2SH7Qj3HXEVBjt3gX6wo9y9zmm5LDtUSO0AWhlLBE+t6gGPX+MZkwZqUYesyuwel7epDG1CNt8BVQ/M909vccoWyb4oHNUwAOuU/bbLGMqMcMNhJ4drU3XrJJt+TsVGfASE1edO4dojc63oE9O0y3LOjIS0vA6bSg/y9BSqwNPU7P3O6BAEsJ32zfmYri9e6rsjPg54ap6N3ts9gT407NEyqpHezboMPeuN4W8qIopz2AGoABbwwIf3uBafBwVUxPV7AHkqjteKLnar3SwtRtQGUd7jlp7T7jSaNtyQCnG52QdUXXfMTe7f/LklBaDO2JEPmWsTkkZ7j+6+BOMEbCJ49iFKuJQ3VDbGtuqzYgDiJYmPESkRA8koiu3HZE9K+g39x2KGxajRXpUVBTEOoaXnPNsKwgAA==",
+            "assumed_role": "300344888172257302:RoleSessionName",
+            "arn": "acs:ram::1177768403679529:role/ruixue-test/RoleSessionName"
+        }
+    },
+    "code": 0
+}
+```
+
+##### 腾讯云响应示例
+
+```json
+{
+    "data": {
+        "provider": "tencent",
+        "domain": "https://mrrrti.hjhhsq.com",
+        "region": "ap-beijing",
+        "bucket": "rx-zdfz-1328581123",
+        "credentials": {
+            "access_key_secret": "z//yRHaBd7L1xDWL/C+Z10CspYJS0u5+S/BNOTemvJ8=",
+            "start_unix_time": 1726881316,
+            "expiration": "2024-09-21 04:15:16",
+            "expiration_unix_time": 1726892116,
+            "access_key_id": "AKIDj_5Dsd1ckT5hGO23Heqy2kYo9rKJg9GPuoqXqWrpbC2D-XgEG1z_ys0GWEFtkWoq",
+            "security_token": "ueZ16P4TVp48tuGOXtifnMTcs2iJrhqafc60dbb14b729a000278e9234c5fda92fdUdgnSp8plPKEfDhYg9Vh3xYDlW_KpI6hsY-_esZC1LtMw0Il6tOq2GSGhy1nPGc-7xNpLKrWHBXevpgMVK3ze8VuTPO1VuX4KPFyu0sJAvhma8iPlvLISaqjyXf31wFxVHIN3vH2KHkHLn2-5NfALfAYwQiIj5CYP8BwS3gm_0g9Bf9SNGe1dR-GDJj3cllGnFHH0YSXyNBqrp-SnREdgJ4ng3R7tOUdR2SOuGev-Aw6NslHK60m9QkNbh8JPXaH-BRXxt94l5lOboAylvMIxRsy_iwZkRI4mKQRwdKtloc7QvWk9Cttrbm8q8hrOxLKVp5Yh1ygy2ccqXxParnu4smLvl93xaZI6liuxqEs18A_Dk_gdAhRX4sa9s9WL7Qy1OkFuRv36l-hIamXDk0U5T1GK-aTlhLtUxkN1bLfkcAbhmUC_aw9IjcQAvr8jcH8hkIIXBA6mJQG3g8S3fIoP_SUAqWzG5ABB6SeLYRV_mHjl3he7eY0we4wCgO1805S1OLf1bnO3qui4KnLEJfTc5RArnu5gHhRCLSWu1-RaUVokQSP7364GKtOvU1SKtX5eOt42Xt2bCP3icHAhQvfPpdrxvtgfiPVNJuFi-_LhCLAUPBeQuF7PeoiqqYp2_5dl9YR9rf--LPJa_PAQWYlHxFYDTZYAU93TClhRvcXNnEW-CNpEgC9WVsAnCq22aNE7_1kjUyahBCdtRccqnBJjHm1wjggRJTTxM9t5sw-mx-jM9fZo2Pxvwo_52wWGh",
+            "assumed_role": "",
+            "arn": "qcs::cam::uin/100038150373:roleName/ruixue-zdfz"
+        }
+    },
+    "code": 0
+}
+```
+
+| **字段** | **类型** | **是否必填** | **说明** |
+| --- | --- | ---- | --- |
+| provider | String | 是 | 服务商 ali， tencent |
+| region | String | 是 | oss数据中心地址 |
+| bucket | String | 是 | oss存储桶 |
+| domain | String | 是 | oss访问域名 |
+| credentials | credentials | 是 | 服务商信息 |
+
+Credentials
+
+| **字段** | **类型** | **是否必填** | **说明** |
+| --- | --- | ---- | --- |
+| access\_key\_secret | String | 是 | 访问密钥的密钥值，用于进行身份验证。 |
+| expiration | String | 是 | 临时凭证的过期时间，超过该时间后，访问凭证将失效。 |
+| access\_key\_id | String | 是 | 访问密钥ID，用于标识访问者的身份。 |
+| security\_token | String | 是 | 临时安全令牌，用于访问资源。 |
+| assumed\_role | String | 是 | 子用户角色id |
+| arn | String | 是 | 角色的会话名称 |
+
+### 四. CP方完成后回调望舒接口(api接口域名)
+
+> **POST：** `v1/developapi/autopacking/save`
+> **认证方式：** [Sign](/docs/v3.5/入门指南/服务端接入须知)
+
+##### 请求参数
+
+| **参数** | **类型** | **备注** |
+| --- | --- | --- |
+| vid | int | 版本id |
+| creator\_id | int | 操作人的id |
+| url | string | 包地址, 如果压缩包根目录包含ignore.txt文件，会按照文件中每一行内容过滤压缩包中的内容，新生成的包不会包含这些文件和目录。 
+
+ **ignore.txt内容示例**
+file1.js
+file2.html
+dir1
+dir2/sub_dir2
+dir3/sub_dir3/file3.html
+
+**文件内容说明**
+file1.js(过滤根目录 file1.js 子目录的不会过滤)
+file2.html(过滤根目录 file2.html )
+dir1(过滤根目录 dir1 和 dir1 下所有目录及文件)
+dir2/sub_dir2(过滤目录 dir2/sub_dir2 下所有目录及文件)
+dir3/sub_dir3/file3.html (过滤 dir3/sub_dir3/file3.html 单个文件)
+|
+| auto\_packing\_status | int | 2开始打包 3打包成功 4打包失败 开始打包后打包机状态 10构建中 20排队中 |
+
+##### mime 设置方式
+如果压缩包根目录包含**mime.txt**文件，会根据文件后缀设置mime，每行一种类型，使用英文“,”分割，前面是后缀，后面是 mime
+```config
+mime.txt内容示例
+txt,text/plain
+jpeg,image/jpeg
+json,application/json
+md,text/markdown
+yaml,text/yaml
+
+文件内容说明
+1、文件名：mime.txt
+2、放在打包文件的根目录
+3、上传后会删除 mime.txt文件
+```
+
+##### 请求示例
+
+`{{api接口域名}}/v1/developapi/autopacking/save`
+
+```json
+{
+    "vid": 1,
+    "creator_id": 1,
+    "url": "test/pkg/2212031ixs8R1HCKCJ0Ow8mA2GoXATXzMoHqr.zip",
+    "auto_packing_status": 3
+}
+```
+
+##### 响应示例
+
+```json
+{
+    "code": 0,
+    "msg": ""
+}
+```
+
+:::info[签名]
+请求 `header` 中需带参数`Ruixue-Traceid` 请求标识`Ruixue-Ts` 时间戳`Ruixue-Sign` 签名
+
+:::
+
+签名使用 `sha1`， 示例：
+
+```go
+// GetSign 生成签名方法
+func GetSign(cpkey, traceID, ts string) string {        
+    h := sha1.New()        
+    _, _ = h.Write([]byte(traceID + ts + cpkey))        
+    ret := hex.EncodeToString(h.Sum(nil))        
+    h.Reset()        
+    return ret
+}
+```
+
+## 取消自动打包
+
+版本在打包中状态时， 点击版本详情里面的取消打包， 通知打包机中断打包。
+
+方式1：望舒调用 CP 提供的自动打包程序
+
+> 类型：同步
+> Action: version-auto\_packing\_kill
+
+:::tip
+版本在打包中状态时， 点击版本详情里面的取消打包， 通知打包机中断打包
+
+:::
+
+### 请求参数
+
+| **字段** | **类型** | **是否必填** | **说明** |
+| --- | --- | ---- | --- |
+| vid | int | 是 | 版本id |
+| creator\_id | int | 是 | 操作人的id |
+| product\_id | string | 是 | 产品id |
+| channel\_id | string | 是 | 渠道id |
+| version | string | 是 | 版本号 |
+| package\_type | int | 是 | 包类型 |
+| module\_id | int | 是 | 模块（大厅，游戏， 活动）id |
+| module | string | 是 | 模块别名 |
+| plat\_form | int | 是 | 11:iOS,12:Android |
+| update\_type | int | 是 | 1:小版本热更新,2:大版本整包更新 |
+| script\_type | int | 是 | 1:lua脚本，2:js脚本, 3:u3d |
+| creator\_phone | string | 否 | 打包人手机号 |
+| creator\_feishu | string | 否 | 打包人飞书号 |
+| creator\_dingding | string | 否 | 打包人钉钉号 |
+
+##### 请求示例
+
+```json
+{  
+    "vid":1,  
+    "creator_id":1 , 
+    "product_id":   "1002",  
+    "channel_id":   "100",  
+    "version":      "1.0.1",  
+    "package_type": 1,  
+    "module_id": 1,  
+    "module":    "88888888",  
+    "plat_form":    12,   
+    "update_type":  1,  
+    "script_type": 1,
+}
+```
+
+##### 返回示例
+
+```json
+{    
+    "code": 0
+}
+```
+
+### 响应结构
+
+| **字段** | **类型** | **说明** |
+| --- | --- | --- |
+| code | Number | 0成功 |
+| msg | String | 错误信息 |
+| data | Object | cp方自定义返回 |
+
+方式2：自动打包程序调用望舒接口（需加白名单）
+
+> **POST：** `api/v1/versions/unlogin_auto_packing_kill`
+> **认证方式：** 需加白名单
+
+##### 请求参数
+
+| **参数** | **类型** | **备注** |
+| --- | --- | --- |
+| vid | int | 版本id |
+
+##### 请求示例
+
+`{{adminapi接口域名}}/api/v1/versions/unlogin_auto_packing_kill`
+参数
+
+```json
+{
+    "vid": 1
+}
+```
+
+##### 响应示例
+
+```json
+{
+    "code": 0,
+    "msg": ""
+}
+```
+
+## 产品包版本
+
+> 类型：同步
+
+> Action: versioncheck-app
+
+### 请求参数
+
+| 参数 | 类型 | 备注 |
+| --- | --- | --- |
+| product\_id | String | 维度：产品id |
+| script\_type | Int | 维度：脚本类型 |
+| channel\_id | String | 维度：渠道id |
+| version\_int | Int | 数字版本号 |
+| data | []data | 数据 |
+
+data
+
+| 参数 | 类型 | 备注 |
+| --- | --- | --- |
+| version | String | 版本号 |
+| status | Int | 状态 21 自测 41 测试中 50 已锁定待发布 100 已发布 |
+| milestone | Int | 1 为里程碑 |
+| is\_review | Int | 1 为审核模式 |
+| url | String | 包地址 |
+| update\_type | Int | 升级类型 1 小版本 2大版本 |
+| is\_force | Int | 1 为强制更新 |
+| loginip | String | 登录ip |
+| preip | String | 预发布ip |
+| ext | String | json格式字符串, 其中的type：1字符串 2数字 3 布尔 |
+
+:::tip
+💡 注意，cp方需要将维度（product\_id && channel\_id && script\_type && version\_int）的数据全量替换为 data， 望舒后台增删改（app产品包，小游戏产品包，h5产品包）版本时， 同步该产品包版本信息示例：{'{'}"product\_id":00000000,"channel\_id": 818, "script\_type": 2, "version\_int": 4194304, "data": [{'{'}"version":"1.0.0", "status": 20, "milestone": 1, "is\_review": 0, "url":"test/dir/2208221u0yTZZvl8gmrSqOA2GZolEFPrOdqAN/", "update\_type": 2, "is\_force": 1, "login\_ip": "127.0.0.1", "preip": "127.0.0.1", "ext":"[{'{'}"name":"数字","key":"field\_number","type":2,"value":6{'}'}]"{'}'}]{'}'}
+
+:::
+
+## 大厅组件版本
+
+> 类型：同步
+
+> Action: versioncheck-hall
+
+### 请求参数
+
+| 参数 | 类型 | 备注 |
+| --- | --- | --- |
+| module\_id | Int | 维度：主模块id |
+| script\_type | Int | 维度：脚本类型 |
+| version\_int | Int | 数字版本号 |
+| data | []data | 数据 |
+
+data
+
+| 参数 | 类型 | 备注 |
+| --- | --- | --- |
+| product\_id | String | 关联产品id |
+| channel\_id | String | 关联渠道id |
+| version | String | 大厅组件版本 |
+| status | Int | 大厅组件状态 21 自测 41 测试中 50 已锁定待发布 100 已发布 |
+| url | String | 大厅组件包地址 |
+| preip | String | 大厅组件预发布ip |
+
+:::tip
+💡 注意，cp方需要将维度（module\_id && script\_type && verison\_int）的数据全量替换为 data， 望舒后台编辑和状态变更（大厅组件）版本时， 同步该大厅组件版本和关联的产品包信息示例：{'{'}"module\_id": 1234, "script\_type": 2, "version\_int": 2, "data":[{'{'}"product\_id": 263, "channel\_id":818, "version": 2, "status": 41, "url": "test/dir/22082226Sfos5YCVpEDJAERwaNkRYcVoWBfjk/", "preip": ""{'}'}]{'}'}
+
+:::
+
+## H5游戏版本
+
+> 类型：同步
+
+> Action: versioncheck-h5\_game
+
+### 请求参数
+
+| 参数 | 类型 | 备注 |
+| --- | --- | --- |
+| module\_id | Int | 维度：游戏id |
+| script\_type | Int | 维度：脚本类型 |
+| version\_int | Int | 数字版本号 |
+| data | []data | 数据 |
+
+data
+
+| 参数 | 类型 | 备注 |
+| --- | --- | --- |
+| version | String | 版本 |
+| status | Int | 状态 21 自测 41 测试中 50 已锁定待发布 100 已发布 |
+| url | String | 包地址 |
+| preip | String | 预发布ip |
+
+:::tip
+💡 注意，cp方需要将维度（module\_id && script\_type && version\_int）的数据全量替换为 data， 望舒后台编辑和状态变更 h5游戏版本时，同步游戏该版本信息示例： {'{'}"module\_id": 98030076, "script\_type": 1, "version\_int": 6, "data":[{'{'}"version": "6", "status": 50, "url":"release/dir/2207077FfHK2QolBU4BfZAb5FSOXY6W75CGSS/", "preip":""{'}'}]{'}'}
+
+:::
+
+## 游戏版本
+
+> 类型：同步
+
+> Action: versioncheck-game
+
+### 请求参数
+
+| 参数 | 类型 | 备注 |
+| --- | --- | --- |
+| module\_id | Int | 维度：游戏id |
+| script\_type | Int | 维度：脚本类型 |
+| version\_int | Int | 数字版本号 |
+| data | []data | 数据 |
+
+data
+
+| version | String | 版本 |
+| ------- | ------ | --- |
+| status | Int | 状态 21 自测 41 测试中 50 已锁定待发布 100 已发布 |
+| url | String | 包地址 |
+| preip | String | 预发布ip |
+
+:::tip
+💡 注意，cp方需要将维度（module\_id && script\_type && version\_int）的数据全量替换为 data， 望舒后台编辑和状态变更子游戏版本时，同步游戏该版本信息示例： {'{'}"module\_id": 98030076, "script\_type": 1, "version\_int": 6, "data":[{'{'}"version": "6", "status": 50, "url":"release/dir/2207077FfHK2QolBU4BfZAb5FSOXY6W75CGSS/", "preip":""{'}'}]{'}'}
+
+:::
+
+## 活动版本
+
+> 类型：同步
+> Action: versioncheck-activity
+
+### 请求参数
+
+| 参数 | 类型 | 备注 |
+| --- | --- | --- |
+| module\_id | Int | 维度：活动id |
+| script\_type | Int | 维度：脚本类型 |
+| version\_int | Int | 数字版本号 |
+| data | []data | 数据 |
+
+data
+
+| 参数 | 类型 | 备注 |
+| --- | --- | --- |
+| version | String | 版本 |
+| status | Int | 状态 21 自测 41 测试中 50 已锁定待发布 100 已发布 |
+| url | String | 包地址 |
+| preip | String | 预发布ip |
+
+:::tip
+💡 注意，cp方需要将维度（module\_id && script\_type && version\_int）的数据全量替换为 data， 望舒后台编辑和状态变更（活动）版本时， 同步该活动版本信息示例： {'{'}"module\_id": 902, "script\_type": 2, "version\_int": 1, "data": [{'{'}"version": "1", "status": 50, "url":"release/dir/22071338iXRVqdE6EeqmCTtPIkVAqu0ctRLjI/", "preip": ""{'}'}]{'}'}
+
+:::
+
+## 渠道包信息
+
+> 类型：同步
+> Action: versioncheck-app\_info
+
+### 请求参数
+
+| 参数 | 类型 | 备注 |
+| --- | --- | --- |
+| product\_id | String | 维度：产品 |
+| channel\_id | String | 维度：渠道 |
+| data | []data | 数据 |
+
+data
+
+| 参数 | 类型 | 备注 |
+| --- | --- | --- |
+| channel\_type | Int | 渠道类型 1 app 2 小游戏 3 h5 |
+| platform\_id | Int | 平台类型 11 ios 12 android |
+| app\_key | String | appkey |
+| loginip | String | 登录ip |
+| option | []option | 三方数据 |
+| main\_module\_id | int | 主模块id |
+
+option
+
+| 参数 | 类型 | 备注 |
+| --- | --- | --- |
+| method | String | 三方标识, 目前只有 wechat（微信） |
+| tp\_appid | String | appid |
+| tp\_appkey | String | appkey |
+
+ip 为 json 字符串 ， 格式为：
+
+```json
+type LoginIP struct {
+        Addr         string              `json:"addr,omitempty"`          // 登录地址
+        OverseasAddr string              `json:"overseas_addr,omitempty"` // 海外登录地址
+        Special      map[string][]string `json:"special,omitempty"`       // 特殊IP指定组 map[登录服务器地址][]string{'用户IP前缀1', '用户IP前缀2', '用户IP前缀3'...'}
+        Region       map[int]string      `json:"region,omitempty"`        // 按地区配置的登录地址数组, map[地区代码]登录服务器地址
+}
+```
+
+:::tip
+💡 注意，cp方需要将维度(product\_id && channel\_id)的数据全量替换为 data， 望舒后台增删改产品包时，同步该产品包的部分信息示例：{'{'}"product\_id": 1, "channel\_id":818, "data": [{'{'}"channel\_type": 1, "platform\_id": 4, "appkey": "8da8d1c85c602355b8ca3a3de7c66049", ""loginip:"{'{'}"addr":"1"{'}'}"{'}'}]{'}'}data数值长度为0时代表该产品包被删除
+
+:::
+
+## 游戏信息
+
+> 类型：同步
+> Action: versioncheck-game\_info
+
+### 请求参数
+
+| 参数 | 类型 | 备注 |
+| --- | --- | --- |
+| module\_id | Int | 维度：游戏id |
+| data | []data | 数据 |
+
+data
+
+| 参数 | 类型 | 备注 |
+| --- | --- | --- |
+| name | String | 游戏名 |
+| code | String | 游戏识别码 |
+| region | Int | 地区码 |
+
+:::tip
+💡 注意，cp方需要将维度module\_id的数据全量替换为 data， 望舒后台增删改游戏模块时，同步该模块信息示例： {'{'}"module\_id": 99999, "data": [{'{'}"name": "大V", "code": "dsg", "region": 220000{'}'}]{'}'}
+
+:::
+
+## 活动信息
+
+> 类型：同步
+> Action: versioncheck-activity\_info
+
+### 请求参数
+
+| 参数 | 类型 | 备注 |
+| --- | --- | --- |
+| module\_id | Int | 维度：活动id |
+| data | []data | 数据 |
+
+data
+
+| 参数 | 类型 | 备注 |
+| --- | --- | --- |
+| name | String | 活动名 |
+| code | String | 活动识别码 |
+| type | Int | 活动类型 1 通用 2 app 3 小游戏 4 h5 |
+
+:::tip
+💡 注意，cp方需要将维度module\_id的数据全量替换为 data， 望舒后台增删改活动模块时，同步该模块信息示例： {'{'}"module\_id": 99999, "data": [{'{'}"name": "大V", "code": "dsg", "type": 1{'}'}]{'}'}
+
+:::
+
+## 大厅组件信息
+
+> 类型：同步
+
+> Action: versioncheck-main\_info
+
+### 请求参数
+
+| 参数 | 类型 | 备注 |
+| --- | --- | --- |
+| module\_id | Int | 维度：大厅组件id |
+| data | []data | 数据 |
+
+data
+
+| 参数 | 类型 | 备注 |
+| --- | --- | --- |
+| name | String | 大厅组件名 |
+| code | String | 大厅组件识别码 |
+
+:::tip
+💡 注意，cp方需要将维度module\_id的数据全量替换为 data， 望舒后台增删改大厅组件模块时，同步该模块信息示例： {'{'}"module\_id": 99999, "data": [{'{'}"name": "大V", "code": "dsg"{'}'}]{'}'}
+
+:::
+
+## 渠道包关联游戏
+
+> 类型：同步
+
+> Action: versioncheck-product\_game
+
+### 请求参数
+
+| 参数 | 类型 | 备注 |
+| --- | --- | --- |
+| product\_id | String | 维度：产品 |
+| channel\_id | string | 维度：渠道 |
+| data | []data | 数据 |
+
+data
+
+| 参数 | 类型 | 备注 |
+| --- | --- | --- |
+| game\_id | Int | 游戏id |
+| region | Int | 地区码 |
+
+:::tip
+💡 注意，cp方需要将维度product\_id和channel\_id的数据全量替换为 data，望舒后台增删改产品包时，同步该产品与游戏的关联关系示例： {'{'}"product\_id": "222", "channel\_id": "1", "data": [{'{'}"game\_id": 59053, "region": 110100{'}'}]{'}'}
+
+:::
+
+## 渠道包关联活动
+
+> 类型：同步
+
+> Action: versioncheck-app\_activity
+
+### 请求参数
+
+| 参数 | 类型 | 备注 |
+| --- | --- | --- |
+| product\_id | String | 维度：产品 |
+| channel\_id | String | 维度：渠道 |
+| data | []data | 数据 |
+
+data
+
+| 参数 | 类型 | 备注 |
+| --- | --- | --- |
+| activity\_id | Int | 活动id |
+
+:::tip
+💡 注意，cp方需要将维度(product\_id && channel\_id)的数据全量替换为 data， 望舒后台产品包编辑活动时，同步该产品包与活动的关联关系示例： {'{'}"product\_id": 1, "channel\_id": 2, "data":[{'{'}"activity\_id": 123456{'}'}]{'}'}
+
+:::

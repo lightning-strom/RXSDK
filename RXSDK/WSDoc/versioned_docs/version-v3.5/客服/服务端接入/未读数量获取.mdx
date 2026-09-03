@@ -1,0 +1,44 @@
+---
+title: "未读数量获取"
+---
+
+### 获取用户最后会话的未读数量
+
+> **GET：**   `/v1/servicechat/queue/get_session_login`
+> **认证方式：** [Accesstoken](/docs/v3.5/入门指南/服务端接入须知)
+
+#### CURL示例
+
+```bash
+curl --location --request POST '{{接口域名}}/v1/servicechat/queue/get_session_login' \
+--header 'ruixue-language: {{语言}}' \
+--header 'ruixue-cpid: {{CPID}}' \
+--header 'ruixue-productid: {{产品标识}}' \
+--header 'ruixue-cpts: {{时间戳}}' \
+--header 'ruixue-traceid: {{TraceID}}' \
+--header 'ruixue-cpsign: {{请求签名}}' \
+--header 'ruixue-devicecode: {{设备码}}' \
+--header 'ruixue-channelid: {{渠道标识}}' \
+--header 'ruixue-platformid: {{平台标识}}' \
+--data-raw '{
+}'
+```
+
+#### 响应结构（JSON）
+
+| **字段**         | **类型**          | **说明** |
+| ---------------- |-----------------| -------- |
+| ims_session_id              | String          | 客服IM会话标识 |
+| unread_num              | Number          | 未读数量 |
+
+**响应示例**
+
+```json
+{
+    "code": 0,
+    "data": {
+       "ims_session_id":"259131754232",
+       "unread_num":3
+    }
+}
+```

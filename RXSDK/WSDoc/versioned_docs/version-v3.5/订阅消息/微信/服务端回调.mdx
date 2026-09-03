@@ -1,0 +1,59 @@
+---
+title: "服务端回调"
+---
+
+## 透传用户订阅模板
+
+> 类型：异步
+> Action:  user-report-wx-sub
+> **认证方式：** [CPSign](/docs/v3.5/入门指南/服务端接入须知#服务端请求头)
+
+### 请求参数
+
+| <strong>字段</strong>
+ | <strong>类型</strong>
+ | <strong>是否必填</strong>
+ | <strong>说明</strong>
+ |
+|-------------------------|-------------------------|---------------------------|-------------------------|
+| product_id          | String             | 是                    | 望舒产品ID              |
+| rx_open_id          | String              | 是                    | 望舒OpenID              |
+| wx_template          | map[String]String              | 是                     | 用户订阅模板              |
+
+#### 参数案例
+```config
+{
+    "rx_open_id":"rxu7oZ5Ob2x3_zvnXPzt7xCj8T96g7Ww4qlQk-jE",
+    "product_id":"12345",
+    "wx_template":{
+        "_aWO6ZQKD9tNiKPRU7OX2MlDBScLbsTeYahCcqp2UPE":"accept",
+        "_c640kwvs8uVWQa8mKOTCan6zBu7fjoRtxI7ZErTt5Q":"reject",
+        "_aWO6ZQKD9tNiKPRU7OX2MlDBScLbsTeYahCcqp2UPE":"ban",
+        "_aWO6ZQKD9tNiKPRU7OX2MlDBScLbsTeYahCcqp2UPE":"filter"
+    }
+}
+```
+
+### 响应参数
+| <strong>字段</strong>
+ | <strong>类型</strong>
+ | <strong>是否必填</strong>
+ | <strong>说明</strong>
+ |
+|-------------------------|-------------------------|---------------------------|-------------------------|
+| code          | Number             | 是                    | 响应状态码0为正常，其他为异常              |
+| msg          | String              | 是                    |  描述              |
+
+#### 响应案例
+
+```config
+{
+    "code":0,
+    "msg":"success",
+}
+```
+
+::: tip
+- [发送订阅消息](https://developers.weixin.qq.com/minigame/dev/api-backend/open-api/subscribe-message/subscribeMessage.send.html)  
+- [用户订阅模板](https://developers.weixin.qq.com/minigame/dev/api/open-api/subscribe-message/wx.requestSubscribeMessage.html)  
+:::

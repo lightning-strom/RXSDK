@@ -1,0 +1,127 @@
+---
+title: "快速接入-团结版_copy"
+---
+
+##鸿蒙支付配置  
+[鸿蒙支付配置](/docs/v3.5/支付/鸿蒙支付/快速接入-原生版)
+
+### 接口原型  
+
+```typescript
+/**
+ * 发起支付请求，支持多种支付方式和业务场景
+ * 
+ * @param params - 支付请求参数
+ * @param params.pay_type - 支付方式（可选，默认根据平台自动选择）如："harmony"
+ * @param params.goods_tag - 商品标签（必填），用于标识商品类型
+ * @param params.trade_no - 交易号（必填），需保证全局唯一性
+ * @param params.transmit_args - 透传参数（可选），会在支付回调中原样返回
+ * @param params.age - 用户年龄（可选，用于防沉迷校验）
+ * @param params.ext - 扩展参数（可选），用于传递额外业务信息
+ * @param params.game_info - 游戏相关信息（可选）
+ * @param params.user_real_price - 用户实际支付金额（可选）
+ * @param params.user_real_currency - 用户实际支付货币（可选）
+ * 
+ * @param callback - 可选的回调函数，用于接收支付结果
+ *                   （支持传统回调模式与Promise模式并存）
+ * 
+ * @returns 返回Promise，解析为统一的响应结果对象
+ *          包含状态码、数据、错误信息等标准字段
+ * 
+ * @example
+ * // 发起微信支付
+ * pay({
+ *   goods_tag: "VIP_MONTHLY",
+ *   trade_no: "TRADE_" + new Date().getTime(),
+ *   pay_type: "harmony",
+ *   age: 25,
+ *   ext: {
+ *     game_server: "s1001",
+ *     vip_level: 3
+ *   }
+ * })
+ * .then(res => {
+ *   if (res.code === 0) {
+ *     console.log('支付请求成功', res.data);
+ *     // 处理支付结果
+ *   } else {
+ *     console.error('支付请求失败', res.message);
+ *   }
+ * });
+ */
+pay(params: PayParams, callback?: RCallback): Promise
+```
+
+### 参数说明
+
+| **字段**      | **类型** | **是否必填** | **说明**                                                                                                                                         |
+| ------------- | -------- | ------------ | ------------------------------------------------------------------------------------------------------------------------------------------------ |
+|  pay_type     | string   | 否           | 支付类型 harmony                                                                                                                    |
+|  goods_tag     | string   | 是           | 望舒计费点标识                                                                                                                     |
+| trade_no      | string   | 是           | 商户订单号                                                                                                                                       |
+| transmit_args | string   | 否           | 透传参数                                                                                                                                         |
+| notify_url    | string   | 否           | 支付成功通知 CP 发货地址                                                                                                                         |
+| currency      | string   | 是           | 币种 全大写 默认: CNY，参考 [国家编码 币种字典]](/docs/v3.5/支付/服务端接入/国家编码 币种字典)|
+| ext           | object   | 否           | 支付下单扩展信息，不同渠道具体对接                                                                                                               |
+| indulge_auth  | int      | 否           | 默认(0)， 是否进行防沉迷验证 ，0 不验证、1 验证。                                                            |
+| age           | int      | 否           | 年龄用于防沉迷验证                                                                                                                          |
+| user_real_currency  | string    | 否           | 用户实际支付币种 |
+| user_real_price     | int    | 否           | 用户实际支付金额 |
+
+**调用示例**
+
+```typescript
+// 1. 生成唯一交易号
+const tradeNo = this.generateUniqueTradeNo();
+
+// 2. 构建支付参数
+const payParams: PayParams = {
+  // 必需参数
+  goods_tag: goodsId,                // 商品标签（如：GAME_COIN_648）
+  trade_no: tradeNo,                 // 唯一交易号
+  
+  // 支付方式（可选，默认自动选择）
+  pay_type: "wechat",                // 指定微信支付
+  
+  // 金额信息
+  user_real_price: amount,           // 实际支付金额
+  currency: "CNY",                   // 货币类型
+  
+ 
+  // 业务扩展参数
+  transmit_args: JSON.stringify({    // 透传业务参数
+    server_id: "S1001",
+    role_id: "R987654321",
+    goods_name: "超级武器礼包"
+  }),
+  
+  // 防沉迷设置
+  indulge_auth: 1,                   // 开启防沉迷校验
+  age: 28,                           // 用户年龄（可选，用于防沉迷）
+ 
+  
+  // 扩展信息
+  ext: {
+    promotion_id: "SUMMER_2023",     // 促销活动ID
+    discount: 0.8                    // 折扣率
+  },
+  
+  game_info: {
+    level: 99,                       // 用户游戏等级
+    vip: 5                           // VIP等级
+  }
+};
+
+// 3. 发起支付请求（Promise方式）
+const result = await RXApi.getInstance().pay(payParams);
+
+// 4. 处理支付结果
+if (result.code === 0) {
+  console.log("支付请求成功，等待用户操作...");
+  console.log("支付参数:", result.data);
+
+} else {
+  console.error("支付请求失败:", result.message);
+  this.showErrorToast("支付失败: " + result.message);
+}
+```

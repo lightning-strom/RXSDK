@@ -1,0 +1,67 @@
+---
+title: "Unity 接入"
+---
+
+## SDK集成
+
+[官方文档](https://docs.ldmnq.com/docs/3iyTEo) 
+
+在 mainTemplate.gradle 添加
+
+```gradle
+  implementation 'com.ruixue:rxsdk_ld:${version}'
+```
+
+## 配置说明
+
+在 AndroidManifest.xml 添加
+
+```xml
+    <!--配置游戏渠道信息-->
+    
+    
+    
+    注意：GAME_ID 如果和游戏有冲突，可改为LD_GAME_ID
+```
+
+## 初始化
+
+```csharp
+    private void Awake()
+    {
+        Dictionary map = new();
+        map.Add("ld_app_key", "82451108656044469d666b73573688c8");
+        RuiXueSdk.InitThirdSdk(map, InitThirdSdkResponseDelegate, InitThirdSdkErrorDelegate);
+        
+    }
+    
+    public void InitThirdSdkResponseDelegate(string data)
+    {
+        LogUtil.Log("EventManager", $"RequestResponseDelegate: {data}");
+    }
+    
+    public void InitThirdSdkErrorDelegate(string data)
+    {
+        LogUtil.Log("EventManager", $"RequestErrorDelegate: {data}");
+    }
+```
+
+## 登录
+请参考 [Unity端登录API](/docs/v3.5/登录（通行证）/Android 登录API/快速接入)
+
+## 支付
+请参考 [Unity端支付API](/docs/v3.5/支付/功能介绍)
+
+## 退出
+请参考 [链接](/docs/v3.5/入门指南/快速开始/Android初始化/快速接入)
+
+## 混淆说明
+
+```
+-keep class com.ld.sdk.** { *; }
+-keep class com.changzhi.net.** { *; }
+-dontwarn retrofit2.**
+-keep class retrofit2.** { *; }
+-keepattributes Signature
+-keepattributes Exceptions
+```

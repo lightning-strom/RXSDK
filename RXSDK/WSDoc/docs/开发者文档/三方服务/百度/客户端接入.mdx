@@ -1,0 +1,213 @@
+---
+sidebar_position: 1
+title: 客户端接入
+description: "望舒SDK 三方服务 客户端接入文档，提供详细的功能说明与接入指引。"
+---
+
+## 后台接入配置
+
+[登录配置说明](/docs/开发者文档/三方服务/银联/配置说明)
+
+[支付配置说明](/docs/开发者文档/入门指南/快速开始/荣耀/小游戏/望舒后台支付配置)
+
+## 望舒快速接入（必接）
+
+[快速接入文档](/docs/开发者文档/入门指南/快速开始/Unity-初始化/快速开始)
+
+## 三方渠道接入说明（必读）
+
+[三方渠道接入说明](/docs/开发者文档/三方服务/三方接入说明)
+
+## 百度渠道 SDK 集成
+
+
+:::tip[版本说明]
+`version` 为 SDK 版本号（替换为实际版本号），最新版本请从 [更新日志](/docs/开发者文档/入门指南/更新日志/Android) 中查看。
+:::
+
+```groovy
+//baidu渠道库
+api 'com.ruixue:rxsdk_baidu_wangxun:${version}'
+```
+
+## 参数说明
+
+| 参数 | 类型 | 说明 |
+| --- | --- | --- |
+| appid | long | initThirdSdk 接口传入 |
+| appkey | String | initThirdSdk 接口传入 |
+
+## 配置说明
+
+AndroidManifest.xml 添加如下配置
+
+否则下载安全插件会异常，影响正常的登录⽀付逻辑
+
+```plaintext
+
+```
+注意：假如游戏⼚商过去已经申请过⾃⼰的 android.support.v4.content.FileProvider ，继续添加可能会出现
+
+冲突，请在⾃⼰已有的 xml/**⽂件⾥添加代码：
+
+```plaintext
+
+ // ……cp⾃⼰的路径……
+ // 联运sdk需添加以下路径
+
+```
+
+## 混淆配置
+在应用级根目录下打开混淆配置文件 `proguard-rules.pro` ，加入排除 SDK 的混淆配置
+
+```proguard
+-keep class org.json.alipay.** { *; }
+
+-keepclassmembers public class * extends android.app.Activity {
+ public *;
+}
+-keep public class * extends android.support.v4.app.Fragment
+-keep public class * extends android.app.Fragment
+
+# 支付第三方SDK
+
+-keep class com.tencent..** {
+ *;
+}
+-keep class com.alipay.** {
+ *;
+}
+-keep class com.baidu.** {
+ *;
+}
+-keep class com.bun.miitmdid.core.** {*;}
+
+-dontnote com.baidu.sapi2.**
+-dontwarn com.squareup.picasso.**
+-dontwarn android.support.test.**
+-dontwarn com.baidu.sapi2.**
+-dontwarn com.alipay.**
+-dontwarn com.baidu.sofire.**
+```
+
+## 三方 SDK 版本信息
+
+望舒 3.0.9 以上版本使用百度 sdk 1.9.0.2 版本， 以下版本使用百度 sdk 1.9.0.1 版本
+
+## 闪屏（必接）
+
+```java
+// 先在启动⻚调⽤开屏logo接⼝
+BDGameSDK.showSplash(this, new IResponseVoid>() {
+        @Override
+    public void onResponse(int resultCode, String resultDesc, Void extraData)
+    {
+        // resultCode = 0 代表开屏已展示完毕，可在此向⽤户展示隐私协议弹窗
+
+    }）
+}
+```
+
+## 初始化（必接）
+
+参考代码
+
+```java
+Map<String, Object> params = new HashMap<>();
+
+// 这里使用方填写自己的 appid 和 appkey 再测试
+params.put("appid", "");
+params.put("appkey", "");
+RuiXueSdk.getApi().initThirdSdk(this, params, new RXJSONCallback() {
+    @Override
+    public void onSuccess(@Nullable JSONObject jsonObject) {
+    Log.d(TAG, "init third sdk success");
+    }
+
+    @Override
+    public void onFailed(@NonNull JSONObject jsonObject) {
+    Log.d(TAG, "init third sdk failed " + jsonObject);
+    }
+});
+```
+
+## 登录（必接）
+
+请参考登录 API [Android 登录 API](/docs/开发者文档/登录-通行证/Android-登录API/快速接入)
+
+## 支付（必接）
+
+请参考 [上报设备通讯录](/docs/开发者文档/数据分析/上报设备通讯录)
+
+## 登出
+
+```java
+RuiXueSdk.getApi().logout(new OnLogoutCallback() {
+    @Override
+    public void onSuccess(@Nullable String data) {
+    // 登出成功
+    }
+});
+```
+
+## 退出 (必须接入)
+
+```java
+// 在游戏需要退出的地方调用该方法，如游戏主 Activity，中 onBackPressed() 应该需要调用此方法
+RuiXueSdk.getApi().exitApp(activity, new new OnAppExitCallback() {
+    @Override
+    public void onExitConfirm(@Nullable String res) {
+    // 退出成功
+    }
+});
+```
+
+## 游戏用户角色信息上报（网游必接）
+
+```java
+// 上报玩家游戏角色信息Json串，格式为：{
+// "nick":"昵称",
+// "role":"角色名",
+// "region":"（游戏）大区",
+// "server":"（游戏）服",
+// "level":"角色等级",
+// "power":"玩家战力值"
+// }
+
+JSONObject data = new JSONObject();
+data.put("nick", "齐天大圣");
+data.put("role", "战士");
+data.put("region", "中国");
+data.put("server", "001");
+data.put("level", 88);
+data.put("power", 99999);
+
+String data = data.toString();
+BDSdkHelper.reportUserData(data);
+```
+
+## 实名认证状态查询
+
+```java
+Activity activity;
+IResponseInteger> queryLoginUserAuthenticateState
+BDSdkHelper.queryLoginUserAuthenticateState(activity, new IResponseInteger>() {
+    @Override
+    public void onResponse(int resultCode, String resultDesc, Integer extraData) {
+    if (resultCode == 0) {
+    /**
+    * extraData 取值
+    * 0:未认证
+    * 1:已认证未成年(废弃)
+    * 2:已认证成年
+    * 3:已认证未成年：小于8岁
+    * 4:已认证未成年：8岁（含）-16岁（不含）
+    * 5:已认证未成年：16岁（含）-18岁（不含）
+    */
+    Log.i("Authenticate", "实名认证查询结果: " + extraData.toString());
+    } else {
+    Log.i("Authenticate", "实名认证查询失败");
+    }
+    }
+});
+```

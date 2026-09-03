@@ -1,0 +1,107 @@
+---
+sidebar_position: 1
+title: 客户端接入
+description: Instagram iOS / Android 端原生接入指南，包含 SDK 集成、配置说明及接口调用示例。
+---
+
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
+
+在 [Instagram 开发者](https://developers.facebook.com/docs/instagram-basic-display-api) 中创建项目，并获取相关参数。
+
+## SDK 集成
+
+<Tabs groupId="platform">
+
+<TabItem value="ios" label="iOS">
+
+**RXInstagramSDK 版本 1.0.1** / **RXSDK_Pure 版本 3.4.32** / **RXOSUIKit 版本 3.4.18**
+
+可通过 **pod** 方式接入。在需要使用功能的类中引用头文件 `#import <RXInstagramSDK/RXInstagramSDK.h>`
+
+```objectivec
+pod 'RXInstagramSDK'
+```
+
+</TabItem>
+
+<TabItem value="android" label="Android">
+
+:::tip[版本说明]
+`version` 为 SDK 版本号（替换为实际版本号），最新版本请从 [更新日志](/docs/开发者文档/入门指南/更新日志/Android) 中查看。
+:::
+
+```groovy
+// 海外渠道引用此库
+implementation 'com.ruixue:rxsdk_instagram:${version}'
+```
+
+### 参数说明
+
+| 参数 | 类型 | 说明 |
+| --- | --- | --- |
+| clientId | Long | string.xml 中配置 instagram_client_id 值 |
+| redirectUrl | String | 在开发者后台查看 |
+
+### 配置说明
+
+在 `src/main/res/values/strings` 文件下配置 clientId，在 AndroidManifest.xml 中配置相关 meta-data。
+
+</TabItem>
+
+</Tabs>
+
+## 初始化
+
+<Tabs groupId="platform">
+
+<TabItem value="ios" label="iOS">
+
+在调用 Instagram 相关功能前必须先在 `didFinishLaunchingWithOptions` 中进行初始化。
+
+**接口原型**
+
+```objectivec
+/**
+ * 初始化 instagram
+ * @param clientID 应用ID
+ * @param redirectURI 应用重定向网址
+ */
+- (void)initWithClientID:(NSString *)clientID redirectURI:(NSString *)redirectURI;
+```
+
+**调用示例**
+
+```objectivec
+- (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions {
+ [[RXInstagramService sharedSDK] initWithClientID:@"your client id" redirectURI:@"your redirect uri"];
+
+ [[RXService sharedSDK] initWithProductId:@"your productId"
+ channelId:@"your channelId"
+ cpid:@"your cpid"
+ baseUrlList:@[@"https:xxx"]
+ complete:^(NSDictionary * _Nullable response, RX_CommonRequestError * _Nullable error) {
+ if (!error) {
+ NSLog(@"初始化成功");
+ } else {
+ NSLog(@"初始化失败");
+ }
+ }];
+ return YES;
+}
+```
+
+</TabItem>
+
+<TabItem value="android" label="Android">
+
+集成 SDK 并配置参数后自动完成初始化。
+
+</TabItem>
+
+</Tabs>
+
+## 登录与分享
+
+- **登录**：[UI 登录方式（iOS）](/docs/开发者文档/社交/iOS-社交/快速接入) / [UI 登录方式（Android）](/docs/开发者文档/社交/Android-社交/快速接入) / [API 登录方式](/docs/开发者文档/登录-通行证/服务端接入/服务端-API)
+- **分享**：仅支持系统分享。[分享 API](/docs/开发者文档/分享/服务端接入/服务端-API)

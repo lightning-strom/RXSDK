@@ -1,0 +1,67 @@
+# GitLab CI：CI 构建 Docusaurus → 产物传到 ECS → release.sh 原子热更新
+#
+# 需要在 GitLab 项目 Settings → CI/CD → Variables 配置：
+#   SSH_PRIVATE_KEY  部署用私钥（类型 File 或 masked；对应 ECS 上的 authorized_keys）
+#   SSH_KNOWN_HOSTS  ECS 的 host key，本地执行 `ssh-keyscan <ECS_IP>` 取得
+#   ECS_HOST         ECS 公网/内网 IP 或域名
+#   ECS_USER         部署用户名（如 deploy）
+#   SITE_DIR         站点目录（可选，默认 /opt/rx-docs/site）
+#
+# ECS 一次性准备见文件末尾注释。
+
+stages:
+  - build
+  - deploy
+
+variables:
+  SITE_DIR: "/opt/rx-docs/site"
+  REPO_DIR: "/opt/docusaurus-site"
+
+# ── 构建：生成静态产物并打包 ──────────────────────────────
+build:
+  stage: build
+  image: docker.m.daocloud.io/library/node:22-alpine
+  before_script:
+    - apk add --no-cache git
+  cache:
+    key: "$CI_COMMIT_REF_SLUG"
+    paths:
+      - .npm/
+  script:
+    - npm ci --prefer-offline --cache .npm --ignore-scripts
+    - npm run build
+    - tar -czf site.tar.gz -C build .
+  artifacts:
+    paths:
+      - site.tar.gz
+    expire_in: 1 day
+  rules:
+    - if: '$CI_COMMIT_BRANCH == "master"'
+
+# ── 部署：传产物到 ECS 并原子热更新（无需重启容器）────────
+deploy:
+  stage: deploy
+  image: docker.m.daocloud.io/library/alpine:latest
+  needs: ["build"]
+  before_script:
+    - apk add --no-cache openssh-client
+    - mkdir -p ~/.ssh && chmod 700 ~/.ssh
+    - echo "$SSH_PRIVATE_KEY" | tr -d '\r' > ~/.ssh/id_key && chmod 600 ~/.ssh/id_key
+    - echo "$SSH_KNOWN_HOSTS" > ~/.ssh/known_hosts
+  script:
+    - scp -i ~/.ssh/id_key site.tar.gz "$ECS_USER@$ECS_HOST:/tmp/site.tar.gz"
+    - >
+      ssh -i ~/.ssh/id_key "$ECS_USER@$ECS_HOST"
+      "cd $REPO_DIR && git pull --ff-only &&
+       SITE_DIR=$SITE_DIR ./scripts/release.sh --from /tmp/site.tar.gz &&
+       rm -f /tmp/site.tar.gz"
+  rules:
+    - if: '$CI_COMMIT_BRANCH == "master"'
+
+# ── ECS 一次性准备（手动执行一次）─────────────────────────
+#   sudo mkdir -p /opt/rx-docs/site && sudo chown $USER /opt/rx-docs/site
+#   git clone git@git.jiaxianghudong.com:rxsdk/rxsdk-doc-site.git /opt/docusaurus-site
+#   cd /opt/docusaurus-site
+#   # 起常驻 nginx 容器（产物由 CI 后续推送）
+#   SITE_DIR=/opt/rx-docs/site docker compose up -d
+#   # 之后每次 push 到 master，CI 自动构建并热更新，容器不重启

@@ -1,0 +1,161 @@
+---
+sidebar_position: 2
+title: 快速接入
+description: "望舒SDK 应用商店评分 iOS / Android 接入文档。"
+---
+
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
+
+评分提供三种方式：App 内拉起应用详情页、App 内弹出小窗口、跳转到 App Store。三种方式有不同的规则，请根据情况选择。
+
+## 应用内拉起 App 页面评分
+
+<Tabs groupId="platform">
+
+<TabItem value="ios" label="iOS">
+
+此方法会在应用内模态的方式弹出 App 详情页。
+
+**接口原型**
+
+```objectivec
+/**
+ * 应用内拉起App页面评分
+ * @param complete 点击完成或取消回调
+ * 注意：此处点击完成并不代表用户已经完成评分，仅监听VC dismiss
+ */
+- (void)inAppStoreReview:(NSString *)appid
+ complete:(void(^)(void))complete;
+```
+
+**调用示例**
+
+```objectivec
+[[RXSDK sharedSDK] inAppStoreReview:@"1620105487" complete:^{
+ NSLog(@"点击了完成或取消");
+}];
+```
+
+![](https://guanwangyun.oss-cn-beijing.aliyuncs.com/document/positioning/BCOxb9DYXo3btpx8qBaclXGnn5f.png)
+
+</TabItem>
+
+<TabItem value="android" label="Android">
+
+**接口原型**
+
+```java
+boolean jumpToAppStore(Activity activity);
+```
+
+**调用示例**
+
+```java
+RXSDK.getInstance().jumpToAppStore(activity);
+```
+
+![](https://guanwangyun.oss-cn-beijing.aliyuncs.com/document/positioning/MKzqbXPVMoUDYBx8uKLcwEj3nCe.png)
+
+</TabItem>
+
+</Tabs>
+
+## 应用内评分弹框
+
+<Tabs groupId="platform">
+
+<TabItem value="ios" label="iOS">
+
+此方法会在应用内弹出评分的 alert。
+
+**接口原型**
+
+```objectivec
+/**
+ * 应用内评分弹框
+ */
+- (void)alertAppReview;
+```
+
+**调用示例**
+
+```objectivec
+[[RXSDK sharedSDK] alertAppReview];
+```
+
+![](https://guanwangyun.oss-cn-beijing.aliyuncs.com/document/positioning/TMyzbS4SboYSTAxTJd5cCLDYn87.png)
+
+</TabItem>
+
+<TabItem value="android" label="Android">
+
+仅支持 Google Play 商店，用户提交 Play 商店的评分和评价，而无需退出您的应用或游戏。
+
+您的应用需要遵循有关何时请求[应用内评价](https://developer.android.google.cn/guide/playcore/in-app-review?hl=zh-cn#when-to-request)和[评价提示](https://developer.android.google.cn/guide/playcore/in-app-review?hl=zh-cn#design-guidelines)设计的严格的准则。
+
+**接口原型**
+
+```java
+void alertAppReview(Activity activity, RXJSONCallback callback);
+```
+
+**调用示例**
+
+```java
+GoogleSdkWrapper.getInstance().alertAppReview(activity, new RXJSONCallback() {
+    @Override
+    public void onSuccess(@Nullable JSONObject data) {
+
+    }
+
+    @Override
+    public void onFailed(@NonNull JSONObject cause) {
+
+    }
+});
+```
+
+![](https://developer.android.google.cn/static/images/google/play/in-app-review/iar-flow.jpg?hl=zh-cn)
+
+</TabItem>
+
+</Tabs>
+
+## 跳转到 App Store 评分
+
+<Tabs groupId="platform">
+
+<TabItem value="ios" label="iOS">
+
+此方法会跳转到 App Store 应用首页或直接拉起评分/评论页。
+
+**接口原型**
+
+```objectivec
+/**
+ * 跳转到App Store评分
+ * @param appid App Store 应用 id
+ * @param writeReview 是否直接拉起评论页
+ */
+- (void)toAppStoreReview:(NSString *)appid
+ writeReview:(BOOL)writeReview;
+```
+
+**调用示例**
+
+```objectivec
+[[RXSDK sharedSDK] toAppStoreReview:@"App Store 应用 id" writeReview:NO];
+```
+
+![](https://guanwangyun.oss-cn-beijing.aliyuncs.com/document/positioning/GO3SbnafNoDYlPx4EEhcPOzInih.png)
+
+</TabItem>
+
+<TabItem value="android" label="Android">
+
+Android 端跳转到应用商店评分请使用上方的「应用内拉起 App 页面评分」方法（`jumpToAppStore`）。
+
+</TabItem>
+
+</Tabs>

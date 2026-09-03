@@ -1,0 +1,64 @@
+/* ─── Navbar Search: 收起为图标，点击/聚焦展开为输入框 ─── */
+.searchBar {
+  display: flex; align-items: center;
+  height: 34px; border-radius: 6px;
+  border: 1px solid transparent;
+  background: transparent;
+  width: 34px; padding: 0;
+  transition: width 0.22s ease, background-color 0.22s ease, border-color 0.22s ease;
+  overflow: hidden;
+}
+.searchBarExpanded {
+  width: 260px; padding-left: 12px;
+  border-color: var(--ifm-color-emphasis-300);
+  background: var(--ifm-background-color);
+}
+.searchBarExpanded:focus-within { border-color: var(--ifm-color-primary); }
+
+.iconBtn {
+  flex-shrink: 0; width: 34px; height: 34px; border: none; background: transparent;
+  color: var(--ifm-color-emphasis-500); cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  border-radius: 6px; transition: background 0.15s, color 0.15s;
+}
+.iconBtn:hover { background: var(--ifm-color-emphasis-100); color: var(--ifm-color-primary); }
+
+.searchIcon { flex-shrink: 0; }
+
+.input {
+  flex: 1; min-width: 0; border: none; outline: none; background: transparent;
+  font-size: 0.85rem; color: var(--ifm-font-color-base); padding: 0;
+  width: 0; opacity: 0; transition: opacity 0.15s ease 0.05s;
+}
+.searchBarExpanded .input { width: auto; opacity: 1; }
+.input::placeholder { color: var(--ifm-color-emphasis-400); }
+
+.submitIconBtn {
+  flex-shrink: 0; width: 30px; height: 30px; border: none; background: transparent;
+  color: var(--ifm-color-emphasis-500); cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  border-radius: 6px; transition: background 0.15s, color 0.15s;
+}
+.submitIconBtn:hover { color: var(--ifm-color-primary); }
+
+.divider {
+  flex-shrink: 0; width: 1px; height: 18px; margin: 0 4px;
+  background: var(--ifm-color-emphasis-300);
+}
+
+.closeBtn {
+  flex-shrink: 0; width: 30px; height: 30px; margin-right: 2px; border: none;
+  background: transparent; color: var(--ifm-color-emphasis-500);
+  cursor: pointer; border-radius: 6px;
+  display: flex; align-items: center; justify-content: center;
+  transition: background 0.15s, color 0.15s;
+}
+.closeBtn:hover { background: var(--ifm-color-emphasis-100); color: var(--ifm-font-color-base); }
+
+/* ─── Dark Mode ─── */
+[data-theme='dark'] .searchBarExpanded { background: var(--ifm-background-surface-color); }
+
+/* ─── Mobile ─── */
+@media (max-width: 768px) {
+  .searchBarExpanded { width: 170px; }
+}

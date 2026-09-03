@@ -1,0 +1,171 @@
+---
+title: "隐私合规"
+---
+
+## App《隐私政策》说明
+您可以参考以下说明添加App《隐私政策》：
+
+1、App需要制订《隐私政策》，同时在用户首次启动App时展示《隐私政策》并取得用户同意。请务必确保用户同意App《隐私政策》之后，再初始化TopOn SDK。
+
+2、您需要在App《隐私政策》告知用户您选择使用TopOn SDK 服务，同时需要在App《隐私政策》里增加[《TopOn隐私政策》](https://help.toponad.com/cn/docs/1Mn1B7)的相关介绍内容.
+
+3、App的《隐私政策》您也可以参考市场监管总局发布的[《信息安全技术个人信息安全规范》](https://baike.baidu.com/item/%E4%BF%A1%E6%81%AF%E5%AE%89%E5%85%A8%E6%8A%80%E6%9C%AF%E2%80%94%E4%B8%AA%E4%BA%BA%E4%BF%A1%E6%81%AF%E5%AE%89%E5%85%A8%E8%A7%84%E8%8C%83/55779999?fr=ge_ala)文件中的隐私政策模板，进行实现。
+
+您可以通过访问 [《TopOn隐私政策》](https://help.toponad.com/cn/docs/1Mn1B7) 进一步了解TopOn的隐私政策，以及了解TopOn对个人信息的处理和保护策略。
+
+## 欧盟区域-通用数据保护条例GDPR
+自2018年5月25日起，欧盟《一般数据保护条例》将正式生效。自此，需要在欧盟区域内上架的应用或游戏，需要支持GDPR协议。
+
+如果集成的广告平台中未接入admob平台，请参考 [设置GDPR](https://help.toponad.com/cn/docs/she-zhi-GDPR)；
+
+如果集成的广告平台中包含admob平台，可以参考 [Google UMP适配使用指南](https://help.toponad.com/cn/docs/Google-UMP-shi-pei-shi-yong-zhi-nan-fMgm)。
+ 
+ ::: tip
+重要提示
+如果你的应用同时获取了App Tracking Transparency授权弹窗，我们强烈建议参考 [同时获取App Tracking Transparency授权弹窗与GDPR弹窗流程建议](https://help.toponad.com/cn/docs/zODjLF#5._%E5%85%B6%E4%BB%96%E4%BA%8B%E9%A1%B9) ，否则有提审被拒的风险！
+:::
+
+### 设置GDPR相关方法
+
+#### 获取当前位置是否在欧盟或英国区域内
+首先在工程的info.plist中设置添加 Privacy - Location When In Use Usage Description ，并添加对应描述：获取您的位置便于推荐更多相关信息 。
+
+ **接口原型**
+```objectivec
+/**
+ 获取用户当前位置是否在欧盟以内，如果在欧盟以内，需要在管理后台设置Google UMP流程设置欧盟的GDPR(《通用数据保护条例》)配置。
+ 按照文档配置完成后，再调用以下方法获取所在区域，并进行授权申请。
+ 使用了admob平台，调用‘showGDPRConsentDialogInViewController:dismissalCallback:’方法进行授权申请
+ 未使用admob平台，调用‘presentDataConsentDialogInViewController:loadingFailureCallback:dismissalCallback’方法进行授权申请
+ location：ATUserLocationUnknown 未知位置；ATUserLocationInEU 在欧盟；ATUserLocationOutOfEU 未在欧盟
+ */
+- (void)getUserLocationWithCallback:(void(^)(ATUserLocation location))callback;
+```
+
+**调用示例**
+
+```objectivec
+[[RXTopOnInitManager sharedSDK] getUserLocationWithCallback:^(ATUserLocation location) {
+        if (location == ATUserLocationInEU && [RXTopOnInitManager sharedSDK].dataConsentSet == ATDataConsentSetUnknown) {
+            [[RXTopOnInitManager sharedSDK] presentDataConsentDialogInViewController:[self currentViewController] loadingFailureCallback:^(NSError *error) {
+                
+            } dismissalCallback:^{
+                if (@available(iOS 14, *)) {
+                    //iOS 14
+                    [ATTrackingManager requestTrackingAuthorizationWithCompletionHandler:^(ATTrackingManagerAuthorizationStatus status) {
+                        [[RXTopOnInitManager sharedSDK] startWithAppID:kTopOnAppID appKey:kTopOnAppKey error:nil];
+                        //to do something，like preloading
+                    }];
+                } else {
+                    [[RXTopOnInitManager sharedSDK] startWithAppID:kTopOnAppID appKey:kTopOnAppKey error:nil];
+                }
+            }];
+        }else{
+            if (@available(iOS 14, *)) {
+                //iOS 14
+                [ATTrackingManager requestTrackingAuthorizationWithCompletionHandler:^(ATTrackingManagerAuthorizationStatus status) {
+                    [[RXTopOnInitManager sharedSDK] startWithAppID:kTopOnAppID appKey:kTopOnAppKey error:nil];
+                    //to do something，like preloading
+                }];
+            } else {
+                [[RXTopOnInitManager sharedSDK] startWithAppID:kTopOnAppID appKey:kTopOnAppKey error:nil];
+            }
+            
+        }
+    }];
+```
+
+#### 设置GDPR弹框
+ **接口原型**
+```objectivec
+/**
+ 用户在欧盟以内，未使用了admob广告平台，调用以下方法进行申请授权，由用户设置GDPR等级
+ viewController: 当前视图控制器
+ loadingFailureCallback:授权展示失败的block
+ dismissCallback:授权弹框关闭后调用的block
+ */
+- (void)presentDataConsentDialogInViewController:(UIViewController *)viewController
+                          loadingFailureCallback:(void(^)(NSError *error))loadingFailureCallback
+                               dismissalCallback:(void(^)(void))dismissCallback;
+```
+
+**调用示例**
+
+```objectivec
+[[RXTopOnInitManager sharedSDK] getUserLocationWithCallback:^(ATUserLocation location) {
+        if (location == ATUserLocationInEU && [RXTopOnInitManager sharedSDK].dataConsentSet == ATDataConsentSetUnknown) {
+            [[RXTopOnInitManager sharedSDK] presentDataConsentDialogInViewController:[self currentViewController] loadingFailureCallback:^(NSError *error) {
+                
+            } dismissalCallback:^{
+                if (@available(iOS 14, *)) {
+                    //iOS 14
+                    [ATTrackingManager requestTrackingAuthorizationWithCompletionHandler:^(ATTrackingManagerAuthorizationStatus status) {
+                        [[RXTopOnInitManager sharedSDK] startWithAppID:kTopOnAppID appKey:kTopOnAppKey error:nil];
+                        //to do something，like preloading
+                    }];
+                } else {
+                    [[RXTopOnInitManager sharedSDK] startWithAppID:kTopOnAppID appKey:kTopOnAppKey error:nil];
+                }
+            }];
+        }else{
+            if (@available(iOS 14, *)) {
+                //iOS 14
+                [ATTrackingManager requestTrackingAuthorizationWithCompletionHandler:^(ATTrackingManagerAuthorizationStatus status) {
+                    [[RXTopOnInitManager sharedSDK] startWithAppID:kTopOnAppID appKey:kTopOnAppKey error:nil];
+                    //to do something，like preloading
+                }];
+            } else {
+                [[RXTopOnInitManager sharedSDK] startWithAppID:kTopOnAppID appKey:kTopOnAppKey error:nil];
+            }
+            
+        }
+    }];
+```
+
+### 设置UMP相关方法
+首先按照[Google UMP适配使用指南](https://help.toponad.com/cn/docs/Google-UMP-shi-pei-shi-yong-zhi-nan-fMgm)进行相关配置，然后调用相关方法设置UMP流程的GDPR授权。
+
+#### 设置UMP GDPR流程弹框
+ **接口原型**
+```objectivec
+/**
+ 用户在欧盟以内，且使用了admob广告平台，使用UMP流程授权，在管理平台按文档进行了相关设置后，调用以下方法
+ 展示UMP流程下GDPR授权：在'getUserLocationWithCallback:'后，如果处于欧盟，则调用此方法申请授权；不属于欧盟则正常调用初始化
+ viewController: 当前视图控制器
+ dismissCallback:授权弹框关闭后调用的block
+ */
+- (void)showGDPRConsentDialogInViewController:(UIViewController *)viewController
+                         dismissalCallback:(void(^)(void))dismissCallback;
+```
+
+**调用示例**
+
+```objectivec
+[[RXTopOnInitManager sharedSDK] getUserLocationWithCallback:^(ATUserLocation location) {
+        if (location == ATUserLocationInEU) {
+            [[RXTopOnInitManager sharedSDK] showGDPRConsentDialogInViewController:[self currentViewController] dismissalCallback:^{
+                if (@available(iOS 14, *)) {
+                    //iOS 14
+                    [ATTrackingManager requestTrackingAuthorizationWithCompletionHandler:^(ATTrackingManagerAuthorizationStatus status) {
+                        [[RXTopOnInitManager sharedSDK] startWithAppID:kTopOnAppID appKey:kTopOnAppKey error:nil];
+                        //to do something，like preloading
+                    }];
+                } else {
+                    [[RXTopOnInitManager sharedSDK] startWithAppID:kTopOnAppID appKey:kTopOnAppKey error:nil];
+                }
+                
+           }];
+        }else{
+            if (@available(iOS 14, *)) {
+                //iOS 14
+                [ATTrackingManager requestTrackingAuthorizationWithCompletionHandler:^(ATTrackingManagerAuthorizationStatus status) {
+                    [[RXTopOnInitManager sharedSDK] startWithAppID:kTopOnAppID appKey:kTopOnAppKey error:nil];
+                    //to do something，like preloading
+                }];
+            } else {
+                [[RXTopOnInitManager sharedSDK] startWithAppID:kTopOnAppID appKey:kTopOnAppKey error:nil];
+            }
+            
+        }
+    }];
+```

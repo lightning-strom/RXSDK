@@ -1,0 +1,519 @@
+---
+title: "iOS"
+---
+
+## 基本功能
+
+### 同步消息
+
+拉取用户离线后收到的消息或者在全新设备上拉取当前账号的所有消息。消息会通过 **RXIMMessageDelegate** 协议回调函数 `receiveMessage` 通知客户端；同步完成会通过回调函数 `syncMessageFinished` 通知客户端。可以选择在登录成功之后的回调中触发。
+
+**接口原型**
+
+```objectivec
+/**
+ * 同步消息
+ */
+-(void)syncMessage;
+```
+
+**调用示例**
+
+```objectivec
+[[RXIMChatService sharedSDK] syncMessage];
+```
+
+### 发送消息
+
+生成RXIMMessage的对象之后，通过此接口进行发送消息操作。客户端需要通过 **RXIMMessageDelegate** 协议里的方法 `sendMessageSuccess` 和 `sendMessageFailure` 来进行消息发送结果的监听。
+
+**接口原型**
+
+```objectivec
+/**
+ * 发送消息
+ * @param sendMessage 发送的消息对象
+ * @param completionHandler 返回消息对象，处理本地逻辑用，发送成功以delegate方式回调。
+ */
+- (void)sendMessage:(RXIMSendMessage * _Nonnull)sendMessage
+  completionHandler:(void (^)(RXIMMessage * message,RXIMError *error))completionHandler;
+  
+#param mark -- 发送结果监听
+/**
+ * 消息发送成功
+ */
+- (void)sendMessageSuccess:(RXIMMessage *)msgObj;
+/**
+ * 消息发送失败
+ */
+- (void)sendMessageFailure:(RXIMMessage *)msgObj error:(RXIMError *)error;
+```
+
+**调用示例**
+
+```objectivec
+#pragma mark - 
+#pragma mark - 消息发送成功回执
+- (void)sendMessageSuccess:(RXIMMessage *)msgObj
+{
+    NSLog(@"消息发送成功");
+    self.msgObj = msgObj;
+    [SVProgressHUD showSuccessWithStatus:[NSString stringWithFormat:@"%@ 发送成功",msgObj.msgId]];
+}
+
+#pragma mark - 消息发送失败回执
+- (void)sendMessageFailure:(RXIMMessage *)msgObj error:(RXIMError *)error
+{
+    NSLog(@"消息发送失败");
+    [SVProgressHUD showErrorWithStatus:[NSString stringWithFormat:@"code = %ld errMsg = %@",error.code,error.developerMessage]];
+}
+```
+
+#### 会话内提示消息发送
+此接口一般用于如进入群聊、更改信息等提示消息的发送。
+**调用示例**
+
+```objectivec
+RXIMMsgConvTipsContent *content = [[RXIMMsgConvTipsContent alloc]init];
+content.text = [NSString stringWithFormat:@"%@ 发起了群聊，并邀请 %@ 加入群聊",[JX_UserUtility sharedManager].openId,[members objectAtIndex:0]];
+content.type = 1;
+content.userids = members;
+RXIMSendMessage *sendMsg = [[RXIMSendMessage alloc] init];
+sendMsg.content = content;
+sendMsg.msgType = RXIMMessageType_Tips;
+sendMsg.sessionID = self.groupId.text;
+sendMsg.sessionType = RXIMSessionType_group;
+sendMsg.option = RXIMMsgOption_enableSync|RXIMMsgOption_saveHistory|RXIMMsgOption_readReceipt;
+[[RXIMChatService sharedSDK] sendMessage:sendMsg completionHandler:^(RXIMMessage * _Nullable message,RXIMError *error){
+      NSLog(@"");  
+}];
+
+#param mark -- 发送结果监听
+#pragma mark - 消息发送成功回执
+- (void)sendMessageSuccess:(RXIMMessage *)msgObj
+{
+    NSLog(@"消息发送成功");
+    self.msgObj = msgObj;
+    [SVProgressHUD showSuccessWithStatus:[NSString stringWithFormat:@"%@ 发送成功",msgObj.msgId]];
+}
+
+#pragma mark - 消息发送失败回执
+- (void)sendMessageFailure:(RXIMMessage *)msgObj error:(RXIMError *)error
+{
+    NSLog(@"消息发送失败");
+    [SVProgressHUD showErrorWithStatus:[NSString stringWithFormat:@"code = %ld errMsg = %@",error.code,error.developerMessage]];
+}
+```
+
+#### 文本消息发送
+
+**调用示例**
+
+```objectivec
+RXIMMsgTextContent *textContent = [[RXIMMsgTextContent alloc] init];
+textContent.text = @"text111";
+RXIMSendMessage *msg = [[RXIMSendMessage alloc] init];
+msg.sessionId = self.sessionId;
+msg.content = textContent;
+msg.sessionType = self.sessionType;
+msg.msgType = RXIMMessageType_Text;
+[[RXIMChatService sharedSDK] sendMessage:msg completionHandler:^(RXIMMessage * _Nullable message, RXIMError * _Nonnull error) {
+    if(!error){
+        NSLog(@"发送消息处理成功");
+    }
+}];
+```
+
+#### 图片消息发送
+
+**调用示例**
+
+```objectivec
+NSString *imgPath = [[NSBundle mainBundle] pathForResource:@"location" ofType:@"png"];
+NSData *imageData = [[NSData alloc] initWithContentsOfFile:imgPath];
+UIImage *image = [UIImage imageWithContentsOfFile:imgPath];
+NSData *thumbImageData = UIImageJPEGRepresentation(image, 0.01);
+RXIMMsgImageContent *imgContent = [[RXIMMsgImageContent alloc] init];
+imgContent.original_data = imageData;
+imgContent.blurred_data = thumbImageData;
+NSArray *path = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES);
+NSString *result = [path objectAtIndex:0];
+imgContent.path = result;
+imgContent.width = image.size.width;
+imgContent.height = image.size.height;
+RXIMSendMessage *msg = [[RXIMSendMessage alloc] init];
+msg.content = imgContent;
+msg.sessionId = self.sessionId;
+msg.sessionType = self.sessionType;
+msg.msgType = RXIMMessageType_Image;
+msg.option = 7;
+msg.receiversArray = [self getReceiveAryWithCovType];
+[[RXIMChatService sharedSDK] sendMessage:msg completionHandler:^(RXIMMessage * _Nullable
+message, RXIMError * _Nonnull error) {
+    if (!error) {
+        NSLog(@"消息处理成功");
+    }else{
+        [SVProgressHUD showErrorWithStatus:[NSString stringWithFormat:@"code = %ld,errMsg = %@",error.code,error.developerMessage]];
+    }
+}];
+```
+
+#### 语音消息发送
+
+**调用示例**
+
+```objectivec
+NSString *filePath = [[NSBundle mainBundle] pathForResource:@"audio" ofType:@"amr"];
+NSData *audioData = [[NSData alloc] initWithContentsOfFile:filePath];
+RXIMMsgAudioContent *audioContent = [[RXIMMsgAudioContent alloc]init];
+audioContent.duration = 3;
+audioContent.audioData = audioData;
+audioContent.audio_type = @"amr";
+RXIMSendMessage *msg = [[RXIMSendMessage alloc] init];
+msg.content = audioContent;
+msg.sessionId = self.sessionId;
+msg.sessionType = self.sessionType;
+msg.msgType = RXIMMessageType_Audio;
+msg.option = 7;
+msg.receiversArray = [self getReceiveAryWithCovType];
+[[RXIMChatService sharedSDK] sendMessage:msg completionHandler:^(RXIMMessage * _Nullable
+message,RXIMError *error) {
+    if (!error) {
+        NSLog(@"消息处理成功");
+    }else{
+        [SVProgressHUD showErrorWithStatus:[NSString stringWithFormat:@"code = %ld,errMsg = %@",error.code,error.developerMessage]];
+    }
+}];
+```
+
+#### 视频消息发送
+
+**调用示例**
+
+```objectivec
+NSString *filePath = [[NSBundle mainBundle] pathForResource:@"video" ofType:@"mp4"];
+NSData *videoData = [[NSData alloc] initWithContentsOfFile:filePath];
+filePath = [[NSBundle mainBundle] pathForResource:@"video_cover" ofType:@"png"];
+UIImage *coverImage = [UIImage imageWithContentsOfFile:filePath];
+NSData *coverData = [[NSData alloc] initWithContentsOfFile:filePath];
+RXIMMsgVideoContent *videoContent = [[RXIMMsgVideoContent alloc]init];
+videoContent.video_data = videoData;
+videoContent.cover_data = coverData;
+videoContent.cover_width = coverImage.size.width;
+videoContent.cover_height = coverImage.size.height;
+videoContent.video_type = @"mp4";
+videoContent.duration = 3;
+RXIMSendMessage *msg = [[RXIMSendMessage alloc] init];
+msg.content = videoContent;
+msg.sessionId = self.sessionId;
+msg.sessionType = self.sessionType;
+msg.msgType = RXIMMessageType_Video;
+msg.option = 7;
+msg.receiversArray = [self getReceiveAryWithCovType];
+[[RXIMChatService sharedSDK] sendMessage:msg completionHandler:^(RXIMMessage * _Nullable
+message,RXIMError *error){
+    if (!error) {
+        NSLog(@"消息处理成功");
+    }else{
+        [SVProgressHUD showErrorWithStatus:[NSString stringWithFormat:@"code = %ld,errMsg = %@",error.code,error.developerMessage]];
+    }
+}];
+```
+
+#### 文件消息发送
+
+**调用示例**
+
+```objectivec
+NSString *filePath = [[NSBundle mainBundle] pathForResource:@"file" ofType:@"txt"];
+NSData *fileData = [[NSData alloc] initWithContentsOfFile:filePath];
+RXIMMsgFileContent *fileContent = [[RXIMMsgFileContent alloc]init];
+fileContent.file_data = fileData;
+fileContent.file_type = @"txt";
+fileContent.name = @"file";
+RXIMSendMessage *msg = [[RXIMSendMessage alloc] init];
+msg.content = fileContent;
+msg.sessionId = self.sessionId;
+msg.sessionType = self.sessionType;
+msg.msgType = RXIMMessageType_File;
+msg.option = 7;
+msg.receiversArray = [self getReceiveAryWithCovType];
+[[RXIMChatService sharedSDK] sendMessage:msg completionHandler:^(RXIMMessage * _Nullable
+message,RXIMError *error){
+    if (!error) {
+        NSLog(@"消息处理成功");
+    }else{
+        [SVProgressHUD showErrorWithStatus:[NSString stringWithFormat:@"code = %ld,errMsg = %@",error.code,error.developerMessage]];
+    }
+}];
+```
+
+#### 位置消息发送
+
+**调用示例**
+
+```objectivec
+NSString *geoPath = [[NSBundle mainBundle] pathForResource:@"location" ofType:@"png"];
+NSData *geoData = [[NSData alloc] initWithContentsOfFile:geoPath];
+RXIMMsgLBSContent *geoContent = [[RXIMMsgLBSContent alloc]init];
+geoContent.name = @"经济开发区七区";
+geoContent.latitude = 43.844622945296109;
+geoContent.longitude = 125.37923983960859;
+geoContent.cover_data = geoData;
+RXIMSendMessage *msg = [[RXIMSendMessage alloc] init];
+msg.content = geoContent;
+msg.sessionId = self.sessionId;
+msg.sessionType = self.sessionType;
+msg.msgType = RXIMMessageType_Position;
+msg.option = 7;
+msg.receiversArray = [self getReceiveAryWithCovType];
+[[RXIMChatService sharedSDK] sendMessage:msg completionHandler:^(RXIMMessage * _Nullable
+message,RXIMError *error){
+    if (!error) {
+        NSLog(@"消息处理成功");
+    }else{
+        [SVProgressHUD showErrorWithStatus:[NSString stringWithFormat:@"code = %ld,errMsg = %@",error.code,error.developerMessage]];
+    }
+}];
+```
+
+#### 回复消息发送
+此功能为针对某条已经发送成功的消息进行回复并展示。
+**调用示例**
+
+```objectivec
+RXIMMsgReplyContent *replyContent = [[RXIMMsgReplyContent alloc]init];
+RXIMReferenceMsg *referenceMsg = [[RXIMReferenceMsg alloc]init];
+RXIMMessage *msgObj = self.selectModel.message;
+referenceMsg.fromId = msgObj.fromId;
+referenceMsg.msgType  = msgObj.msgType;
+referenceMsg.msgId = msgObj.msgId;
+referenceMsg.content = msgObj.content;
+referenceMsg.timestamp = msgObj.timestamp;
+referenceMsg.subType = msgObj.subType;
+
+RXIMReplyMsg *replyMsg = [[RXIMReplyMsg alloc]init];
+replyMsg.msgType = RXIMMessageType_Text;
+RXIMMsgTextContent *textContent = [[RXIMMsgTextContent alloc]init];
+textContent.text = text;
+replyMsg.content = textContent;
+
+replyContent.reference = referenceMsg;
+replyContent.reply = replyMsg;
+RXIMSendMessage *msg = [[RXIMSendMessage alloc] init];
+msg.content = replyContent;
+msg.sessionID = self.convModel.session.sessionID;;
+msg.sessionType = self.convModel.session.type;
+msg.msgType = RXIMMessageType_Reply;
+msgObj.snapchatTimeout = [self getMsgSnapchatTimeout];
+if (msgObj.snapchatTimeout > 0) {
+msgObj.option = RXIMMsgOption_enableSync|RXIMMsgOption_saveHistory|RXIMMsgOption_readReceipt|RXIMMsgOption_snapchat;
+}else{
+    msgObj.option = RXIMMsgOption_enableSync|RXIMMsgOption_saveHistory|RXIMMsgOption_readReceipt;
+}
+[[RXIMChatService sharedSDK] sendMessage:msg completionHandler:^(RXIMMessage * _Nullable message,RXIMError *error){
+    if (!error) {
+        NSLog(@"消息处理成功");
+    }else{
+        [SVProgressHUD showErrorWithStatus:[NSString stringWithFormat:@"code = %ld,errMsg = %@",error.code,error.developerMessage]];
+    }
+}];
+```
+
+### 接收消息
+
+当收到服务器发来的消息时，可以通过此接口对其进行处理，如您可以RXIMMessage中的RXIMMessageType来区分消息类型用于不同场景。接收消息会通过 **RXIMMessageDelegate** 协议回调函数 `receiveMessage` 通知客户端。
+
+**接口原型**
+
+```objectivec
+/**
+ * 消息接收
+ */
+- (void)receiveMessage:(NSArray *)msgs;
+```
+
+**调用示例**
+
+```objectivec
+#pragma mark - 
+#pragma mark - 消息接收回执
+- (void)receiveMessage:(NSArray *)msgs
+{
+    NSLog(@"接收消息");
+    self.msgObj = msgs.lastObject;
+    for (RXIMMessage *msg in msgs) {
+        self.msgCount++;
+        NSLog(@"%@", [NSString stringWithFormat:@"接收消息%ld成功",(long)self.msgCount]);
+    }
+    
+}
+```
+
+### 重发消息
+
+如网络原因导致的发送消息失败时，可以调用重发消息的接口重试发送。
+
+**接口原型**
+
+```objectivec
+/**
+ * 重发消息
+ * @param message 发送的消息对象
+ * @param completionHandler 返回消息对象，处理本地逻辑用，发送成功以delegate方式回调。
+ */
+- (void)resendMessage:(RXIMMessage * _Nonnull)message
+  completionHandler:(void (^)(RXIMMessage * message,RXIMError *error))completionHandler;
+```
+
+**调用示例**
+
+```objectivec
+[[RXIMChatService sharedSDK] resendMessage:msg completionHandler:^(RXIMMessage * _Nullable message,RXIMError *error) {
+    if(!error){
+        NSLog(@"重发消息处理成功");
+    }
+}];
+```
+
+### 转发消息
+
+此功能可以将已经成功生成的消息进行转发，可选择转发类型，作为新消息发送。
+
+**接口原型**
+
+```objectivec
+/**
+ * 转发消息
+ * @param mids 消息id数组
+ * @param receives 会话id数组
+ * @param type 转发类型 0：逐条转发 1：合并转发
+ * @Param exts 扩展数组
+ * @param option 消息选项
+ * @param completionHandler 返回消息对象，处理本地逻辑用，发送成功以delegate方式回调。
+ */
+- (void)forwardMessage:(NSArray * _Nonnull)mids
+              receives:(NSArray * _Nonnull)receives
+                  type:(NSInteger)type
+                   ext:(NSArray * _Nullable)exts
+                option:(NSInteger)option
+     completionHandler:(void (^)(NSArray *messages,RXIMError *error))completionHandler;
+```
+
+#### 参数说明
+
+| **字段** | **类型**  | **是否必填** | **备注**                         |
+| -------- | --------- | ------------ | -------------------------------- |
+| mids     | NSArray   | 是           | 消息 id 数组                     |
+| receives | NSArray   | 是           | 会话 id 数组                     |
+| type     | NSInteger | 是           | 转发类型 0：逐条转发 1：合并转发 |
+| exts     | NSArray   | 否           | 扩展数组                         |
+| option   | NSInteger | 是           | 消息选项                         |
+
+**调用示例**
+
+```objectivec
+[[RXIMChatService sharedSDK] forwardMessage:mids receives:sessionIds type:contactFrom ext:nil option:option completionHandler:^(NSArray * _Nonnull messages, RXIMError * _Nonnull error) {
+    if (!error) {
+        [SVProgressHUD showSuccessWithStatus:@"转发成功"];
+    }else{
+        [SVProgressHUD showErrorWithStatus:@"转发失败"];
+    }
+}];
+```
+
+### 通过消息 id 获取消息体
+
+**接口原型**
+
+```objectivec
+/**
+ * 通过消息id获取消息体
+ * @param msgId 消息id
+ */
+-(RXIMMessage *)getMessageWithMsgId:(NSString * _Nonnull)msgId;
+```
+
+**调用示例**
+
+```objectivec
+RXIMMessage *msg = [[RXIMChatService sharedSDK] getMessageWithMsgId:msgId];
+```
+
+## 消息处理
+
+### 消息已读
+
+**接口原型**
+
+```objectivec
+/**
+ * 消息已读
+ * @param message 已读的消息体
+ * @param completionHandler 返回消息处理是否正常，发送成功以delegate方式回调。
+ */
+- (void)hasReadMessage:(RXIMMessage * _Nonnull)message completionHandler:(void (^)(RXIMError *error))completionHandler;
+```
+
+**调用示例**
+
+```objectivec
+[[RXIMChatService sharedSDK] hasReadMessage:self.msgObj completionHandler:^(RXIMError * _Nonnull error) {
+    if (!error) {
+        NSLog(@"消息处理成功");
+    }
+}];
+```
+
+### 消息撤回
+
+**接口原型**
+
+```objectivec
+/**
+ * 消息撤回
+ * @param message 撤回的消息体
+ * @param completionHandler 返回消息处理是否正常，发送成功以delegate方式回调。
+ */
+- (void)revokeMessage:(RXIMMessage * _Nonnull)message completionHandler:(void (^)(RXIMError *error))completionHandler;
+```
+
+**调用示例**
+
+```objectivec
+[[RXIMChatService sharedSDK] revokeMessage:self.msgObj completionHandler:^(RXIMError * _Nonnull error) {
+    if (!error) {
+        NSLog(@"消息处理成功");
+    }
+}];
+```
+
+### 更新本地消息扩展字段
+
+当用户更新个人信息时，可以通过此接口通知本地数据库更新。在更新完成后，本地保存的个人信息将会得到更新。
+
+**接口原型**
+
+```objectivec
+/**
+ * 更新本地消息扩展字段
+ * @param msgIds 消息id数组
+ * @param ext 扩展字段
+ * @return 更新是否成功
+ */
+- (BOOL)updateLocalMessageExt:(NSArray * _Nonnull)msgIds
+                          ext:(NSDictionary * _Nonnull)ext;
+```
+
+#### 参数说明
+
+| **字段** | **类型**     | **是否必填** | **备注**                       |
+| -------- | ------------ | ------------ | ------------------------------ |
+| msgIds   | NSArray      | 是           | 消息 id 数组（单次最多 20 条） |
+| ext      | NSDictionary | 否           | 扩展字段                       |
+
+**调用示例**
+
+```objectivec
+[[RXIMChatService sharedSDK] updateLocalMessageExt:@[] ext:@{}];
+```

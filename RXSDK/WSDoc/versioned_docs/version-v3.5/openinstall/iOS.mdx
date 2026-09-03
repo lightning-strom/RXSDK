@@ -1,0 +1,69 @@
+---
+sidebar_position: 3
+title: "iOS"
+---
+
+:::tip
+RXSDK_Pure 3.8.6 以上支持
+:::
+
+## SDK集成(国内)
+```objectivec
+pod 'RXOpeninstallSDK'
+```
+
+## SDK集成(海外)
+```objectivec
+pod 'RXOpeninstallOSSDK'
+```
+
+## 工程配置
+### universallink
+在 Xcode 中配置 openinstall 为当前应用生成的关联域名（Associated Domains）：
+![](https://res.cdn.openinstall.io/doc/ios-associated-domains.png)
+
+![](http://guanwangyun.oss-cn-beijing.aliyuncs.com/document/%E4%B8%89%E6%96%B9/20251125-103039.jpeg)
+
+### URL Types
+在 Xcode 里选中 Target -> Info -> URL Types，配置 openinstall 为当前应用生成的 Scheme:
+![](https://www.openinstall.com/doc/resources/ios10.png)
+
+### Info.plist
+在 Info.plist 文件中配置 appKey 键值对:**com.ruixue.APP_KEY**，value 为 openinstall AppKey
+![](https://guanwangyun.oss-cn-beijing.aliyuncs.com/document/tripartite/20260106-131111.jpeg)
+
+## 初始化（必须）
+:::warning
+在 [SDK 初始化方法](/docs/v3.5/入门指南/快速开始/iOS初始化/快速开始) 之前调用。
+:::
+
+**调用示例**
+
+```objectivec
+[[RXOpeninstallService sharedSDK] regist];
+```
+
+## 唤醒协议（必须）
+两种都需要配置
+
+```objectivec
+/**
+ * 通用链接
+ */
+- (BOOL)application:(UIApplication *)application continueUserActivity:(NSUserActivity *)userActivity restorationHandler:(void (^)(NSArray * _Nullable))restorationHandler
+{
+    //处理通过openinstall一键拉起App时传递的数据
+    [[RXOpeninstallService sharedSDK] continueUserActivity:userActivity];
+    //其他第三方回调；
+     return YES;
+}
+
+/**
+ * openURL
+ */
+- (BOOL)application:(UIApplication *)app openURL:(NSURL *)url options:(NSDictionary *)options
+{
+    [[RXOpeninstallService sharedSDK] handleOpenUrl:url];
+    return YES;
+}
+```

@@ -1,0 +1,85 @@
+---
+sidebar_position: 4
+title: 微信信息解密
+description: "望舒SDK 微信信息解密服务端文档，提供接口请求参数与响应说明。"
+---
+
+## 微信信息解密
+
+> **POST: ** `/v1/thirdparty/wechat/decode`
+>
+> **认证方式:** [CPSign](/docs/开发者文档/入门指南/服务端接入须知)
+
+### CURL 示例
+
+```bash
+curl --location --request POST '{{接口域名}}/v1/thirdparty/wechat/decode' \
+--header 'ruixue-language: {{语言}}' \
+--header 'ruixue-cpid: {{CPID}}' \
+--header 'ruixue-productid: {{产品标识}}' \
+--header 'ruixue-cpts: {{时间戳}}' \
+--header 'ruixue-traceid: {{TraceID}}' \
+--header 'ruixue-cpsign: {{请求签名}}' \
+--header 'ruixue-devicecode: {{设备码}}' \
+--header 'ruixue-channelid: {{渠道标识}}' \
+--header 'ruixue-platformid: {{平台标识}}' \
+--header 'Content-Type: application/json' \
+--data-raw '{
+ "openid": "123",
+ "cp_user_id": "123",
+ "iv": "123",
+ "encrypted_data": "123"
+}'
+```
+
+**请求头 Header 参数**
+
+| 参数 | 类型 | 备注 |
+| --- | --- | --- |
+| ruixue-language | String | zh-CN |
+| Content-Type | String | application/json |
+| ruixue-cpid | String | 内容提供商 CPID |
+| ruixue-productid | String | 产品 ID |
+| ruixue-channelid | String | 渠道 ID |
+| ruixue-platformid | String | 平台 platformid |
+| ruixue-devicecode | String | 设备码 |
+| ruixue-cpsign | String | CP 签名 |
+| ruixue-cpts | String | CP 签名时间戳 |
+| ruixue-traceid | String | TraceID |
+
+### 请求参数（JSON）
+
+| 参数 | 类型 | 是否必填 | 备注 |
+| --- | --- | --- | --- |
+| openid | String | 是 | 望舒 openid |
+| cp_user_id | String | 是 | 游戏 id ，与 openid 二选一 |
+| iv | String | 是 | 初始向量 |
+| encrypted_data | String | 是 | 加密字符串 |
+
+**响应示例**
+
+```json
+{
+ "data": {
+ "openid": "123",
+ "decode_data": "123"
+ },
+ "msg": "success",
+ "code": 0
+}
+```
+
+### 响应结构(JSON)
+
+| 参数 | 类型 | 备注 |
+| --- | --- | --- |
+| code | Number | 0 为成功 |
+| msg | String | 失败信息 |
+| data | Data |  |
+
+#### Data
+
+| 参数 | 类型 | 备注 |
+| --- | --- | --- |
+| openid | String | 望舒 openid |
+| decode_data | String | 解密数据 |

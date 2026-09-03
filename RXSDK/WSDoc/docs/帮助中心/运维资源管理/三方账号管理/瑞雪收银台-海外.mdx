@@ -1,0 +1,82 @@
+---
+sidebar_position: 4
+title: "瑞雪收银台-海外"
+description: "望舒帮助中心 瑞雪收银台-海外 文档"
+---
+
+
+## 一、功能介绍
+
+海外用户由于没有类似国内微信与支付宝这样认可度很高的支付平台，所以一般都是选择的支付方式，所以需要单独搞一个控制后台，用来配置某支付方式使用某支付平台的功能。
+
+## 二、操作步骤
+
+点击左侧 <strong>运维u资源管理 > 三方账号管理 > 支付账号管理</strong> 进入该功能页面。点击右上角`瑞雪收银台`进入配置页。
+
+![image.png](https://haiqi-ruixue-test.oss-cn-beijing.aliyuncs.com/docOnline/image-1768180473096.png)
+### 新建/编辑收银台
+
+```tip
+参数优先对应服务端优先取客户端传递过来的参数
+IP 优先则服务端自己获取地区
+```
+
+![](https://guanwangyun.oss-cn-beijing.aliyuncs.com/document/managementPlatform/business/account/Cashier/addcrashier.jpg)
+### 收银台管理支付方式
+
+```tip
+如果选择了直接跳转平台则支持多选，多选时根据后台配置权重进行支付
+
+```
+
+![](https://guanwangyun.oss-cn-beijing.aliyuncs.com/document/managementPlatform/business/account/Cashier/editaccount.jpg)
+### 进入`支付平台`配置页
+![](https://guanwangyun.oss-cn-beijing.aliyuncs.com/document/managementPlatform/business/account/Cashier/payment.jpg)
+### 添加支付方式
+根据支付平台配置/新建 对应的支付方式。可根据不同地区设置不同的支付方式。默认全球选项兜底。
+
+```tip
+添加支付方式时，如果选择的是子支付方式的，标识需要和支付平台方确认，不可以随便配置。例如：UPay子支付方式包含：cc。那标识处需要填写cc。
+```
+![image.png](https://haiqi-ruixue-test.oss-cn-beijing.aliyuncs.com/docOnline/image-1723514892208.png)
+```tip
+添加支付方式时，如果选择的是直接跳转平台的，直接配置地区即可。
+```
+![image.png](https://haiqi-ruixue-test.oss-cn-beijing.aliyuncs.com/docOnline/image-1723515005091.png)
+### 关联支付账号
+
+```tip
+根据配置的支付平台的所有账号。账号为三方账号管理中欧给支付账号配置的账号，每种方式单选。
+```
+
+![](https://guanwangyun.oss-cn-beijing.aliyuncs.com/document/managementPlatform/business/account/Cashier/pay_account.jpg)
+
+### 预览支付页面样式
+
+```tip
+只是预览样式，无实际交互
+
+```
+![](https://guanwangyun.oss-cn-beijing.aliyuncs.com/document/managementPlatform/business/account/Cashier/preview.jpg)
+
+## 三、关联配置
+
+```tip
+想要使用瑞雪收银台，需要现在渠道中支付选项中选中'瑞雪收银台'
+```
+1.渠道中配置瑞雪收银台
+![](https://guanwangyun.oss-cn-beijing.aliyuncs.com/document/managementPlatform/business/account/Cashier/channel.jpg)
+
+2.渠道包中关联支付方式为瑞雪收银台
+![](https://guanwangyun.oss-cn-beijing.aliyuncs.com/document/managementPlatform/business/account/Cashier/packge.jpg)
+
+## 四、checkout
+1.checkout可以 调起收银台的时候传客户端
+ext 参数：
+支付成功页面地址 success_url https://rxapi.fishinggamezone.com/static/pay/#/result?status=SUCCESS <br/>  
+支付取消页面地址 cancel_url  https://rxapi.fishinggamezone.com/static/pay/#/result?status=CLOSED<br/>  
+支付失败页面地址 failure_url  https://rxapi.fishinggamezone.com/static/pay/#/result?status=FAILED
+
+2.需要页面保存信息需要事件开启
+登录到checkout后台，按照如图所示位置操作勾选事件开启。
+![img_v3_02em_9db845bd-c740-484e-a1f0-15983b051fdg.jpg](https://haiqi-ruixue-test.oss-cn-beijing.aliyuncs.com/docOnline/img_v3_02em_9db845bd-c740-484e-a1f0-15983b051fdg-1726208007553.jpg)![img_v3_02em_ca6f0ad0-188d-469b-b69c-3d18c5d0700g.jpg](https://haiqi-ruixue-test.oss-cn-beijing.aliyuncs.com/docOnline/img_v3_02em_ca6f0ad0-188d-469b-b69c-3d18c5d0700g-1726208011675.jpg)

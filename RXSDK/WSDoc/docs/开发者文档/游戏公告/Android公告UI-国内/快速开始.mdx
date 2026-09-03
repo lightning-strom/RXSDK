@@ -1,0 +1,175 @@
+---
+sidebar_position: 1
+title: 快速开始
+description: "望舒SDK 游戏公告 快速开始 Android 接入文档，提供完整的接口调用说明与示例。"
+---
+
+## UI示例
+
+![](https://haiqi-ruixue-test.oss-cn-beijing.aliyuncs.com/docOnline/announce_mutiple_ui-1725619282374.png)
+
+![](https://haiqi-ruixue-test.oss-cn-beijing.aliyuncs.com/docOnline/announce_single_ui-1725619336078.png)
+
+## 显示公告UI
+
+**接口原型**
+
+```java
+/**
+    * 显示公告UI
+    * @param context context
+    * @param limit 显示条数，limit > 0
+    * @param linkCallback 回调
+    */
+    public void showAnnounceView(Context context, int limit, NoticeCallback linkCallback)
+```
+
+**调用示例**
+
+```java
+    RXSdkUI.getInstance().showAnnounceView(this, 1, new NoticeCallback() {
+    /**
+    * 返回图片配置link或者url
+    * @param link
+    */
+    @Override
+    public void onLink(String link) {
+    ToastUtils.showToast(MainActivity.this, link);
+    }
+
+    /**
+    * 当前UI是否显示了
+    * @param isHas
+    */
+    @Override
+    public void hasAnnounceUI(boolean isHas) {
+    ToastUtils.showToast(MainActivity.this, isHas + "");
+    }
+    });
+```
+
+## 产品包版本检查公告UI（通用）
+
+**接口原型**
+
+```java
+    /**
+    * @param context context
+    * @param version 客户端版本号，3段或4段
+    * @param region 地区码
+    * @param queryMap type 脚本类型 默认json， 可选 lua， u3d
+    * format 输出文件后缀，默认json，可选lua
+    * @param isShowUI 是否显示UI
+    * @param linkCallback 回调
+    */
+    public void showUpdateAppView(Context context, String version, String region,
+    Map<String, Object> queryMap, boolean isShowUI,
+    MaintainNoticeCallback linkCallback)
+```
+
+**调用示例**
+
+```java
+Map<String, Object> queryMap = new HashMap<>();
+queryMap.put("format", "json");
+RXSdkUI.getInstance().showUpdateAppView(this, "9.0.1", "150000", queryMap, true, new MaintainNoticeCallback() {
+    /**
+    * 返回图片配置link或者url
+    * @param link
+    */
+    @Override
+    public void onLink(String link) {
+    ToastUtils.showToast(MainActivity.this, link);
+    }
+
+    /**
+    * 当前UI是否显示了
+    * @param isHas
+    */
+    @Override
+    public void hasAnnounceUI(boolean isHas) {
+    ToastUtils.showToast(MainActivity.this, isHas + "");
+    }
+
+    /**
+    * 成功返回 版本检查数据
+    * @param data
+    */
+    @Override
+    public void onSuccess(@Nullable String data) {
+    ToastUtils.showToast(MainActivity.this, data);
+    }
+
+    /**
+    * 失败返回 版本检查数据
+    * @param code
+    * @param msg
+    * @param traceId
+    */
+    @Override
+    public void onFailed(int code, String msg, @Nullable String traceId) {
+    ToastUtils.showToast(MainActivity.this, code + ":" + msg);
+    }
+});
+```
+
+## 产品包版本检查UI（自定义）
+
+**接口原型**
+
+```java
+/**
+    * @param context context
+    * @param version 客户端版本号， 3段或4段
+    * @param region 地区码， 默认0
+    * @param type 脚本类型 默认js， 可选lua， u3d
+    * @param queryMap queryMap games {"games:{"游戏id": 客户端游戏版本}"}
+    * activities {"activities":{"活动别名": 客户端活动版本}}
+    * @param isShowUI 是否显示UI
+    * @param linkCallback 回调
+    */
+public void showCheckUpdateAppView(Context context, String version, String region, String type,
+    Map<String, Object> queryMap, boolean isShowUI, MaintainNoticeCallback linkCallback)
+```
+
+**调用示例**
+
+```java
+RXSdkUI.getInstance().showCheckUpdateAppView(this, "1.0.1", "150000", "js", null, true, new MaintainNoticeCallback() {
+    /**
+    * 返回图片配置link或者url
+    * @param link
+    */
+    @Override
+    public void onLink(String link) {
+    ToastUtils.showToast(MainActivity.this, link);
+    }
+    /**
+    * 当前UI是否显示了
+    * @param isHas
+    */
+    @Override
+    public void hasAnnounceUI(boolean isHas) {
+    ToastUtils.showToast(MainActivity.this, isHas + "");
+    }
+    /**
+    * 成功返回 版本检查数据
+    * @param data
+    */
+    @Override
+    public void onSuccess(@Nullable String data) {
+    ToastUtils.showToast(MainActivity.this, data);
+    }
+    /**
+    * 失败返回 版本检查数据
+    * @param code
+    * @param msg
+    * @param traceId
+    */
+    @Override
+    public void onFailed(int code, String msg, @Nullable String traceId) {
+    ToastUtils.showToast(MainActivity.this, code + ":" + msg);
+    }
+    });
+    }
+```

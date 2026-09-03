@@ -1,0 +1,71 @@
+---
+sidebar_position: 2
+title: 鸿蒙支付配置
+description: "望舒SDK 三方服务 鸿蒙支付配置 鸿蒙 接入文档，提供完整的接口调用说明与示例。"
+---
+
+## 准备工作
+
+AppGallery Connect ：[https://developer.huawei.com/consumer/cn/](https://developer.huawei.com/consumer/cn/) 望舒系统地址：[企业管理后台中获取望舒地址](/docs/开发者文档/入门指南/准备工作)。
+
+## 支付配置
+
+### AppGallery Connect 获取关键信息
+
+登录[AppGallery Connect](https://developer.huawei.com/consumer/cn/)，位置：**华为开发平台 > 应用 > 我的项目 > 应用内支付服务**，签署协议开通服务。
+
+![](https://haiqi-ruixue-test.oss-cn-beijing.aliyuncs.com/docOnline/image-1728467024570.png)
+
+获取关键配置： `APP ID`、` 公钥 `。
+
+![](https://haiqi-ruixue-test.oss-cn-beijing.aliyuncs.com/docOnline/image-1730439847641.png)
+
+![](https://haiqi-ruixue-test.oss-cn-beijing.aliyuncs.com/docOnline/image-1730439760509.png)
+
+获取关键配置：「Issuer ID」、「秘钥 ID」、「秘钥」
+
+生成密钥后，你可以下载密钥中的私钥部分，未下载过的密钥会显示下载链接“下载密钥”，私钥仅供下载一次，下载后的私钥需要开发者安全保存。
+
+![](https://haiqi-ruixue-test.oss-cn-beijing.aliyuncs.com/docOnline/image-1730439624517.png)
+
+6.支付回调地址配置。配置地址可以从**望舒游戏平台>首页>筛选渠道包>复制参数>支付参数>获取需要的支付方式的回调地址**。
+
+![](https://haiqi-ruixue-test.oss-cn-beijing.aliyuncs.com/docOnline/image-1730705000739.png)
+
+### 望舒系统中配置支付信息
+
+从[AppGallery Connect](https://developer.huawei.com/consumer/cn/)，获取「公钥」信息。
+
+复制到望舒系统，位置：**运维资源管理> 三方账号管理 > 支付账号管理 > 新建支付账号**。
+
+![](https://haiqi-ruixue-test.oss-cn-beijing.aliyuncs.com/docOnline/image-1728465931971.png)
+
+### AppGallery Connect 配置支付回调地址
+
+登录[AppGallery Connect](https://developer.huawei.com/consumer/cn/)，位置：**华为开发平台 > 应用 > 我的项目>> 选择鸿蒙项目>切换鸿蒙应用 >应用内购买服务 (HarmonyOS NEXT)**
+
+开启**订单/订阅关键事件通知**，配置回调地址**
+
+![](https://haiqi-ruixue-test.oss-cn-beijing.aliyuncs.com/docOnline/image-1760661319497.png)
+
+支付回调地址： API 域名/v1/ke/callback/f_channel/产品 ID/渠道 ID//harmony。或者通过望舒平台首页对应的渠道包复制参数。
+
+## 计费点配置
+
+### AppGallery Connect 配置商品
+
+登录 [AppGallery Connect](https://developer.huawei.com/consumer/cn/)，位置：**AppGallery Connect > 我的应用 >HarmonyOS> 运营 > 商品管理 > 添加商品**。
+
+![](https://guanwangyun.oss-cn-beijing.aliyuncs.com/document/tripartite/I2FRbpxqxoXFU2xzprtc1HzOntb.png)
+
+「商品 ID」由项目组自定义，应与望舒系统计费点管理的「三方计费标识」配置一致。
+
+![](https://guanwangyun.oss-cn-beijing.aliyuncs.com/document/tripartite/LeP7bTgOUoNK2MxvAwVcTBeYniY.png)
+
+### 望舒系统中配置计费点信息
+
+从 [AppGallery Connect](https://developer.huawei.com/consumer/cn/) 获取「商品 ID」信息，填写到「三方计费标识」。
+
+复制到望舒系统，位置：**产品 >计费点信息管理 > 添加三方计费点**。
+
+![](https://haiqi-ruixue-test.oss-cn-beijing.aliyuncs.com/docOnline/bb1e6e88ed7bbdcd1cce918c18cc33f5-1768200780608.png)

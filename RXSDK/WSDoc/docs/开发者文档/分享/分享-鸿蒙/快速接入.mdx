@@ -1,0 +1,104 @@
+---
+sidebar_position: 1
+title: 快速接入
+description: "望舒SDK 快速接入 鸿蒙 接入文档，提供完整的接口调用说明与示例。"
+---
+
+# 碰一碰分享
+
+[碰一碰分享配置文档](/docs/开发者文档/三方服务/银联/配置说明)
+
+## 碰一碰分享事件
+
+收到碰一碰分享事件回调后，需尽快调用 Share 方法发起分享，超过 3 秒可能会失败）
+
+进入可分享页面时，注册碰一碰分享监听事件；离开可分享页面（包括应用退至后台等场景）时，取消碰一碰分享监听事件。
+
+**接口原型**
+
+```plaintext
+///
+/// 注册“碰一碰分享”的事件监听器。
+///
+///
+
+/// 回调函数，当用户触发“碰一碰分享”时调用，传递分享事件标识或数据。
+///
+void OnKnockShare(Action callback);
+
+///
+/// 取消“碰一碰分享”的事件监听器。
+///
+///
+void OffKnockShare();
+```
+
+- **调用示例**
+
+```csharp
+//开启碰一碰事件监听
+RuiXueSdk.ShareAPI.OnKnockShare((str) =>
+{
+ Log.D("碰一碰 分享事件触发");
+
+});
+
+//取消碰一碰事件监听
+ RuiXueSdk.ShareAPI.OffKnockShare();
+```
+
+## 分享
+
+**接口原型**
+
+```csharp
+/// summary>
+/// 进行分享操作。
+/// summary>
+/// param name="rXShareConfig">分享配置参数，包含分享内容和相关设置。param>
+/// param name="callback">分享操作的回调函数，返回分享结果。param>
+void Share(RXShareConfig rXShareConfig, RXCallbackobject> callback);
+```
+
+### 参数说明
+
+RXShareConfig 类参数说明
+
+| 字段 | 类型 | 是否必填 | 备注 |
+| --- | --- | --- | --- |
+| platform | string | 是 | hw_knock 碰一碰分享 |
+| func | string | 是 | 碰一碰事件埋点 |
+
+**调用示例**
+
+```csharp
+RuiXueSdk.ShareAPI.OnKnockShare((str) =>
+{
+ Log.D("碰一碰 分享事件触发");
+ var shareParams = new RXShareConfig
+ {
+ platform = "hw_knock", //碰一碰分享
+ func = "peng-small", //碰一碰事件埋点
+ };
+
+ // 调用分享，碰一碰分享必须在碰一碰事件触发时调用，超过3秒可能会失败
+ RuiXueSdk.ShareAPI.Share(shareParams, (result, e) =>
+ {
+ if (e != null)
+ Log.E(e); //todo 分享异常 提示
+
+ if (result.code == 0)
+ {
+ Log.D("分享成功！");
+ ShowText("碰一碰分享成功！");
+ }
+ else
+ {
+ Log.D($"分享失败: {result.msg}");
+ ShowText($"碰一碰分享失败: {result.msg}");
+ }
+ });
+
+});
+
+```

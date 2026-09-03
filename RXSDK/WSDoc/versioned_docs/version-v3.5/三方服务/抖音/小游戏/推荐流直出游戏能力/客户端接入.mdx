@@ -1,0 +1,344 @@
+---
+title: "客户端接入"
+---
+
+#### 直玩订阅授权
+
+向用户请求授权，允许游戏在满足一定的条件后出现在 Feed 流中。[查看说明](https://developer.open-douyin.com/docs/resource/zh-CN/mini-game/develop/api/open-capacity/feed-subscribe/request-feed-subscribe)
+
+##### 参数说明
+
+| **字段**
+ | **类型**
+       | **是否必填**
+ | **备注**
+     |
+| ------------ | ------------------ | ---------------- | ---------------- |
+| params
+   | IParams
+ | 是
+           | 参数
+         |
+| callback
+ | IMethodParams
+  | 是
+           | 回调函数集合
+ |
+
+> IParams说明
+
+| **字段**
+ | **类型**
+ | **是否必填**
+ | **备注**
+                                                              |
+| ------------ | ------------ | ---------------- | ------------------------------------------------------------------------- |
+| scene
+     | number
+   | 否
+           | 订阅的场景 ID（非全场景下必传）
+1 - 离线收益场景
+
+2 - 体力恢复场景
+
+3 - 重要事件掉落
+ |
+| contentIDs
+     | string[]
+   | 否
+           | 自定义文案 contentID 数组（非全场景下必传），contentID 在后台申请开通直玩能力后可获取
+ |
+| allScene
+     | boolean
+   | 否
+           | 是否为全场景订阅，默认false
+ |
+| type
+     | string
+   | 否
+           | 订阅 Feed 流的类型，目前只支持传 'play'
+ |
+
+> IMethodParams 说明
+
+| **字段**
+ | **备注**
+                                                  |
+| ------------ | ------------------------------------------------------------- |
+| complete
+ | (data) => void
+complete：为函数且必传，data 为结果数据
+ |
+
+**调用示例**
+
+```javascript
+// 发起单场景订阅
+sdk.requestFeedSubscribe({
+		type: 'play',
+		allScene: false,
+		scene: 1,
+		contentIDs: ["CONTENT123", "CONTENT234"],
+	}, {
+		complete: (res) => {
+			console.log(res)
+			if(res.code === 0) {
+				tt.showModal({
+					title: "提示",
+					content: res.success ? '订阅成功' : '订阅失败'
+				})
+			} else {
+				tt.showModal({
+					title: "错误提示",
+					content: res.msg
+				})
+			}
+		}
+})
+
+// 发起全场景订阅
+sdk.requestFeedSubscribe({
+		type: "play",
+        allScene: true,
+	}, {
+		complete: (res) => {
+			console.log(res)
+			if(res.code === 0) {
+				tt.showModal({
+					title: "提示",
+					content: res.success ? '订阅成功' : '订阅失败'
+				})
+			} else {
+				tt.showModal({
+					title: "错误提示",
+					content: res.msg
+				})
+			}
+		}
+})
+
+// 监听 Feed 流进入/退出小游戏事件
+function feedChangeCallback({ type }) {
+    if (type === 'feedEnter') {
+        console.log('触发从Feed流进入小游戏事件回调')
+    }
+    if (type === 'feedExit') {
+        console.log('触发从小游戏退回到Feed流事件回调')
+    }
+}
+
+// 注册事件监听
+tt.onFeedStatusChange(feedChangeCallback);
+
+// 取消事件监听
+tt.offFeedStatusChange(feedChangeCallback);
+
+```
+
+##### 响应结构
+
+| **字段**
+| **类型**
+                                                   | **说明**
+                                                  |
+| ------------ | ------------------------------------------------------------- | ------------------------------------------------------------- |
+| code
+ | number
+ | 绑定成功 code 为 0
+ |
+| msg
+ | string
+ | 错误提示
+ |
+| success
+ | boolean
+ | 用户的订阅结果（true 为成功，false 为订阅失败，具体原因看 msg）
+ |
+
+| **code**
+ | **msg**
+       |  **说明**
+     |
+| ------------ | ------------------ | ---------------- |
+| 10301
+   | feature is not supported in app
+ | 宿主不支持该功能
+         |
+| 21100
+ | host does not have permission
+  |  该app未开通该能力
+ |
+| 21101
+ | no permission
+  |  该游戏没有订阅权限
+ |
+| 10601
+ | not login
+  |  需要调用tt.login登录
+ |
+| 20001
+ | params contentIDs or scene is required
+  |  参数错误
+ |
+| 21102
+ | network error
+  |  网络环境问题，一般指无网环境
+ |
+| 21103
+ | service error:具体错误信息
+  |  网络请求失败
+ |
+| 21104
+ | frequency control
+  |  频控限制
+ |
+| 21500
+ | must be invoked by user gesture
+  |  交互类型限制，全场景订阅必须由玩家点击触发在 tt.touchEnd 回调内调用该接口
+ |
+
+#### 查询直玩订阅授权
+
+查询用户直玩订阅的授权情况。[查看说明](https://developer.open-douyin.com/docs/resource/zh-CN/mini-game/develop/api/open-capacity/feed-subscribe/check-feed-subscribe-status)
+
+##### 参数说明
+
+| **字段**
+ | **类型**
+       | **是否必填**
+ | **备注**
+     |
+| ------------ | ------------------ | ---------------- | ---------------- |
+| params
+   | IParams
+ | 是
+           | 参数
+         |
+| callback
+ | IMethodParams
+  | 是
+           | 回调函数集合
+ |
+
+> IParams说明
+
+| **字段**
+ | **类型**
+ | **是否必填**
+ | **备注**
+                                                              |
+| ------------ | ------------ | ---------------- | ------------------------------------------------------------------------- |
+| scene
+     | number
+   | 否
+           | 订阅的场景 ID（非全场景下必传）
+1 - 离线收益场景
+
+2 - 体力恢复场景
+
+3 - 重要事件掉落
+ |
+| contentIDs
+     | string[]
+   | 否
+           | 自定义文案 contentID 数组（非全场景下必传），contentID 在后台申请开通直玩能力后可获取
+ |
+| allScene
+     | boolean
+   | 否
+           | 是否为全场景订阅，默认false
+ |
+| type
+     | string
+   | 否
+           | 订阅 Feed 流的类型，目前只支持传 'play'
+ |
+
+> IMethodParams 说明
+
+| **字段**
+ | **备注**
+                                                  |
+| ------------ | ------------------------------------------------------------- |
+| complete
+ | (data) => void
+complete：为函数且必传，data 为结果数据
+ |
+
+**调用示例**
+
+```javascript
+sdk.checkFeedSubscribeStatus({
+		allScene: true,
+		scene: 1
+	}, {
+		complete: (res) => {
+			console.log(res)
+			if(res.code === 0) {
+				tt.showModal({
+					title: "提示",
+					content: res.status ? '已经订阅' : '用户未订阅'
+				})
+			} else {
+				tt.showModal({
+					title: "错误提示",
+					content: res.msg
+				})
+			}
+		}
+})
+```
+
+##### 响应结构
+
+| **字段**
+| **类型**
+                                                   | **说明**
+                                                  |
+| ------------ | ------------------------------------------------------------- | ------------------------------------------------------------- |
+| code
+ | number
+ | 绑定成功 code 为 0
+ |
+| msg
+ | string
+ | 错误提示
+ |
+| status
+ | boolean
+ | 用户的订阅状态（true为已经订阅，false为用户未订阅）
+ |
+
+| **code**
+ | **msg**
+       |  **说明**
+     |
+| ------------ | ------------------ | ---------------- |
+| 10301
+   | feature is not supported in app
+ | 宿主不支持该功能
+         |
+| 21100
+ | host does not have permission
+  |  该app未开通该能力
+ |
+| 21101
+ | no permission
+  |  该游戏没有订阅权限
+ |
+| 10601
+ | not login
+  |  需要调用tt.login登录
+ |
+| 20001
+ | params contentIDs or scene is required
+  |  参数错误
+ |
+| 21102
+ | network error
+  |  网络环境问题，一般指无网环境
+ |
+| 21103
+ | service error:具体错误信息
+  |  网络请求失败
+ |

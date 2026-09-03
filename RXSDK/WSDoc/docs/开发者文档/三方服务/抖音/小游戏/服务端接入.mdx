@@ -1,0 +1,149 @@
+---
+sidebar_position: 5
+title: 服务端接入
+description: "望舒SDK 三方服务 服务端接入 小游戏 接入文档，提供完整的接口调用说明与示例。"
+---
+
+渠道方文档地址: [https://developer.open-douyin.com/docs/resource/zh-CN/mini-game/develop/server/receive-reward](https://developer.open-douyin.com/docs/resource/zh-CN/mini-game/develop/server/receive-reward)
+
+## 游戏礼包CDK验证（服务端）
+
+> **POST：** `/v1/thirdparty/api/channel_gateway/minigame_douyin/gift_receive_reward`
+>
+> **认证方式：** [CPSign](/docs/开发者文档/入门指南/服务端接入须知)
+
+### CURL 示例
+
+```bash
+curl --location --request POST '{{接口域名}}/v1/thirdparty/api/channel_gateway/minigame_douyin/gift_receive_reward' \
+--header 'ruixue-cpid: {{CPID}}' \
+--header 'ruixue-cpts: {{时间戳}}' \
+--header 'ruixue-traceid: {{TraceID}}' \
+--header 'ruixue-cpsign: {{请求签名}}' \
+--header 'ruixue-productid: {{请求产品id}}' \
+--header 'ruixue-channelid: {{请求渠道id}}' \
+```
+
+### 请求参数（POST）
+
+| 字段 | 类型 | 是否必填 | 说明 |
+| --- | --- | --- | --- |
+| gift_code | string | 是 | 小游戏完成道具礼包领取后，开发者核销用户的礼包码（长度 64 字节以内） |
+| uuid | string | 是 | 每次请求都需要使用不同的 uuid （长度 64 字节以内） |
+| env_type | string | 否 | 可以使用 env_type 以隔离生产环境，若该字段不填写则默认为线上生产环境 可选项： development 测试环境 production 线上生产环境 注意：福袋礼包测试时兑奖必须使用 development 类型 |
+| rx_openid | string | 是 | 兑奖用户的望舒 Openid ； cp_user_id、rx_openid 必须填写其中一个 |
+| cp_user_id | string | 是 | 兑奖用户的望舒游戏 ID ； cp_user_id、rx_openid 必须填写其中一个 |
+
+### 响应结构（JSON）
+
+| 字段名 | 类型 | 描述 |
+| --- | --- | --- |
+| code | Number | 望舒错误码 |
+| data.err_msg | String | 业务错误码 |
+| data.err_no | Number | 业务信息 0 表示成功 |
+| data.gift_info | GiftInfo | 礼包信息 |
+
+
+#### GiftInfo
+
+| 字段名 | 类型 | 描述 |
+| --- | --- | --- |
+| gift_effective_end_time | Number | 礼包有效结束时间戳（ 10 位时间戳，秒级） |
+| gift_effective_start_time | Number | 礼包有效开始时间戳（ 10 位时间戳，秒级） |
+| gift_id | String | 礼包 id （关联开放平台的小游戏礼包配置） |
+| icon_url | String | 礼包图标链接 |
+| name | String | 礼包名称（关联开放平台的小游戏礼包配置） |
+| play_type | Number | 礼包玩法类型 1=直播间福袋礼包 |
+| prop_list | []Prop | 道具列表 |
+| user_receive_guide | []String | 用户领奖说明 |
+
+
+#### Prop
+
+| 字段名 | 类型 | 描述 |
+| --- | --- | --- |
+| count | Number | 道具数量 |
+| icon | String | 道具图标 |
+| name | String | 道具名称 |
+| prop_id | String | 道具 id （关联开放平台的小游戏道具配置） |
+
+
+**返回示例**
+
+```json
+{
+ "code": 0,
+ "data": {
+ "gift_info": {
+ "play_type": 1,
+ "user_receive_guide": [
+ "玩小游戏10秒后获得白金礼包"
+ ],
+ "name": "白金强化碎片包",
+ "icon_url": "https://img.byte25cdn.org/image/198082103523233",
+ "gift_effective_start_time": 1722873600,
+ "gift_effective_end_time": 1723737600,
+ "gift_id": "222622358400",
+ "prop_list": [
+ {
+ "prop_id": "10111",
+ "name": "白金强化碎片",
+ "icon": "https://img.byte25cdn.org/image/1980821035232290",
+ "count": 10
+ }
+ ]
+ },
+ "err_msg": "",
+ "err_no": 0
+ }
+}
+```
+
+渠道方文档地址: [    https://developer.open-douyin.com/docs/resource/zh-CN/mini-game/develop/server/notify](https://developer.open-douyin.com/docs/resource/zh-CN/mini-game/develop/server/notify)
+
+## 发送订阅消息（服务端）
+
+> **POST：** `/v1/thirdparty/api/channel_gateway/minigame_douyin/subscribe_notification_developer_v1_notify`
+>
+> **认证方式：** [CPSign](/docs/开发者文档/入门指南/服务端接入须知)
+
+### CURL 示例
+
+```bash
+curl --location --request POST '{{接口域名}}/v1/thirdparty/api/channel_gateway/minigame_douyin/subscribe_notification_developer_v1_notify' \
+--header 'ruixue-cpid: {{CPID}}' \
+--header 'ruixue-cpts: {{时间戳}}' \
+--header 'ruixue-traceid: {{TraceID}}' \
+--header 'ruixue-cpsign: {{请求签名}}' \
+```
+
+### 请求参数（POST）
+
+| 字段 | 类型 | 是否必填 | 说明 |
+| --- | --- | --- | --- |
+| cp_user_id | string | 是 | 接收消息目标用户的游戏 ID ； cp_user_id、rx_openid 必须填写其中一个 |
+| rx_openid | string | 是 | 接收消息目标用户的望舒 Openid ； cp_user_id、rx_openid 必须填写其中一个 |
+| tpl_id | string | 是 | 模板的 id ，[参考订阅消息能力](https://developer.open-douyin.com/docs/resource/zh-CN/mini-game/develop/open-capacity/subscribe-message/introduce) |
+| data | map[string]string | 是 | 用于填充模板的关键词数据 |
+| page | string | 是 | 跳转的页面[可参考小程序订阅消息](https://developer.open-douyin.com/docs/resource/zh-CN/mini-app/develop/server/subscribe-notification/notify-user-v2) page 参数，一般小游戏场景下无需使用 |
+
+### 响应结构（JSON）
+
+| 字段名 | 类型 | 描述 |
+| --- | --- | --- |
+| code | Number | 望舒错误码 |
+| data.err_no | Number | 业务错误码 |
+| data.err_tips | String | 业务错误信息 |
+
+
+**返回示例**
+
+```json
+{
+ "code": 0,
+ "data": {
+ "err_no": 0,
+ "err_tips": ""
+ }
+}
+```

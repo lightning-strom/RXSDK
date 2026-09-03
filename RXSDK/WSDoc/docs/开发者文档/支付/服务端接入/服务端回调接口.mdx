@@ -1,0 +1,381 @@
+---
+sidebar_position: 2
+title: 服务端回调接口
+description: "望舒SDK 支付 服务端回调接口服务端文档，提供接口请求参数与响应说明。"
+unlisted: true
+---
+
+## 苹果支付用户申请退款通知 CP 接口
+
+用户使用苹果支付，申请退款时苹果服务器会通知望舒,望舒将消息处理后转发给 CP 服务器
+
+> 类型：异步
+>
+> Action: ke-appstore-refund-request
+>
+> **认证方式：** [CPSign](/docs/开发者文档/入门指南/服务端接入须知)
+
+需要在苹果官方后台配置回调地址通知望舒规则:api 域名 +/v1/ke/refund/产品 ID/appstore 例如:api 域名是 [http://api.weiletest.com](http://api.weiletest.com) 产品 ID 是 6324
+
+那么 完整的域名则是 [http://api.weiletest.com/v1/ke/refund/6324/appstore](http://api.weiletest.com/v1/ke/refund/6324/appstore)
+
+### 请求参数
+
+| 字段 | 类型 | 是否必填 | 说明 |
+| --- | --- | --- | --- |
+| order_no | String | 否 | 望舒订单号 |
+| trade_no | String | 否 | CP 订单号 |
+| platform_no | String | 否 | 三方平台订单号 |
+| transmit_args | String | 否 | 客户端透传参数 |
+| goods_tag | String | 否 | 望舒后台配置计费点标识 |
+| goods_name | String | 否 | 商品名称 |
+| price | Number | 否 | 支付金额 单位 分 |
+| currency | String | 否 | 支付币种 |
+| openid | String | 否 | 望舒 openid |
+| translation_id | String | 是 | 苹果退款 translation_id 当只有 translation_id 没有 order_no 等其他参数时代表这笔订单无法在望舒中查询到,属于接入望舒系统之前的订单,或者用户掉单,这种情况需要 CP 自行判断和处理 |
+
+#### 请求示例
+
+```json
+{
+  "order_no": "22083142794459",
+  "trade_no": "1050962#1661917993640",
+  "platform_no": "2022083122001428061443103894",
+  "transmit_args": "{\"userid\":1050962}",
+  "goods_tag": "weile_cat_chongzhi6",
+  "goods_name": "6元钻石直充",
+  "price": 600,
+  "currency": "CNY",
+  "openid": "rxuCMrWjdxEZB0HBPzqSBlbzX3_zK8A1",
+  "translation_id":"123123123891239"
+}
+```
+
+#### 返回示例
+
+```json
+{
+  "code": 0
+}
+```
+
+### 响应要求
+
+| 字段 | 类型 | 说明 |
+| --- | --- | --- |
+| code | Number | 0 成功 |
+| msg | String | 错误信息 |
+| data | Any | 需要返回数据时放到此字段 |
+
+## 苹果谷歌支付用户退款成功通知 CP 接口
+
+用户使用苹果谷歌支付，用户退款成功时苹果谷歌服务器会通知望舒,望舒将消息处理后转发给 CP 服务器
+
+> 类型：异步
+>
+> Action: ke-appstore-refund-success
+>
+> **认证方式：** [CPSign](/docs/开发者文档/入门指南/服务端接入须知)
+
+apple 支付: 需要在苹果官方后台配置回调地址通知望舒规则:api 域名 +/v1/ke/refund/产品 ID/渠道 ID/appstore 例如:api 域名是 [http://api.weiletest.com](http://api.weiletest.com) 产品 ID 是 6324 渠道是 100
+
+那么 完整的域名则是 [http://api.weiletest.com/v1/ke/refund/6324/100/appstore](http://api.weiletest.com/v1/ke/refund/6324/100/appstore)
+
+google 支付:
+
+需要在 google 配置 pubsub[https://developer.android.google.cn/google/play/billing/getting-ready?hl=th#setup-pubsub](https://developer.android.google.cn/google/play/billing/getting-ready?hl=th#setup-pubsub)
+
+规则:api 域名 +/v1/ke/refund/产品 ID/渠道 ID/google
+
+例如:api 域名是 [http://api.weiletest.com](http://api.weiletest.com) 产品 ID 是 6324 渠道是 100
+
+那么 google sub 推送配置完整的域名则是 [http://api.weiletest.com/v1/ke/refund/6324/100/google](http://api.weiletest.com/v1/ke/refund/6324/100/google)
+
+需要在望舒配置有对应权限的 serveraccount 账号
+
+### 请求参数
+
+| 字段 | 类型 | 是否必填 | 说明 |
+| --- | --- | --- | --- |
+| order_no | String | 否 | 望舒订单号 |
+| trade_no | String | 否 | CP 订单号 |
+| platform_no | String | 否 | 三方平台订单号 |
+| transmit_args | String | 否 | 客户端透传参数 |
+| goods_tag | String | 否 | 望舒后台配置计费点标识 |
+| goods_name | String | 否 | 商品名称 |
+| price | Number | 否 | 支付金额 单位 分 |
+| currency | String | 否 | 支付币种 |
+| openid | String | 否 | 望舒 openid |
+| translation_id | String | 是 | 苹果退款 translation_id 当只有 translation_id 没有 order_no 等其他参数时代表这笔订单无法在望舒中查询到,属于接入望舒系统之前的订单,或者用户掉单,这种情况需要 CP 自行判断和处理 |
+
+#### 请求示例
+
+```json
+{
+  "order_no": "22083142794459",
+  "trade_no": "1050962#1661917993640",
+  "platform_no": "2022083122001428061443103894",
+  "transmit_args": "{\"userid\":1050962}",
+  "goods_tag": "weile_cat_chongzhi6",
+  "goods_name": "6元钻石直充",
+  "price": 600,
+  "currency": "CNY",
+  "openid": "rxuCMrWjdxEZB0HBPzqSBlbzX3_zK8A1",
+  "translation_id":"123123123891239"
+}
+```
+
+#### 返回示例
+
+```json
+{
+  "code": 0
+}
+```
+
+### 响应要求
+
+| 字段 | 类型 | 说明 |
+| --- | --- | --- |
+| code | Number | 0 成功 |
+| msg | String | 错误信息 |
+| data | Any | 需要返回数据时放到此字段 |
+
+## 支付成功通知 CP 接口
+
+用户完成支付后，望舒服务会根据 CP 下单时候传递的 notify_url 通知 CP 服务器支付成功（若没传 notify_url ，则取望舒后台配置的 CP 支付成功地址。[CP 支付成功地址回调配置位置](/docs/开发者文档/三方服务/华为/游戏道具商城)）， CP 需要在接收到该通知后对通知信息进行校验和对成功订单进行处理， CP 需要自行处理重复通知逻辑，确保一笔订单重复通知到 CP ， CP 也只发一次货
+
+望舒在通知 CP 发货时， CP 侧如果返回了失败。望舒会触发重试机制：第一次 5s 第二次 10s 第三次 30s 然后都是隔 60s 每次， 总共 12 次。
+
+> 类型：同步
+>
+> Action: ke-notify
+>
+> **认证方式：** [CPSign](/docs/开发者文档/入门指南/服务端接入须知)
+
+**请求参数**
+
+| 字段 | 类型 | 是否必填 | 说明 |
+| --- | --- | --- | --- |
+| order_no | String | 是 | 望舒订单号 |
+| trade_no | String | 是 | CP 订单号 |
+| platform_no | String | 否 | 三方平台订单号 |
+| transmit_args | String | 是 | 客户端透传参数 |
+| goods_tag | String | 是 | 望舒后台配置计费点标识 |
+| goods_name | String | 是 | 商品名称 |
+| price | Number | 是 | 支付金额 单位 分 |
+| currency | String | 是 | 支付币种 |
+| openid | String | 是 | 望舒 openid |
+| cp_user_id | String | 否 | 用户 id |
+| sub_pay | String | 否 | 非必定返回字段 子支付方式 例如:银联渠道-> 子支付方式使用支付宝 |
+| card_price | Number | 否 | 非必定返回字段 充值卡金额-> 海外 UPAY 支付使用充值卡支付返回该字段 |
+| call_from | String | 否 | 非必定返回字段 目前使用场景为区分微信小游戏回调方式，值为 wx_mini_subscribe 为微信小游戏订阅回调 |
+| force_repair | Boolean | 否 | 是否强制补单 |
+
+### 请求示例
+
+```json
+{
+  "order_no": "22083142794459",
+  "trade_no": "1050962#1661917993640",
+  "platform_no": "2022083122001428061443103894",
+  "transmit_args": "{\"userid\":1050962}",
+  "goods_tag": "weile_cat_chongzhi6",
+  "goods_name": "6元钻石直充",
+  "price": 600,
+  "currency": "CNY",
+  "openid": "rxuCMrWjdxEZB0HBPzqSBlbzX3_zK8A1",
+  "force_repair":false
+}
+```
+
+#### 返回示例
+
+```json
+{
+  "code": 0 // 返回非0都代表CP处理失败 失败订单望舒服务器会在一个小时内每隔5分钟尝试重复通知CP,直到CP返回
+}
+```
+
+### 响应要求
+
+| 字段 | 类型 | 说明 |
+| --- | --- | --- |
+| code | Number | 0 成功 |
+| msg | String | 错误信息 |
+| data | Any | 需要返回数据时放到此字段 |
+
+## 支付获取chekcout风控信息接口(已弃用)
+
+用户使用 checkout 支付方式下单时需要上报风控信息到 checkout 平台,
+
+望舒会将此接口返回的 data 结构内的字段和值 透传到 checkout 的 metadata 字段中
+
+具体响应字段需要 CP 商务与 checkout 官方协调
+
+> 类型：同步
+>
+> Action: ke-checkout-metadata
+>
+> **认证方式：** [CPSign](/docs/开发者文档/入门指南/服务端接入须知)
+
+**请求参数**
+
+| 字段 | 类型 | 是否必填 | 说明 |
+| --- | --- | --- | --- |
+| openid | String | 是 | 望舒 openid |
+
+### 请求示例
+
+```json
+{
+
+  "openid": "rxuCMrWjdxEZB0HBPzqSBlbzX3_zK8A1",
+
+}
+```
+
+#### 返回示例
+
+```json
+{
+  "code": 0 //
+  "data":{} // key value 结构 map[string]any
+}
+```
+
+### 响应要求
+
+| 字段 | 类型 | 说明 |
+| --- | --- | --- |
+| code | Number | 0 成功 |
+| msg | String | 错误信息 |
+| data | Any | 需要返回数据时放到此字段 |
+
+## 通知CP下单接口
+
+在特殊的运营场景下会在望舒侧直接下单
+
+> 类型：同步
+>
+> Action: ke-cporder
+>
+> **认证方式：** [CPSign](/docs/开发者文档/入门指南/服务端接入须知)
+
+**请求参数**
+
+| 字段 | 类型 | 是否必填 | 说明 |
+| --- | --- | --- | --- |
+| goods_tag | String | 是 | 计费点 |
+| openid | String | 是 | 望舒 openid |
+| cp_user_id | String | 否 | cp 用户 id |
+| pay_type | String | 是 | 支付方式 |
+| amount | Number | 是 | 支付金额 单位分 |
+| currency | String | 否 | 币种 国内默认 CNY |
+| country | String | 否 | 国家 |
+| env | Number | 否 | 否测试环境 1 测试环境 |
+| scene | String | 否 | 下单场景 |
+
+### 请求示例
+
+```json
+{
+  "goods_tag":"394991",
+  "cp_user_id":"4281941",
+  "openid": "rxuCMrWjdxEZB0HBPzqSBlbzX3_zK8A1",
+  "pay_type":"alipay",
+  "amount":1,
+  "currency":"CNY"
+  "country":"CN",
+  "env":0,
+  "scene":"rx_shop"
+
+}
+```
+
+#### 返回示例
+
+```json
+{
+  "code": 0 //
+  "data":{
+  "trade_no":"11111",
+  "notify_url":"",
+  "ext":{
+  "a":1,
+  "b":"2"
+}
+}
+}
+```
+
+### 响应要求
+
+| 字段 | 类型 | 说明 |
+| --- | --- | --- |
+| code | Number | 0 成功 |
+| msg | String | 错误信息 |
+| data | Object | 需要返回数据时放到此字段 |
+| data.trade_no | String | CP 侧订单号 |
+| data.notify_url | String | 通知 CP 回调地址,如果为空则使用望舒后台配置 |
+| data.ext | Any | 附加扩展字段 例如 checout 风控参数 |
+
+## 道具兑换接口
+
+用于特定场景下用户使用道具兑换道具的情况
+
+> 类型：同步
+>
+> Action: item_redemption
+>
+> **认证方式：** [CPSign](/docs/开发者文档/入门指南/服务端接入须知)
+
+**请求参数**
+
+| 字段 | 类型 | 是否必填 | 说明 |
+| --- | --- | --- | --- |
+| openid | String | 是 | 望舒 openid |
+| cp_user_id | String | 否 | cp 用户 id |
+| user_id | String | 否 | cp 用户 id |
+| consumptions | []AttrItem | 是 | 用户消耗道具列表 |
+| increases | []AttrItem | 是 | 用户获得道具列表 |
+
+**AttrItem**
+
+| 字段 | 类型 | 是否必填 | 说明 |
+| --- | --- | --- | --- |
+| prop | String | 是 | 道具标识 |
+| num | Number | 是 | 道具数量 |
+
+### 请求示例
+
+```json
+{
+
+  "cp_user_id":"4281941",
+  "user_id":"4281941",
+  "openid": "rxuCMrWjdxEZB0HBPzqSBlbzX3_zK8A1",
+  "consumptions":[{"prop":"coin","num":1000}],
+  "increases":[{"prop":"vip":"num":1}]
+
+}
+```
+
+#### 返回示例
+
+```json
+{
+  "code": 0
+  "data":{
+
+}
+}
+```
+
+### 响应要求
+
+| 字段 | 类型 | 说明 |
+| --- | --- | --- |
+| code | Number | 0 成功 |
+| msg | String | 错误信息 |
+| data | Object | 需要返回数据时放到此字段 |

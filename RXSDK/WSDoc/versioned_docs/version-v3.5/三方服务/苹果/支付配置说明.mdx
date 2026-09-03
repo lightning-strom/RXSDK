@@ -1,0 +1,82 @@
+---
+title: "支付配置说明"
+---
+
+## 准备工作
+
+::: tip
+App Store Connect：https://appstoreconnect.apple.com/apps
+望舒系统地址：[企业管理后台中获取望舒地址](/docs/v3.5/入门指南/准备工作)。
+:::
+
+## 支付配置
+
+### App Store Connect 获取信息
+
+1. 登录 [App Store Connect](https://appstoreconnect.apple.com/apps) ，位置：**App Store Connect** **> apps > xxapp > App** 信息。
+2. 获取关键配置：`bundleid`。
+![](https://guanwangyun.oss-cn-beijing.aliyuncs.com/document/tripartite/apple/pay/pay1.png)
+3. 在「用户和访问」中，密钥类型选择 App Store Connect API 创建密钥；
+4. 获取 `Issuer ID`；
+![](https://guanwangyun.oss-cn-beijing.aliyuncs.com/document/tripartite/apple/pay/pay2.png)
+### 望舒系统中配置支付信息
+1. 从 [App Store Connect](https://appstoreconnect.apple.com/apps) 获取`bundleid`、 `Issuer ID`信息。
+
+2. 复制到望舒系统，位置：**运维资源管理> 三方账号管理 > 支付账号管理 > 新建支付账号**。
+![image.png](https://haiqi-ruixue-test.oss-cn-beijing.aliyuncs.com/docOnline/image-1768196684042.png)
+## 退款通知配置
+### App Store Connect 填写回调地址
+1.在App信息中，找到App Store服务器通知。进行服务器url编辑。
+2.通过望舒游戏发行平台首页选择ios产品渠道`复制参数` ，选中支付参数tab按钮  ，复制苹果退款通知地址。
+![image.png](https://haiqi-ruixue-test.oss-cn-beijing.aliyuncs.com/docOnline/image-1727068259307.png)
+3.进行退款通知服务器url编辑。
+![](https://guanwangyun.oss-cn-beijing.aliyuncs.com/document/tripartite/apple/pay/refund.jpg)
+### 获取参数
+1. 登录 [App Store Connect](https://appstoreconnect.apple.com/apps) ，位置：**App Store Connect** **> apps > xxapp > App** 信息。
+2. 在「用户和访问」中，密钥类型选择 App Store Connect API 创建密钥；
+3. 获取 密钥 ID、下载 API 密钥；
+::: warning
+苹果仅允许「下载 API 密钥」一次，丢失后需要重新创建并重新对接。
+:::
+![](https://guanwangyun.oss-cn-beijing.aliyuncs.com/document/tripartite/apple/pay/pay2.png)
+### 将获取的 密钥 ID、API 密钥填充到`退款通知配置`中；
+API 密钥下载后复制全选粘贴到配置栏即可，无需改动。
+![image.png](https://haiqi-ruixue-test.oss-cn-beijing.aliyuncs.com/docOnline/image-1768196713074.png)
+
+## 订单查询配置
+1.登录 [App Store Connect](https://appstoreconnect.apple.com/apps) 。
+2.在「用户和访问」中，密钥类型选择 App 内购买创建密钥；
+3.获取 `Issuer ID`、密钥 ID、下载 API 密钥；
+::: warning
+苹果仅允许「下载 API 密钥」一次，丢失后需要重新创建并重新对接。
+:::
+![image.png](https://haiqi-ruixue-test.oss-cn-beijing.aliyuncs.com/docOnline/image-1726734118970.png)
+
+![image.png](https://haiqi-ruixue-test.oss-cn-beijing.aliyuncs.com/docOnline/image-1726734126284.png)
+
+![image.png](https://haiqi-ruixue-test.oss-cn-beijing.aliyuncs.com/docOnline/image-1726734136269.png)
+### 将获取的 密钥 ID、API 密钥填充到`订单查询配置`中；
+API 密钥下载后复制全选粘贴到配置栏即可，无需改动。
+![image.png](https://haiqi-ruixue-test.oss-cn-beijing.aliyuncs.com/docOnline/image-1768196723878.png)
+
+## 计费点配置
+
+### 创建 App 内购买项目
+
+1. 登录 [App Store Connect](https://appstoreconnect.apple.com/apps) ，位置：**App Store Connect** **> App 内购买项目**。
+  
+
+![](https://guanwangyun.oss-cn-beijing.aliyuncs.com/document/tripartite/b3d87de3-82fa-4178-8f3c-46421fcdac83.png)
+
+1. 「产品 ID」由项目组自定义，应与望舒系统计费点管理的「三方计费标识」配置一致。
+  
+
+![](https://guanwangyun.oss-cn-beijing.aliyuncs.com/document/tripartite/0c436afb-87c8-496a-bec8-4cbe52a9a538.png)
+
+### 望舒系统中配置计费点信息
+
+1. 从 App Store Connect 获取「产品 ID」信息，填写到「三方计费标识」。
+  
+2. 复制到望舒系统，位置：**产品 >计费点信息管理 > 添加三方计费点**。
+
+![image.png](https://haiqi-ruixue-test.oss-cn-beijing.aliyuncs.com/docOnline/image-1768196777342.png)

@@ -1,0 +1,335 @@
+---
+title: "iOS"
+---
+
+## 基本功能
+
+### 创建会话
+
+通过此接口您可以创建一对一/一对多的会话，并在其中发送消息。
+
+**接口原型**
+
+```objectivec
+/**
+* 创建会话
+* @param covId 会话id
+* @param option 选项
+* @param creatorOption 创建者选项
+* @param members 成员
+* @param ext 扩展字段
+*/
+- (void)creatConversation:(NSString * _Nonnull)covId
+                   option:(NSInteger)option
+            creatorOption:(NSInteger)creatorOption
+                  members:(NSArray * _Nullable)members
+                      ext:(NSDictionary * _Nullable)ext
+        completionHandler:(void (^)(RXIMError *error))completionHandler;
+```
+
+#### 参数说明
+
+| **字段**      | **类型**     | **是否必填** | **备注**   |
+| ------------- | ------------ | ------------ | ---------- |
+| covId         | NSString     | 是           | 会话 id    |
+| option        | NSInteger    | 是           | 选项       |
+| creatorOption | NSInteger    | 是           | 创建者选项 |
+| members       | NSArray      | 是           | 成员       |
+| ext           | NSDictionary | 否           | 扩展字段   |
+
+**调用示例**
+
+```objectivec
+[[RXIMSessionService sharedSDK] creatConversation:self.sessionId option:0 creatorOption:0 members:nil ext:nil completionHandler:^(RXIMError * _Nonnull error) {
+    if (!error) {
+        [SVProgressHUD showSuccessWithStatus:@"创建会话成功"];
+    }else{
+        [SVProgressHUD showErrorWithStatus:[NSString stringWithFormat:@"创建会话失败 error = %@",error.developerMessage]];
+    }
+}];
+```
+
+### 删除/解散会话
+
+删除/解散会话通过代理 RXIMSessionServiceDelegate 内方法 `onServerSessionDelete` 来回执处理。
+
+**接口原型**
+
+```objectivec
+/**
+ * 删除或解散会话
+ * @param covId 会话id
+ */
+- (void)disbandConversation:(NSString * _Nonnull)covId
+         completionHandler:(void (^)(RXIMError *error))completionHandler;
+         
+#pragma mark -- RXIMSessionServiceDelegate
+/**
+ * 会话删除回执
+ * @param session 会话
+ */
+- (void)onSessionDelete:(RXIMSession *)session;
+```
+
+**调用示例**
+
+```objectivec
+[[RXIMSessionService sharedSDK] disbandConversation:self.sessionId completionHandler:^(RXIMError * _Nonnull error) {
+    if (!error) {
+       [SVProgressHUD showSuccessWithStatus:@"删除会话成功"];
+    }else{
+        [SVProgressHUD showErrorWithStatus:[NSString stringWithFormat:@"删除会话失败 error = %@",error.developerMessage]];
+    }
+}];
+
+#pragma mark -- RXIMSessionServiceDelegate
+/**
+ * 会话删除回执
+ * @param session 会话
+ */
+- (void)onSessionDelete:(RXIMSession *)session
+{
+
+}
+```
+
+### 获取会话信息
+
+**接口原型**
+
+```objectivec
+/**
+ * 获取会话信息
+ * @param covId 会话id
+ */
+- (void)fetchConversationInfo:(NSString * _Nonnull)covId
+          completionHandler:(void (^)(RXIMSession *session,RXIMError *error))completionHandler;
+```
+
+**调用示例**
+
+```objectivec
+[[RXIMSessionService sharedSDK] fetchConversationInfo:self.sessionId completionHandler:^(RXIMSession * _Nonnull session, RXIMError * _Nonnull error) {
+    if (!error) {
+        [SVProgressHUD showSuccessWithStatus:@"获取会话成功"];
+    }else{
+        [SVProgressHUD showErrorWithStatus:[NSString stringWithFormat:@"获取会话信息失败 error = %@",error.developerMessage]];
+    }
+}];
+```
+
+### 更新会话数据
+
+**接口原型**
+
+```objectivec
+/**
+ * 更新会话数据
+ * @param covId 会话id
+ * @param option 选项
+ * @param ext 扩展字段
+ */
+- (void)updateConversationInfo:(NSString * _Nonnull)covId
+                        option:(NSInteger)option
+                           ext:(NSDictionary * _Nullable)ext
+              completionHandler:(void (^)(RXIMError *error))completionHandler;
+```
+
+#### 参数说明
+
+| **字段** | **类型**     | **是否必填** | **备注** |
+| -------- | ------------ | ------------ | -------- |
+| covId    | NSString     | 是           | 会话 id  |
+| option   | NSInteger    | 是           | 选项     |
+| ext      | NSDictionary | 否           | 扩展字段 |
+
+**调用示例**
+
+```objectivec
+NSDictionary *dic = @{@"isRead":@"1"};
+[[RXIMSessionService sharedSDK] updateConversationInfo:self.sessionId option:0 ext:dic completionHandler:^(RXIMError * _Nonnull error) {
+    if (!error) {
+        [SVProgressHUD showSuccessWithStatus:@"更新会话成功"];
+    }else{
+        [SVProgressHUD showErrorWithStatus:[NSString stringWithFormat:@"更新会话失败 error = %@",error.developerMessage]];
+    }
+}];
+```
+
+### 加入会话
+
+**接口原型**
+
+```objectivec
+/**
+ * 加入会话
+ * @param joinSessions 加入会话数组
+ */
+- (void)joinConversation:(RXIMJoinSession * _Nonnull)joinSession
+       completionHandler:(void (^)(RXIMError *error))completionHandler;
+```
+
+#### 参数说明
+
+> RXIMJoinSession 结构说明
+
+| **字段**        | **类型**     | **是否必填** | **备注**         |
+| --------------- | ------------ | ------------ | ---------------- |
+| conversation_id | NSString     | 是           | 会话 id          |
+| ext             | NSDictionary | 否           | 会话 cp 扩展字段 |
+| option          | NSInteger    | 否           | 会话选项，位运算 |
+
+**调用示例**
+
+```objectivec
+RXIMJoinSession *joinSession = [[RXIMJoinSession alloc]init];
+joinSession.conversation_id = self.sessionId;
+[[RXIMSessionService sharedSDK] joinConversation:joinSession completionHandler:^(RXIMError * _Nonnull error) {
+    if (!error) {
+        [SVProgressHUD showSuccessWithStatus:@"加入会话成功"];
+    }else{
+        [SVProgressHUD showErrorWithStatus:[NSString stringWithFormat:@"加入会话失败 error = %@",error.developerMessage]];
+    }
+}];
+```
+
+### 离开会话
+
+**接口原型**
+
+```objectivec
+/**
+ * 离开会话
+ * @param covIds 会话id数组
+ * @param tips 会话内提示内容
+ */
+- (void)leaveConversations:(NSArray * _Nonnull)covIds
+                      tips:(RXIMMsgConvTipsContent * _Nullable)tips
+         completionHandler:(void (^)(RXIMError *error))completionHandler;
+```
+
+#### 参数说明
+
+| **字段** | **类型**               | **是否必填** | **备注**       |
+| -------- | ---------------------- | ------------ | -------------- |
+| covIds   | NSArray                | 是           | 会话 id 数组   |
+| tips     | RXIMMsgConvTipsContent | 否           | 会话内提示内容 |
+
+**调用示例**
+
+```objectivec
+RXIMMsgConvTipsContent *tips = [[RXIMMsgConvTipsContent alloc]init];
+tips.type = 0;
+tips.text = [NSString stringWithFormat:@"%@离开了会话",[JX_UserUtility sharedManager].openId];
+tips.userids = @[[JX_UserUtility sharedManager].openId];
+[[RXIMSessionService sharedSDK] leaveConversations:@[self.groupInfo.sessionID] tips:tips completionHandler:^(RXIMError * _Nonnull error) {
+    if (!error) {
+        [SVProgressHUD showSuccessWithStatus:@"离开会话成功"];
+    }else{
+        [SVProgressHUD showErrorWithStatus:@"离开会话失败"];
+    }
+}];
+```
+
+### 更新用户在会话中的信息
+
+**接口原型**
+
+```objectivec
+/**
+ * 更新用户在会话中信息
+ * @param covId 会话id
+ * @param option 选项
+ * @param ext 扩展字段
+ */
+- (void)updateUserInfoInConversation:(NSString * _Nonnull)covId
+                              option:(NSInteger)option
+                                 ext:(NSDictionary * _Nullable)ext
+                    completionHandler:(void (^)(RXIMError *error))completionHandler;
+```
+
+#### 参数说明
+
+| **字段** | **类型**     | **是否必填** | **备注** |
+| -------- | ------------ | ------------ | -------- |
+| covId    | NSString     | 是           | 会话 id  |
+| option   | NSInteger    | 否           | 选项     |
+| ext      | NSDictionary | 否           | 扩展字段 |
+
+**调用示例**
+
+```objectivec
+NSDictionary *dic = @{@"isRead":@"1"};
+[[RXIMSessionService sharedSDK] updateUserInfoInConversation:self.sessionId option:0 ext:dic completionHandler:^(RXIMError * _Nonnull error) {
+    if (!error) {
+        [SVProgressHUD showSuccessWithStatus:@"更新会话内用户信息成功"];
+    }else{
+        [SVProgressHUD showErrorWithStatus:[NSString stringWithFormat:@"更新会话内用户信息失败 error = %@",error.developerMessage]];
+    }
+}];
+```
+
+## 获取会话列表
+
+### 获取服务器会话列表
+
+只有在调用了创建会话接口后，服务器才会记录该数据。并可以通过获取会话列表接口查询。
+
+**接口原型**
+
+```objectivec
+/**
+ * 获取服务器会话列表
+ * @param covId 会话id
+ */
+- (void)fetchConversationList:(void (^)(NSArray *sessionInfoAry,RXIMError *error))completionHandler;
+```
+
+**调用示例**
+
+```objectivec
+[[RXIMSessionService sharedSDK] fetchConversationList:^(NSArray * _Nonnull sessionInfoAry, RXIMError * _Nonnull error) {
+    if (!error) {
+        [SVProgressHUD showSuccessWithStatus:@"获取会话列表成功"];
+    }else{
+        [SVProgressHUD showErrorWithStatus:[NSString stringWithFormat:@"获取会话列表失败 error = %@",error.developerMessage]];
+    }
+}];
+```
+
+### 获取本地会话列表
+
+结果可能会比从服务器获取会话数量要多，只要产生会话行为，就会产生记录
+
+**接口原型**
+
+```objectivec
+/**
+ * 获取本地所有会话列表
+ */
+-(NSArray *)getConversationList;
+```
+
+**调用示例**
+
+```objectivec
+NSArray *convList = [[RXIMSessionService sharedSDK] getConversationList];
+```
+
+### 根据会话 id 获取会话
+
+**接口原型**
+
+```objectivec
+/**
+ * 根据会话id获取会话
+ * @param covId 会话id
+ */
+- (RXIMSession *)getConversationInfo:(NSString * _Nonnull)covId;
+```
+
+**调用示例**
+
+```objectivec
+RXIMSession *session = [[RXIMSessionService sharedSDK] getConversationInfo:self.sessionId];
+```

@@ -1,0 +1,224 @@
+---
+title: "原生广告"
+---
+
+## 加载广告
+
+**接口原型**
+
+```objectivec
+/**
+ * 加载视频广告
+ * @param placementID 需全自动加载广告位Id
+ * @param extra 本地参数
+ */
+- (void)loadADWithPlacementID:(NSString *)placementID
+                        extra:(NSDictionary *)extra;
+```
+
+**调用示例**
+
+```objectivec
+//广告加载
+- (void)loadAd {
+    CGSize size = CGSizeMake(kScreenW, 350);
+    if ([self.placementIDs_draw.allValues containsObject:self.placementID]) {
+        size = self.view.frame.size;
+    }
+    
+    NSDictionary *extra = @{
+        /*
+            模板广告size，透传给广告平台，广告平台会返回相近尺寸的最优模板广告
+            如没有特定size要求，可传入高度 0，由平台适配宽度返回合适的高度
+        */
+        kATExtraInfoNativeAdSizeKey:[NSValue valueWithCGSize:size]
+    };
+    [[RXTopOnATAdManager sharedSDK] loadADWithPlacementID:self.placementID extra:extra];
+    [RXTopOnATAdManager sharedSDK].loadingDelegate = self;
+    [RXTopOnATAdManager sharedSDK].nativeDelegate = self;
+}
+```
+
+## 检查广告是否准备完成
+**接口原型**
+
+```objectivec
+/**
+ 判断当前是否存在可展示的广告
+ placementId：TopOn的广告位id
+ */
+- (BOOL)nativeAdReadyForPlacementID:(NSString *)placementID;
+```
+
+**调用示例**
+
+```objectivec
+- (void)checkAd {
+    BOOL isReady = [[RXTopOnATAdManager sharedSDK] nativeAdReadyForPlacementID:self.placementID];
+    if (isReady) {
+        NSLog(@"广告准备好了");
+    }else{
+        NSLog(@"广告未准备好");
+    }
+}
+```
+
+## 到达场景统计
+关于统计用户到达场景的相关信息，可前往[广告场景](https://help.toponad.com/cn/docs/ctWq9Q)进行了解。
+
+统计用户到达该场景的几率，呈现在后台的数据 [数据报表 -> 漏斗分析报表 -> 到达广告场景](https://portal.toponad.com/m/report/funnel)
+
+一般在广告场景展示前调用此API。
+
+**接口原型**
+
+```objectivec
+/**
+ 进入业务场景当前广告位缓存状态统计。其中scenario是指广告展示场景（非必传，可以直接传null），可从后台创建场景参数和使用请参考 业务场景缓存状态统计
+ */
+- (void)entryNativeScenarioWithPlacementID:(NSString *)placementID
+                                     scene:(NSString *)scene;
+```
+
+**调用示例**
+
+```objectivec
+- (void)entryAdScenario {
+    [[RXTopOnATAdManager sharedSDK] entryNativeScenarioWithPlacementID:self.placementID scene:"your scene id"];
+}
+```
+
+## 展示广告
+
+**接口原型**
+
+```objectivec
+/**
+ 获取Native广告素材
+ placementId：TopOn的广告位id
+ scene：场景id
+ */
+- (ATNativeAdOffer *)getNativeAdOfferWithPlacementID:(NSString *)placementID
+                                               scene:(NSString *)scene;
+```
+
+**调用示例**
+
+```objectivec
+//广告展示
+- (void)showAd {
+    // 到达场景
+    [self entryAdScenario];
+
+    // 判断广告isReady状态
+    BOOL ready = [[RXTopOnATAdManager sharedSDK] nativeAdReadyForPlacementID:self.placementID];
+    if (ready == NO) {
+        [self loadAd];
+        return;
+    }
+    
+    // 初始化config配置
+    ATNativeADConfiguration *config = [self getNativeADConfiguration];
+    // 获取offer广告对象
+    ATNativeAdOffer *offer = [[RXTopOnATAdManager sharedSDK] getNativeAdOfferWithPlacementID:self.placementID scene:KTopOnNativeSceneID];
+    NSDictionary *offerDict = [ATUtilitiesTool getNativeAdOfferExtraDic:offer];
+    NSLog(@"🔥--原生广告素材：%@",offerDict);
+    
+    //后续通过自定义view展示对应的原生广告素材.....
+}
+
+- (ATNativeADConfiguration *)getNativeADConfiguration {
+    ATNativeADConfiguration *config = [[ATNativeADConfiguration alloc] init];
+    config.ADFrame = CGRectMake(0, kNavigationBarHeight, kScreenW, 350);
+    // 给视频播放器进行预约束，建议在后面添加到自定义视图的时候，再次进行一次约束
+    config.mediaViewFrame = CGRectMake(0, kNavigationBarHeight + 150.0f, kScreenW, 350 - kNavigationBarHeight - 150);
+    config.delegate = [RXTopOnATAdManager sharedSDK];
+    // 开启模板广告自适应高度
+    config.sizeToFit = YES;
+    config.rootViewController = self;
+    return config;
+}
+
+```
+
+## 加载与展示广告的代理方法
+**遵循协议**
+```objectivec
+@interface RewardViewController ()
+
+@end
+```
+
+**实现代理方法**
+```objectivec
+#pragma mark - delegate
+
+- (void)didFailBiddingADSourceWithPlacementID:(NSString *)placementID extra:(NSDictionary *)extra error:(NSError *)error {
+    
+}
+
+- (void)didFailToLoadADSourceWithPlacementID:(NSString *)placementID extra:(NSDictionary *)extra error:(NSError *)error { 
+    
+}
+
+- (void)didFailToLoadADWithPlacementID:(NSString *)placementID error:(NSError *)error { 
+    
+}
+
+- (void)didFinishBiddingADSourceWithPlacementID:(NSString *)placementID extra:(NSDictionary *)extra { 
+    
+}
+
+- (void)didFinishLoadingADSourceWithPlacementID:(NSString *)placementID extra:(NSDictionary *)extra { 
+    
+}
+
+- (void)didFinishLoadingADWithPlacementID:(NSString *)placementID { 
+    
+}
+
+- (void)didStartBiddingADSourceWithPlacementID:(NSString *)placementID extra:(NSDictionary *)extra { 
+    
+}
+
+- (void)didStartLoadingADSourceWithPlacementID:(NSString *)placementID extra:(NSDictionary *)extra { 
+    
+}
+
+- (void)didClickNativeAdInAdView:(ATNativeADView *)adView placementID:(NSString *)placementID extra:(NSDictionary *)extra { 
+    
+}
+
+- (void)didCloseDetailInAdView:(ATNativeADView *)adView placementID:(NSString *)placementID extra:(NSDictionary *)extra { 
+    
+}
+
+- (void)didDeepLinkOrJumpInAdView:(ATNativeADView *)adView placementID:(NSString *)placementID extra:(NSDictionary *)extra result:(BOOL)success { 
+    
+}
+
+- (void)didEndPlayingVideoInAdView:(ATNativeADView *)adView placementID:(NSString *)placementID extra:(NSDictionary *)extra { 
+    
+}
+
+- (void)didEnterFullScreenVideoInAdView:(ATNativeADView *)adView placementID:(NSString *)placementID extra:(NSDictionary *)extra { 
+    
+}
+
+- (void)didExitFullScreenVideoInAdView:(ATNativeADView *)adView placementID:(NSString *)placementID extra:(NSDictionary *)extra { 
+    
+}
+
+- (void)didShowNativeAdInAdView:(ATNativeADView *)adView placementID:(NSString *)placementID extra:(NSDictionary *)extra { 
+    
+}
+
+- (void)didStartPlayingVideoInAdView:(ATNativeADView *)adView placementID:(NSString *)placementID extra:(NSDictionary *)extra { 
+    
+}
+
+- (void)didTapCloseButtonInAdView:(ATNativeADView *)adView placementID:(NSString *)placementID extra:(NSDictionary *)extra { 
+    
+}
+
+```

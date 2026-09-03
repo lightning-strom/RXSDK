@@ -1,0 +1,73 @@
+---
+title: "Android接入"
+---
+
+## SDK 集成
+```
+implementation 'com.ruixue:ruixue_aliyun_dns:${version}'
+```
+
+- 在您的项目根目录中，打开 `your_app | Gradle Scripts | build.gradle (Project)` 并添加以下存储库：
+
+```groovy
+allprojects {
+    repositories {
+        maven {
+            url 'https://maven.aliyun.com/nexus/content/repositories/releases/'
+        }
+    }
+}
+```
+
+## 初始化
+如果APP需要在海外环境使用HTTPDNS，为了提升解析效率，可以主动设置本SDK的启动服务节点。设置节点后，SDK会使用该节点进行域名解析和进行随后的调度节点列表更新。
+
+:::warning
+DNS initAppID  初始化应放在 RuiXueSdk.initialize 之前
+:::
+
+**接口原型**
+
+```java
+/// 指定region，指定后会读取该region对应配置作为初始化配置
+/// @param region 需要指定的region，缺省为中国大陆
+public  void setRegion(String region)
+
+/**
+ * @param context 应用上下文 3.7.22后添加
+ * @param accountID accountID
+ * @param secretKey 秘钥
+ * @param isDebug 调试日志模式，true 开启，false 关闭，默认 false
+*/
+public void initAppID(Context context, String accountID, String secretKey, boolean isDebug)
+
+```
+> region 说明
+
+| region | 说明 |
+| --- | --- |
+| cn | 中国大陆 |
+| hk | 中国香港 |
+| sg | 新加坡 |
+| de | 德国 |
+| us | 美国 |
+:::warning
+setRegion 在 DNS 初始化前调用。
+:::
+**调用示例**
+
+```java
+SDK 初始化之前初始化阿里 dns
+AliCloudDnsManager.getInstance().setRegion("所需节点");//可选 默认国内
+AliCloudDnsManager.getInstance().initAppID( context, "xxxx", "xxxxx", true);    
+ 
+
+String cpid = cpid;
+String productid = productId();
+String channelid = channelId();
+RXSdkInitConfig rxSdkInitConfig = new RXSdkInitConfig(cpid, productid, channelid, urls, initCallback);
+//是否使用 dns
+rxSdkInitConfig.setUseDNS(true);
+
+RuiXueSdk.initialize(rxSdkInitConfig);
+```

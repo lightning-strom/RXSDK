@@ -1,0 +1,101 @@
+---
+sidebar_position: 6
+title: 订阅
+description: "望舒SDK 三方服务 订阅文档，提供详细的功能说明与接入指引。"
+---
+
+## 准备工作
+
+App Store Connect ： https://appstoreconnect.apple.com/apps
+
+望舒系统地址：[企业管理后台中获取望舒地址](/docs/开发者文档/入门指南/准备工作)。
+
+RXSDK_Pure 4.0.0 以上支持。
+
+## 支付配置
+
+### App Store Connect 获取信息
+
+登录 [App Store Connect](https://appstoreconnect.apple.com/apps) ，位置：**App Store Connect** **> apps > xxapp > App** 信息。
+
+获取关键配置： `bundleid`。
+
+![](https://guanwangyun.oss-cn-beijing.aliyuncs.com/document/tripartite/apple/pay/pay1.png)
+
+在「用户和访问」中，密钥类型选择 App Store Connect API 创建密钥；
+
+获取 `Issuer ID` ；
+
+![](https://guanwangyun.oss-cn-beijing.aliyuncs.com/document/tripartite/dingyue/%E5%BE%AE%E4%BF%A1%E5%9B%BE%E7%89%87_20260414174502_185_13.png)
+
+获取 ` 共享密钥 ` ；
+
+![](https://guanwangyun.oss-cn-beijing.aliyuncs.com/document/tripartite/dingyue/ScreenShot_2026-04-14_174725_626.png)
+
+### 望舒系统中配置支付信息
+
+从 [App Store Connect](https://appstoreconnect.apple.com/apps) 获取 `bundleid`、 `Issuer ID`、` 共享密钥 ` 信息。
+
+复制到望舒系统，位置：**运维资源管理> 三方账号管理 > 支付账号管理 > 新建支付账号**。
+
+![](https://guanwangyun.oss-cn-beijing.aliyuncs.com/document/tripartite/dingyue/ScreenShot_2026-04-14_174915_857.png)
+
+## 通知配置
+
+### App Store Connect 填写回调地址
+
+订阅通知和退款通知是同一个，如果之前配置过退款通知可忽略。
+
+1.在 App 信息中，找到 App Store 服务器通知。进行服务器 url 编辑。
+
+2.通过望舒游戏发行平台首页选择 iOS 产品渠道 ` 复制参数 ` ，选中支付参数 tab 按钮 ，复制苹果退款通知地址。
+
+![](https://haiqi-ruixue-test.oss-cn-beijing.aliyuncs.com/docOnline/image-1727068259307.png)
+
+3.进行 App Store 服务器通知配置。
+
+![](https://guanwangyun.oss-cn-beijing.aliyuncs.com/document/tripartite/apple/pay/refund.jpg)
+
+## 创建订阅
+
+苹果对于订阅提供了多种使用方式，本文只介绍基础配置部分，更多使用方式参考官方文档：[https://developer.apple.com/cn/app-store/subscriptions/#creating-subscriptions](https://developer.apple.com/cn/app-store/subscriptions/#creating-subscriptions)。
+
+登录 [App Store Connect](https://appstoreconnect.apple.com/apps) ，位置：**App Store Connect > 订阅 > 创建订阅群组**。
+
+![](https://guanwangyun.oss-cn-beijing.aliyuncs.com/document/tripartite/dingyue/ScreenShot_2026-04-14_180217_090.png)
+
+创建**订阅商品**
+
+![](https://guanwangyun.oss-cn-beijing.aliyuncs.com/document/tripartite/dingyue/ScreenShot_2026-04-14_180434_281.png)
+
+设置**订阅时限和价格**
+
+![](https://guanwangyun.oss-cn-beijing.aliyuncs.com/document/tripartite/dingyue/ScreenShot_2026-04-14_180721_570.png)
+
+## 设置优惠
+
+本文只介绍常用的**推介促销优惠**，其他优惠方式参考官方文档：[https://developer.apple.com/cn/app-store/subscriptions/#creating-subscriptions](https://developer.apple.com/cn/app-store/subscriptions/#creating-subscriptions)。
+
+创建**推介促销优惠**
+
+![](https://guanwangyun.oss-cn-beijing.aliyuncs.com/document/tripartite/dingyue/ScreenShot_2026-04-14_181043_349.png)
+
+创建**推介促销优惠类型**
+
+**随用随付：** 按照设置的周期付款，比如按月订阅，持续时间 3 个月，用户前 3 个月续费每个月都能享受优惠， 3 个月后恢复正常价格。
+
+**提前支付：** 一次性付款优惠价格，比如设置了 3 个月，用户在首次订阅时会一次性付款 3 个月订阅费用。
+
+![](https://guanwangyun.oss-cn-beijing.aliyuncs.com/document/tripartite/dingyue/ScreenShot_2026-04-14_181851_184.png)
+
+## 望舒系统中配置计费点信息
+
+从 App Store Connect 获取「产品 ID」信息，填写到「三方计费标识」。
+
+复制到望舒系统，位置：**产品 >计费点信息管理 > 添加三方计费点**，并勾选 **是否订阅**。
+
+![](https://guanwangyun.oss-cn-beijing.aliyuncs.com/document/tripartite/dingyue/ScreenShot_2026-04-14_184442_743.png)
+
+## 查询商品信息
+
+[查询商品信息](/docs/开发者文档/入门指南/快速开始/荣耀/小游戏/支付)

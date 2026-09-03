@@ -1,0 +1,99 @@
+---
+sidebar_position: 2
+title: Unity 接入
+description: Instagram Unity 端接入指南，包含 SDK 集成、配置说明及接口调用示例。
+---
+
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
+
+### 接入方式
+
+Package Manager 导入 RuiXue.Instagram
+
+## SDK 集成
+
+<Tabs groupId="platform">
+  <TabItem value="ios-sdk" label="iOS" default>
+
+iOS Instagram相关SDK与工程配置已自动集成，在调用以下初始化方法后，使用时直接参照您所使用的功能模块（例如登录、分享）的Unity文档说明即可。
+
+</TabItem>
+  <TabItem value="android-sdk" label="Android">
+
+```
+//海外渠道引用此库
+implementation 'com.ruixue:rxsdk_instagram:${version}'
+```
+
+</TabItem>
+</Tabs>
+
+
+## 参数说明
+
+| 参数 | 类型 | 说明 |
+| --- | --- | --- |
+| clientId | Long | launcherTemplate.gradle 中配置 instagram_client_id 值 |
+| redirectUrl | String | 在开发者后台查看，配置到下面 com.snap.kit.redirectUrl |
+
+
+## 配置说明
+
+<Tabs groupId="platform">
+  <TabItem value="ios-config" label="iOS" default>
+
+无。
+
+</TabItem>
+  <TabItem value="android-config" label="Android">
+
+- 在 `launcherTemplate.gradle` 文件 `defaultConfig` 下
+```
+    resValue "string", "instagram_client_id", "400197956108491"
+```
+- 在 AndroidManifest.xml 配置
+```
+<application>
+
+    <meta-data android:name="com.ruixue.sdk.instagram.clientId"
+            android:value="@string/instagram_client_id" />
+    <meta-data android:name="com.ruixue.sdk.instagram.redirectUrl"
+            android:value="https://ruixue.com/instagram/oauth2" />
+           
+</application>            
+```
+
+</TabItem>
+</Tabs>
+
+
+## 初始化
+
+<Tabs groupId="platform">
+  <TabItem value="ios-init" label="iOS" default>
+
+```csharp
+RXInstagram.init("your appid","your redirect uri");
+```
+
+</TabItem>
+  <TabItem value="android-init" label="Android">
+
+RuiXueSdk.InitThirdSdk(map, InitThirdSdkResponseDelegate, InitThirdSdkErrorDelegate);
+
+</TabItem>
+</Tabs>
+
+
+## 登录
+
+[点此跳转到 UI 登录方式](/docs/开发者文档/社交/Unity-接入/快速接入)
+
+[点此跳转到 API 登录方式](/docs/开发者文档/登录-通行证/服务端接入/服务端-API)
+
+## 分享
+
+仅支持系统分享。
+
+[点此跳转到分享 API](/docs/开发者文档/分享/服务端接入/服务端-API)

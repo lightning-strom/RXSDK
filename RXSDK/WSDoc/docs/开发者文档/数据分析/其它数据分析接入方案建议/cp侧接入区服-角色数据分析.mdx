@@ -1,0 +1,27 @@
+---
+sidebar_position: 1
+title: CP 侧接入区服与角色数据分析
+description: "望舒SDK 数据分析 CP 侧接入区服与角色数据分析文档，提供详细的功能说明与接入指引。"
+---
+
+# 1. 上报事件
+
+- 需要通过区服信息进行统计的事件里需要上报区服、角色 id ，用于后续统计。
+- 分享、下单支付等事件是望舒侧上报，因此需要在对应的接口或 sdk 中增加区服、角色 id 信息。
+
+## 1.1 分享
+
+- 当 cp 侧需要对分享事件#share 做区服、角色分析统计时，需要在调用 sdk 时传递对应的区服、角色 id 信息；
+
+[文档示例](/docs/开发者文档/意见反馈/Unity-接入)
+
+![](https://haiqi-ruixue-test.oss-cn-beijing.aliyuncs.com/docOnline/image-1733381608945.png)
+
+## 1.2 下单支付
+
+- 当 cp 侧需要对支付事件#order 订单、#paid 付款事件做区服、角色分析统计时，需要再调用 sdk 时传递对应的区服、角色 id 信息；
+- 接口文档地址：请参照不同支付协议文档固定结构 game_info 所需参数传值；
+
+[支付接口参数示例：](/docs/开发者文档/入门指南/快速开始/荣耀/小游戏/支付)
+
+![](https://haiqi-ruixue-test.oss-cn-beijing.aliyuncs.com/docOnline/image-1733382122201.png)

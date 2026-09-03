@@ -1,0 +1,71 @@
+---
+sidebar_position: 2
+title: Unity 接入
+description: "望舒SDK 三方服务 Unity 接入文档，提供详细的功能说明与接入指引。"
+---
+
+百度游戏渠道仅支持 Android。
+
+## SDK 集成
+
+通过 Package Manager 引入公共 Base、Login、Pay 包，不需要百度专属 UPM。
+在 Android 导出工程中选择百度渠道库：
+
+```groovy
+implementation 'com.ruixue:rxsdk_baidu_wangxun:4.0.18'
+```
+
+百度渠道库与其他 Android 渠道库互斥。切换渠道时只替换渠道依赖，C# 业务代码不变。
+
+Android 工程还需配置百度 FileProvider、`provider_paths.xml`、混淆规则，并确保
+`minSdkVersion` 不低于 22。
+
+## 初始化三方渠道
+
+`appid` 和 `appkey` 请从业务安全配置注入，不要写入代码仓库。
+
+```csharp
+var config = new Dictionary<string, object>
+{
+    ["appid"] = baiduAppId,
+    ["appkey"] = baiduAppKey
+};
+
+RuiXueSdk.InitThirdSdk(
+    config,
+    _ => RuiXueSdk.InvokeChannelAction(
+        RuiXueSdk.ChannelActionShowSplash,
+        new Dictionary<string, object>(),
+        Debug.Log,
+        Debug.LogError),
+    Debug.LogError);
+```
+
+初始化顺序：
+
+1. `RuiXueSdk.Initialize`
+2. `RuiXueSdk.SetPrivacyAgree`
+3. `RuiXueSdk.InitThirdSdk`
+4. `RuiXueSdk.InvokeChannelAction`
+
+## 渠道能力
+
+```csharp
+RuiXueSdk.InvokeChannelAction(
+    RuiXueSdk.ChannelActionShowFloatView,
+    new Dictionary<string, object>(),
+    OnSuccess,
+    OnError);
+
+RuiXueSdk.InvokeChannelAction(
+    RuiXueSdk.ChannelActionHideFloatView,
+    new Dictionary<string, object>(),
+    OnSuccess,
+    OnError);
+```
+
+- 登录：`RXLogin.Login`，登录类型使用 `LoginMethod.BaiduNet`
+- 角色上报：`RuiXueSdk.SetThirdGameInfo`
+- 渠道退出：`RuiXueSdk.ExitApp`
+
+完整示例见 `Assets/Samples/RuiXue.Baidu/4.0.0/RuiXueBaiduDemo/`。

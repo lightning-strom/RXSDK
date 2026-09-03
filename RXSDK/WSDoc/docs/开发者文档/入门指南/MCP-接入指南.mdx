@@ -1,0 +1,270 @@
+---
+sidebar_position: 3
+title: MCP 接入指南
+description: SDK MCP 接入指南，让 AI 帮你在 IDE 中直接完成 SDK 集成、代码生成和功能接入。
+---
+
+## 什么是SDK MCP
+
+SDK MCP 是一个基于 [Model Context Protocol](https://modelcontextprotocol.io/) 的 AI 辅助接入工具。配置后，你可以在支持 MCP 的 IDE（Cursor、Windsurf、VS Code + Copilot 等）中，通过自然语言对话完成 SDK 的接入、代码生成和功能集成，**无需手动查阅文档**。
+
+**支持平台：**
+
+- **Android** — ✅ 自动化接入（`android_setup` 一键配置 Gradle）
+- **iOS** — ✅ 自动化接入（`ios_setup` 一键配置 CocoaPods）
+- **Unity** — ✅ 自动化接入（`unity setup` 一键配置 UPM / .unitypackage）
+- **Go 服务端** — ✅ 接入规范与代码生成（`ruixuego`）
+
+## 版本要求
+
+:::warning
+
+iOS、Android SDK 需要 **≥ 4.0.0** 版本。
+
+:::
+
+## 配置方式
+
+:::tip
+以 Cursor 为例，其他 IDE 请按照其官方 MCP 说明配置。
+:::
+
+### 1. 添加 MCP Server
+
+在 **Cursor → Settings → Tools & MCPs → Installed MCP Servers** 中添加以下配置：
+
+```json
+{
+  "mcpServers": {
+    "ruixue-sdk-mcp": {
+      "type": "http",
+      "url": "https://rx-sdk-mcp.ruixueyun.com/mcp",
+      "headers": {
+        "Content-Type": "application/json",
+        "Tool-Range": "[]"
+      }
+    }
+  }
+}
+```
+
+### 2. 可选：限制工具范围
+
+`Tool-Range` 头部可指定只加载特定平台的工具，减少上下文开销：
+
+```json
+"Tool-Range": "[\"android\"]"
+```
+
+```json
+"Tool-Range": "[\"ios\", \"unity\"]"
+```
+
+不传或传 `[]` 时加载全部工具（默认）。
+
+### 3. 验证
+
+配置完成后重启 Cursor，打开 **Settings → MCP**，确认 `ruixue-sdk-mcp` 状态为绿色即可。
+
+![](https://guanwangyun.oss-cn-beijing.aliyuncs.com/document/%E5%88%9D%E5%A7%8B%E5%8C%96/20260409-101504.jpeg)
+
+![](https://guanwangyun.oss-cn-beijing.aliyuncs.com/document/%E5%88%9D%E5%A7%8B%E5%8C%96/20260409-101552.jpeg)
+
+---
+
+## 使用方式
+
+配置完成后，在 IDE 对话框中用自然语言描述需求，AI 会自动调用 MCP 工具生成代码或执行接入。
+
+### 自动化接入（推荐）
+
+说一句话即可完成 SDK 基础配置，AI 会自动检测项目结构并逐步执行：
+
+| 对话示例 | 自动执行 |
+|---------|---------|
+| `帮我接入瑞雪 Android SDK` | 检测 Gradle DSL → 添加 Maven 仓库 → 添加依赖 → 配置 Jetifier |
+| `帮我接入瑞雪 iOS SDK` | 检测 Podfile → pod init → 添加依赖 → pod install |
+| `帮我接入瑞雪 Unity SDK` | 检测安装方式 → 配置 Scoped Registry → 添加依赖 |
+| `帮我接入瑞雪 Go 服务端 SDK` | 添加 ruixuego 依赖 → 生成初始化代码 → 检查基础配置 |
+
+所有命令执行前会由 AI 确认，MCP Server 本身**不执行任何系统命令**。
+
+### 自然语言生成代码
+
+不需要记忆任何参数或 API 名称，正常描述需求即可：
+
+```plaintext
+帮我接入SDK，iOS 项目
+```
+
+```plaintext
+生成 Android 登录功能代码
+```
+
+```plaintext
+接入微信分享
+```
+
+```plaintext
+Unity 项目添加内购支付
+```
+
+```plaintext
+配置 Facebook 登录，App ID 是 123456
+```
+
+```plaintext
+Unity 添加游客登录
+```
+
+```plaintext
+iOS 添加验证码功能
+```
+
+```plaintext
+Go 游戏服务端接入排行榜
+```
+
+---
+
+## 工具列表
+
+### Android
+
+| 工具 | 类型 | 说明 |
+|------|------|------|
+| `android_setup` | **自动化接入** | 一键接入，自动配置 Gradle 依赖 |
+| `android_agent` | 流程指南 | 返回完整接入步骤 |
+| `android_add_dependency` | 代码生成 | Gradle 依赖配置 |
+| `android_init` | 代码生成 | SDK 初始化代码 |
+| `android_login` | 代码生成 | UI 登录（SDK 内置界面） |
+| `android_login_api` | 代码生成 | API 登录（自定义界面） |
+| `android_payment` | 代码生成 | 支付（微信/支付宝） |
+
+### iOS
+
+| 工具 | 类型 | 说明 |
+|------|------|------|
+| `ios_setup` | **自动化接入** | 一键接入，自动配置 CocoaPods 依赖 |
+| `ios_passport` | 代码生成 | 用户通行证（登录/注册/用户信息） |
+| `ios_captcha` | 代码生成 | 验证码（发送/验证） |
+| `ios_iap` | 代码生成 | 内购支付（IAP/补单） |
+| `ios_account_binding` | 代码生成 | 账号绑定（手机/邮箱） |
+| `ios_password` | 代码生成 | 密码管理（修改/重置） |
+| `ios_deregister` | 代码生成 | 账号注销 |
+| `ios_real_auth` | 代码生成 | 实名认证 |
+| `ios_share` | 代码生成 | 分享功能 |
+| `ios_feedback` | 代码生成 | 反馈功能 |
+| `ios_tracking` | 代码生成 | 数据埋点 |
+| `ios_game_area` | 代码生成 | 游戏区服 |
+| `ios_game_character` | 代码生成 | 游戏角色 |
+| `ios_announcement` | 代码生成 | 公告/邮件 |
+| `ios_device` | 代码生成 | 设备信息 |
+| `ios_promo` | 代码生成 | 达人福利 |
+| `ios_store_review` | 代码生成 | App Store 评分 |
+
+### Unity
+
+| 工具 | 类型 | 说明 |
+|------|------|------|
+| `unity setup` | **自动化接入** | 一键接入，支持 UPM / .unitypackage |
+| `unity agent` | 流程指南 | 返回完整接入步骤 |
+| `unity dependency` | 代码生成 | 依赖配置说明 |
+| `unity init` | 代码生成 | SDK 初始化代码 (C#) |
+| `unity login` | 代码生成 | 登录（游客/账号/验证码/第三方） |
+| `unity payment` | 代码生成 | 支付 |
+| `unity passport` | 代码生成 | 用户通行证 |
+| `unity captcha` | 代码生成 | 验证码 |
+| `unity real_auth` | 代码生成 | 实名认证 |
+| `unity account_binding` | 代码生成 | 账号绑定 |
+| `unity password` | 代码生成 | 密码管理 |
+| `unity deregister` | 代码生成 | 账号注销 |
+| `unity social` | 代码生成 | 社交关系 |
+| `unity friends` | 代码生成 | 好友管理 |
+| `unity lbs` | 代码生成 | LBS 定位 |
+| `unity rank` | 代码生成 | 排行榜 |
+| `unity share` | 代码生成 | 分享 |
+| `unity feedback` | 代码生成 | 反馈/客服 |
+| `unity tracking` | 代码生成 | 数据埋点 |
+| `unity ad` | 代码生成 | 广告（激励/Banner/插屏） |
+| `unity push` | 代码生成 | 推送 |
+| `unity version_check` | 代码生成 | 版本检查 |
+| `unity review` | 代码生成 | 应用商店评分 |
+| `unity legal_ui` | 代码生成 | 法务 |
+| `unity promo` | 代码生成 | 达人福利 |
+| `unity announcement` | 代码生成 | 公告/邮件 |
+| `unity device` | 代码生成 | 设备信息与配置 |
+| `unity user_center` | 代码生成 | 帮助中心/客服 |
+| `unity game_area` | 代码生成 | 游戏区服 |
+| `unity game_character` | 代码生成 | 游戏角色 |
+
+### Go 服务端
+
+Go 游戏服或 CP 后端统一使用 `ruixuego` 工具，通过 `feature` 参数生成 [ruixuego](https://github.com/ruixueyun/ruixuego) 的接入规范与示例代码。
+
+```text
+ruixuego feature=<feature_name> [version=v0.1.57] [workspacePath=Go 模块根路径]
+```
+
+| 功能分类 | feature | 说明 |
+|---------|---------|------|
+| 基础接入 | `dependency` `init` `agent` | 添加依赖、生成初始化代码、返回完整接入步骤 |
+| OpenID / 通行证 | `openid` `passport` | 解密登录 OpenID、接入用户通行证 |
+| 社交 / LBS / 排行榜 | `social` `lbs` `rank` | 社交关系、定位、排行榜 |
+| 大数据 / IMS / 推送 | `bigdata` `ims` `pusher` | 数据埋点、即时通讯、消息推送 |
+| 风控 / 支付 / 运营 | `risk` `pay` `operation` | 内容安全、支付、运营能力 |
+| 角色 / 归因 / 私域 | `cp_role` `attribution` `siyu` | 游戏角色、广告归因、私域运营 |
+
+推荐按以下顺序接入：
+
+1. 调用 `ruixuego feature=dependency` 添加 Go 模块依赖。
+2. 调用 `ruixuego feature=init` 生成初始化代码。
+3. 将示例中的 `@test`、假数字等占位值替换为真实业务参数。
+4. 按业务需要调用其他 feature。
+
+传入 `workspacePath` 后，非基础功能会检查 `go.mod` 是否包含 `github.com/ruixueyun/ruixuego`，以及工程中是否已有 `ruixuego.Init(`。
+
+:::warning
+
+MCP 返回的是代码模板，不会直接调用望舒云 API。示例中的 `APIDomain`、`CPKey`、`ProductID`、`OpenID` 等参数必须替换为真实值，禁止将测试占位值用于生产环境。
+
+:::
+
+---
+
+## 工作原理
+
+MCP 采用 **Agentic** 模式：
+
+```
+用户 → AI Agent → MCP Server → 返回步骤/代码 → AI 执行或插入 → 完成接入
+```
+
+- MCP Server **只返回结构化步骤和代码**，不直接操作文件系统
+- 所有文件修改和命令执行由 AI Agent 完成，执行前会请求确认
+- 自动化接入的每个步骤都有明确的类型（检测文件、创建文件、编辑文件、执行命令、用户输入）
+
+---
+
+## 常见问题
+
+### 连接失败 / 状态红色
+
+1. 确认 Cursor 已更新到最新版本
+2. 检查网络是否能访问 `https://rx-sdk-mcp.ruixueyun.com`
+3. 重新打开 MCP 面板或重启 Cursor
+
+### AI 没有调用 MCP 工具
+
+1. 确认 MCP Server 状态为绿色
+2. 在对话中明确提到「望舒」或「瑞雪」SDK
+3. 尝试更具体的描述，例如「帮我用瑞雪 SDK 接入 iOS 登录」
+
+### 生成的代码与项目不匹配
+
+生成的代码基于标准项目结构，请根据实际情况调整：
+- 包名/命名空间
+- 文件路径
+- 依赖版本号
+
+如有疑问，可联系望舒技术支持获取帮助。

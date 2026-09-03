@@ -1,0 +1,93 @@
+---
+title: "iOS"
+---
+
+## 准备工作
+
+::: tip
+接入请前先做好准备工作。
+可通过 **pod** 方式接入 **RXFacebookSDK** 组件，并使用 **RXFacebookSDK** 相关功能。
+在需要使用功能的类中引用头文件 <code>#import </code>
+在 [Facebook开发者](https://developers.facebook.com) 中创建项目项目，并获取相关参数。
+:::
+
+## SDK 集成
+
+- 编辑 Podfile 文件，添加如下配置：
+
+```objectivec
+pod 'RXFacebookSDK'
+```
+
+## 工程配置
+
+- 在 **Xcode > Info > URL Types** 中添加 **fbid**。
+
+![](https://guanwangyun.oss-cn-beijing.aliyuncs.com/document/%E4%B8%89%E6%96%B9/HsklbkE9Oo0aFmxY2CzcOad4n5b.png)
+
+- 在 **info.plist->Queried URL Schemes** 中添加 **fbapi** 和 **fbid** 配置。
+
+![](https://guanwangyun.oss-cn-beijing.aliyuncs.com/document/%E4%B8%89%E6%96%B9/QmtObH0IYoGEVNxSwZkclxkJnDf.png)
+
+- 在 **info.plist** 中添加 **FacebookAppID** 和 **FacebookClientToken** 配置。
+
+![](https://guanwangyun.oss-cn-beijing.aliyuncs.com/document/%E4%B8%89%E6%96%B9/ClAjbBilPoJBs1xzUEMcj6oInXe.png)
+
+## 注册 Facebook
+
+向 Facebook 进行注册。
+
+- 注册需传入 **didFinishLaunchingWithOptions:**中的** application**和 **launchOptions。**
+
+![](https://guanwangyun.oss-cn-beijing.aliyuncs.com/document/%E4%B8%89%E6%96%B9/EPOubB7kRoAOJvxKQ0acgC77n2c.png)
+
+**接口原型**
+
+```objectivec
+/**
+ * 注册Facebook
+ */
+- (void)FBRegistWithApplication:(UIApplication *)application
+                  launchOptions:(NSDictionary *)launchOptions;
+```
+
+**调用示例**
+
+```objectivec
+- (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions {
+    
+    // facebook
+    [[RXFacebookService sharedSDK] FBRegistWithApplication:application launchOptions:launchOptions];
+    
+    return YES;
+}
+```
+
+## 跳转 openURL
+
+::: tip
+<code>- (BOOL)application:(UIApplication *)app openURL:(NSURL *)url options:(NSDictionary *)options; </code>
+此系统方法用于处理app之间跳转的参数传递，在此添加Facebook跳转url用于接收Facebook跳转回客户端所携带的参数。必须实现此方法，否则无法正常使用Facebook登录或分享功能。
+:::
+
+**接口原型**
+
+```objectivec
+/**
+ * 跳转openURL
+ */
+- (BOOL)FBApplication:(UIApplication *)application
+              openURL:(NSURL *)url
+              options:(NSDictionary *)options;
+```
+
+**调用示例**
+
+```objectivec
+- (BOOL)application:(UIApplication *)app openURL:(NSURL *)url options:(NSDictionary *)options{
+    if ([[RXFacebookService sharedSDK] FBApplication:app openURL:url options:options]) {
+        return YES;
+    }
+    return YES;
+}
+```

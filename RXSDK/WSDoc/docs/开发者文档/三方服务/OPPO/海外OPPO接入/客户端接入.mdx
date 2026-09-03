@@ -1,0 +1,294 @@
+---
+sidebar_position: 1
+title: 客户端接入
+description: "望舒SDK 三方服务 客户端接入文档，提供详细的功能说明与接入指引。"
+---
+
+## 后台接入配置
+
+[支付配置说明](/docs/开发者文档/三方服务/银联/配置说明)
+
+## 望舒快速接入（必接）
+
+[快速接入文档](/docs/开发者文档/入门指南/快速开始/Unity-初始化/快速开始)
+
+## 三方渠道接入说明（必读）
+
+[三方渠道接入说明](/docs/开发者文档/三方服务/三方接入说明)
+
+---
+
+## SDK集成
+
+
+:::tip[版本说明]
+`version` 为 SDK 版本号（替换为实际版本号），最新版本请从 [更新日志](/docs/开发者文档/入门指南/更新日志/Android) 中查看。
+:::
+
+```groovy
+//oppo 海外渠道库
+ implementation 'com.ruixue:rxsdk_overseas_oppo:${version}'
+```
+
+## 参数说明
+
+| 参数 | 类型 | 说明 |
+| --- | --- | --- |
+| appSecret | String | initThirdSdk 接口传入 |
+
+## 配置说明
+
+在您的项目中， ` 打开 your_app | AndroidManifest.xml` ，在 application 标签下添加如下配置：
+
+```xml
+</application>
+ ....
+
+ uses-library
+ android:name="org.apache.http.legacy"
+ android:required="false" />
+
+ meta-data
+ android:name="debug_mode"
+ android:value="true" />
+
+ meta-data
+ android:name="is_offline_game"
+ android:value="false" />
+
+ meta-data
+ android:name="app_key"
+ android:value="应用申请的 app key" />
+</application>
+```
+
+## 混淆配置
+
+[参考链接](https://open.oppomobile.com/new/developmentDoc/info?id=12176)
+
+在应用级根目录下打开混淆配置文件 `proguard-rules.pro` ，加入排除 SDK 的混淆配置
+
+```proguard
+-keep class com.nearme.** { *; }
+```
+
+## 初始化
+
+[参考这里](/docs/开发者文档/三方服务/三方接入说明)
+
+```java
+Map<String, Object> params = new HashMap<>();
+
+// 这里填写使用方自己对应的参数
+params.put("appSecret", "");
+RuiXueSdk.getApi().initThirdSdk(this, params, new RXJSONCallback() {
+    @Override
+    public void onSuccess(@Nullable JSONObject jsonObject) {
+    Log.d(TAG, "init third sdk success");
+    }
+
+    @Override
+    public void onFailed(@NonNull JSONObject jsonObject) {
+    Log.d(TAG, "init third sdk failed " + jsonObject);
+    }
+});
+```
+
+## 登录 请一定确保要初始化成功再调用登录
+
+OPPO 海外没有强制接入 OPPO 账号，并且他们账号接入存在问题，所以可以接入其它登录，如 游客， google 登录等，具体参考 Android 端登录 API
+
+请参考 [Android 端登录 API](/docs/开发者文档/登录-通行证/Android-登录API/快速接入)
+
+参考代码
+
+```java
+String username = null;
+String loginType = LoginMethod.GUEST;
+String captchaCode = null;
+String loginOpenId = null;
+Map<String, Object> ext = null;
+String[] signFields = null;
+Object migrateArgs = null;
+RuiXueSdk.getApi().login(DemoActivity.this, loginType, username, password, captchaCode, loginOpenId, ext, signFields, migrateArgs, new RXJSONCallback() {
+    @Override
+    public void onSuccess(@Nullable JSONObject data) {
+    Toast.makeText(DemoActivity.this, "登录成功", Toast.LENGTH_SHORT).show();
+    }
+
+    @Override
+    public void onFailed(@NonNull JSONObject cause) {
+    Toast.makeText(DemoActivity.this, "登录失败", Toast.LENGTH_SHORT).show();
+    }
+});
+```
+
+## 支付 (必须接入)
+
+请参考 [Android 端支付 API](/docs/开发者文档/支付/功能介绍)
+
+## 退出(非必须接入，在游戏主页面退出时需要添加)
+
+[参考这里](/docs/开发者文档/三方服务/三方接入说明)
+
+参考代码
+
+```java
+    RuiXueSdk.exitApp(this, new OnAppExitCallback() {
+    @Override
+    public void onExitConfirm(@Nullable String res) {
+    Toast.makeText(QuickDemoActivity.this, "退出游戏成功", Toast.LENGTH_SHORT).show();
+    }
+
+    @Override
+    public void onExitCancel() {
+    Toast.makeText(QuickDemoActivity.this, "退出游戏取消", Toast.LENGTH_SHORT).show();
+    }
+});
+```
+
+## 获取手机区域接口（非必须）
+
+```java
+/**
+    * callback 中的 data 数据 如{"region":"IN"}代表印度，{"region":"ID"}代表印度尼西亚，{"region":"TW"}代表台湾， {"region":"VN"}代表越南， {"region":"TH"}代表泰国， {"region":"PH"}代表菲律宾， {"region":"MY"}代表马来西亚。目前支持以上七个地区。其他地区暂不支持。
+    */
+OppoOverseasSdkHelper.doGetRegion(RXJSONCallback callback)
+```
+
+调用示例
+
+```java
+OppoOverseasSdkHelper.doGetRegion(new RXJSONCallback() {
+    @Override
+    public void onSuccess(@Nullable JSONObject data) {
+    // data 形如 {"region":"IN"}
+    }
+
+    @Override
+    public void onFailed(@NonNull JSONObject cause) {
+
+    }
+});
+```
+
+## 游戏提现接口(非必须)
+
+```java
+OppoOverseasSdkHelper.doWithdrawal(Context context, WithdrawalInfo withdrawalInfo, ApiCallback callback)
+```
+
+### 参数说明
+
+WithdrawalInfo 数据结构
+
+| 名称 | 类型 | 长度字符 | 是否必填 | 说明 |
+| --- | --- | --- | --- | --- |
+| pkg | string | 128 | 是 | 应用包名 |
+| sign | string | 256 | 是 | 签名 |
+| timestamp | string | 19 | 是 | 发送请求的时间， 13 位时间戳 |
+| region | string | 2 | 是 | 区域代码，印度 IN |
+| signType | string | 10 | 是 | 商户生成 签名字符串所使用的签名类型 |
+
+
+## 创建角色统计埋点(非必须)
+
+```java
+/**
+    * 创建角色统计埋点
+    * @param uin 游戏运营方绑定的唯一账号id
+    * @param sid 服务id
+    * @param roleName 游戏角色名
+    * @param roleId 游戏角色id
+    * @param result 创建角色成功1，失败0
+    */
+public static void onCreateRoleStat(String uin, String sid, String roleName, String roleId, String result)
+```
+
+## 登录游戏账号统计埋点（非必须）
+
+```java
+/**
+    * 登录游戏账号统计埋点
+    * @param uin 游戏运营方绑定的唯一账号id
+    * @param sid 服务id
+    * @param roleName 游戏角色名
+    * @param roleId 游戏角色id
+    * @param result 创建角色成功1，失败0
+    */
+public static void onLoginGamesStat(String uin, String sid, String roleName, String roleId, String result)
+```
+
+## 商品点击统计埋点（非必须）
+
+```java
+/**
+    * 商品点击统计埋点
+    * @param goodsId 商品 id
+    * @param sid 服务 id
+    */
+public static void onCommodityClickStat(String goodsId, String sid)
+```
+
+## 退出游戏统计埋点(非必须)
+
+```java
+/**
+    * 退出游戏统计埋点
+    * @param uin 游戏运营方绑定的唯一账号id
+    * @param sid 服务id
+    * @param roleName 游戏角色名
+    * @param roleId 游戏角色id
+    */
+public static void onExitStat(String uin, String sid, String roleName, String roleId)
+```
+
+## 点击支付统计埋点(非必须)
+
+```java
+/**
+    * 点击支付统计埋点
+    * @param uin 游戏运营方绑定的唯一账号id
+    * @param sid 服务id
+    * @param roleName 游戏角色名
+    * @param roleId 游戏角色id
+    * @param goodsId 商品 id
+    */
+public static void onClickToPayStat(String uin, String sid, String roleName, String roleId, String goodsId)
+```
+
+## 调起支付统计埋点（非 OPPO 支付才需要）(非必须)
+
+```java
+/**
+    * 调起支付统计埋点（非 OPPO 支付才需要）
+    * @param uin 游戏运营方绑定的唯一账号id
+    * @param sid 服务id
+    * @param roleName 游戏角色名
+    * @param roleId 游戏角色id
+    * @param goodsId 商品 id
+    * @param channel 支付渠道
+    * @param result 调起支付成功1，失败0
+    */
+public static void onCallUpPaymentStat(String uin, String sid, String roleName, String roleId, String goodsId, String channel, String result)
+```
+
+## 客户端内支付统计埋点（非OPPO支付才需要)(非必须)
+
+```java
+/**
+    * 客户端内支付统计埋点（非OPPO支付才需要)
+    * @param uin 游戏运营方绑定的唯一账号id
+    * @param sid 服务id
+    * @param roleName 游戏角色名
+    * @param roleId 游戏角色id
+    * @param goodsId 商品 id
+    * @param money 支付金额
+    * @param payUnit 支付货币单位
+    * @param channel 支付渠道
+    * @param orderId 订单 id
+    * @param result 支付成功1，支付失败0，2取消支付
+    * @param payResultCode 支付sdk返回的支付结果代码，就onFailure回调resultMsg参数 成功直接传1001
+    */
+public static void onIntraClientPaymentStat(String uin, String sid, String roleName, String roleId, String goodsId, String money, String payUnit, String channel, String orderId, String result, String payResultCode)
+```

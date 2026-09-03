@@ -1,0 +1,71 @@
+---
+title: "快速接入"
+---
+
+## 准备工作
+
+::: tip
+接入请前先做好准备工作。
+
+可通过 **pod** 方式接入 **RXFeedbackSDK** 组件，并使用 **RXFeedbackSDK** 意见反馈相关功能。
+:::
+
+## SDK 集成
+
+- 编辑 Podfile 文件，添加如下配置
+
+```objectivec
+pod 'RXFeedbackSDK'
+```
+
+- **RXFeedbackSDK必须与国内UI SDK或海外UI SDK共同使用**，因此当您使用意见反馈SDK时，如果您的项目为国内环境，请添加如下配置
+
+```objectivec
+pod 'RXUIKit'
+```
+如果您的项目为海外环境，则添加如下配置
+```objectivec
+pod 'RXOSUIKit'
+```
+
+## UI示例
+![](https://haiqi-ruixue-test.oss-cn-beijing.aliyuncs.com/docOnline/feedback_create-1726301207276.png)
+![](https://haiqi-ruixue-test.oss-cn-beijing.aliyuncs.com/docOnline/feedback_list-1726301287493.png)
+![](https://haiqi-ruixue-test.oss-cn-beijing.aliyuncs.com/docOnline/feedback_detail-1726301531337.png)
+
+:::warning
+必须在登录成功以后，方可成功调用意见反馈相关功能。
+:::
+## 显示创建意见反馈UI
+
+**接口原型**
+
+```objectivec
+/**
+ * 创建意见反馈
+ */
+- (void)showCreateFeedbackView;
+```
+
+**调用示例**
+
+```objectivec
+[[RXPlayerFeedbackService sharedSDK] showCreateFeedbackView];
+```
+
+## 显示意见反馈列表
+
+**接口原型**
+
+```objectivec
+/**
+ * 我的意见反馈列表
+ */
+- (void)showFeedbackListView;
+```
+
+**调用示例**
+
+```objectivec
+[[RXPlayerFeedbackService sharedSDK] showFeedbackListView];
+```

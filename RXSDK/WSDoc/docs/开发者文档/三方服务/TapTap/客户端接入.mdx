@@ -1,0 +1,101 @@
+---
+sidebar_position: 1
+title: 客户端接入
+description: "望舒SDK 三方服务 客户端接入文档，提供详细的功能说明与接入指引。"
+---
+
+## 后台接入配置
+
+[配置说明](/docs/开发者文档/三方服务/TapTap/配置说明)
+
+## 望舒快速接入（必接）
+
+[快速接入文档](/docs/开发者文档/入门指南/快速开始/Unity-初始化/快速开始)
+
+## 三方渠道接入说明（必读）
+
+[三方渠道接入说明](/docs/开发者文档/三方服务/三方接入说明)
+
+## SDK 集成
+
+
+:::tip[版本说明]
+`version` 为 SDK 版本号（替换为实际版本号），最新版本请从 [更新日志](/docs/开发者文档/入门指南/更新日志/Android) 中查看。
+:::
+
+```groovy
+implementation 'com.ruixue:rxsdk_taptap:${version}'
+```
+
+## 参数说明
+
+| 参数 | 类型 | 说明 |
+| --- | --- | --- |
+| client_id | String | initThirdSdk 接口传入 |
+| client_token | String | initThirdSdk 接口传入 |
+
+## 初始化
+
+```java
+Map<String, Object> params = new HashMap<>();
+    // 这里填写使用方自己对应的参数
+params.put("client_id", "");
+params.put("client_token", "");
+RuiXueSdk.getApi().initThirdSdk(this, params, new RXJSONCallback() {
+    @Override
+    public void onSuccess(@Nullable JSONObject jsonObject) {
+    Log.d(TAG, "init third sdk success");
+    }
+
+    @Override
+    public void onFailed(@NonNull JSONObject jsonObject) {
+    Log.d(TAG, "init third sdk failed " + jsonObject);
+    }
+});
+```
+
+## 登录
+
+请参考 [Android 端登录 API](/docs/开发者文档/登录-通行证/Android-登录API/快速接入)
+
+```java
+String username = null;
+String loginType = LoginMethod.TAPTAP;
+String captchaCode = null;
+String loginOpenId = null;
+Map<String, Object> ext = null;
+String[] signFields = null;
+Object migrateArgs = null;
+RuiXueSdk.getApi().login(DemoActivity.this, loginType, username, password, captchaCode, loginOpenId, ext, signFields, migrateArgs, new RXJSONCallback() {
+    @Override
+    public void onSuccess(@Nullable JSONObject data) {
+    Toast.makeText(DemoActivity.this, "登录成功", Toast.LENGTH_SHORT).show();
+    }
+
+    @Override
+    public void onFailed(@NonNull JSONObject cause) {
+    Toast.makeText(DemoActivity.this, "登录失败", Toast.LENGTH_SHORT).show();
+    }
+});
+```
+
+## 支付
+
+到账后上报支付金额（`amount` 单位：分）。支付成功后，CP 应在服务端确认到账后主动上报，否则未成年人充值限制无效。
+
+```java
+// 服务端到账后手动上报，amount 单位：分
+RuiXueSdk.getApi().submitChannelPayment(600, callback);
+```
+
+[微信 H5 支付](/docs/开发者文档/三方服务/微信/微信配置/微信-H5-支付配置说明)
+
+[支付宝 H5 支付](/docs/开发者文档/支付/功能介绍)
+
+[京东支付](/docs/开发者文档/支付/功能介绍)
+
+[Unipin 支付](/docs/开发者文档/支付/功能介绍)
+
+[苏宁支付](/docs/开发者文档/支付/功能介绍)
+
+[银联支付](/docs/开发者文档/三方服务/银联/配置说明)

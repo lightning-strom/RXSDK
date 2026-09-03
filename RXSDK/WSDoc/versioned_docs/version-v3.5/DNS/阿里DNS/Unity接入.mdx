@@ -1,0 +1,59 @@
+---
+title: "Unity接入"
+---
+
+## 接入方式
+* Package Manager 导入 RuiXue.AliDns
+
+## SDK 集成
+* ( ) iOS::alidnsIOS
+* ( ) Android::alidnsAndroid
+
+## 初始化
+:::warning
+DNS <code>public static void AliDNSInitAppID(string accountID, string secretKey, bool isDebug)</code> 方法调用 应放在 [主库SDK初始化方法](/docs/v3.5/DNS/阿里DNS/Unity接入) 之前
+:::
+
+**接口原型**
+
+```csharp
+/// <summary>
+/// 初始化阿里DNS
+/// </summary>
+/// accountID
+/// 秘钥
+/// 调试日志模式，true 开启，false 关闭，默认 false
+public static void AliDNSInitAppID(string accountID, string secretKey, bool isDebug);
+```
+
+**调用示例**
+
+```csharp
+RXAliDns.AliDNSInitAppID("your accountID", "your secretKey", isDebug); 
+```
+
+## 开启
+
+在调用主库初始化设置时，将**isUseDNS**设置为true：
+```csharp
+private void OnInit()
+    {
+        string cpId = "your cpId";
+        string channelId = "your channelId";
+        string productId = "your productId";
+        List list = new()
+        {
+            "your base url"
+        };
+        
+        RXSdkInitConfig rxSdkInitConfig = new RXSdkInitConfig();
+        rxSdkInitConfig.cpId = cpId;
+        rxSdkInitConfig.channelId = channelId;
+        rxSdkInitConfig.productId = productId;
+        rxSdkInitConfig.baseUrlList = list;
+        rxSdkInitConfig.isUseDNS = true;
+        
+        RXAliDns.AliDNSInitAppID("your accountID", "your secretKey", isDebug);  
+        RuiXueSdk.Initialize(rxSdkInitConfig, RequestResponseDelegate, RequestErrorDelegate);
+    }
+```

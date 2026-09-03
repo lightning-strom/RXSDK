@@ -1,0 +1,375 @@
+---
+sidebar_position: 2
+title: JavaScript 接入
+description: "望舒SDK JavaScript 接入文档，提供详细的功能说明与接入指引。"
+---
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
+
+## 产品包版本检查（通用）
+
+<Tabs groupId="platform">
+
+<TabItem value="js" label="JS">
+
+### 参数说明
+
+| **字段** | **类型**         | **是否必填** | **备注**     |
+| ------------ | -------------------- | ---------------- | ---------------- |
+| params   | ICheckAppVersion | 是           | 参数         |
+| callback | IMethodParams    | 是           | 回调函数集合 |
+
+> ICheckAppVersion 说明
+
+| **字段**      | **类型** | **是否必填** | **备注**                           |
+| ----------------- | ------------ | ---------------- | -------------------------------------- |
+| clientversion | string   | 是           | 客户端版本号， 3 段或 4 段         |
+| devicecode    | string   | 是           | 客户端设备码，没有传唯一值         |
+| region        | number   | 否           | 地区码， 默认 0                    |
+| type          | string   | 否           | 脚本类型，默认 js， 可选 lua， u3d |
+| format        | string   | 否           | 输出文件后缀，默认 json，可选 lua  |
+
+> IMethodParams 说明
+
+| **字段** | **备注**                                                  |
+| ------------ | ------------------------------------------------------------- |
+| complete | (data) => voidcomplete：为函数且必传，data 为结果数据 |
+
+**调用示例**
+```javascript
+sdk.checkAppVersion(
+  {
+    type: "js",
+    format: "json",
+    devicecode: "test",
+    clientversion: "1.0.1.0",
+    region: 150000,
+  },
+  {
+    complete: (data) => {
+      console.log(data);
+    },
+  }
+);
+```
+
+</TabItem>
+
+<TabItem value="unity" label="Unity">
+
+### 参数说明
+
+| **字段**      | **类型** | **是否必填** | **备注**                           |
+| ----------------- | ------------ | ---------------- | -------------------------------------- |
+| clientversion | string   | 是           | 客户端版本号， 3 段或 4 段         |
+| region        | number   | 否           | 地区码， 默认 0                    |
+| type          | string   | 否           | 脚本类型，默认 js， 可选 lua， u3d |
+
+**调用示例**
+
+```csharp
+using System;
+using System.Collections.Generic;
+using UnityEngine;
+using UnityEngine.UI;
+using RuiXue;
+using RuiXue.VersionCheck;
+
+#if UNITY_WEBGL
+using RuiXue.MiniGame.WeiXin;
+#endif
+
+public class RuiXueWeiXinMiniGameDemo : MonoBehaviour {
+    public void OnCheckAppVersion()
+    {
+        RXVersionCheck.UpdateApp("1", "0", "u3d", 
+            OnResponse, OnError);
+    }
+}
+```
+
+</TabItem>
+
+</Tabs>
+
+### 响应结构
+
+请参考 APP 更新检查（通用）API 响应结构。
+
+## 产品包版本检查（自定义）
+
+<Tabs groupId="platform-1">
+
+<TabItem value="js" label="JS">
+
+### 参数说明
+
+| **字段** | **类型**      | **是否必填** | **备注**     |
+| ------------ | ----------------- | ---------------- | ---------------- |
+| params   | ICheckVersion | 是           | 参数         |
+| callback | IMethodParams | 是           | 回调函数集合 |
+
+> ICheckVersion 说明
+
+| **字段**      | **类型** | **是否必填** | **备注**                                 |
+| ----------------- | ------------ | ---------------- | -------------------------------------------- |
+| clientversion | string   | 是           | 客户端版本号， 3 段或 4 段               |
+| devicecode    | string   | 是           | 客户端设备码，没有传唯一值               |
+| region        | number   | 否           | 地区码， 默认 0                          |
+| type          | string   | 否           | 脚本类型，默认 js， 可选 lua， u3d       |
+| format        | string   | 否           | 输出文件后缀，默认 json，可选 lua        |
+| games         | object   | 否           | key 客户端游戏 id，value 客户端游戏版本  |
+| activities    | object   | 否           | key 客户端活动别名，value 客户端活动版本 |
+
+> IMethodParams 说明
+
+| **字段** | **备注**                                                  |
+| ------------ | ------------------------------------------------------------- |
+| complete | (data) => voidcomplete：为函数且必传，data 为结果数据 |
+
+**调用示例**
+```javascript
+sdk.checkVersion(
+  {
+    type: "js",
+    format: "json",
+    devicecode: "test",
+    clientversion: "1.0.1.0",
+    region: 150000,
+    games: { 5157686: 0 },
+    activities: { cc: 0 },
+  },
+  {
+    complete: (data) => {
+      console.log(data);
+    },
+  }
+);
+```
+
+</TabItem>
+
+<TabItem value="unity" label="Unity">
+
+### 参数说明
+
+| **字段**      | **类型** | **是否必填** | **备注**                                 |
+| ----------------- | ------------ | ---------------- | -------------------------------------------- |
+| clientversion | string   | 是           | 客户端版本号， 3 段或 4 段               |
+| region        | number   | 否           | 地区码， 默认 0                          |
+| type          | string   | 否           | 脚本类型，默认 js， 可选 lua， u3d       |
+| games         | object   | 否           | key 客户端游戏 id，value 客户端游戏版本  |
+| activities    | object   | 否           | key 客户端活动别名，value 客户端活动版本 |
+
+**调用示例**
+
+```csharp
+using System;
+using System.Collections.Generic;
+using UnityEngine;
+using UnityEngine.UI;
+using RuiXue;
+using RuiXue.VersionCheck;
+
+#if UNITY_WEBGL
+using RuiXue.MiniGame.WeiXin;
+#endif
+
+public class RuiXueWeiXinMiniGameDemo : MonoBehaviour {
+    public void OnCheckVersion()
+    {
+        var games = new Dictionary<string, int>() { { "123", 123 } };
+        var activities = new Dictionary<string, int>() { { "test", 123 } };
+        RXVersionCheck.CheckUpdateApp("1.0.1", "0", "u3d", games, activities,
+            OnResponse, OnError);
+    }
+}
+```
+
+</TabItem>
+
+</Tabs>
+
+### 响应结构
+
+请参考 APP 更新检查（自定义）API 响应结构。
+
+## 游戏更新检查
+
+<Tabs groupId="platform-2">
+
+<TabItem value="js" label="JS">
+
+### 参数说明
+
+| **字段** | **类型**          | **是否必填** | **备注**     |
+| ------------ | --------------------- | ---------------- | ---------------- |
+| params   | ICheckGameVersion | 是           | 参数         |
+| callback | IMethodParams     | 是           | 回调函数集合 |
+
+> ICheckGameVersion 说明
+
+| **字段**         | **类型** | **是否必填** | **备注**                                   |
+| -------------------- | ------------ | ---------------- | ---------------------------------------------- |
+| gameid           | number   | 是           | 游戏 ID                                    |
+| gameversion      | number   | 是           | 当前游戏版本                               |
+| gamecheckversion | number   | 否           | 指定游戏版本，优先检查，没用再返回最新版本 |
+| type             | string   | 否           | 脚本类型，默认 lua，可选 js， u3d          |
+| format           | string   | 否           | 输出文件后缀，默认 lua，可选 json          |
+
+> IMethodParams 说明
+
+| **字段** | **备注**                                                  |
+| ------------ | ------------------------------------------------------------- |
+| complete | (data) => voidcomplete：为函数且必传，data 为结果数据 |
+
+**调用示例**
+```javascript
+sdk.checkGameVersion(
+  {
+    type: "js",
+    format: "json",
+    gameid: 1041697,
+    gameversion: 0,
+  },
+  {
+    complete: (data) => {
+      console.log(data);
+    },
+  }
+);
+```
+
+</TabItem>
+
+<TabItem value="unity" label="Unity">
+
+### 参数说明
+
+| **字段**         | **类型** | **是否必填** | **备注**                                   |
+| -------------------- | ------------ | ---------------- | ---------------------------------------------- |
+| gameid           | number   | 是           | 游戏 ID                                    |
+| gameversion      | number   | 是           | 当前游戏版本                               |
+| gamecheckversion | number   | 否           | 指定游戏版本，优先检查，没用再返回最新版本 |
+| type             | string   | 否           | 脚本类型，默认 lua，可选 js， u3d          |
+
+**调用示例**
+
+```csharp
+using System;
+using System.Collections.Generic;
+using UnityEngine;
+using UnityEngine.UI;
+using RuiXue;
+using RuiXue.VersionCheck;
+
+#if UNITY_WEBGL
+using RuiXue.MiniGame.WeiXin;
+#endif
+
+public class RuiXueWeiXinMiniGameDemo : MonoBehaviour {
+    public void OnCheckGameVersion()
+    {
+        RXVersionCheck.UpdateGame("123","1","0","u3d",
+            OnResponse, OnError);
+    }
+}
+```
+
+</TabItem>
+
+</Tabs>
+
+### 响应结构
+
+请参考 游戏更新检查 API 响应结构。
+
+## 活动更新检查
+
+<Tabs groupId="platform-3">
+
+<TabItem value="js" label="JS">
+
+### 参数说明
+
+| **字段** | **类型**              | **是否必填** | **备注**     |
+| ------------ | ------------------------- | ---------------- | ---------------- |
+| params   | ICheckActivityVersion | 是           | 参数         |
+| callback | IMethodParams         | 是           | 回调函数集合 |
+
+> ICheckActivityVersion 说明
+
+| **字段**             | **类型** | **是否必填** | **备注**                             |
+| ------------------------ | ------------ | ---------------- | ---------------------------------------- |
+| activityshortname    | string   | 是           | 活动别名                             |
+| activityversion      | number   | 是           | 客户端版本号                         |
+| activitycheckversion | number   | 否           | 优先检查这个版本，没用再返回最新版本 |
+| type                 | string   | 否           | 脚本类型，默认 lua， 可选 js， u3d   |
+| format               | string   | 否           | 输出文件后缀，默认 lua，可选 json    |
+
+> IMethodParams 说明
+
+| **字段** | **备注**                                                  |
+| ------------ | ------------------------------------------------------------- |
+| complete | (data) => voidcomplete：为函数且必传，data 为结果数据 |
+
+**调用示例**
+```javascript
+sdk.checkActivityVersion(
+  {
+    type: "js",
+    format: "json",
+    activityshortname: "xxx",
+    activityversion: 1,
+  },
+  {
+    complete: (data) => {
+      console.log(data);
+    },
+  }
+);
+```
+
+</TabItem>
+
+<TabItem value="unity" label="Unity">
+
+### 参数说明
+
+| **字段**             | **类型** | **是否必填** | **备注**                             |
+| ------------------------ | ------------ | ---------------- | ---------------------------------------- |
+| activityshortname    | string   | 是           | 活动别名                             |
+| activityversion      | number   | 是           | 客户端版本号                         |
+| activitycheckversion | number   | 否           | 优先检查这个版本，没用再返回最新版本 |
+| type                 | string   | 否           | 脚本类型，默认 lua， 可选 js， u3d   |
+
+**调用示例**
+
+```csharp
+using System;
+using System.Collections.Generic;
+using UnityEngine;
+using UnityEngine.UI;
+using RuiXue;
+using RuiXue.VersionCheck;
+
+#if UNITY_WEBGL
+using RuiXue.MiniGame.WeiXin;
+#endif
+
+public class RuiXueWeiXinMiniGameDemo : MonoBehaviour {
+    public void OnCheckActivityVersion()
+    {
+        RXVersionCheck.UpdateActivity("test", "1", "0", "u3d", 
+            OnResponse, OnError);
+    }
+}
+```
+
+</TabItem>
+
+</Tabs>
+
+### 响应结构
+
+请参考 活动更新检查 API 响应结构。

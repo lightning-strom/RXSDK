@@ -1,0 +1,43 @@
+---
+title: "快速开始"
+---
+
+## 准备工作
+
+::: tip
+接入请前先做好准备工作。
+- **RXGPMSDK**性能数据收集上报时间间隔需在望舒管理平台进行配置。
+- 可通过 pod 方式接入**RXGPMSDK**组件，使用**性能数据收集并上报**的功能。
+- 需将SDK升级到大于等于以下版本：
+RXSDK_Pure  3.5.25
+RXGPMSDK 1.0.1
+:::
+
+## SDK 集成
+
+- 编辑 Podfile 文件，添加如下配置：
+
+```objectivec
+pod 'RXGPMSDK'
+```
+**RXGPMSDK**成功安装后，望舒SDK会根据望舒管理平台下发的时间间隔，自动收集性能数据并上报。
+
+## 初始化
+:::warning
+在 [SDK 初始化方法](/docs/v3.5/入门指南/快速开始/iOS初始化/快速开始) 之前调用。
+:::
+
+**接口原型**
+
+```objectivec
+/**
+ * 初始化
+ */
+- (void)regist;
+```
+
+**调用示例**
+
+```objectivec
+[[RXGPMService sharedSDK] regist];
+```

@@ -1,0 +1,107 @@
+---
+title: "快速接入"
+---
+
+### 接入方式
+* Package Manager 导入 RuiXue.Analysis
+
+## 上报事件
+
+可使用此功能将事件上报到望舒大数据后台中。
+:::tip
+需要在SDK初始化后调用！！！
+SDK只支持上报事件属性，用户属性请使用 [Go SDK](/docs/v3.5/数据分析/功能介绍/产品说明) 进行上报
+:::
+
+**接口原型**
+
+```csharp
+    public bool DataTrack(string eventName, string distinctId, Dictionary properties);
+```
+
+### 参数说明
+
+| **字段**      | **类型**            | **是否必填** | **说明**                                                                                              |
+| ------------- | ------------------- | ------------ | ----------------------------------------------------------------------------------------------------- |
+| eventName     | String              | 是           | 埋点标识                                                                                              |
+| distinctId  | String              | 否           | 用户唯一标识，一般为 OpenID                                                                      |
+| properties    | Dictionary | 是           | 自定义属性注意：properties 中上传的属性内容，必须与在后台中添加的属性内容保持一致。否则数据无法统计。 |
+
+**调用示例**
+
+```csharp
+    private void OnDataTrack()
+    {
+        Dictionary dic = new();
+        dic.Add("testdic", "testdic");
+        RXAnalysis.DataTrack("data-test", "", dic);
+    }
+```
+
+### 响应结构
+
+返回bool，标识数据上报是否被成功记录。
+
+## 设置公共属性
+
+设置后由SDK填入自定义属性中进行上报，设置后SDK进行缓存，多次设置则会覆盖。
+
+**接口原型**
+
+```csharp
+    public void SetPublicProperties(Dictionary publicProperties);
+```
+
+**调用示例**
+
+```csharp
+    private void OnSetPublicProperties()
+    {
+        Dictionary pub = new();
+        pub.Add("a", 1);
+        pub.Add("b", 2);
+        pub.Add("c", 3);
+        pub.Add("d", 4);
+        pub.Add("e", 5);
+        pub.Add("f", 6);
+        RXAnalysis.SetPublicProperties(pub);
+    }
+```
+
+## 修改公共属性
+
+修改的属性会将原有属性覆盖，未设置的属性则会补入缓存中。
+
+**接口原型**
+
+```csharp
+    public void UpdatePublicProperties(string key, object value);
+```
+
+**调用示例**
+
+```csharp
+    private void OnUpdatePublicProperties()
+    {
+        RXAnalysis.UpdatePublicProperties("test", "1111");
+    }
+```
+
+## 删除公共属性
+
+删除缓存的某个公共属性。
+
+**接口原型**
+
+```csharp
+    public void DeletePublicProperties(string key);
+```
+
+**调用示例**
+
+```csharp
+    private void OnDeletePublicProperties()
+    {
+        RXAnalysis.DeletePublicProperties("test");
+    }
+```

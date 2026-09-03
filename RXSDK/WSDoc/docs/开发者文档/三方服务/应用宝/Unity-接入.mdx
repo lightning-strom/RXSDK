@@ -1,0 +1,73 @@
+---
+sidebar_position: 2
+title: Unity 接入
+description: "望舒SDK 三方服务 Unity 接入文档，提供详细的功能说明与接入指引。"
+---
+
+## SDK集成
+
+打开 mainTemplate.gradle 文件， 在 dependencies 中添加：
+
+
+:::tip[版本说明]
+`version` 为 SDK 版本号（替换为实际版本号），最新版本请从 [更新日志](/docs/开发者文档/入门指南/更新日志/Unity) 中查看。
+:::
+
+```groovy
+ //应用宝，渠道库必接一个。不需要带望舒微信组件库
+ implementation 'com.ruixue:rxsdk_ysdk:${version}'
+```
+
+## 参数说明
+
+| 参数 | 类型 | 说明 |
+| --- | --- | --- |
+| QQ_APP_ID | String | 游戏的 QQ APPID |
+| WX_APP_ID | String | 游戏的微信 APPID |
+| OFFER_ID | String | 开放平台应用的 OFFER_ID |
+
+## 配置说明
+
+需要在 app 根目录下 src/mian/assets 目录将 ysdkconf.ini 放在当中
+
+```groovy
+;**************游戏相关配置, 游戏需要根据各自情况修改 START **********
+;游戏的QQAPPID
+QQ_APP_ID=1104936059
+
+;游戏的微信APPID
+WX_APP_ID=wxfcefed3f366fa606
+
+;游戏的OFFER_ID
+OFFER_ID=1104936059
+;***************游戏配置项, 游戏需要根据各自情况修改 END **************
+
+;************* YSDK相关配置项,游戏需要根据各自情况修改 START **********
+;联调环境
+;YSDK_URL=https://ysdktest.qq.com
+YSDK_URL=https://ysdk.qq.com
+;************** YSDK相关配置项,游戏需要根据各自情况修改 END **************
+
+;YSDK游戏内Icon开关
+YSDK_ICON_SWITCH=true
+
+;YSDK游戏内WebView Debug开关
+
+;YSDK游戏内Icon截图按钮展示开关
+YSDK_ICON_CAPTURE_SWITCH=false
+
+;YSDK游戏内Icon位置单位dp
+YSDK_ICON_LOCATION=100
+
+;YSDK游戏内场景
+YSDK_IMMERSIVE_ICON_SWITCH=true
+
+;YSDK H5游戏支持模式
+YSDK_H5GAME_SWITCH=false
+
+;YSDK 防沉迷开关
+YSDK_ANTIADDICTION_SWITCH=true
+
+;YSDK 防沉迷弹窗
+YSDK_ANTIADDICTION_DIALOG_SWITCH=true
+```

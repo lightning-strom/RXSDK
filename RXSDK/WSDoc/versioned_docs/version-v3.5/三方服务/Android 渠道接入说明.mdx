@@ -1,0 +1,172 @@
+---
+title: "Android 渠道接入说明"
+---
+
+{/* v35-v4-banner */}
+:::tip[v3.5 归档文档]
+
+此页为 v3.5 归档文档。新项目请查看 [v4.x 对应文档](/docs/开发者文档/三方服务/渠道矩阵)。
+
+:::
+
+
+## 渠道列表
+
+::: tip
+每个应用包内必须有且只能集成一个渠道。 (必接一个)
+:::
+
+| 名称  |  描述  |
+| --- | --- |
+| 自运营 | rxsdk_weile 自运营渠道库 |
+| 百度网讯 | rxsdk_baidu_wahngxun 百度游戏中心 |
+| YSDK 应用宝 | rxsdk_ysdk 用于应用宝应用商店上架 |
+| vivo | rxsdk_vivo 用于vivo 应用商店上架 |
+| oppo | rxsdk_oppo 用于oppo 应用商店上架 |
+| 华为  | rxsdk_huawei 用于华为 应用商店上架 |
+| 小米  | rxsdk_xiaomi 用于小米应用商店上架 |
+| 抖音  | rxsdk_douyin_gb 用于抖音联运 |
+| 快手  | rxsdk_kwaiallin 用于快手联运 |
+| taptap | rxsdk_taptap 用于taptap 应用商店上架 |
+| googleplay | rxsdk_overseas 用于 googleplay 应用商店上架 |
+| qoo | overseas:rxsdk_qoo 用于 qoo 应用商店上架 |
+| 九游 | rxsdk_9game 用于 九游 应用上架 |
+| 007 | rxsdk_007 用于 007 应用上架 |
+| quick | rxsdk_quick 用于 Quick 应用上架 |
+| 哔哩哔哩 | rxsdk_bilibili 用于 Bilibili 渠道 |
+| 4399 | rxsdk_4399 用于 4399 渠道 |
+| 荣耀 | rxsdk_honor 用于 荣耀 渠道 |
+| 雷电模拟器 | rxsdk_ld 用于 雷电模拟器 渠道 |
+| mumu 模拟器 | rxsdk_yofun 用于 mumu 模拟器 渠道 |
+| 海外oppo | rxsdk_overseas_oppo 用于海外 oppo 应用商店上架 |
+
+**自营运营渠道库**
+
+```json
+//渠道库
+  implementation 'com.ruixue:rxsdk_weile:${version}'
+```
+
+**三方联运渠道库**
+
+::: tip
+1. 参考三方服务对应三方渠道文档 
+
+2. 因三方参数均使用三方渠道标准 ，故三方参数大小写规范未统一，请注意文档中参数大小写。
+:::
+
+## 查看各渠道参数
+
+::: tip
+1. 从对应三方开放平台获取对应参数，然后参照三方服务中对应文档，将三方参数传入望舒sdk。
+
+2. 一个包只能接入一个渠道库, 接入三方渠道时选择对应某个渠道库接入即可,不能再添加自运营渠道库。
+:::
+
+## 初始化渠道
+::: warning
+`initThirdSdk` 调用尽量提前，不要和登录接口同步调用，部分三方渠道（如 vivo）初始化和登录同步调用会出现登录接口没有回调的问题。
+三方初始化可能存在无回调，不建议依赖回调作为代码关键路径，做好兼容处理。
+:::
+- **三方渠道通用接口原型**
+
+``` java
+//初始化三方渠道，会调用接入三方渠道的初始化接口，
+initThirdSdk(@NonNull Activity activity, Map map, RXRequestCallback callback)
+
+//退出 app ，接入相应三方渠道组件会调用对应渠道退出接口
+void exitApp(Activity activity, OnAppExitCallback callback) 
+
+//登出账号，接入相应渠道组件会调用对应渠道登出接口
+void logout(OnLogoutCallback callback)
+```
+
+- **参数说明**
+
+参照三方服务对应渠道参数表说明,用配置初始化的渠道 `map` 参数传 `null` 即可。
+
+- **调用示例**
+
+ `setPrivacyAgree `[相关说明请参考](/docs/v3.5/登录（通行证）/Android 登录API/快速接入)
+
+```java
+ //初始化三方 sdk 参考代码示例
+ RuiXueSdk.setPrivacyAgree();
+  //初始化三方 sdk 参考代码示例 ，具体参数参考对应接入三方的参数说明
+ Map thirdSdkParams=new HashMap<>();
+ thirdSdkParams.put("参数说明中的key","三方开放平台获取对应的参数");
+ RuiXueSdk.getRXSdkApi().initThirdSdk(activity, thirdSdkParams, new RXRequestCallback() {
+    @Override
+    public void onResponse(JSONObject jsonObject) {
+    }
+});
+
+/**
+ * 处理三方退出拦截参考示例
+ */
+@Override
+public void onBackPressed() {
+    RuiXueSdk.exitApp(this, new OnAppExitCallback() {
+        @Override
+        public void onExitConfirm(@Nullable String res) {
+            Log.e("rxsdk", "onExitConfirm" + res);
+            MainActivity.super.onBackPressed();
+            //todo 退出逻辑或一些自定义行为
+            System.exit(0);
+        }
+
+        @Override
+        public void onExitCancel() {
+            super.onExitCancel();
+        }
+    });
+}
+```
+
+## 渠道防沉迷回调监听
+
+三方渠道防沉迷监听配置，目前支持的渠道：**快手、应用宝、华为**。
+如已接入三方渠道 SDK，请在三方渠道初始化`initThirdSdk `调用前调用。
+
+```java~~~~
+// 初始化前调用 应用宝跟华为渠道 ，防沉迷监听
+RuiXueSdk.getRXSdkApi().setupAddictDelegate(new AntiAddictDelegate() {
+    /**
+     * @return (此方法只有快手渠道)是否正在游戏中
+     */
+    @Override
+    public boolean isGaming() {
+        return false;
+    }
+
+    /**
+     * 华为和应用宝（都会回调此接口）
+     * （微乐自运营结合（enableCustomUI（）函数）有自定义UI处理）
+     * 自定义UI时处理此防沉迷状态变化接口,游戏根据用户防沉迷的状态回调自行处理弹窗、强制登出等逻辑
+     * @param info
+     */
+    @Override
+    public void didAddictInfoUpdate(String info) {
+        //华为返回json为空字符串直接 ，实现触发防沉迷后的游戏保存、帐号登出等功能。
+        RXLogger.i("【防沉迷】" + info);
+    }
+
+    /**
+     * 此方只有快手渠道跟自运营有
+     * 防沉迷是否使用CP自定义UI
+     * @return 如果需要自定义ui，则return true, 然后监听didAddictInfoUpdate的回调，做对应的ui处理
+     */
+    @Override
+    public boolean enableCustomUI() {
+        return false;
+    }
+});
+```
+
+## 渠道so防优化处理
+如一些三方渠道包含so库, 请在 build.gradle 文件 android 块中添加
+```grovvy
+    packagingOptions {
+        doNotStrip '**/*.so'
+    }
+```

@@ -1,0 +1,101 @@
+---
+sidebar_position: 2
+title: 快速接入-原生版
+description: "望舒SDK 快速接入-原生版 鸿蒙 接入文档，提供完整的接口调用说明与示例。"
+---
+
+## 产品包版本检查
+
+**接口原型**
+
+```typescript
+/**
+ * 检查应用更新接口，支持版本比对和更新信息获取
+ * @param version - 客户端版本号（必选）
+ * - 应用版本：格式为X.Y.Z（如"1.2.3"）
+ * - 脚本版本：格式为X.Y.Z（如"2.0.1"）
+ * @param region - 地区代码（必选）
+ * - 应用分发地区：如"CN"、"US"
+ * - 脚本运行地区：默认为"0"
+ * @param body - 额外请求参数（可选）
+ * - 游戏更新：{ games: { "game_id": "version" } }
+ * - 活动更新：{ activities: { "activity_alias": "version" } }
+ * @param callback - 回调函数（可选），支持传统回调模式
+ * @param method - 请求方法（可选），默认为"GET"
+ * @param type - 更新类型（可选）
+ * - 应用更新：默认不填
+ * - 脚本更新："js"（默认）、"lua"、"u3d"
+ * @param format - 返回数据格式（可选），如"json"
+ * @returns 返回Promise，解析为包含更新信息的统一响应结构
+ */
+checkAppUpdate(version: string, region: string, body?: Recordstring, Any>, callback?: RCallback, method?: string, type?: string, format?: string): PromiseRXResult>
+```
+
+### 参数说明
+
+| 字段 | 类型 | 是否必填 | 说明 |
+| --- | --- | --- | --- |
+| type | int | 否 | 脚本类型 默认 js ， 可选 lua ， u3d |
+
+**调用示例**
+
+```typescript
+RXApi.getInstance().checkAppUpdate("1.2.1", "150000", undefined, (res) => {
+
+ this.showText(res)
+ }, "POST").then((resp) => {
+
+ promptAction.showToast({ message: "版本检查:" + JSON.stringify(resp) });
+ })
+```
+
+### 响应结构
+
+请参考[产品包版本检查（通用）](/docs/开发者文档/版本检查/JavaScript-接入) 响应结构。
+
+## 更新检查
+
+**接口原型**
+
+```typescript
+/**
+ * @param params - 更新参数
+ * @param params.modules - 需要检查更新的模块列表（必填）
+ * @param params.modules[].module_id - 模块ID（必填）
+ * @param params.modules[].clientversion - 客户端当前模块版本（必填）
+ * @param params.modules[].checkversion - 检查版本类型（0: 强制检查, 1: 缓存检查）
+ * @param callback - 回调函数（可选），返回更新结果
+ * @returns 返回Promise，解析为更新结果对象
+ */
+updateGameVersion(params: Recordstring, Any>, callback: RCallback): PromiseRXResult>
+```
+
+### 参数说明
+
+| 字段 | 类型 | 是否必填 | 说明 |
+| --- | --- | --- | --- |
+| type | int | 否 | 脚本类型 默认 lua ， 可选 js ， u3d |
+
+**调用示例**
+
+```typescript
+ let updateParams: UpdateGameVersionParm = {
+ "modules": [
+ ({
+ "module_id": 2,
+ "clientversion": 1,
+ "checkversion": 0
+ } as UpdateGameVersion)
+ ]
+};
+RXApi.getInstance().updateGameVersion(updateParams, (res) => {
+ this.showText(res)
+}).then((resp) => {
+
+ promptAction.showToast({ message: "版本检查:" + JSON.stringify(resp) });
+})
+```
+
+### 响应结构
+
+请参考 [游戏更新检查 API](/docs/开发者文档/版本检查/JavaScript-接入) 响应结构。

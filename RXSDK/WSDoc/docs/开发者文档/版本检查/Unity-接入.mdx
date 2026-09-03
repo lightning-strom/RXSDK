@@ -1,0 +1,137 @@
+---
+sidebar_position: 4
+title: Unity 接入
+description: "望舒SDK Unity 接入文档，提供详细的功能说明与接入指引。"
+---
+
+### 接入方式
+
+Package Manager 导入 RuiXue.VersionCheck
+
+## 产品包版本检查（通用）
+
+```csharp
+ public void UpdateApp(string version, string region,string type,
+ , RequestResponseDelegate onResponse, RequestErrorDelegate onError, RequestExtDelegates channelCallback);
+```
+
+### 参数说明
+
+| 字段 | 类型 | 是否必填 | 说明 |
+| --- | --- | --- | --- |
+| version | string | 否 | 客户端版本号， 3 段或 4 段 |
+| region | string | 否 | 地区码 |
+| type | string | 否 | 脚本类型，默认 lua ，可选 json ， u3d 等 |
+
+**调用示例**
+
+```csharp
+ private void OnUpdateApp()
+ {
+ RXVersionCheck.UpdateApp("1", "0", "u3d",
+ VersionCheckResponseDelegate, VersionCheckErrorDelegate);
+ }
+```
+
+### 响应结构
+
+请参考[产品包版本检查（通用）](/docs/开发者文档/版本检查/JavaScript-接入) 响应结构。
+
+## 产品包版本检查（自定义）
+
+**接口原型**
+
+```csharp
+ public void CheckUpdateApp(string version, string region, string type, Dictionarystring, int> games,
+ Dictionarystring, int> activities,RequestResponseDelegate onResponse, RequestErrorDelegate onError);
+```
+
+### 参数说明
+
+| 字段 | 类型 | 是否必填 | 说明 |
+| --- | --- | --- | --- |
+| version | string | 否 | 客户端版本号， 3 段或 4 段 |
+| region | string | 否 | 地区码 |
+| type | string | 否 | 脚本类型，默认 lua ，可选 json ， u3d 等 |
+| activities | Dictionary | 否 | key 客户端活动别名 value 版本 |
+| games | Dictionary | 否 | key 客户端游戏 id value 版本 |
+
+**调用示例**
+
+```csharp
+ public void OnCheckUpdateApp()
+ {
+ var games = new Dictionarystring, int>() { { "123", 123 } };
+ var activities = new Dictionarystring, int>() { { "test", 123 } };
+ RXVersionCheck.CheckUpdateApp("1.0.1", "0", "u3d", games, activities,
+ VersionCheckResponseDelegate, VersionCheckErrorDelegate);
+ }
+```
+
+### 响应结构
+
+请参考 [APP 更新检查（自定义） API](/docs/开发者文档/版本检查/JavaScript-接入) 响应结构。
+
+## 游戏更新检查
+
+**接口原型**
+
+```csharp
+ public void UpdateGame(string gameId, string gameVersion, string gameCheckVersion, string type,
+ RequestResponseDelegate onResponse, RequestErrorDelegate onError);
+```
+
+### 参数说明
+
+| 字段 | 类型 | 是否必填 | 说明 |
+| --- | --- | --- | --- |
+| gameId | string | 是 | 游戏 ID |
+| gameVersion | string | 是 | 当前游戏版本 |
+| gameCheckVersion | string | 否 | 指定游戏版本 |
+| type | string | 否 | 脚本类型，默认 lua ，可选 json ， u3d 等 |
+
+**调用示例**
+
+```csharp
+ public void OnUpdateGame()
+ {
+ RXVersionCheck.UpdateGame("123","1","0","u3d",
+ VersionCheckResponseDelegate, VersionCheckErrorDelegate);
+ }
+```
+
+### 响应结构
+
+请参考 [游戏更新检查 API](/docs/开发者文档/版本检查/JavaScript-接入) 响应结构。
+
+## 活动更新检查
+
+**接口原型**
+
+```csharp
+ public void UpdateActivity(string activityShortname, string activityVersion, string activityCheckVersion,
+ string type, RequestResponseDelegate onResponse, RequestErrorDelegate onError);
+```
+
+### 参数说明
+
+| 字段 | 类型 | 是否必填 | 说明 |
+| --- | --- | --- | --- |
+| activityShortname | string | 是 | 活动别名 |
+| activityVersion | string | 是 | 客户端版本号 |
+| activityCheckVersion | string | 否 | 优先检查这个版本，没用再返回最新版本 |
+| type | string | 否 | 脚本类型，默认 lua ，可选 json ， u3d 等 |
+
+**调用示例**
+
+```csharp
+ public void OnUpdateActivity()
+ {
+ RXVersionCheck.UpdateActivity("test", "1", "0", "u3d",
+ VersionCheckResponseDelegate, VersionCheckErrorDelegate);
+ }
+```
+
+### 响应结构
+
+请参考 [活动更新检查 API](/docs/开发者文档/版本检查/JavaScript-接入) 响应结构。

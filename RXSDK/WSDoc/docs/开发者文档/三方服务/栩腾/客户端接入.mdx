@@ -1,0 +1,197 @@
+---
+sidebar_position: 1
+title: 客户端接入
+description: "望舒SDK 三方服务 客户端接入文档，提供详细的功能说明与接入指引。"
+---
+:::info[文档说明]
+栩腾是原生 Android 渠道，仅支持 Android，iOS 不支持。Unity Android 项目复用公共
+Base、Login、Pay 包，不提供栩腾独立 UPM。
+如需了解各渠道覆盖能力，请查看 [渠道矩阵](/docs/开发者文档/三方服务/渠道矩阵)。
+:::
+
+
+
+## 望舒快速接入（必接）
+
+[快速接入文档](/docs/开发者文档/入门指南/快速开始/Unity-初始化/快速开始)
+
+## 三方渠道接入说明（必读）
+
+[三方渠道接入说明](/docs/开发者文档/三方服务/三方接入说明)
+
+## SDK集成
+
+
+:::tip[版本说明]
+Android 使用 `rxsdk_xuteng` `4.0.19` 或更高版本，宿主
+`minSdkVersion` 不低于 23。Unity 使用公共 Base、Login、Pay `4.0.3` 或更高版本。
+:::
+
+```groovy
+// 与其他渠道库互斥；切换渠道时只替换这一项
+implementation 'com.ruixue:rxsdk_xuteng:4.0.19'
+```
+
+Unity 项目无需安装栩腾专属 UPM，只需导入以下公共包：
+
+```json
+"com.ruixue.unitysdk.base": "4.0.3",
+"com.ruixue.unitysdk.login": "4.0.3",
+"com.ruixue.unitysdk.pay": "4.0.3"
+```
+
+## 参数说明
+
+| 参数 | 类型 | 说明 |
+| --- | --- | --- |
+| CHANNELSDK_ID | String | manifestPlaceholders |
+| CHANNELSDK_GAME_VERSION | String | manifestPlaceholders |
+| brsdk.cfg | File | 栩腾母包工具生成的渠道配置 |
+
+
+## 配置说明
+
+在 build.gradle 文件的 android defaultConfig 块中引用中需要添加配置
+
+```groovy
+ minSdkVersion 23
+ manifestPlaceholders.put("CHANNELSDK_ID", "YOUR_CHANNELSDK_ID")
+ manifestPlaceholders.put("CHANNELSDK_GAME_VERSION", "YOUR_GAME_VERSION")
+```
+
+最终应用的 `AndroidManifest.xml` 必须配置
+`android:name="com.ruixue.sdk.XTApplication"`。宿主已有自定义
+`Application` 时，应让自定义类继承 `XTApplication`，不能同时声明两个
+`Application`。
+
+将栩腾母包工具生成的 `brsdk.cfg` 放到应用的
+`src/main/assets/brsdk.cfg`；Unity 工程源文件路径为
+`Assets/Plugins/Android/assets/brsdk.cfg`。请使用渠道交付的真实配置，
+不要生成或提交假配置。
+
+栩腾渠道所需混淆规则已通过 AAR 的 `consumer-rules.pro` 自动透传，
+宿主无需重复复制。
+
+## 初始化
+
+先完成望舒 SDK 初始化和隐私授权，再调用通用第三方 SDK 初始化接口：
+
+```java
+RuiXueSdk.getApi().initThirdSdk(this, new HashMap<>(), callback);
+```
+
+## 登录 (必须接入) 请一定确保要初始化成功再调用登录
+
+请参考 [Android 端登录 API](/docs/开发者文档/登录-通行证/Android-登录API/快速接入)
+
+参考代码
+
+```java
+String username = null;
+String loginType = "xuteng";
+String captchaCode = null;
+String loginOpenId = null;
+Map<String, Object> ext = null;
+String[] signFields = null;
+Object migrateArgs = null;
+RuiXueSdk.getApi().login(DemoActivity.this, loginType, username, password, captchaCode, loginOpenId, ext, signFields, migrateArgs, new RXJSONCallback() {
+    @Override
+    public void onSuccess(@Nullable JSONObject data) {
+    Toast.makeText(DemoActivity.this, "登录成功", Toast.LENGTH_SHORT).show();
+    }
+
+    @Override
+    public void onFailed(@NonNull JSONObject cause) {
+    Toast.makeText(DemoActivity.this, "登录失败", Toast.LENGTH_SHORT).show();
+    }
+});
+```
+
+## 支付 (必须接入)
+
+请参考 [Android 端支付 API](/docs/开发者文档/支付/功能介绍)
+
+支付参数必须包含：
+
+```java
+Map<String, Object> payParams = new HashMap<>();
+payParams.put("hq_type", "xuteng");
+RuiXueSdk.getApi().pay(this, payParams, callback);
+```
+
+客户端支付结果不作为发货依据，必须以后端支付通知验签、验单结果为准。
+
+## 上传游戏角色信息
+
+栩腾角色事件类型：`1` 选服、`2` 创角、`3` 进入游戏、`4` 升级。
+
+```java
+GameInfo gameInfo = new GameInfo(2, "YOUR_ROLE_ID", "YOUR_SERVER_ID");
+gameInfo.setRoleName("YOUR_ROLE_NAME");
+gameInfo.setServerName("YOUR_SERVER_NAME");
+gameInfo.setGameRoleLevel("YOUR_ROLE_LEVEL");
+RuiXueSdk.getApi().setGameInfo(gameInfo);
+```
+
+## 退出
+
+参考代码
+
+```java
+    RuiXueSdk.exitApp(this, new OnAppExitCallback() {
+    @Override
+    public void onExitConfirm(@Nullable String res) {
+    Toast.makeText(QuickDemoActivity.this, "退出游戏成功", Toast.LENGTH_SHORT).show();
+    }
+
+    @Override
+    public void onExitCancel() {
+    Toast.makeText(QuickDemoActivity.this, "退出游戏取消", Toast.LENGTH_SHORT).show();
+    }
+});
+```
+
+## 登出
+
+在游戏需要登出的地方调用如下代码
+
+```java
+    RuiXueSdk.getApi().logout(new OnLogoutCallback() {
+    @Override
+    public void onSuccess(@Nullable String data) {
+    Toast.makeText(DemoActivity.this, "登出成功", Toast.LENGTH_SHORT).show();
+    }
+
+    @Override
+    public void onFailed(int code, String msg) {
+    RXLogger.d("logout failed code = " + code + " msg = " + msg);
+    Toast.makeText(DemoActivity.this, "登出失败", Toast.LENGTH_SHORT).show();
+    }
+});
+```
+
+## logout 全局监听
+
+参考代码
+
+```java
+RuiXueSdk.setRuiXueSdkCallback(new RuiXueSdkCallback() {
+
+    // ... 省略了一些无关代码
+
+    @Override
+    public void onLogout(int code, String msg) {
+    // code 0: 登出成功
+    // code -1: 登录出失败
+    RXLogger.d(TAG, "onLogout code = " + code + " msg = " + msg);
+    }
+});
+```
+
+## Unity 通用 API
+
+Unity Android 使用 `RuiXueSdk.Initialize`、`RuiXueSdk.InitThirdSdk`、
+`RXLogin.Login`（`LoginMethod.Xuteng`）、`RXPay.Pay`
+（`hq_type=xuteng`）、`RuiXueSdk.SetThirdGameInfo`、`RXLogin.Logout`
+和 `RuiXueSdk.ExitApp`。示例位于
+`Assets/Samples/RuiXue.Xuteng/4.0.3`。

@@ -1,0 +1,80 @@
+---
+title: "iOS"
+---
+
+## 准备工作
+
+::: tip
+接入请前先做好准备工作。
+可通过 **pod** 方式接入 **RXLineSDK** 组件，并使用 **RXLineSDK** 相关功能。
+在需要使用功能的类中引用头文件 <code>#import </code>
+在 [Line开发者](https://developers.line.biz/en/) 中创建项目项目，并获取相关参数。
+:::
+
+## SDK 集成
+
+- 编辑 Podfile 文件，添加如下配置：
+
+```objectivec
+pod 'RXLineSDK'
+```
+
+## 工程配置
+
+- 在Xcode -> Info -> URL Types 中添加 **line3rdp.$(PRODUCT_BUNDLE_IDENTIFIER)**。
+
+![](http://guanwangyun.oss-cn-beijing.aliyuncs.com/document/tripartite/iosline.png)
+
+- 在Xcode -> Info -> Custom iOS Target Properties 中添加白名单 **lineauth2**。
+- 在Xcode -> Info -> Custom iOS Target Properties 中添加 **LineSDKConfig** 配置，并填写 **ChannelID**，申请 **ChannelID** 请到 [Line开放平台](https://developers.line.biz/en/)。
+
+![](http://guanwangyun.oss-cn-beijing.aliyuncs.com/document/tripartite/iosline2.png)
+
+## 初始化
+:::warning
+在 [SDK 初始化方法](/docs/v3.5/入门指南/快速开始/iOS初始化/快速开始) 之前调用。
+:::
+
+**接口原型**
+
+```objectivec
+/**
+ * 初始化
+ */
+- (void)regist;
+```
+
+**调用示例**
+
+```objectivec
+[[RXLineService sharedSDK] regist];
+```
+
+## 处理跳转
+:::tip
+不添加此方法将无法正常使用 Line 相关功能。
+:::
+
+**接口原型**
+
+```objectivec
+/**
+ * 处理跳转
+ */
+- (BOOL)handleOpenURL:(NSURL *)url;
+```
+
+**调用示例**
+
+```objectivec
+- (BOOL)application:(UIApplication *)app openURL:(NSURL *)url options:(NSDictionary *)options
+{
+    return [[RXLineService sharedSDK] handleOpenURL:url];
+}
+```
+
+## 分享
+:::tip
+调用分享后跳转到 Line 中，分享成功后不会自动返回App，并且不会回调分享结果。
+仅支持文本或链接分享。
+:::

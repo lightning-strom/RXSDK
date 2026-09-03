@@ -1,0 +1,112 @@
+---
+title: "客户端接入"
+---
+
+## 望舒快速接入（必接）
+- [快速接入文档](/docs/v3.5/登录（通行证）/Android 登录API/快速接入)
+
+## 三方渠道接入说明（必读）
+- [三方渠道接入说明](/docs/v3.5/入门指南/快速开始/Android初始化/快速接入)
+
+## SDK集成
+
+```json
+implementation 'com.ruixue:rxsdk_xuteng:${version}'
+```
+
+## 参数说明
+
+| 参数                    | 类型 | 说明           |
+| ----------------------- | ---- | -------------- |
+| CHANNELSDK_ID |  String     |  manifestPlaceholders |
+| CHANNELSDK_GAME_VERSION |  String     |  manifestPlaceholders |
+
+## 配置说明
+
+- 在 build.gradle 文件的 android defaultConfig 块中引用中需要添加配置
+
+```groovy
+        manifestPlaceholders.put("CHANNELSDK_ID", "栩腾提供的参数")
+        manifestPlaceholders.put("CHANNELSDK_GAME_VERSION", "栩腾提供的参数")
+```
+
+ 
+ 
+ 
+
+## 登录 (必须接入) 请一定确保要初始化成功再调用登录
+请参考 [Android端登录API](/docs/v3.5/三方服务/栩腾/客户端接入)
+参考代码
+```java
+String username = null;
+String loginType = "xuteng";
+String captchaCode = null;
+String loginOpenId = null;
+Map ext = null;
+String[] signFields = null;
+Object migrateArgs = null;
+RuiXueSdk.getApi().login(DemoActivity.this, loginType, username, password, captchaCode, loginOpenId, ext, signFields, migrateArgs, new RXJSONCallback() {
+    @Override
+    public void onSuccess(@Nullable JSONObject data) {
+        Toast.makeText(DemoActivity.this, "登录成功", Toast.LENGTH_SHORT).show();
+    }
+
+    @Override
+    public void onFailed(@NonNull JSONObject cause) {
+        Toast.makeText(DemoActivity.this, "登录失败", Toast.LENGTH_SHORT).show();
+    }
+});
+```
+
+## 支付 (必须接入)
+请参考 [Android端支付API](/docs/v3.5/三方服务/栩腾/客户端接入)
+
+## 退出
+参考代码
+```java
+ RuiXueSdk.exitApp(this, new OnAppExitCallback() {
+    @Override
+    public void onExitConfirm(@Nullable String res) {
+        Toast.makeText(QuickDemoActivity.this, "退出游戏成功", Toast.LENGTH_SHORT).show();
+    }
+
+    @Override
+    public void onExitCancel() {
+        Toast.makeText(QuickDemoActivity.this, "退出游戏取消", Toast.LENGTH_SHORT).show();
+    }
+});
+```
+
+## 登出
+- 在游戏需要登出的地方调用如下代码
+```java
+ RuiXueSdk.getApi().logout(new OnLogoutCallback() {
+    @Override
+    public void onSuccess(@Nullable String data) {
+        Toast.makeText(DemoActivity.this, "登出成功", Toast.LENGTH_SHORT).show();
+    }
+
+    @Override
+    public void onFailed(int code, String msg) {
+        RXLogger.d("logout failed code = " + code + " msg = " + msg);
+        Toast.makeText(DemoActivity.this, "登出失败", Toast.LENGTH_SHORT).show();
+    }
+});
+```
+
+ 
+##  logout 全局监听
+参考代码 
+```java 
+RuiXueSdk.setRuiXueSdkCallback(new RuiXueSdkCallback() {
+    
+    // ... 省略了一些无关代码
+    
+    @Override
+    public void onLogout(int code, String msg) {
+        // code 0: 登出成功 
+        // code -1: 登录出失败
+        RXLogger.d(TAG, "onLogout code = " + code + " msg = " + msg);
+    }
+});
+```

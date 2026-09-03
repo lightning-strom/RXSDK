@@ -1,0 +1,172 @@
+---
+sidebar_position: 5
+title: Go SDK
+description: "望舒SDK Go SDK文档，提供详细的功能说明与接入指引。"
+---
+
+**使用 go get 安装 SDK ：**
+
+```plaintext
+go get -u https://github.com/ruixueyun/ruixuego
+```
+
+**快速使用**
+
+```go
+package main
+
+import (
+ "fmt"
+ "github.com/ruixueyun/ruixuego"
+)
+
+const (
+    testAppID = "wltestapp"
+    testChannelID = "wltestchannel"
+    testAppKey = "a463deade4b15d5ac5398f97cdaeab65"
+)
+
+func main() {
+    // SDK 初始化
+    err := ruixuego.Init(&ruixuego.Config{
+        APIDomain: "http://ruixue.weiletest.com", // 望舒云接口域名 URL, 以 http[s]:// 开头
+        CPID: 1000000, // CPID 由望舒团队提供
+        CPKey: "f3c7907d161764daf97fdaaea1a72261", // CPKey 由望舒团队提供
+        AppKeys: map[string]map[string]string{ // CP 方应用配置
+            testAppID: {
+                testChannelID: testAppKey,
+            },
+        },
+        BigData: &ruixuego.BigDataConfig{ // 要使用大数据埋点功能必须配置此参数
+            AutoFlush: true,
+        },
+        ServiceMark: "default", // 游戏服分区信息
+    })
+    if err != nil {
+        panic(err)
+    }
+
+    defer func() {
+        // 使用大数据埋点功能上传数据后, 必须在程序退出前显式调用 ruixuego.Close()
+        // 不然可能导致数据丢失
+        fmt.Println("close result:", ruixuego.Close())
+    }()
+
+    // 初始化成功后通过以下方式进行接口调用
+    // ruixuego.GetDefaultClient().SomeAPI()
+}
+```
+
+## v0.1.57 更新时间 2026-01-23
+
+**修复 bug**
+
+- 添加上报事件 可更新事件& 首次事件；
+
+## v0.1.56 更新时间 2026-01-16
+
+**修复 bug**
+
+- 修复 gzip 压缩数据；
+
+## v0.1.55 更新时间 2025-10-29
+
+**修复 bug**
+
+- 修复 兑换码返回值断言错误；
+
+## v0.1.54 更新时间 2025-10-28
+
+**功能更新**
+- 更新 支持动态设置请求头信息；
+
+```plaintext
+// 产品 ruixuego.HeaderProductID
+// 渠道 ruixuego.HeaderChannelID
+// 区服 ruixuego.HeaderNameRegion
+// 语言 ruixuego.HeaderLanguage
+
+err = ruixuego.GetDefaultClient().CPRoleUpdate(&ruixuego.CPRoleInfo{
+    ReqHeader: ruixuego.ReqHeader{
+        Header: map[string]string{
+            ruixuego.HeaderChannelID: "1001",
+            "ruixue-language": "zh-CN",
+        },
+    },
+    RxOpenID: "rxu73J5vWrpDVZBtY6SZPz1pbF9Zvn8jdme9y87Y",
+    RegionTag: "default",
+    CPRoleID: "1002",
+    Extension: map[string]interface{}{
+        "avatar": "https://www.google.com",
+        "sex": "1",
+    },
+})
+```
+
+## v0.1.52 更新时间 2025-10-27
+
+**功能更新**
+- 新增 角色上报 功能，方法名： CPRoleAdd ，[参考文档](/docs/开发者文档/推送/功能介绍)；
+- 新增 角色更新 功能 方法名： CPRoleUpdate ，[参考文档](/docs/开发者文档/推送/功能介绍)；
+- 新增 角色删除 功能 方法名： CPRoleDel ，[参考文档](/docs/开发者文档/推送/功能介绍)；
+- 新增 根据 openid 获取角色 功能 方法名： CPRoleListByOpenID ，[参考文档](/docs/开发者文档/推送/功能介绍)；
+
+## v0.1.48 更新时间 2025-10-10
+
+**功能更新**
+- 更新 初始化支持设置语言 `config.Language = "en"` ；
+
+```go
+err := ruixuego.Init(&ruixuego.Config{
+    Language: "zh",
+})
+```
+
+| 语言名称 | 语言缩写 |
+| --- | --- |
+| 中文简体 | zh |
+| 中文繁体 | tc |
+| 英语 | en |
+| 日语 | ja |
+| 泰语 | th |
+| 越南语 | vi |
+| 菲律宾语 | tl |
+| 印尼语 | id |
+| 阿拉伯语 | ar |
+
+
+## v0.1.47 更新时间 2025-09-11
+
+**功能更新**
+- 新增 检查用户是否在私域用户池 功能，方法名： CheckUserInSiyu ，[参考文档](/docs/开发者文档/推送/功能介绍)；
+
+## v0.1.44 更新时间 2025-09-08
+
+**功能更新**
+- 更新 消息推送 功能，方法名： PusherPush ，增加参数[target_user_type](/docs/开发者文档/推送/服务端接入/推送常见错误及解决方法)
+
+## v0.1.43 更新时间 2025-08-15
+
+**功能更新**
+- 新增 查询三方订单状态 功能，方法名： TradeOrderStatusByNo ，[参考文档](/docs/开发者文档/推送/功能介绍)；
+
+## v0.1.42 更新时间 2025-06-27
+
+**功能更新**
+- 新增 兑换福利码 功能，方法名： ExtensionExchange ，参考文档：[兑换福利码](/docs/开发者文档/福利码/服务端API接口)；
+- 新增 主播获取游戏内显示码 功能 方法名： ExtensionGameDisplay ，参考文档：[主播获取游戏内显示码](/docs/开发者文档/意见反馈/Unity-接入)；
+
+## v0.1.41 更新时间 2025-06-05
+
+**功能更新**
+- 增加区服支持 ruixuego.Init(&ruixuego.Config`{Region:""}`)
+
+## v0.1.40 更新时间 2024-10-31
+
+**功能更新**
+- 社交接口增加 cpuserid ；
+
+## v0.1.39 更新时间 2024-06-03
+
+**功能更新**
+- 新增 同步接口 直接将埋点数据上报给望舒云 功能 方法名： SyncTrack ，参考文档：[大数据买点上报](/docs/开发者文档/数据分析/服务端接入/服务端-API)；

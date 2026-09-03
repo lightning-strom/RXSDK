@@ -1,0 +1,171 @@
+---
+title: "消息定义"
+---
+
+## 消息选项定义
+
+```go
+// MsgOptionSaveInbox 开启离线消息和多端同步
+// val == 0x01
+MsgOptionSaveInbox = 1 << iota
+
+// MsgOptionSaveHistory 保存历史消息
+// val == 0x02
+MsgOptionSaveHistory
+
+// MsgOptioReadReceipt 开启已读回执
+// val == 0x04
+MsgOptioReadReceipt
+
+// 开启阅后即焚
+// val == 0x08
+MsgOption_snapchat
+```
+
+## 消息内容定义
+
+IMS 聊天内容（ChatMessage.Content）根据消息类型采用不同的 JSON 结构。
+
+### 系统会话内提示消息
+::: tip
+(Type==1)
+:::
+
+```json
+{    
+    "text": '"{{uid:UserIDA}}" 邀请 "{{uid:UserIDB}}" 加入群聊', // (string) 提示内容    
+    "type": 1, // (int) 提示内容类型，0:普通文本，直接提示；1:表示文本中有标记参数，需要进行替换；    
+    "userids": ["UserIDA", "UserIDB"] // (array) 当 type==1 时，text 中提及的用户 ID 列表
+}
+```
+
+### 文本消息
+::: tip
+（Type == 2）
+:::
+
+```json
+{ "text": "具体的消息内容" // (string) 具体的消息内容}
+```
+
+### 图片消息
+::: tip
+（Type== 3）
+:::
+```json
+{    
+    "original_url": "", // (string) 原始图片 URL     
+    "thumbnail_url": "", // (string) 缩略图 URL    
+    "blurred_data": "", // (binary) 缩略图二进制数据，它存在且有值时，优先级高于 thumbnail_url（预留字段）    
+    "width": 800, // (int) 图片宽度，单位：像素    
+    "height": 600, // (int) 图片高度，单位：像素   
+    "file_type": "png", // (string) 文件格式，不含"."    
+    "size": 524288, // (int) 原始文件大小，单位：Byte   
+    "orientation": 1 // (int) 图片旋转方向，1:normal；2:flip_horizontal；3:flip_vertical；4:rotate_90；5:rotate_180；6:rotate_270；
+}
+```
+
+### 语音消息
+::: tip
+（Type==4）
+:::
+```json
+{    
+    "url": "", // (string) 语音文件 URL    
+    "duration": 1, // (int) 语音持续时长，单位：秒    
+    "size": 524288 // (int) 语音文件大小，单位：Byte
+}
+```
+
+### 视频消息
+::: tip
+（Type==5）
+:::
+```json
+{    
+    "video_url": "", // (string) 语音文件 URL    
+    "cover_url": "", // (string) 视频封面图片 URL    
+    "cover_width": 800, // (int) 封面图片宽度，单位：像素    
+    "cover_height": 600, // (int) 封面图片高度，单位：像素    
+    "file_type": "mp4", // (string) 文件格式，不含"."    
+    "duration": 60, // (int) 视频持续时长，单位：秒    
+    "size": 524288 // (int) 视频文件大小，单位：Byte
+}
+```
+
+### 文件消息
+::: tip
+（Type==6）
+:::
+```json
+{    
+    "name": "文件名.txt", // (string) 文件名    
+    "url": "", // (string) 文件资源 URL    
+    "file_type": "txt", // (string) 文件格式，不含"."    
+    "size": 524288 // (int) 文件大小，单位：Byte
+}
+```
+
+### 表情消息
+::: tip
+（Type==7）
+:::
+```json
+{    
+    "package_id": "表情包 ID", // (string) 表情包 ID    
+    "face_id": "", // (string) 该表情在本包中的 ID，如果本地有该表情包缓存，直接使用 ID 显示    
+    "face_url": "", // (string) 该表情在云端的地址，如 Native 本地没有该表情包，则用此地址单独下载该表情，下载后按表情包方式缓存   
+    "face_file_type": "gif", // (string) 表情文件格式，不含"."   
+    "size": 512 // (int) 表情文件大小，单位：Byte
+}
+```
+
+### 位置消息
+::: tip
+（Type==8）
+:::
+```json
+{    
+    "name": "", // (string) 地理位置名称    
+    "cover_url": "", // (string) 位置封面图片 URL    
+    "latitude": 14.2079746, // (float64) 纬度    
+    "longitude":  14.2079746 // (float64) 经度
+}
+```
+
+### 引用回复消息
+::: tip
+（Type==9）
+:::
+```json
+{    
+    "reference": { // (object) 引用消息属性        
+        "sender": "", // (string) 引用消息发送者 UserID        
+        "msg_id": "", // (string) 引用消息 ID       
+        "milli_ts": 1656468066123, // (int64) 引用消息发送毫秒时间戳        
+        "type": 1, // (int) 引用消息类型Î        
+        "sub_type": 0, // (int) 引用消息子类型       
+        "content": "" // (string) 引用消息内容 JSON    }，   
+        "reply": { // (object) 回复消息属性        
+        "type": 1, // (int) 回复消息类型，此处不能是回复类型        
+        "sub_type": 0, // (int) 回复消息子类型       
+        "content": "" // (object) 回复消息内容 JSON    
+    }
+}
+```
+
+### cp自定义消息
+::: tip
+（Type==101)
+:::
+>使用此类型后，消息内容完全由 CP 自行管理，同时支持设置子类型（SubType）
+
+## 系统内部扩展信息
+
+ChatMessage 消息结构中的 IMSExt 字段说明
+
+| **键** | **值** | **说明** |
+| --- | --- | --- |
+| snapchat | 时间  | 阅后即焚的超时时间(单位 ms) |
+| channel_users_count | string | 频道中玩家数量 |
+| timerzone | 时间字符串 | 从配置中获取时区，转换成时间字符串 |

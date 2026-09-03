@@ -1,0 +1,164 @@
+---
+sidebar_position: 1
+title: 客户端接入
+description: Zalo iOS / Android 端原生接入指南，包含 SDK 集成、配置说明及接口调用示例。
+---
+
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
+
+在 [Zalo 开发者](https://developers.zalo.me) 中创建项目，并获取相关参数。
+
+## SDK 集成
+
+<Tabs groupId="platform">
+
+<TabItem value="ios" label="iOS">
+
+**RXZaloSDK 版本 3.0.2** / **RXSDK_Pure 版本 3.4.30** / **依赖 ZaloSDK 版本 4.1.0803**
+
+```objectivec
+pod 'RXZaloSDK'
+```
+
+### 工程配置
+
+在 **Xcode > Info > URL Types** 中添加 **zalo id**。
+
+![](https://guanwangyun.oss-cn-beijing.aliyuncs.com/document/tripartite/zalo1.jpeg)
+
+在 **info.plist->Queried URL Schemes** 中添加 **zalosdk** 和 **zaloshareext** 配置。
+
+![](https://guanwangyun.oss-cn-beijing.aliyuncs.com/document/tripartite/zalo2.jpeg)
+
+</TabItem>
+
+<TabItem value="android" label="Android">
+
+重要：请先查看渠道接入说明！[快速入口](/docs/开发者文档/三方服务/三方接入说明)
+
+:::tip[版本说明]
+`version` 为 SDK 版本号（替换为实际版本号），最新版本请从 [更新日志](/docs/开发者文档/入门指南/更新日志/Android) 中查看。
+:::
+
+```groovy
+// Zalo 引用此库
+implementation 'com.ruixue:rxsdk_zalo:${version}'
+```
+
+### 参数说明
+
+| 参数 | 类型 | 说明 |
+| --- | --- | --- |
+| zaloAppId | Long | string.xml 中配置 ZALO_APP_ID 值 |
+
+### 配置说明
+
+在 build.gradle (Project) 中添加存储库：
+
+```groovy
+allprojects {
+    repositories {
+        maven {
+            url "https://gitlab.com/api/v4/projects/50747855/packages/maven"
+            name "GitLabZaloSDK"
+        }
+    }
+}
+```
+
+在 `src/main/res/values/strings` 文件下：
+
+```xml
+<string name="zalo_app_id">1290303975374472026</string>
+```
+
+在 AndroidManifest.xml 配置：
+
+```xml
+</application>
+<meta-data android:name="com.zing.zalo.zalosdk.appID" android:value="@string/zalo_app_id" />
+
+<activity android:name="com.zing.zalo.zalosdk.oauth.BrowserLoginActivity" android:exported="true">
+    <intent-filter>
+        <action android:name="android.intent.action.VIEW">
+        <category android:name="android.intent.category.DEFAULT">
+        <category android:name="android.intent.category.BROWSABLE">
+        <data android:scheme="zalo-1290303975374472026">
+    </intent-filter>
+</activity>
+</application>
+```
+
+### 三方版本信息
+
+使用 `4.24.1101` 版本
+
+### 依赖信息（aar 接入方式）
+
+```groovy
+api "me.zalo:sdk-core:4.24.1101"
+api "me.zalo:sdk-auth:4.24.1101"
+api "me.zalo:sdk-openapi:4.24.1101"
+```
+
+</TabItem>
+
+</Tabs>
+
+## 初始化
+
+<Tabs groupId="platform">
+
+<TabItem value="ios" label="iOS">
+
+```objectivec
+[[RXZaloService sharedSDK] initWithAppId:@"your zalo appid"];
+```
+
+### 跳转 openURL
+
+必须实现此方法，否则无法正常使用 Zalo 登录或分享功能。
+
+```objectivec
+- (BOOL)application:(UIApplication *)app openURL:(NSURL *)url options:(NSDictionary<NSString *, id> *)options {
+ if ([[RXZaloService sharedSDK] application:app openURL:url options:options]) {
+ return YES;
+ }
+ return YES;
+}
+```
+
+</TabItem>
+
+<TabItem value="android" label="Android">
+
+集成 SDK 并配置参数后自动完成初始化。
+
+</TabItem>
+
+</Tabs>
+
+## 登录与分享
+
+- **登录**：[UI 登录方式](/docs/开发者文档/社交/iOS-社交/快速接入) / [API 登录方式](/docs/开发者文档/登录-通行证/服务端接入/服务端-API)
+- **分享**：[分享 API](/docs/开发者文档/分享/服务端接入/服务端-API)
+
+## 关于 Android Hash Key 的生成
+
+将下面方法放到自己的项目中，在 Application 初始化的时候，调用并打印出来即可，给后台配置后就可以删除掉该方法了。
+
+```java
+private static String getApplicationHashKey(Context ctx) throws Exception {
+    PackageInfo info = ctx.getPackageManager().getPackageInfo(ctx.getPackageName(), PackageManager.GET_SIGNATURES);
+    for (Signature signature : info.signatures) {
+        MessageDigest md = MessageDigest.getInstance("SHA");
+        md.update(signature.toByteArray());
+        String sig = Base64.encodeToString(md.digest(), Base64.DEFAULT).trim();
+        if (sig.trim().length() > 0) {
+            return sig;
+        }
+    }
+    return null;
+}
+```

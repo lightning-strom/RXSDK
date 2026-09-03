@@ -1,0 +1,83 @@
+---
+sidebar_position: 3
+title: 服务端回调接口
+description: "望舒SDK 服务端回调接口服务端文档，提供接口请求参数与响应说明。"
+---
+
+## 给用户发送警告
+
+使用运营违规封号，警告被举报者时会调用此接口；
+
+> 类型：同步
+>
+> Action: user-warning
+>
+> **认证方式：** [CPSign](/docs/开发者文档/入门指南/服务端接入须知)
+
+### 请求参数
+
+#### Message结构
+
+open_id 和 user_id ， CP 自主选择用哪个；
+
+| 参数 | 类型 | 备注 |
+| --- | --- | --- |
+| open_id | String | 望舒 OpenID |
+| user_id | String | 用户的 ID |
+| title | String | 通知标题 |
+| content | String | 通知内容 |
+
+
+💡 注意， open_id 和 user_id ， CP 方自主选择用哪个；
+
+### 请求示例
+
+```groovy
+[{
+ "open_id": "xxx",
+ "user_id": "user_123",
+ "title": "奖励提示的标题",
+ "content": "奖励提示的内容"
+},{
+ "open_id": "xxx2",
+ "user_id": "user_1234",
+ "title": "奖励提示的标题2",
+ "content": "奖励提示的内容2"
+}]
+```
+
+## 「图片审核管理」内容安全检测
+
+使用【图片审核管理】功能，通知审核结果时会调用此接口
+
+> 类型：同步
+>
+> Action: risk-green
+>
+> **认证方式：** [CPSign](/docs/开发者文档/入门指南/服务端接入须知)
+
+### 请求参数
+
+### 请求示例
+
+```json
+{
+ "data": {
+ "taskresult": [
+ {
+ "code": 200,
+ "taskid": "",
+ "url": "",
+ "tag": 0,
+ "result": "pass",
+ "scene_result": {
+ "porn": "",
+ "terrorism": ""
+ }
+ }
+ ],
+ "extend": ""
+ },
+ "code": 0
+}
+```

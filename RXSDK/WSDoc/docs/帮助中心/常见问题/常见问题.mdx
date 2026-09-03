@@ -1,0 +1,77 @@
+---
+sidebar_position: 1
+title: "常见问题"
+description: "望舒帮助中心 常见问题 文档"
+---
+
+#### 使用雷电模拟器测试荣耀渠道包支付时，如果出现参数错误/不能调起支付 的情况？
+如果您遇到这类问题，请尝试以下操作：
+1. 确认瑞雪后台计费点信息是否配置，三方计费点信息是否和后台商品ID配置一致。
+2. 支付参数核查是否与荣耀后台一致。
+3. 上述条件都无问题,请切换mumu模拟器/荣耀手机进行支付调试。
+<br/>
+#### 瑞雪服务端回调地址在哪里配置？
+目前大部分回调已经放到产品中位置**瑞雪管理后台-商务管理-产品管理**联系相关人员进行调试保存。
+小部分在**瑞雪游戏发行平台-即将下线功能-回调管理**进行调试。
+<br/>
+#### 出现配置信息错误
+需要咨询运营人员到后台检查渠道包相关配置。
+<br/>
+#### 数据上报后在大数据平台查找不到
+1.上报数据前，确认是否已经在大数据平台建好埋点事件以及事件属性。
+2.事件名是否对应。
+<br/>
+#### 瑞雪目前接入的sdk有哪些小游戏平台
+微信，QQ，抖音，Vivo，OPPO，华为，淘宝，支付宝。
+<br/>
+#### 接入瑞雪客户端sdk或渠道sdk时出现相关错误
+请检查控制台输出错误信息，如果有rxsdk标识则为瑞雪sdk相关错误，如果没有标识可能非瑞雪错误，瑞雪无法排查，接入方可以根据错误提示，检查工程项目或者代码错误。
+<br/>
+#### 微信unionId和openId说明
+在小程序中，openID是小程序的普通用户的一个唯一的标识，只针对当前的小程序有效。公众号同理。即同一个应用（App、公众号、小程序）的同一个用户有唯一的openid。
+同一个微信开放平台帐号下的移动应用、网站应用和公众帐号（包括小程序），用户的 UnionID 是唯一的。换句话说，同一用户，对同一个微信开放平台下的不同应用，unionid是相同的。
+<br/>
+#### 三方渠道报错出现游戏闪退问题
+1.首先确认是否是使用对应的渠道的真机进行测试。
+2.检查项目是否开启了混淆，如果开启关闭混淆后在打包测试。
+瑞雪sdk相关错误都会带有rxsdk等字样。三方sdk报错一般会带有三方的标识例如：
+![image.png](https://haiqi-ruixue-test.oss-cn-beijing.aliyuncs.com/docOnline/image-1725416410188.png)<br/>
+<br/><br/>
+#### 客服使用照相/摄像功能出现游戏闪退问题
+检查是否项目是否以配置开启了对应的使用权限。
+![img_v3_02fs_737b70c2-e739-453a-bbfe-fd49e0d9fbag.jpg](https://haiqi-ruixue-test.oss-cn-beijing.aliyuncs.com/docOnline/img_v3_02fs_737b70c2-e739-453a-bbfe-fd49e0d9fbag-1729477001320.jpg)
+#### sdk初始化错误
+sdk初始化的时候提示request:fail url not in domain list等域名错误信息时。需要到对应的开放平台添加域名白名单/请求队列等。
+
+<br/>
+
+#### iOS18+Xcode16编译RXTikTokSDK出现报错问题
+问题：在Xcode16 iOS18下编译RXTikTokSDK出现以下编译报错
+![tiktokImage1](https://guanwangyun.oss-cn-beijing.aliyuncs.com/document/tripartite/tiktok/tiktok0001.png)
+
+解决方式：
+在TikTok官方适配Xcode16 iOS18的最新版本SDK发布之前，按照以下步骤解决编译报错的问题：
+![tiktokImage1](https://guanwangyun.oss-cn-beijing.aliyuncs.com/document/tripartite/tiktok/tiktok0002.png)
+![tiktokImage1](https://guanwangyun.oss-cn-beijing.aliyuncs.com/document/tripartite/tiktok/tiktok0003.png)
+
+待后续TikTok官方发布适配Xcode16 iOS18的最新版本SDK之后，瑞雪将会进行对应版本的适配及发布。
+
+#### Android 包冲突解决办法
+
+由于瑞雪SDK包含很多第三方 SDK，接入不同库，可能会造成包引入重复
+如果出现类似于 
+```
+Duplicate class com.ta.utdid2.a.a.a found in modules jetified-AlipaySdk-15.8.01.20210112203525-runtime (com.alipay.sdk:AlipaySdk:15.8.01.20210112203525) and jetified-alicloud-android-utdid-2.6.0 (com.aliyun.ams:alicloud-android-utdid:2.6.0)
+```
+在 build.gradle 下新增
+```
+configurations {
+    all*.exclude group: 'com.aliyun.ams', module: 'alicloud-android-utdid'
+}
+```
+解决冲突通用规则，all*.exclude 按此修改
+com.aliyun.ams:alicloud-android-utdid:2.6.0
+group： com.aliyun.ams
+module： alicloud-android-utdid
+
+

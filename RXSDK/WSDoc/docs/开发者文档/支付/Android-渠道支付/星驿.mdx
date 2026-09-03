@@ -1,0 +1,52 @@
+---
+sidebar_position: 29
+title: 星驿
+description: "望舒SDK 支付 星驿 Android 接入文档，提供完整的接口调用说明与示例。"
+---
+
+import PayCommon from './_pay-common.mdx';
+
+## 后台配置
+
+企业管理后台支付方式 type 为 `xy`。
+
+| 字段 | 说明 |
+| --- | --- |
+| `tp_business_id` | 机构编号 |
+| `tp_merchant_id` | 商户编号 |
+| `tp_public_key` | 公钥 |
+| `tp_partner_id` | 抖音商户号（partnerid） |
+| `tp_appid` | appid |
+
+---
+
+## SDK 集成
+
+:::tip[版本说明]
+`version` 为 SDK 版本号（替换为实际版本号），最新版本请从 [更新日志](/docs/开发者文档/入门指南/更新日志/Android) 中查看。
+:::
+
+```groovy
+implementation 'com.ruixue:rxsdk_xingyi:${version}'
+```
+
+如需同时支持 H5 支付模式：
+
+```groovy
+implementation 'com.ruixue:rxsdk_h5pay:${version}'
+```
+
+### hq_type 值
+
+| hq_type 值 | 说明 |
+| --- | --- |
+| `xy` | 星驿 App 支付 |
+| `xy` + `ext.is_h5 = 1` | 星驿 H5 支付 |
+
+### 支付模式说明
+
+**App 原生支付**：服务端下单后，需在返回数据的 `ext.appPayData` 中下发支付所需字段：`appid` / `partnerid` / `prepayid` / `package` / `noncestr` / `timestamp` / `sign`。
+
+**H5 支付**：传入 `ext.is_h5 = 1` 触发 H5 模式，服务端返回支付 URL 即可。可选参数 `openBrowser = true` 可拉起系统浏览器。
+
+<PayCommon />

@@ -1,0 +1,650 @@
+---
+sidebar_position: 5
+title: 消息模型
+description: 望舒即时通讯 iOS / Android 消息模型文档，提供完整的接口调用说明与示例。
+---
+
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
+
+<Tabs groupId="platform">
+
+<TabItem value="ios" label="iOS">
+
+## 消息模型
+
+### 消息枚举定义
+
+```objectivec
+/**
+ * 消息类型
+ */
+typedef enum : NSUInteger {
+ /** 未知 */
+ RXIMMessageType_UnknownMt = 0,
+ /** 会话内提示消息 */
+ RXIMMessageType_Tips = 1,
+ /** 文字 */
+ RXIMMessageType_Text = 2,
+ /** 图片 */
+ RXIMMessageType_Image = 3,
+ /** 语音 */
+ RXIMMessageType_Audio = 4,
+ /** 视频 */
+ RXIMMessageType_Video = 5,
+ /** 文件 */
+ RXIMMessageType_File = 6,
+ /** 表情 */
+ RXIMMessageType_Face = 7,
+ /** 位置 */
+ RXIMMessageType_Position = 8,
+ /** 回复 */
+ RXIMMessageType_Reply = 9,
+ /** 合并转发 */
+ RXIMMessageType_CombineTransmit = 10,
+ /** 自定义 */
+ RXIMMessageType_Custom = 101,
+ /** 已读 */
+ RXIMMessageType_read = 201,
+ /** 撤回 */
+ RXIMMessageType_recall = 202,
+ /** 阅后即焚 */
+ RXIMMessageType_snapchat = 203,
+} RXIMMessageType;
+
+/** 会话类型 */
+typedef enum : NSUInteger {
+ /** 未知 */
+ RXIMSessionType_UnknownTt = 0,
+ /** 单聊 */
+ RXIMSessionType_single,
+ /** 群聊 */
+ RXIMSessionType_group,
+ /** 自定义单聊 */
+ RXIMSessionType_custom,
+ /** 频道聊天 */
+ RXIMSessionType_channel
+} RXIMSessionType;
+
+/** 消息状态 */
+typedef enum : NSUInteger {
+ /** 发送失败 */
+ RXIMMsgStatus_failed = 0,
+ /** 发送成功 */
+ RXIMMsgStatus_success = 1,
+ /** 发送中 */
+ RXIMMsgStatus_sending = 2,
+} RXIMMsgStatus;
+
+/** 消息选项 */
+typedef enum : NSUInteger {
+ /** 开启离线消息和多端同步 */
+ RXIMMsgOption_enableSync = 1,
+ /** 保存历史消息 */
+ RXIMMsgOption_saveHistory = 2,
+ /** 开启已读回执 */
+ RXIMMsgOption_readReceipt = 4,
+ /** 开启阅后即焚 */
+ RXIMMsgOption_snapchat = 8
+} RXIMMsgOption;
+```
+
+### 消息体定义
+
+接收到的消息体： RXIMMessage ，在使用 RXIMSSDK 的时候，产生的所有消息都是基于或是其子类，如： RXIMMsgTextContent ， RXIMMsgImageContent 等
+
+> RXIMMessage 结构说明
+
+```objectivec
+/** 消息体定义 */
+@interface RXIMMessage : NSObject
+
+/** 发送人id */
+@property(nonatomic, copy) NSString *fromId;
+
+/** 接收人id */
+@property(nonatomic, copy) NSString *toId;
+
+/** 会话id */
+@property(nonatomic, copy) NSString *sessionID;
+
+/** 接收人列表，单聊必须为空；群聊表示 @ 用户列表；自定义单聊表示实际接收人 UserID 清单；*/
+@property (nonatomic, copy) NSMutableArray *receivers;
+
+/** 会话类型 */
+@property (nonatomic, assign) RXIMSessionType sessionType;
+
+/** 消息类型 */
+@property(nonatomic, assign) RXIMMessageType msgType;
+
+/** 消息状态 */
+@property(nonatomic, assign) RXIMMsgStatus status;
+
+/** 消息属性，位运算组合*/
+@property (nonatomic, assign) NSInteger attr;
+
+/** 消息选项 RXIMMsgOption 位运算组合 */
+@property (nonatomic, assign) NSInteger option;
+
+/** 子消息类型 */
+@property(nonatomic, assign) NSInteger subType;
+
+/** 发送人客户端类型 */
+@property(nonatomic, assign) NSInteger clientType;
+
+/** 服务端唯一消息号 */
+@property(nonatomic, copy) NSString *msgId;
+
+/** 消息发送者本地消息序号, 仅在客户端发送消息时有值 */
+@property(nonatomic, copy) NSString *localId;
+
+/** 当前用户同步序列号 */
+@property (nonatomic,assign) NSInteger inboxId;
+
+/** 时间戳, 精确到毫秒 */
+@property(nonatomic, assign) NSInteger timestamp;
+
+/** 推送信息(json) */
+@property(nonatomic, copy) NSString *pushBody;
+
+/** 扩展信息 */
+@property(nonatomic, copy) NSDictionaryNSString *,NSString *> *ext;
+
+/** 消息内容 */
+@property (nonatomic, strong) id content;
+
+/** 用户在该消息中的接收者编号 */
+@property (nonatomic, assign) NSInteger receiverNum;
+
+/** 是否为撤回消息 */
+@property (nonatomic, assign) BOOL isRecall;
+
+/** 消息未读数 */
+@property (nonatomic, assign) NSInteger unreadCount;
+
+/** 已读用户数组 */
+@property (nonatomic, strong) NSArray *readIdArr;
+
+/** 阅后即焚的超时时间，单位毫秒 */
+@property (nonatomic, assign) NSInteger snapchatTimeout;
+
+/** ###### 以下为扩展业务（暂不支持）###### */
+/** 是否加急*/
+@property (nonatomic, assign) BOOL isUrgent;
+
+/** 加急的毫秒时间戳 */
+@property (nonatomic, assign) NSInteger urgentMillits;
+
+/** 加急的接收者数组 */
+@property (nonatomic, strong) NSArray * urgentToMembers;
+
+/** 是否标记 */
+@property (nonatomic, assign) BOOL isMark;
+
+@end
+```
+
+### 消息内容的包装类
+
+发送消息时，需要将消息内容进行包装，然后再调用发送方法，这里以文本消息为例做出说明：
+
+首先，文本消息的内容一定是一个字符串，我们需要将这个字符串作为参数构建出 RXIMMsgTextContent 的对象，然后再进行发送。其他包装类同理，故不再赘述
+
+iOS 10 或更高版本
+
+#### 文本消息
+
+```objectivec
+_@interface RXIMMsgTextContent : NSObject
+
+/** 内容 */
+@property(nonatomic, copy) NSString *text;
+
+@end
+```
+
+#### 图片消息
+
+```objectivec
+_@interface RXIMMsgImageContent : NSObject
+
+/** 原始图片数据 */
+@property (nonatomic, copy) NSData *original_data;
+/** 原始图片url */
+@property (nonatomic, copy) NSString *original_url;
+/** 缩略图二进制数据 */
+@property (nonatomic, copy) NSData *blurred_data;
+/** 缩略图url */
+@property (nonatomic, copy) NSString *thumbnail_url;
+/** 本地图片路径 */
+@property(nonatomic, copy) NSString *path;
+/** 图片宽度 */
+@property (nonatomic, assign) NSInteger width;
+/** 图片高度 */
+@property (nonatomic, assign) NSInteger height;
+
+@end
+```
+
+#### 视频消息
+
+```objectivec
+_@interface RXIMMsgVideoContent : NSObject
+
+/** 视频源数据 */
+@property (nonatomic, copy) NSData *video_data;
+/** 视频封面图片数据 */
+@property (nonatomic, copy) NSData *cover_data;
+/** 语音文件url */
+@property(nonatomic, copy) NSString *video_url;
+/** 视频封面图片url */
+@property (nonatomic,copy) NSString *cover_url;
+/** 视频封面图片宽 */
+@property (nonatomic,assign) NSInteger cover_width;
+/** 视频封面图片高 */
+@property (nonatomic,assign) NSInteger cover_height;
+/** 视频格式，不含"." */
+@property (nonatomic, copy) NSString *video_type;
+/** 本地视频路径 */
+@property(nonatomic, copy) NSString *path;
+/** 视频时长，单位：秒 */
+@property(nonatomic, assign) NSInteger duration;
+
+@end
+```
+
+#### 地理位置消息
+
+```objectivec
+_@interface RXIMMsgLBSContent : NSObject
+
+/** 地理位置名称 */
+@property (nonatomic,copy) NSString *name;
+/** 位置封面图片数据 */
+@property (nonatomic,copy) NSData *cover_data;
+/** 位置封面图片 */
+@property (nonatomic,copy) NSString *cover_url;
+/** 纬度 */
+@property(nonatomic) double latitude;
+/** 经度 */
+@property(nonatomic) double longitude;
+
+@end
+```
+
+#### 语音消息
+
+```objectivec
+_@interface RXIMMsgAudioContent : NSObject
+
+/** 语音数据 */
+@property (nonatomic, copy) NSData *audioData;
+/** 云端语音地址*/
+@property(nonatomic, copy) NSString *url;
+/** 本地语音路径 */
+@property(nonatomic, copy) NSString *path;
+/** 语音格式，不含"." */
+@property (nonatomic,copy) NSString *audio_type;
+/** 语音时长 单位：秒 */
+@property(nonatomic, assign) NSInteger duration;
+/** 语音本地是否播放 */
+@property (nonatomic,assign) BOOL isPlay;
+
+@end
+```
+
+#### 表情消息
+
+```objectivec
+_@interface RXIMMsgFaceContent:NSObject
+
+/** 表情包id */
+@property (nonatomic, copy) NSString *package_id;
+/** 该表情再本包中的id，如果本地有该表情包缓存，直接使用id显示 */
+@property (nonatomic, copy) NSString *face_id;
+/** 该表情在云端的地址，如native本地没有该表情包，则用此地址单独下载该表情，下载后按表情包方式缓存 */
+@property (nonatomic, copy) NSString *face_url;
+/** 表情文件格式，不含"." */
+@property (nonatomic, copy) NSString *face_file_type;
+/** 表情文件大小，单位：byte */
+@property (nonatomic, assign) NSInteger size;
+
+@end
+```
+
+#### 文件消息
+
+```objectivec
+_@interface RXIMMsgFileContent : NSObject
+
+/** 文件名 */
+@property (nonatomic, copy) NSString *name;
+/** 文件源数据 */
+@property (nonatomic, strong) NSData *file_data;
+/** 文件资源url */
+@property (nonatomic, copy) NSString *url;
+/** 本地文件路径 */
+@property(nonatomic, copy) NSString *path;
+/** 文件格式，不含"." */
+@property (nonatomic, strong) NSString *file_type;
+
+@end
+```
+
+#### 回复消息
+
+```objectivec
+_@interface RXIMReferenceMsg : NSObject
+
+/** 发送人id */
+@property (nonatomic, copy) NSString *fromId;
+/** 消息内容 */
+@property (nonatomic, strong) id content;
+/** 服务端唯一消息号 */
+@property (nonatomic, copy) NSString *msgId;
+/** 引用消息的毫秒时间戳 */
+@property (nonatomic, assign) NSInteger timestamp;
+/** 引用消息类型 */
+@property (nonatomic, assign) RXIMMessageType msgType;
+/** 引用消息子类型 */
+@property (nonatomic, assign) NSInteger subType;
+/** 是否为撤回消息 */
+@property (nonatomic, assign) BOOL isRecall;
+
+@end
+
+@interface RXIMReplyMsg : NSObject
+
+/** 回复的消息类型 */
+@property (nonatomic, assign) NSInteger msgType;
+/** 回复的消息子类型 */
+@property (nonatomic, assign) NSInteger subType;
+/** 回复的消息内容 */
+@property (nonatomic, strong) id content;
+
+@end
+
+@interface RXIMMsgReplyContent : NSObject
+
+/** 引用的消息 */
+@property(nonatomic, strong) RXIMReferenceMsg *reference;
+
+/** 回复的消息 */
+@property(nonatomic, strong) RXIMReplyMsg *reply;
+
+@end
+```
+
+</TabItem>
+
+<TabItem value="android" label="Android">
+
+## 消息模型
+
+### 消息枚举定义
+
+```java
+/**
+    * 消息类型
+    */
+public enum MessageTypeInventory2 {
+    TIP(ServerClientControl.MessageType2.Tips),//TIP
+    TEXT(ServerClientControl.MessageType2.Text),//文本
+    FACE(ServerClientControl.MessageType2.Face),//表情
+    PIC(ServerClientControl.MessageType2.Image),//图片
+    AUDIO(ServerClientControl.MessageType2.Audio),//音频
+    POSITION(ServerClientControl.MessageType2.Position),//地理位置
+    FILE(ServerClientControl.MessageType2.File),//文件
+    VIDEO(ServerClientControl.MessageType2.Video),//视频
+    REPLY(ServerClientControl.MessageType2.Reply),//回复
+    CUSTOM(ServerClientControl.MessageType2.CPCustom),//自定义消息
+
+    SYS_MSG_READ(ServerClientControl.MessageType2.SysMsgRead),//消息已读
+    SYS_MSG_REVOKE(ServerClientControl.MessageType2.SysMsgRevoke),//消息撤回
+
+    UNRECOGNIZED(ServerClientControl.MessageType2.UNRECOGNIZED),//未识别的消息
+}
+
+/** 会话类型 */
+public enum ConversationType {
+    /**
+    * 依次分别为：未知、单聊、群聊、自定义单聊、频道
+    */
+    UNKNOWN, SINGLE, GROUP, CUSTOM_SINGLE, CHANNEL;
+}
+
+/** 消息状态 */
+public class BaseMessage implements IJXModuleArgsMarker {
+    /** 消息发送中 */
+    public static final int MESSAGE_TRANSFORM_STATE_SENDING = 2;
+    /** 消息发送完成 */
+    public static final int MESSAGE_TRANSFORM_STATE_COMPLETE = 1;
+    /** 消息发送出现错误 */
+    public static final int MESSAGE_TRANSFORM_STATE_ERROR = -1;
+}
+/** 消息选项 */
+public class BaseMessage implements IJXModuleArgsMarker {
+    /** 开启离线消息和多端同步 */
+    public static final int MESSAGE_OPTION_ENABLE_SYNC = 0x01;
+    /** 保存历史消息 */
+    public static final int MESSAGE_OPTION_SAVE_HISTORY = 0x02;
+    /** 开启已读回执 */
+    public static final int MESSAGE_OPTION_ENABLE_READ_RECEIPT = 0x04;
+    /** MsgOptionSnapchat 阅后即焚 */
+    public static final int MESSAGE_OPTION_SNAP_CHAT = 0x08;
+}
+```
+
+### 消息体定义
+
+` 接收到的消息体 ` ： RXIMMessage ，在使用 RXIMSSDK 的时候，产生的所有消息都是基于或是其子类，如： RXCommonNotifyMessage ， RXSyncMessage 等
+
+> RXIMMessage 结构说明
+
+```java
+/**
+    * 消息id
+    */
+protected String msgId;
+/**
+    * 会话ID
+    */
+private String sessionID;
+/**
+    * 消息id,暂时无用
+    */
+protected List<Long> msgIDs;
+/**
+    * 消息类型
+    */
+protected MessageTypeInventory2 msgType;
+/**
+    * 子消息类型，当{@link #msgType}为MessageTypeInventory2.CUSTOM时有效
+    */
+protected int subType;
+/**
+    * 会话类型
+    */
+protected ConversationType conversationType;
+/**
+    * 发送者id
+    */
+protected String fromId;
+/**
+    * 接收人id
+    */
+protected String toId;
+/**
+    * 群聊表示 @ 用户列表；自定义单聊表示实际接收人 UserID 清单；单聊时务必设置null
+    */
+private List<String> receivers;
+/**
+    * 存储在本地的id
+    */
+protected String localId;
+/**
+    * 信箱id
+    */
+private long inboxID;
+/**
+    * 是否是发送者
+    */
+protected boolean isSender;
+/**
+    * 消息属性
+    */
+private long attr;
+/**
+    * 消息时间戳
+    */
+protected long timestamp;
+/**
+    * 扩展字段，以key/value形式存放json
+    */
+protected String extend;
+/**
+    * 消息内容
+    */
+protected String content;
+/**
+    * 发送消息的选项
+    */
+private int option;
+
+private boolean isRead;
+/**
+    * 当前消息的未读数。单聊时只会是0或1，0表示对方已读；群聊表示具体还有多少人未读
+    */
+private int unReadCount;
+/**
+    * 用户在该消息中的接收者编号，只有大于 0 时才需要发送已读，且发送已读确认时需要发给服务器
+    */
+private int receiverNum;
+/**
+    * 发送方 CPID
+    */
+private int cpid;
+/**
+    * 产品 ID
+    */
+private String productID;
+/**
+    * 渠道 ID
+    */
+private String ChannelID;
+/**
+    * 发送状态
+    */
+private int sendState = MESSAGE_TRANSFORM_STATE_SENDING;
+```
+
+### 消息内容的包装类
+
+发送消息时，需要将消息内容进行包装，然后再调用发送方法，这里以文本消息为例做出说明：
+
+首先，文本消息的内容一定是一个字符串，我们需要将这个字符串作为参数构建出 SenderTextMessageEntity 的对象，然后再通过 ConversationModule#sendMessage()方法进行发送
+
+其他包装类同理，故不再赘述
+
+#### 文本消息
+
+```java
+/**
+    * @param text 文本内容
+    */
+public SenderTextMessageEntity(String text) {
+    this.text = text;
+}
+```
+
+#### 图片消息
+
+```java
+/**
+    * @param localPath 本地图片路径
+    */
+public SenderPicMessageEntity(String localPath) {
+    this.localPath = localPath;
+}
+```
+
+#### 视频消息
+
+```java
+/**
+    * @param localPath 本地视频路径
+    */
+public SenderVideoMessageEntity(String localPath) {
+    this.localPath = localPath;
+}
+```
+
+#### 地理位置消息
+
+```java
+/**
+    * @param addressPicPath 地址图片路径
+    * @param name 地址名称
+    * @param lat 经度
+    * @param lon 纬度
+    */
+public SenderLocationMessageEntity(String addressPicPath, String name, double lat, double lon) {
+    this.addressPicPath = addressPicPath;
+    this.name = name;
+    this.lat = lat;
+    this.lon = lon;
+}
+```
+
+#### 语音消息
+
+```java
+/**
+    * @param localPath 本地录音路径
+    */
+public SenderAudioMessageEntity(String localPath)
+    this.localPath = localPath;
+}
+```
+
+#### 表情消息
+
+```java
+/**
+    * @param name 表情名称
+    * @param url remoteURL
+    */
+public SenderEmotionMessageEntity(String name, String url) {
+    this.name = name;
+    this.url = url;
+}
+```
+
+#### 文件消息
+
+```java
+/**
+    * @param localPath 本地文件路径
+    */
+public SenderFileMessageEntity(String localPath) {
+    this.localPath = localPath;
+}
+```
+
+#### 回复消息
+
+```java
+/**
+    * @param reply 回复内容
+    * @param rawMessage 回复的消息体
+    */
+public SenderReplyMessageEntity(String reply, RXContentMessage rawMessage) {
+    this.reply = reply;
+    this.rawMessage = rawMessage;
+}
+```
+
+</TabItem>
+
+</Tabs>
+

@@ -1,0 +1,201 @@
+---
+sidebar_position: 1
+title: 功能介绍
+description: "望舒SDK 功能介绍文档，提供详细的功能说明与接入指引。"
+unlisted: true
+---
+
+区服项目必接：
+
+创建/修改 角色信息通过服务端 api 实现，参考文档：[创建/修改 角色信息](/docs/开发者文档/推送/功能介绍)；
+
+配置登录区服并关联对应的产品包。[登录区域配置](/docs/开发者文档/数据分析/服务端接入/上报插件-LogBus-使用指南)；
+
+客户端项目接入区服时需要登陆后调用：
+
+安卓：[设置区服角色 API](/docs/开发者文档/区服角色/原生接入)
+
+IOS ：[设置区服角色 API](/docs/开发者文档/区服角色/服务端API-作废)
+
+# 概要
+
+目前有的游戏类型为一个 openid 对应多个区服，每个个区服对应多个角色，为了更好的支持数据分析，望舒和大数据支持区服和角色的接入。
+
+## 大数据用户属性现状：
+
+望舒 openid 为唯一标识
+
+不支持区服角色更新
+
+只支持望舒 openid 维度的用户属性更新
+
+![](https://haiqi-ruixue-test.oss-cn-beijing.aliyuncs.com/docOnline/image-1756892244684.png)
+
+## 大数据用户属性支持区服角色后：
+
+望舒 openid、区服、角色为唯一标识
+
+支持望舒 openid、区服、角色多维度更新
+
+用户属性包含望舒 openid 和区服角色维度的属性两份数据
+
+根据用户属性划分的类型进行关联：公共用户属性，区服用户属性
+
+公共用户属性：通行证产生的属性，例如，注册时间，实名认证信息等；
+
+区服用户属性：游戏行为产生的属性，例如，游戏币等。
+
+后台默认划分类型，后续支持用户自定义类型。
+
+![](https://haiqi-ruixue-test.oss-cn-beijing.aliyuncs.com/docOnline/image-1756892256135.png)
+
+大数据分析模型逻辑
+
+## 分析模型现状：
+
+事件数据匹配用户属性时，以望舒 openid 为唯一标识匹配
+
+## 分析模型支持区服角色后：
+
+事件数据匹配用户属性时，根据用户属性划分的类型进行匹配：公共用户属性，区服用户属性
+
+公共用户属性自动以望舒 openid 进行匹配(自动限制区服和角色为空)
+
+区服用户属性自动以望舒 openid、区服、角色进行匹配
+
+```plaintext
+-- 公共用户属性
+left join ods_event_user u
+on a.`#distinct_id` = u.`#distinct_id`
+and u.`#rx_region_tag` = ''
+and u.`#role_id` = ''
+-- 区服角色用户属性
+left join ods_event_u ser uu
+on a.`#distinct_id` = uu.`#distinct_id`
+and ifnull(a.`rx_region_tag`,'') = uu.`#rx_region_tag`
+and ifnull(a.`#role_id`,'') = uu.`#role_id`
+```
+
+数据上报
+
+## 事件属性：除通行证预置事件外，其余游戏内事件均需要上报固定标识的区服和角色
+
+| 事件属性 | 显示名 | 数据类型 | 备注 |
+| --- | --- | --- | --- |
+| rx_region_tag | 区域标识(区服) | 文本 | 上报到事件数据的 properties 中，注意不带# |
+
+#role_id
+| 角色 | 文本 | 上报到事件数据的 properties 中，注意带# |
+| --- | --- | --- |
+
+```plaintext
+{
+ "uuid" : "00060bdf-7136-4874-bd47-c504d00c468c",
+ "time" : "2025-02-08 03:20:23.136000000",
+ "create_time" : "2025-02-08 03:20:23.670000000",
+ "distinct_id" : "rxu7PolOrDvjX13tEp33UzeZ9OipykA-gpYN436m",
+ "devicecode" : "minigame019f5760c3673b56bba1887fb8f5bccf",
+ "type" : "track",
+ "event" : "gameinfo",
+ "ip" : "10.28.81.186",
+ "cpid" : 1000101,
+ "app_id" : "142",
+ "product_id" : null,
+ "platform_id" : 10,
+ "channel_id" : "818",
+ "sub_channel_id" : null,
+ "properties" : "{"rx_region_tag":"abcd","#role_id":"123","res_358_lv":0}",
+ }
+```
+
+## 用户属性上报：所有区服角色相关属性上报，每条记录均需要上报区服和角色属性，用于更新
+
+| 用户属性 | 显示名 | 数据类型 | 备注 |
+| --- | --- | --- | --- |
+#rx_region_tag
+| 区域标识(区服) | 文本 | 上报到每条用户数据的 properties 中，注意带# |
+| --- | --- | --- |
+#role_id
+| 角色 | 文本 | 上报到每条用户数据的 properties 中，注意带# |
+| --- | --- | --- |
+
+```plaintext
+{
+ "uuid" : "00060bdf-7136-4874-bd47-c504d00c468c",
+ "time" : "2025-02-08 03:20:23.136000000",
+ "create_time" : "2025-02-08 03:20:23.670000000",
+ "distinct_id" : "rxu7PolOrDvjX13tEp33UzeZ9OipykA-gpYN436m",
+ "devicecode" : "minigame019f5760c3673b56bba1887fb8f5bccf",
+ "type" : "user",
+ "event" : "user_setonce",
+ "ip" : "10.28.81.186",
+ "cpid" : 1000101,
+ "app_id" : "142",
+ "product_id" : null,
+ "platform_id" : 10,
+ "channel_id" : "818",
+ "sub_channel_id" : null,
+ "properties" : "{"#rx_region_tag":"abcd","#role_id":"123","res_358_lv":0}",
+ }
+```
+
+[区服角色接入参考文档](/docs/开发者文档/推送/功能介绍)
+
+## 业务支持区服操作
+
+1、望舒将项目配置为区服模式，创建_order_publish topic
+
+2、使用的 sdk 升级支持区服模式版本以上
+
+3、所有服务端接口请求头增加 ruixue-region、ruixue-cp-role-id
+
+## 后台区服配置
+
+统一望舒后台-版本发布-区服配置 维护
+
+![](https://haiqi-ruixue-test.oss-cn-beijing.aliyuncs.com/docOnline/image-1761529340060.png)
+
+## 用户获取区服
+
+如果当前游戏需要望舒下发区服，需要在版本发布-登录配置 配置具体区服信息，然后在安装包关联具体的登录配置，由版本检查接口下发具体的信息。
+
+![](https://haiqi-ruixue-test.oss-cn-beijing.aliyuncs.com/docOnline/image-1761529340060.png)
+
+![](https://haiqi-ruixue-test.oss-cn-beijing.aliyuncs.com/docOnline/image-1761529360616.png)
+
+![](https://haiqi-ruixue-test.oss-cn-beijing.aliyuncs.com/docOnline/image-1761529392296.png)
+
+[望舒通过版本检查接口下发服务配置](/docs/开发者文档/版本检查/JavaScript-接入)
+
+```plaintext
+{
+ "login_config":[
+ {
+ "login_host":"",// 登录地址
+ "login_name":"",// 名称
+ "ext_param":"",// 扩展参数
+ "region_tag":"",// 区服标签
+ }
+ ]
+}
+```
+
+## 接口调用规范
+
+[协议文档](/docs/开发者文档/入门指南/服务端接入须知)：所有接口请求头需要携带区服（ ruixue-region ）和角色（ ruixue-cp-role-id ），用来标识具体的用户区服角色
+
+![](https://haiqi-ruixue-test.oss-cn-beijing.aliyuncs.com/docOnline/image-1761529221606.png)
+
+## 区服角色上报
+
+[协议文档](/docs/开发者文档/推送/功能介绍)
+
+区服角色上报，同时会将数据上报至大数据用户属性
+
+## SDK 支持区服
+
+sdk 升级支持区服版本以上，参考各个 sdk 更新日志。
+
+例如小游戏
+
+![](https://haiqi-ruixue-test.oss-cn-beijing.aliyuncs.com/docOnline/image-1761529240714.png)

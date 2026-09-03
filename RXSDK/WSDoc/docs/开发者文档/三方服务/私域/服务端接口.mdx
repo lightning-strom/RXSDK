@@ -1,0 +1,134 @@
+---
+sidebar_position: 1
+title: 服务端接口
+description: "望舒SDK 三方服务 服务端接口服务端文档，提供接口请求参数与响应说明。"
+---
+:::info[文档说明]
+本渠道当前仅提供配置说明，暂无独立的客户端 SDK 接入文档。
+如需了解各渠道覆盖能力，请查看 [渠道矩阵](/docs/开发者文档/三方服务/渠道矩阵)。
+:::
+
+
+
+## 检测用户是否在私域用户池中
+
+> **POST：** `/v1/thirdparty/service_api/check_user_in_siyu`
+>
+> **认证方式：** [CPSign](/docs/开发者文档/入门指南/服务端接入须知)
+>
+> **应用场景：** 服务端调用
+
+```bash
+curl --location --request POST '{{接口域名}}/v1/thirdparty/service_api/check_user_in_siyu' \
+--header 'ruixue-language: {{语言}}' \
+--header 'ruixue-cpid: {{CPID}}' \
+--header 'ruixue-productid: {{产品标识}}' \
+--header 'ruixue-cpts: {{时间戳}}' \
+--header 'ruixue-traceid: {{TraceID}}' \
+--header 'ruixue-cpsign: {{请求签名}}' \
+--header 'ruixue-devicecode: {{设备码}}' \
+--header 'ruixue-channelid: {{渠道标识}}' \
+--header 'ruixue-platformid: {{平台标识}}' \
+--header 'Content-Type: application/json' \
+--data-raw '{
+ "cp_user_id" : "2910001",
+ "rx_open_id" : "rxu1234567890",
+ "crowd_kind":1
+}'
+```
+
+>
+> ---
+>
+> **POST：** `/v1/thirdparty/api/check_user_in_siyu`
+>
+> **认证方式：** [Accesstoken](/docs/开发者文档/入门指南/服务端接入须知)
+>
+> **应用场景：** 客户端调用
+
+```bash
+curl --location --request POST '{{接口域名}}/v1/thirdparty/api/check_user_in_siyu' \
+--header 'ruixue-language: {{语言}}' \
+--header 'ruixue-cpid: {{CPID}}' \
+--header 'ruixue-productid: {{产品标识}}' \
+--header 'ruixue-traceid: {{TraceID}}' \
+--header 'ruixue-accesstoken: {{accesstoken}}' \
+--header 'ruixue-devicecode: {{设备码}}' \
+--header 'ruixue-channelid: {{渠道标识}}' \
+--header 'ruixue-platformid: {{平台标识}}' \
+--header 'Content-Type: application/json' \
+--data-raw '{
+ "cp_user_id" : "2910001",
+ "rx_open_id" : "rxu1234567890",
+ "crowd_kind":1
+}'
+```
+
+### 请求参数（JSON）
+
+
+| 字段 | 类型 | 是否必填 | 说明 |
+| --- | --- | --- | --- |
+| cp_user_id | String | 否 | 游戏 ID ， cp_user_id、rx_open_id 必传其中一个 |
+| rx_open_id | String | 否 | 望舒 openid ， cp_user_id、rx_open_id 必传其中一个 |
+| crowd_kind | Number | 否 | 所属用户池 1 passportID 级别(默认) 2 openID 级别 |
+
+
+**请求示例**
+
+```json
+{
+ "cp_user_id" : "11101833",
+ "rx_open_id" : "rux***********",
+ "crowd_kind":1
+}
+```
+
+### 响应参数（JSON)
+
+**HTTP 状态码：**`200 OK`
+
+| 字段 | 类型 | 是否必填 | 说明 | 示例 |
+| --- | --- | --- | --- | --- |
+| code | Number | 是 | 响应状态码， 0 为成功，非 0 表示出错 | 0 |
+| msg | String | 否 | 响应信息，仅在 code 非 0 时返回 | data |
+| Node | 否 | 响应信息，仅在 code 非 0 时返回 |  |  |
+
+#### Node
+
+
+| 字段 | 类型 | 是否必填 | 说明 |
+| --- | --- | --- | --- |
+| rx_open_id | String | 否 | 望舒 openid |
+| cp_user_id | string | 否 | cp userid |
+| bind_status | Number | 是 | 1 ：未建联； 2 ：已建联； 3 ：已断联 |
+| minigame_path | string | 否 | 小程序路径 |
+
+
+`{landing_id}`、`{location}`、`{platform}` 需要替换
+
+`{landing_id}`：就是新增页面里的 ID
+
+`{location}`：打开小程序的位置，游戏侧自己上传标记，不可传中文
+
+`{platform}`：打开小程序的平台， 1=安卓； 2=ios ； 3=H5 ； 4=微信小程序
+
+`{passport_id}`: 通行证 ID ，登录接口有下发
+
+`{open_id}`: 望舒 openid
+
+
+**响应示例**
+
+```json
+{
+ "data": {
+ "rx_open_id": "望舒 openid",
+ "cp_user_id": "游戏 ID",
+ "bind_status": 0,
+ "minigame_path": "weixin://dl/business/?path=my/pages/butler/index&query=i%3D{landing_id}%26g%3D{cpid}%26p%3D{passport_id}%26ro%3D{open_id}%26l%3D{location}%26m%3D{platform}%26f%3D1&appid=xxx" },
+ "code": 0
+}
+```
+
+---

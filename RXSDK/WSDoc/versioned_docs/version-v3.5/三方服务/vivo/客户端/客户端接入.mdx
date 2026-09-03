@@ -1,0 +1,226 @@
+---
+title: "客户端接入"
+---
+
+## 后台接入配置
+- [登录配置说明](/docs/v3.5/三方服务/vivo/客户端/客户端接入)
+- [支付配置说明](/docs/v3.5/三方服务/vivo/客户端/客户端接入)
+- [推送配置说明](/docs/v3.5/三方服务/vivo/客户端/客户端接入)
+
+## 望舒快速接入（必接）
+- [快速接入文档](/docs/v3.5/登录（通行证）/Android 登录API/快速接入)
+
+## 三方渠道接入说明（必读）
+- [三方渠道接入说明](/docs/v3.5/入门指南/快速开始/Android初始化/快速接入)
+---
+
+## SDK集成
+
+```json
+//vivo渠道库
+  implementation 'com.ruixue:rxsdk_vivo:${version}'
+```
+
+## 参数说明
+
+| 参数  | 类型   | 说明                  |
+| ----- | ------ | --------------------- |
+| appid | String | AndroidManifest meta-data 配置 |
+
+## 配置信息
+
+- 需要在 app 根目录下 `src/mian/assets` 目录将 `supplierconfig.json` 放在当中
+
+修改 `supplierconfig.json` 文件里的 **appid**（去对应⼚商注册获取，vivo 渠道为必填项），如图所示：
+
+```json
+{
+  "supplier":{
+    "vivo":{
+      "appid":"替换为vivo的appid"
+    },
+    "xiaomi":{
+    },
+    "huawei":{
+    },
+    "oppo":{
+    }
+  }
+}
+```
+
+- 在 AndroidManifest.xml 配置
+
+```xml
+
+    
+
+    
+
+```
+
+## 混淆配置
+
+[参考链接](https://dev.vivo.com.cn/documentCenter/doc/450)
+在应用级根目录下打开混淆配置文件`proguard-rules.pro`，加入排除SDK的混淆配置
+
+```
+-keep class com.bun.miitmdid.core.** {*;}
+
+-keep class XI.CA.XI.**{*;}
+
+-keep class XI.K0.XI.**{*;}
+
+-keep class XI.XI.K0.**{*;}
+
+-keep class XI.xo.XI.XI.**{*;}
+
+-keep class com.asus.msa.SupplementaryDID.**{*;}
+
+-keep class com.asus.msa.sdid.**{*;}
+
+-keep class com.bun.lib.**{*;}
+
+-keep class com.bun.miitmdid.**{*;}
+
+-keep class com.huawei.hms.ads.identifier.**{*;}
+
+-keep class com.samsung.android.deviceidservice.**{*;}
+
+-keep class com.zui.opendeviceidlibrary.**{*;}
+
+-keep class org.json.**{*;}
+
+-keep public class com.netease.nis.sdkwrapper.Utils {public ;}
+
+-keep class com.vivo.unionsdk.** { *; }
+
+-dontwarn com.vivo.unionsdk.**
+```
+:::tip
+请注意：请勿在android9及以下手机上使用oaid sdk的相关功能，否则会造成app崩溃，目前VIVO sdk不支持android9及以下手机获取补充标识符。
+:::
+
+## 初始化(必接)
+```java
+Map params = new HashMap<>();
+RuiXueSdk.getApi().initThirdSdk(this, params, new RXJSONCallback() {
+    @Override
+    public void onSuccess(@Nullable JSONObject jsonObject) {
+        Log.d(TAG, "init third sdk success");
+    }
+
+    @Override
+    public void onFailed(@NonNull JSONObject jsonObject) {
+        Log.d(TAG, "init third sdk failed " + jsonObject);
+    }
+});
+```
+
+## 登录 (必须接入) 请一定确保要初始化成功再调用登录
+请参考 [Android端登录API](/docs/v3.5/登录（通行证）/Android 登录API/快速接入)
+参考代码
+```java
+String username = null;
+String loginType = LoginMethod.VIVO;
+String captchaCode = null;
+String loginOpenId = null;
+Map ext = null;
+String[] signFields = null;
+Object migrateArgs = null;
+RuiXueSdk.getApi().login(DemoActivity.this, loginType, username, password, captchaCode, loginOpenId, ext, signFields, migrateArgs, new RXJSONCallback() {
+    @Override
+    public void onSuccess(@Nullable JSONObject data) {
+        Toast.makeText(DemoActivity.this, "登录成功", Toast.LENGTH_SHORT).show();
+    }
+
+    @Override
+    public void onFailed(@NonNull JSONObject cause) {
+        Toast.makeText(DemoActivity.this, "登录失败", Toast.LENGTH_SHORT).show();
+    }
+});
+```
+
+## 支付 (必须接入)
+请参考 [Android端支付API](/docs/v3.5/三方服务/vivo/客户端/客户端接入)
+
+## 退出(必须接入，在游戏主页面退出时需要添加)
+[参考这里](/docs/v3.5/入门指南/快速开始/Android初始化/快速接入)
+参考代码
+```java
+ RuiXueSdk.exitApp(this, new OnAppExitCallback() {
+    @Override
+    public void onExitConfirm(@Nullable String res) {
+        Toast.makeText(QuickDemoActivity.this, "退出游戏成功", Toast.LENGTH_SHORT).show();
+    }
+
+    @Override
+    public void onExitCancel() {
+        Toast.makeText(QuickDemoActivity.this, "退出游戏取消", Toast.LENGTH_SHORT).show();
+    }
+});
+```
+
+## 获取实名认证信息
+```java
+VivoSdkHelper.getRealNameInfo(this, new RealNameCallback() {
+    @Override
+    public void onResult(@Nullable JSONObject data) {
+        if (data != null) {
+            int code = data.optInt("code"); // 已经实名 0； 未实名: 2
+            boolean isRealName = data.optBoolean("isRealName");
+            int age = data.optInt("age");
+        }
+    }
+});
+```
+
+## 调用角色信息上报接口
+```java
+VivoSdkHelper.reportRoleInfo(new VivoRoleInfo("角色ID", "角色等级", "角色名称", "区服ID", "区服名称"));
+```
+## 调单补单接入（含内购点必接）
+```java
+VivoSdkHelper.registerMissOrderEventHandler(this, new MissOrderEventHandler() {
+        @Override
+        public void process(List list) {
+            /**
+              * 注意这里是查到未核销的订单
+              * 需要调用自己的逻辑完成道具核销后再调用我们的订单完成接口
+              * 切记！！！一定要走自己逻辑发送完道具后再调用完成接口！！！切记！切记！
+              */
+             List list = new ArrayList<>();
+             for (int i = 0; i < orderResultInfos.size(); i++) {
+                 /**
+                  * ！！！游戏根据订单号检查、补发商品！！！
+                  * 自行完成补发逻辑  一定要完成道具补发后才能调用完成接口 此处一定要注意！！！          * 注意订单号为vivo订单号transNo
+                  * 如果不处理直接调用完成则掉单无法解决
+                  * 此处只是用log演示处理  真正的逻辑需要游戏自己处理补发道具后再调用完成
+                  * 注意！！！注意！！！
+                  */
+                 Log.i(TAG, "process: " + orderResultInfos.get(i).getCpOrderNumber());
+                 list.add(infoList.get(i).getTransNo());
+             }
+             /**
+              * ！！！补发完成后调用完成接口 ！！！
+              */
+               VivoSdkHelper.reportOrderComplete(list);
+        }
+    });
+}
+```
+
+## 查询调单
+```java
+/**
+  * 作用：补单查询接口
+  * 调用：登录后及其他需要查询掉单场景调用
+  *
+  * @param openId
+  */
+ VivoSdkHelper.queryMissOrderResult(String openId)
+```
+
+## 三方 SDK 版本信息
+
+使用 `4.7.8.0` 版本

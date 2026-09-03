@@ -1,0 +1,240 @@
+---
+title: "服务端接口"
+---
+
+创建人群包时必须勾选 数据存储到数据库
+
+## 检测用户是否在人群包内
+
+> **POST：** `/v1/thirdparty/service_api/check_user_in_crowd`
+> **认证方式：** [CPSign](/docs/v3.5/入门指南/服务端接入须知)
+> **应用场景：** 服务端调用
+
+```bash
+curl --location --request POST '{{接口域名}}/v1/thirdparty/service_api/check_user_in_crowd' \
+--header 'ruixue-language: {{语言}}' \
+--header 'ruixue-cpid: {{CPID}}' \
+--header 'ruixue-productid: {{产品标识}}' \
+--header 'ruixue-cpts: {{时间戳}}' \
+--header 'ruixue-traceid: {{TraceID}}' \
+--header 'ruixue-cpsign: {{请求签名}}' \
+--header 'ruixue-devicecode: {{设备码}}' \
+--header 'ruixue-channelid: {{渠道标识}}' \
+--header 'ruixue-platformid: {{平台标识}}' \
+--data-raw '{
+    "cpid": "2000000",
+    "crowd_id": "pt_66_100",
+    "cp_user_id":"1001",
+    "open_id" : "rxu1234567890"
+}'
+```
+
+***
+
+> **POST：** `/v1/thirdparty/api/check_user_in_crowd`
+> **认证方式：** [Accesstoken](/docs/v3.5/入门指南/服务端接入须知)
+> **应用场景：** 客户端调用
+
+```bash
+curl --location --request POST '{{接口域名}}/v1/thirdparty/api/check_user_in_crowd' \
+--header 'ruixue-language: {{语言}}' \
+--header 'ruixue-cpid: {{CPID}}' \
+--header 'ruixue-productid: {{产品标识}}' \
+--header 'ruixue-traceid: {{TraceID}}' \
+--header 'ruixue-accesstoken: {{accesstoken}}' \
+--header 'ruixue-devicecode: {{设备码}}' \
+--header 'ruixue-channelid: {{渠道标识}}' \
+--header 'ruixue-platformid: {{平台标识}}' \
+--data-raw '{
+    "cpid": "2000000",
+    "crowd_id": "pt_66_100",
+    "cp_user_id":"1001",
+    "open_id" : "rxu1234567890"
+}'
+```
+
+### 请求参数（JSON）
+
+| **字段** | **类型** | **是否必填** | **说明** | **示例** |
+| --- | --- | ---- | --- | --- |
+| cpid | String | 是 | 人群包的cpid | 如果是平台传 2000000 |
+| crowd\_id | String | 是 | 人群包标识 | test |
+| open\_id | String | 是 | 望舒 openid；任选 |  |
+| cp\_user\_id | String | 是 | cp 侧 userid；任选 | 确定cp\_user\_id 已上报 |
+
+**请求示例**
+
+```json
+{
+    "cpid": "2000000",
+    "crowd_id": "pt_66_100",
+    "open_id" : "rux***********"
+}
+
+或者
+
+{
+    "cpid": "2000000",
+    "crowd_id": "pt_66_100",
+    "cp_user_id" : "123456"
+}
+```
+
+### 响应参数（JSON)
+
+**HTTP 状态码：**`200 OK`
+
+| **字段** | **类型** | **是否必填** | **说明** | **示例** |
+| --- | --- | ---- | --- | --- |
+| code | Number | 是 | 响应状态码，0为成功，非0表示出错 | 0 |
+| msg | String | 否 | 响应信息，仅在status为非0时不为空 |  |
+| data | [Node](/docs/v3.5/三方服务/人群包/服务端接口) | 否 | 响应信息，仅在status为非0时不为空 |  |
+
+##### Node
+
+| **字段** | **类型** | **是否必填** | **说明** | **示例** |
+| --- | --- | ---- | --- | --- |
+| crowd\_id | String | 是 | 人群包标识 | test |
+| exist | Bool | 是 | 人群包内是否存在 |  |
+| open\_id | String | 否 | 望舒openid |  |
+| tags | map[String]String | 否 | 标签值 |  |
+
+**响应示例**
+
+```json
+{
+    "data": {
+        "crowd_id":"test",
+        "exist": true,
+        "open_id": "",
+        "tags": {
+            "text_ID@36762ccada8e71da": "5qCH562+5YC8MQ=="
+        }
+    },
+    "code": 0
+}
+```
+
+***
+
+## 检测用户是否在多个人群包内
+
+> **POST：** `/v1/thirdparty/service_api/batch_check_user_in_crowd`
+> **认证方式：** [CPSign](/docs/v3.5/入门指南/服务端接入须知)
+> **应用场景：** 服务端调用
+
+```bash
+curl --location --request POST '{{接口域名}}/v1/thirdparty/service_api/check_user_in_crowd' \
+--header 'ruixue-language: {{语言}}' \
+--header 'ruixue-cpid: {{CPID}}' \
+--header 'ruixue-productid: {{产品标识}}' \
+--header 'ruixue-cpts: {{时间戳}}' \
+--header 'ruixue-traceid: {{TraceID}}' \
+--header 'ruixue-cpsign: {{请求签名}}' \
+--header 'ruixue-devicecode: {{设备码}}' \
+--header 'ruixue-channelid: {{渠道标识}}' \
+--header 'ruixue-platformid: {{平台标识}}' \
+--data-raw '{
+    "cpid" : "114",
+    "crowd_id" : ["shoujihao", "yd_crowd_0002"],
+    "cp_user_id":"1001",
+    "open_id" : "rxufYEgKG21bv6Puy4Y_UbJJd_t2zrwr-11111"
+}'
+```
+
+***
+
+> **POST：** `/v1/thirdparty/api/batch_check_user_in_crowd`
+> **认证方式：** [Accesstoken](/docs/v3.5/入门指南/服务端接入须知)
+> **应用场景：** 客户端调用
+
+```bash
+curl --location --request POST '{{接口域名}}/v1/thirdparty/api/check_user_in_crowd' \
+--header 'ruixue-language: {{语言}}' \
+--header 'ruixue-cpid: {{CPID}}' \
+--header 'ruixue-productid: {{产品标识}}' \
+--header 'ruixue-traceid: {{TraceID}}' \
+--header 'ruixue-accesstoken: {{accesstoken}}' \
+--header 'ruixue-devicecode: {{设备码}}' \
+--header 'ruixue-channelid: {{渠道标识}}' \
+--header 'ruixue-platformid: {{平台标识}}' \
+--data-raw '{
+    "cpid" : "114",
+    "crowd_id" : ["shoujihao", "yd_crowd_0002"],
+    "cp_user_id":"1001",
+    "open_id" : "rxufYEgKG21bv6Puy4Y_UbJJd_t2zrwr-11111"
+}'
+```
+
+### 请求参数（JSON）
+
+| **字段** | **类型** | **是否必填** | **说明** | **示例** |
+| --- | --- | ---- | --- | --- |
+| cpid | String | 是 | 人群包的cpid | 如果是平台传 2000000 |
+| crowd\_id | []String | 是 | 数组，人群包标识 | test |
+| open\_id | String | 是 | 望舒 openid。任选 |  |
+| cp\_user\_id | String | 是 | cp 侧 userid。任选 | 确定cp\_user\_id 已上报 |
+
+**请求示例**
+
+```json
+{
+    "cpid": "2000000",
+    "crowd_id": ["pt_66_100"],
+    "open_id" : "rux***********"
+}
+
+或者
+
+{
+    "cpid": "2000000",
+    "crowd_id": ["pt_66_100"],
+    "cp_user_id" : "123456"
+}
+```
+
+### 响应参数（JSON)
+
+**HTTP 状态码：**`200 OK`
+
+| **字段** | **类型** | **是否必填** | **说明** | **示例** |
+| --- | --- | ---- | --- | --- |
+| code | Number | 是 | 响应状态码，0为成功，非0表示出错 | 0 |
+| msg | String | 否 | 响应信息，仅在status为非0时不为空 |  |
+| data | [NodeList](/docs/v3.5/三方服务/人群包/服务端接口) | 否 | 响应信息 |  |
+
+##### NodeList
+
+| **字段** | **类型** | **是否必填** | **说明** | **示例** |
+| --- | --- | ---- | --- | --- |
+| list | [[]Node](/docs/v3.5/三方服务/人群包/服务端接口)  | 是 | 每一个人群包返回值 |  |
+
+**响应示例**
+
+```json
+{
+    "data": {
+        "list": [
+            {
+                "crowd_id": "shoujihao",
+                "exist": true,
+                "open_id": "rxufYEgKG21bv6Puy4Y_UbJJd_t2zrwr-VQWk4pA",
+                "passport_id": "",
+                "tags": {
+                    "rxphone@36762ccada8e71da": "139****2222"
+                }
+            },
+            {
+                "crowd_id": "yd_crowd_0002",
+                "exist": false,
+                "open_id": "",
+                "passport_id": "",
+                "tags": null
+            }
+        ]
+    },
+    "code": 0
+}
+```
+
+***

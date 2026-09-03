@@ -1,0 +1,129 @@
+---
+sidebar_position: 1
+title: 快速接入
+description: "望舒SDK 数据分析 快速接入 Unity 接入文档，提供完整的接口调用说明与示例。"
+---
+
+### 接入方式
+
+Package Manager 导入 RuiXue.Analysis
+
+## 上报事件
+
+可使用此功能将事件上报到望舒大数据后台中。
+
+需要在 SDK 初始化后调用！！！ SDK 只支持上报事件属性，用户属性请使用 [Go SDK](/docs/开发者文档/数据分析/服务端接入/Go-SDK) 进行上报
+
+**接口原型**
+
+```csharp
+ public bool DataTrack(string eventName, string distinctId, Dictionarystring, object> properties);
+```
+
+### 参数说明
+
+| 字段 | 类型 | 是否必填 | 说明 |
+| --- | --- | --- | --- |
+| eventName | String | 是 | 埋点标识 |
+| distinctId | String | 否 | 用户唯一标识，一般为 OpenID |
+| properties | Dictionary&lt;String,Object> | 是 | 自定义属性注意： properties 中上传的属性内容，必须与在后台中添加的属性内容保持一致。否则数据无法统计。 |
+
+**调用示例**
+
+```csharp
+ private void OnDataTrack()
+ {
+ Dictionarystring, object> dic = new();
+ dic.Add("testdic", "testdic");
+ RXAnalysis.DataTrack("data-test", "", dic);
+ }
+```
+
+### 响应结构
+
+返回 bool ，标识数据上报是否被成功记录。
+
+## 获取 client_distinct_id
+
+**client_distinct_id** 是望舒中使用的重要属性，用于关联在没有 openid 时上报的数据。
+
+**接口原型**
+
+```csharp
+public void GetDistinctId(RequestResponseDelegate onResponse);
+```
+
+**调用示例**
+
+```csharp
+RuiXueSdk.GetDistinctId(DistinctIdResponseDelegate);
+
+private void DistinctIdResponseDelegate(string data)
+{
+ LogUtil.Log("EventManager", $"GetDistinctId: {data}");
+}
+```
+
+## 设置公共属性
+
+设置后由 SDK 填入自定义属性中进行上报，设置后 SDK 进行缓存，多次设置则会覆盖。
+
+**接口原型**
+
+```csharp
+ public void SetPublicProperties(Dictionarystring, object> publicProperties);
+```
+
+**调用示例**
+
+```csharp
+ private void OnSetPublicProperties()
+ {
+ Dictionarystring, object> pub = new();
+ pub.Add("a", 1);
+ pub.Add("b", 2);
+ pub.Add("c", 3);
+ pub.Add("d", 4);
+ pub.Add("e", 5);
+ pub.Add("f", 6);
+ RXAnalysis.SetPublicProperties(pub);
+ }
+```
+
+## 修改公共属性
+
+修改的属性会将原有属性覆盖，未设置的属性则会补入缓存中。
+
+**接口原型**
+
+```csharp
+ public void UpdatePublicProperties(string key, object value);
+```
+
+**调用示例**
+
+```csharp
+ private void OnUpdatePublicProperties()
+ {
+ RXAnalysis.UpdatePublicProperties("test", "1111");
+ }
+```
+
+## 删除公共属性
+
+删除缓存的某个公共属性。
+
+**接口原型**
+
+```csharp
+ public void DeletePublicProperties(string key);
+```
+
+**调用示例**
+
+```csharp
+ private void OnDeletePublicProperties()
+ {
+ RXAnalysis.DeletePublicProperties("test");
+ }
+```

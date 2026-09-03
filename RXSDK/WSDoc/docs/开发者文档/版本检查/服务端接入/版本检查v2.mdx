@@ -1,0 +1,158 @@
+---
+sidebar_position: 2
+title: 版本检查 V2
+description: "望舒SDK 版本检查 V2服务端文档，提供接口请求参数与响应说明。"
+---
+
+## 版本检查（通用）
+
+> **POST: ** `/v1/vcapi/update_module_version`
+>
+> **认证方式：** 无
+
+### CURL 示例
+
+```bash
+curl --location --request POST '{{接口域名}}/v1/vcapi/update_module_version' \
+--header 'Content-Type: application/json' \
+--data-raw '{
+ "modules": [
+ {
+ "module_tag": "dsa",
+ "clientversion": 0,
+ "checkversion": 0,
+ "category_tag": "dass"
+ },
+ {
+ "module_tag": "_nNNN",
+ "clientversion": 0,
+ "checkversion": 0,
+ "category_tag": "default"
+ }
+
+ ],
+ "type": "js"
+}'
+```
+
+### 请求参数
+
+| 参数 | 类型 | 说明 |
+| --- | --- | --- |
+| type | String | 脚本类型 默认 js ， 可选 lua ， u3d |
+| modules | Array [ModuleInfo](/docs/开发者文档/版本检查/服务端接入/版本检查v2) | 待检查模块数组 |
+
+### 待检查模块信息ModuleInfo
+
+| 参数 | 类型 | 是否必填 | 说明 |
+| --- | --- | --- | --- |
+| module_tag | String | 是 | 模块标识 |
+| category_tag | String | 是 | 分类标识 |
+| clientversion | Number | 是 | 客户端当前版本， 0 表示当前客户端无相关版本(首次接） |
+| checkversion | Number | 是 | 优先检查这个版本，没有此版本时再返回最新版本，不需要传 0 即可 |
+
+**响应示例**
+
+```json
+{
+ "data": {
+ "modules": [
+ {
+ "module_tag": "dsa",
+ "category_tag": "dass",
+ "uri": "https://rxfile-test.ruixueyun.com/release/pkg/25031110GjPuOV0TkITessHcdWpgyWn3Tb3T2U.zip",
+ "version": 88
+ },
+ {
+ "module_tag": "_nNNN",
+ "category_tag": "default",
+ "uri": "https://rxfile-test.ruixueyun.com/release/pkg/25031110jCFrdMrEvsqRMDnMEC7vMoJO7EinKp.zip",
+ "version": 99
+ }
+ ]
+ },
+ "code": 0
+}
+```
+
+### 响应结构（JSON）
+
+| 参数 | 类型 | 说明 |
+| --- | --- | --- |
+| code | Number | 接口状态码， 0 标识请求正常，非零表示此次请求出现错误 |
+| Data | [Object](/docs/开发者文档/版本检查/服务端接入/版本检查v2) | 接口返回的业务数据 |
+
+#### 响应Data
+
+| 参数 | 类型 | 说明 |
+| --- | --- | --- |
+| modules | Array [ModuleResponse](/docs/开发者文档/版本检查/服务端接入/版本检查v2) | 模块检查结果数组 |
+
+##### 响应ModuleResponse
+
+| 参数 | 类型 | 说明 |
+| --- | --- | --- |
+| module_tag | String | 模块标识 |
+| category_tag | String | 分类标识 |
+| version | Number | 最新版本，大于 0 的数字， 0 表示无最新版本 |
+| url | String | 版本地址路径 |
+
+## H5跳转最新版本
+
+> **GET: ** `/v1/vcapi/h5/{产品id}/{渠道id}`
+>
+> **认证方式：** 无
+
+### 响应结构（无）
+
+## 获取临时维护公告
+
+> **GET: ** `/v1/vcapi/maintain/{产品id}/{渠道id}`
+>
+> **认证方式：** 无
+
+### 响应结构（JSON）
+
+| 参数 | 类型 | 说明 |
+| --- | --- | --- |
+| code | Number | 接口状态码， 0 标识请求正常，非零表示此次请求出现错误 |
+| Data | Object | 接口返回的业务数据 |
+
+#### 响应Data
+
+| 参数 | 类型 | 说明 |
+| --- | --- | --- |
+| upgrade | Number | 0 无公告 2 有公告 |
+| maintain_title | String | 公告标题 |
+| maintain | String | 公告内容 |
+
+## 获取h5登录地址
+
+> **GET: ** `/v1/vcapi/h5_login_config/{产品id}/{渠道id}`
+>
+> **认证方式：** 无
+
+### 响应结构（JSON）
+
+| 参数 | 类型 | 说明 |
+| --- | --- | --- |
+| code | Number | 接口状态码， 0 标识请求正常，非零表示此次请求出现错误 |
+| Data | Object | 接口返回的业务数据 |
+
+#### 响应Data
+
+| 参数 | 类型 | 说明 |
+| --- | --- | --- |
+| login_host | String | 登录地址 |
+| login_config | Array LoginConfig | 新版登录配置 |
+
+##### 响应LoginConfig
+
+| 参数 | 类型 | 说明 |
+| --- | --- | --- |
+| region_tag | String | 标签 |
+| region_list | Array String | 区域列表 |
+| user_region | String | 用户区域 |
+| ext_param | String | 扩展参数 |
+| login_host | String | 登录地址 |
+| login_name | String | 登录名 |

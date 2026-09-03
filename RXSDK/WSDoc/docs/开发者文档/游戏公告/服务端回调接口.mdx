@@ -1,0 +1,103 @@
+---
+sidebar_position: 2
+title: 服务端回调接口
+description: "望舒SDK 游戏公告 服务端回调接口服务端文档，提供接口请求参数与响应说明。"
+---
+
+## 维护公告
+
+> 类型：同步
+>
+> Action: `versioncheck-maintain`
+>
+> **认证方式：** [CPSign](/docs/开发者文档/入门指南/服务端接入须知)
+
+### 请求参数 (JSON)
+
+
+| 字段 | 类型 | 是否必填 | 说明 |
+| --- | --- | --- | --- |
+| module_id | Number | 是 | 唯一标识，公告 ID |
+| is_del | Bool | 是 | 为 true 时代表删除 |
+| data | [data](/docs/开发者文档/游戏公告/服务端回调接口) | 否 | is_del 为 true 时无此字段 |
+
+
+#### data
+
+
+| 字段 | 类型 | 是否必填 | 说明 |
+| --- | --- | --- | --- |
+| type | Number | 公告类型 1 版本更新公告 2 临时维护公告（版本检查下发） 3 常规公告 | timezone |
+| Number | 公告生效时区 | start | String |
+| 开始时间 | end | String | 结束时间 |
+| contents | [][content](/docs/开发者文档/游戏公告/服务端回调接口) | 公告内容。 数组 | whitelist |
+| String | 白名单 ip ，逗号分隔，包含的 ip 不下发公告 | relation | [][relation](/docs/开发者文档/游戏公告/服务端回调接口) |
+| 维度数组：公告关联 |  |  |  |
+
+
+##### content
+
+
+| 字段 | 类型 | 是否必填 | 说明 |
+| --- | --- | --- | --- |
+| language | String | 是 | 语言 zh en 等 |
+| title | String | 是 | 标题 |
+| content | String | 是 | 内容 |
+
+
+##### relation
+
+
+| 字段 | 类型 | 是否必填 | 说明 |
+| --- | --- | --- | --- |
+| product_id | String | 是 | 产品 id ，值为空时为全部产品 |
+| channel_id | String | 是 | 渠道 id ，值为空时为全部渠道 |
+
+
+💡 望舒后台产品内公告首先是待发布状态，到达开始时间后， 公告状态改为已发布，无法编辑删除，此时只能修改公告结束时间；示例：
+
+```go
+{
+ "module_id": 68,
+    "is_del" : false,
+ "data":
+ {
+        "maintain_id" : 68,
+ "type": 1,
+ "start": "2022-08-22 00:00:00",
+ "end": "2022-08-22 00:00:00",
+ "white_list":"",
+        "contents" : [
+         {
+                "language" : "zh",
+                "title": "标题",
+                "content" : "中文内容"
+ },
+ {
+ "language" : "en",
+ "title": "tt",
+ "content" : "hello world"
+ }
+        ],
+        "relation":[
+         {
+         "product_id": "",
+         "channel_id": ""
+         }
+        ]
+ }
+}
+```
+
+复核后，大于开始时间小于结束时间时，待发布状态自动变更为已发布状态，并同步 CP ；已发布的公告在修改、删除时同步给 CP ， 修改的公告 CP 方根据 module_id 同步修改；删除的公告 CP 需要根据 module_id 做同步删除。
+
+已发布状态的公告可能会重新编辑，只会编辑公告内容、白名单、结束时间等内容， CP 方根据 module_id 做变更处理。
+
+### 响应参数（JSON）
+
+**HTTP 状态码：**`200 OK`
+
+| 字段 | 类型 | 是否必填 | 说明 | 示例 |
+| --- | --- | --- | --- | --- |
+| code | Number | 是 | 响应状态码， 0 为成功，非 0 表示出错 | 0 |
+| msg | String | 否 | 响应信息，仅在 code 非 0 时返回 |  |

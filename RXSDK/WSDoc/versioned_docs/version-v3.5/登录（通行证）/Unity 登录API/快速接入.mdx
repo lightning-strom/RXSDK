@@ -1,0 +1,889 @@
+---
+title: "快速接入"
+---
+
+### 接入方式
+* Package Manager 导入 RuiXue.Login
+
+## 登录
+
+:::tip
+"非法注册（限制代码1）" code : 312232 为 注册ip限制，默认开启，同一ip默认1小时注册账号不能超过2个，如有需求请联系商务添加ip白名单或调整限制条件。
+"非法注册（限制代码2）" code : 312232 为 注册设备限制，默认关闭，同一设备x小时注册账号不能超过x个，如有需求请联系商务开启。
+:::
+
+### 登录流程图
+**非三方授权登录（游客、验证码、账号密码等）**
+![](https://guanwangyun.oss-cn-beijing.aliyuncs.com/document/tripartite/LoginFunctionIntroduction1.png)
+
+**三方授权登录（微信、Facebook等）**
+![](https://guanwangyun.oss-cn-beijing.aliyuncs.com/document/tripartite/LoginFunctionIntroduction2.png)
+
+### 注册
+
+**接口原型**
+
+```csharp
+public void Register(string username, string password, string captchaCode, Dictionary ext, 
+            RequestResponseDelegate onResponse, RequestErrorDelegate onError);
+```
+
+**参数说明**
+
+| **字段**     | **类型**                                                 | **是否必填** | **说明**                                                                         |
+| ------------ | -------------------------------------------------------- | ---------------- | -------------------------------------------------------------------------------- |
+| username     | string                                                   | 是               | 用户名                                                                           |
+| password     | string                                                   | 是               | 密码                                                                             |
+| captcha_code | string                                                   | 否               | 使用 `sendCaptcha` 接口获取                                                        |
+| ext          | Dictionary                                               | 否               | 扩展参数                                                                         |
+
+**调用示例**
+
+```csharp
+    private void OnRegister()
+    {
+        Dictionary dic = new();
+        dic.Add("nickname", "dfasf");
+        dic.Add("avatarUrl", "www.baidu.com");
+        dic.Add("sex", 1);
+        RXLogin.Register("xiaohai3333", "1122232wewe", "", dic, RegisterResponseDelegate, RegisterErrorDelegate);
+    }
+
+    private void RegisterResponseDelegate(string data)
+    {
+        LogUtil.Log("EventManager", $"OnRegister Response : {data}");
+    }
+
+    private void RegisterErrorDelegate(string error)
+    {
+        LogUtil.Log("EventManager", $"OnRegister Error : {error}");
+    }
+```
+
+#### 响应结构
+
+```json
+{
+    "code": 0,
+    "data": {
+        "id": 2031,
+        "openid": "rxuIR2c1N1EdU9s/gkE8I8bEQ=="
+    }
+}
+```
+##### SubPackage
+
+| **字段**       | **类型** | **是否必填** | **说明**                | **示例** |
+| -------------- | -------- | ------------ | ----------------------- | -------- |
+| sub_channel_id | String   | 否           | 子渠道标识      |          |
+
+> **响应示例**
+
+```json
+{
+
+        "sub_channel_id": "1235"
+    
+}
+```
+
+### 登录
+
+**接口原型**
+
+```csharp
+public void Login(string loginType, string username, string password, string captchaCode, string loginOpenId, 
+            Dictionary ext, string[] signFields, object migrateArgs, 
+            RequestResponseDelegate onResponse,RequestErrorDelegate onError);
+```
+
+#### 参数说明
+
+> Map 结构说明
+
+| **字段**     | **类型**                                                 | **是否必填**  | **说明**                                                                                                                                                                                                                                                                                                                                                               |
+| ------------ | -------------------------------------------------------- | ---------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| loginType    | string                                                   | 是               | 可用方式，参照下面登录方式说明                                                                                                                                                                      
+| username     | string                                                   | 否               | 用户名
+| password     | string                                                   | 否               | 密码
+| captchaCode  | string                                                   | 否               | 验证码
+| loginOpenId  | string                                                   | 否               | 二次登录loginOpenId
+| ext          | Dictionary                               | 否               | 额外参数
+| signFields   | string[]                                                 | 否               | 指定对登录成功后返回的特定字段, 使用 CPKEY 计算签名. CP 服务器可重新计算签名并与登录返回的签名比对, 作为对望舒登录数据的校验. 支持的字段包括: nickname, avatar, openid, region, sex, age, 计算签名的逻辑会对指定字段进行排序, 此处传参与顺序无关.
+| migrate_args | 任意合法的 json 类型, 比如 string, number, array, object    | 否               | 账号迁移用的参数, 调用 CP account-query 及 account-queryandbind 接口时透传给 CP.                                                                                                                                                                    |
+
+> loginType 结构说明
+
+* ( ) ios::init1
+* ( ) android::init2
+
+**调用示例**
+
+```csharp
+    private void AccountLogin()
+    {
+        RXLogin.Login("username","xiaohai", "123123123", "", "",
+            null, null, null, LoginResponseDelegate, LoginErrorDelegate);        
+    }
+```
+
+#### 响应结构
+
+请参考 [服务端登录API](/docs/v3.5/登录（通行证）/服务端接入/服务端 API)响应结构
+::: tip
+1. 三方登录需要引入三方SDK，请参考三方服务文档。
+2. 每种登录方式具体调用方法，请参考 Demo。
+   :::
+
+### 设置密码等级
+::: tip
+默认等级为 strong
+:::
+**接口原型**
+
+```csharp
+/// <summary>
+/// 设置密码等级
+/// </summary>
+/// type 密码强度等级枚举
+public static void SetPasswordStrength(RXPasswordStrength type);
+```
+
+**type 说明**
+
+| **字段**  | **说明**                                                                         |
+| ----------------- | --------------------------------- |
+| Default      | 6-32 位任意字符   |
+| Custom      | 自定义密码正则  |
+| Average      | 简易密码， 6-32 位任意字符 |
+| Strong      | 强密码，  6-32 位，包含数字+字母+特殊符号  |
+
+**调用示例**
+
+```csharp
+RuiXueSdk.SetPasswordStrength(RXPasswordStrength.Strong);
+```
+
+### 自定义密码正则
+**接口原型**
+
+```csharp
+/// <summary>
+/// 设置密码正则
+/// 需要先将密码强度设置为自定义
+/// </summary>
+/// pattern 密码正则
+public static void SetPwdPattern(string pattern);
+```
+
+**调用示例**
+
+```csharp
+RuiXueSdk.SetPwdPattern(自定义正则);
+```
+
+## 用户中心
+
+### 申请注销账号
+
+**接口原型**
+
+```csharp
+public void Deregister(string idcard, string realname, string cpdata, RequestResponseDelegate onResponse,
+            RequestErrorDelegate onError);
+```
+
+#### 参数说明
+
+| **字段** | **类型** | **是否必填** | **备注**      |
+| -------- | -------- | ------------ | ------------- |
+| idcard   | string | 是           | 身份证        |
+| realname | string | 是           | realname      |
+| cpdata   | string | 否           | CP 自定义数据 |
+
+**调用示例**
+
+```csharp
+    private void OnDeregister()
+    {
+        RXLogin.Deregister("xxxxxxxx", "徐强", "1111", DeregisterResponseDelegate, DeregisterErrorDelegate);
+    }
+
+    private void DeregisterResponseDelegate(string data)
+    {
+        LogUtil.Log("EventManager", $"Deregister Response : {data}");
+    }
+
+    private void DeregisterErrorDelegate(string error)
+    {
+        LogUtil.Log("EventManager", $"Deregister Error : {error}");
+    }
+```
+
+#### 响应结构
+
+```json
+{
+    "code": 0
+}
+```
+### 撤销注销申请
+
+**接口原型**
+
+```csharp
+public void Deregister(string idcard, string realname, string cpdata, RequestResponseDelegate onResponse,
+            RequestErrorDelegate onError);
+```
+
+**调用示例**
+
+```csharp
+    public void OnDeregisterCancel()
+    {
+        RXLogin.DeregisterCancel(DeregisterCancelResponseDelegate, DeregisterCancelErrorDelegate);
+    }
+
+    private void DeregisterCancelResponseDelegate(string data)
+    {
+        LogUtil.Log("EventManager", $"OnDeregisterCancel Response : {data}");
+    }
+
+    private void DeregisterCancelErrorDelegate(string error)
+    {
+        LogUtil.Log("EventManager", $"OnDeregisterCancel Error : {error}");
+    }
+```
+
+#### 响应结构
+
+```json
+{
+    "code": 0
+}
+```
+### 查询当前用户绑定的手机/邮箱账号
+
+**接口原型**
+
+```csharp
+public void SearchBindingAccounts(RequestResponseDelegate onResponse, RequestErrorDelegate onError);
+```
+
+**调用示例**
+
+```csharp
+    public void OnSearchBindingAccounts()
+    {
+        RXLogin.SearchBindingAccounts(SearchBindingResponseDelegate, SearchBindingErrorDelegate);
+    }
+
+    private void SearchBindingResponseDelegate(string data)
+    {
+        LogUtil.Log("EventManager", $"SearchBindingAccounts Response : {data}");
+    }
+
+    private void SearchBindingErrorDelegate(string error)
+    {
+        LogUtil.Log("EventManager", $"SearchBindingAccounts Error : {error}");
+    }
+```
+
+#### 响应结构
+
+| **字段** | **类型**                         | **说明**                 |
+| -------- |---------------------------------|------------------------|
+| phones   | [][BoundAccount](/docs/v3.5/登录（通行证）/Android 登录API/快速接入) | 绑定的手机账号信息，若不存在，返回 null |
+| emails   | [][BoundAccount](/docs/v3.5/登录（通行证）/Android 登录API/快速接入) | 绑定的邮箱账号信息，若不存在，返回 null |
+
+##### BoundAccount
+
+| **字段** | **类型** | **说明**                                                                                            |
+| -------- | -------- | --------------------------------------------------------------------------------------------------- |
+| id       | Number   | 账号 ID，整数。可作为发送验证码的 boundaccountid 参数，给当前登录用户绑定的某个手机或邮箱发送验证码 |
+| username | String   | 账号用户名，客户端显示用                                                                            |
+
+### 获取验证码（发送验证码）
+::: tip
+获取验证码需填写对应意图 purpose。
+type 和 target 需对应，否则无法接收验证码。
+target 传空或 nil 默认为当前绑定的手机或邮箱。
+:::
+
+**接口原型**
+
+```csharp
+public void SendCaptcha(CaptchaType type, string target, string purpose, RequestResponseDelegate onResponse, RequestErrorDelegate onError);
+```
+
+#### 参数说明
+
+> Map 结构说明
+
+| **字段** | **类型** | **是否必填** | **备注**                               |
+| -------- | -------- | ------------ | -------------------------------------- |
+| email    | String   | 否           | 接收验证码的邮箱地址，邮箱手机号二选一 |
+| phone    | String   | 否           | 接收验证码的手机号，邮箱手机号二选一   |
+| purpose  | String   | 是           | 验证码的用途                           |
+
+> `purpose` 字段值 验证码用途说明
+
+| **字段**    | 备注     |
+| ----------- | -------- |
+| register    | 注册     |
+| bindphone   | 绑定手机 |
+| unbindphone   | 解绑手机 |
+| resetpwd    | 重置密码 |
+| bindemail   | 绑定邮箱 |
+| unbindemail   | 解绑邮箱 |
+| login       | 登录     |
+| setpwd      | 设置密码 |
+
+**调用示例**
+
+```csharp
+    public void OnSendCaptcha()
+    {
+        RXLogin.SendCaptcha(CaptchaType.CaptchaType_phone, "18243088053", "login",
+             SendCaptchaResponseDelegate, SendCaptchaErrorDelegate);
+    }
+
+    private void SendCaptchaResponseDelegate(string data)
+    {
+        LogUtil.Log("EventManager", $"OnSendCaptcha Response : {data}");
+    }
+
+    private void SendCaptchaErrorDelegate(string error)
+    {
+        LogUtil.Log("EventManager", $"OnSendCaptcha Error : {error}");
+    }
+```
+
+#### 响应结构
+
+```json
+{
+    "code": 0,
+    "data": {
+        "interval": 60,
+        "surplus": 60
+    }
+}
+```
+
+### 校验验证码
+
+::: tip
+用途和手机号或邮箱需要和调用发送验证码时一致。
+:::
+
+**接口原型**
+
+```csharp
+public void VerifyCaptcha(CaptchaType type, string target, string purpose, string captcha_code, 
+    RequestResponseDelegate onResponse, RequestErrorDelegate onError);
+```
+
+#### 参数说明
+
+| **字段** | **类型**    | **是否必填** | **备注**                                                        |
+| -------- | ----------- | ------------ | --------------------------------------------------------------- |
+| type     | CaptchaType    | 是           | 验证码类型                                                      |
+| target   | string         | 是           | 发送的目标（手机或邮箱），传空或 nil 默认为当前绑定的手机或邮箱 |
+| purpose  | string         | 是           | 短信意图                                                        |
+| captcha_code  | string    | 是           | 验证码                                                       |
+
+> type 说明
+
+| **字段**          | **备注** |
+| ----------------- | -------- |
+| CaptchaType_email | 邮箱     |
+| CaptchaType_phone | 手机     |
+
+> `purpose` 字段值 验证码用途说明
+
+| **字段**    | 备注     |
+| ----------- | -------- |
+| register    | 注册     |
+| bindphone   | 绑定手机 |
+| unbindphone   | 解绑手机 |
+| resetpwd    | 重置密码 |
+| bindemail   | 绑定邮箱 |
+| unbindemail   | 解绑邮箱 |
+| login       | 登录     |
+| setpwd      | 设置密码 |
+
+**调用示例**
+
+```csharp
+    public void OnVerifyCaptcha()
+    {
+        RXLogin.VerifyCaptcha(CaptchaType.CaptchaType_phone, "18243088053", "login", "1111", 
+            VerifyCaptchaResponseDelegate, VerifyCaptchaErrorDelegate);
+    }
+
+    private void VerifyCaptchaResponseDelegate(string data)
+    {
+        LogUtil.Log("EventManager", $"VerifyCaptcha Response : {data}");
+    }
+
+    private void VerifyCaptchaErrorDelegate(string error)
+    {
+        LogUtil.Log("EventManager", $"VerifyCaptcha Error : {error}");
+    }
+```
+
+#### 响应结构
+
+不返回 data 信息，验证码不正确会直接返回相应的错误。
+
+```json
+{
+    "code": 0
+}
+```
+
+### 绑定邮箱
+
+**接口原型**
+
+```csharp
+public void BindEmail(string email, string password, string captcha_code, object migrate_args, 
+    RequestResponseDelegate onResponse, RequestErrorDelegate onError);
+```
+
+#### 参数说明
+
+| **字段**     | **类型** | **是否必填** | **备注**                                                                                                                                             |
+| ------------ | -------- | ------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------- |
+| captcha_code  | string | 是           | 验证码                                                                                                                                               |
+| password     | string |是           | 密码                                                                                                                                                 |
+| email        | string | 是           | 邮箱                                                                                                                                                 |
+| migrate_args | 任意合法的 json 类型       | 否           | 账号迁移用的参数, 调用 CP account-query 及 account-queryandbind 接口时透传给 CP. |
+
+**调用示例**
+
+```csharp
+    public void OnBindEmail()
+    {
+        RXLogin.BindEmail("xuqiangjiaohe@163.com", "1122232wewe", "1111", new Test(), 
+            BindEmailResponseDelegate, BindEmailErrorDelegate);
+    }
+
+    private void BindEmailResponseDelegate(string data)
+    {
+        LogUtil.Log("EventManager", $"BindEmail Response : {data}");
+    }
+
+    private void BindEmailErrorDelegate(string error)
+    {
+        LogUtil.Log("EventManager", $"BindEmail Error : {error}");
+    }
+```
+
+#### 响应结构
+```json
+{
+    "code": 0
+}
+```
+
+### 绑定手机号
+
+**接口原型**
+
+```csharp
+public void BindPhone(string phone, string password, string captcha_code, object migrate_args, RequestResponseDelegate onResponse, RequestErrorDelegate onError);
+```
+
+#### 参数说明
+
+| **字段**     | **类型** | **是否必填** | **备注**                                                                                                                                             |
+| ------------ | -------- | ------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------- |
+| captcha_code  | string | 是           | 验证码                                                                                                                                               |
+| password     | string | 否           | 密码                                                                                                                                                 |
+| phone        | string | 是           | 手机号                                                                                                                                               |
+| migrate_args | 任意合法的 json 类型, 比如 string, number, array, object       | 否           | 账号迁移用的参数, 调用 CP account-query 及 account-queryandbind 接口时透传给 CP. |
+
+**调用示例**
+
+```csharp
+    public void OnBindPhone()
+    {
+        RXLogin.BindPhone("18243088053", "1122232wewe", "222", new Test(), 
+            OnBindPhoneResponseDelegate, OnBindPhoneErrorDelegate);
+    }
+
+    private void OnBindPhoneResponseDelegate(string data)
+    {
+        LogUtil.Log("EventManager", $"BindPhone Response : {data}");
+    }
+
+    private void OnBindPhoneErrorDelegate(string error)
+    {
+        LogUtil.Log("EventManager", $"BindPhone Error : {error}");
+    }
+```
+
+#### 响应结构
+
+```json
+{
+    "code": 0
+}
+```
+
+### 换绑手机号
+
+**接口原型**
+
+```csharp
+public void ChangePhone(string newPhone, string newPhoneCaptcha, string oldPhoneCaptcha, object migrateArgs, RequestResponseDelegate onResponse, 
+    RequestErrorDelegate onError);
+```
+
+#### 参数说明
+
+| **字段**         | **类型**             | **是否必****填**                                                                 | **说明**                  |
+| ---------------- | -------------------- | -------------------------------------------------------------------------------- | ------------------------- |
+| oldPhoneCaptcha  | string               | 当前登录的手机号的 purpose =`unbindphone` 验证码。                               | 使用 `sendCaptcha` 接口获取 |
+| newPhone         | string               | 新的手机号。                                                                     | 手机号码                  |
+| newPhoneCaptcha  | string               | 新手机号的 purpose=`bindphone` 验证码。                                          | 使用 `sendCaptcha` 接口获取 |
+| migrateArgs      | 任意合法的 json 类型 | 账号迁移用的参数, 调用 CP account-query 及 account-queryandbind 接口时透传给 CP. |                           |
+
+**调用示例**
+```csharp
+    public void OnChangePhone()
+    {
+        RXLogin.ChangePhone("18243088053", "15128393723", "2344", new Test(), 
+            ChangePhoneResponseDelegate, ChangePhoneErrorDelegate);
+    }
+
+    private void ChangePhoneResponseDelegate(string data)
+    {
+        LogUtil.Log("EventManager", $"ChangePhone Response : {data}");
+    }
+
+    private void ChangePhoneErrorDelegate(string error)
+    {
+        LogUtil.Log("EventManager", $"ChangePhone Error : {error}");
+    }
+```
+
+#### 响应结构
+
+```json
+{
+    "code": 0
+}
+```
+
+### 获取用户信息
+
+```csharp
+public void GetUserInfo(RequestResponseDelegate onResponse, RequestErrorDelegate onError);
+```
+**调用示例**
+
+```csharp
+    public void OnGetUserInfo()
+    {
+        RXLogin.GetUserInfo(GetUserInfoResponseDelegate, GetUserInfoErrorDelegate);
+    }
+
+    private void GetUserInfoResponseDelegate(string data)
+    {
+        LogUtil.Log("EventManager", $"GetUserInfo Response : {data}");
+    }
+
+    private void GetUserInfoErrorDelegate(string error)
+    {
+        LogUtil.Log("EventManager", $"GetUserInfo Error : {error}");
+    }
+```
+
+#### 响应结构
+
+| **字段**         | **类型**          | **说明**                                                                                                                                                                                                                                                       |
+| ---------------- |-----------------| -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| age              | Number          | 用户年龄，根据实名信息获取。                                                                                                                                                                                                                                   |
+| sex              | Number          | 性别。0 表示女性，1 表示男性。                                                                                                                                                                                                                                 |
+| user_state       | Number          | 用户状态定义, 0 为正常用户。为正数时，使用各位编码用户的不同状态（以下表述中，第 0 位表示最低位）:第 0 位: 为 1 表示玩家已提交注销申请第 1 位: 为 1 表示已注销。可以是客服同意玩家的注销申请，也可以是客服直接在后台操作将账号注销。第 2 位: 为 1 表示已封停。 |
+| attr             | [Number](/docs/v3.5/登录（通行证）/Android 登录API/快速接入) | 账号状态标记，使用位运算构成。参考下文 [attr 标记说明](/docs/v3.5/登录（通行证）/Android 登录API/快速接入)                                                                                                             |
+| openid           | String          | 望舒用户 OpenID。                                                                                                                                                                                                                                              |
+| external_openid  | String          | 三方 openid                                                                                                                                                                                                                                                    |
+| external_unionid | String          | 三方 unionid                                                                                                                                                                                                                                                   |
+| wx_unionid       | String          | [DEPRECATED] 三方 unionid                                                                                                                                                                                                                                      |
+| mobile_phone     | String          | 手机号                                                                                                                                                                                                                                                         |
+| nickname         | String          | 昵称                                                                                                                                                                                                                                                           |
+| avatarurl        | String          | 头像                                                                                                                                                                                                                                                           |
+| idCard           | String          | 身份证号                                                                                                                                                                                                                                                       |
+| realName         | String          | 姓名                                                                                                                                                                                                                                                           |
+| theme_skin         | int          | 客服主题皮肤 0 默认皮肤 1 VIP主题            |
+
+##### attr标记
+attr 标记，由以下标记位构成
+
+| **标识** | **备注**                                       |
+| -------- | ---------------------------------------------- |
+| 0        | 是否已通过望舒完成实名认证，1 表示已实名。     |
+| 1        | 用户当前是否有绑定手机号，1 表示有绑定。       |
+| 2        | 用户当前是否有绑定邮箱，1 表示有绑定。         |
+| 3        | 用户当前是否有已设置密码的登录凭证，1 表示有。 |
+| 4        | 用户是否通过望舒完成实名认证，1 表示是。       |
+
+**响应示例**
+
+```json
+{
+    "code": 0,
+    "data": {
+        "avatarurl": "",
+        "mobile_phone": "159****7520",
+        "nickname": "rssllyn",
+        "openid": "rxuWFnlHRbTZ5ED5TkwAG5XVQ==",
+        "sex": 0,
+        "user_state": 0,
+        "attr": 0
+    }
+}
+```
+
+### 修改用户信息
+
+```csharp
+public void UpdateUserInfo(string nickname, string avatarUrl, string region, int sex, 
+            RequestResponseDelegate onResponse, RequestErrorDelegate onError);
+```
+
+**参数说明**
+
+| **字段**         | **类型** | **是否必****填** | **说明**       |
+| ---------------- | -------- | ---------------- | -------------- |
+| avatarurl        | string   | 否               | 头像           |
+| nickname         | string   | 否               | 用户昵称       |
+| region           | string   | 否               | 地区       |
+| sex              | int   | 否                  | 性别 1 男 0 女，无改动传-1，不传会默认修改为女性 |
+
+**调用示例**
+
+```csharp
+    public void OnUpdateUserInfo()
+    {
+        RXLogin.UpdateUserInfo("yyyyy", "www.baidu.com", "CN", 1, UpdateUserInfoResponseDelegate, UpdateUserInfoErrorDelegate);
+    }
+    private void UpdateUserInfoResponseDelegate(string data)
+    {
+        LogUtil.Log("EventManager", $"UpdateUserInfo Response : {data}");
+    }
+
+    private void UpdateUserInfoErrorDelegate(string error)
+    {
+        LogUtil.Log("EventManager", $"UpdateUserInfo Error : {error}");
+    }
+```
+
+#### 响应结构
+
+```json
+{
+    "code": 0
+}
+```
+
+### 修改密码
+
+**接口原型**
+
+```csharp
+ public void ChangePassword(string old_password, string new_password, 
+            RequestResponseDelegate onResponse, RequestErrorDelegate onError);
+```
+
+#### 参数说明
+如果旧密码传空，则默认为账号设置密码
+| **字段**     | **类型** | **是否必****填** | **说明** |
+| ------------ | -------- | ---------------- | -------- |
+| old_password | string   | 是               | 旧密码   |
+| new_password | string   | 是               | 新密码   |
+
+**调用示例**
+
+```csharp
+public void OnChangePassword()
+    {
+        RXLogin.ChangePassword("1122232wewe", "123123123", 
+            ChangePasswordResponseDelegate, ChangePasswordErrorDelegate);
+    }
+
+    private void ChangePasswordResponseDelegate(string data)
+    {
+        LogUtil.Log("EventManager", $"ChangePassword Response : {data}");
+    }
+
+    private void ChangePasswordErrorDelegate(string error)
+    {
+        LogUtil.Log("EventManager", $"ChangePassword Error : {error}");
+    }
+```
+
+#### 响应结构
+
+```json
+{
+    "code": 0
+}
+```
+
+### 重置密码
+
+**接口原型**
+
+```csharp
+public void ResetPassword(string username, string password, string captcha_code, object migrate_args, 
+            RequestResponseDelegate onResponse, RequestErrorDelegate onError);
+```
+
+**参数说明**
+
+| **字段**     | **类型** | **是否必****填** | **说明**                                           |
+| ------------ | -------- | ---------------- | -------------------------------------------------- |
+| username     | string   | 是               | 已经注册过账号的手机号或者邮箱地址用户名。         |
+| password     | string   | 是               | 新密码编码规则与注册账号时传递的密码编码规则相同。 |
+| captcha_code | string   | 是               | 使用 `sendCaptcha` 接口获取用于重置密码的验证码，    |
+| migrate_args | 任意合法的 json 类型, 比如 string, number, array, object    | 否               | 账号迁移用的参数, 调用 CP account-query 及 account-queryandbind 接口时透传给 CP.                                                                                                                                                                    |
+
+**调用示例**
+
+```csharp
+    public void OnResetPassword()
+    {
+        RXLogin.ResetPassword("18243088053", "123123123", "1122", new Test(), 
+            ResetPasswordResponseDelegate, ResetPasswordErrorDelegate);
+    }
+
+    private void ResetPasswordResponseDelegate(string data)
+    {
+        LogUtil.Log("EventManager", $"ResetPassword Response : {data}");
+    }
+
+    private void ResetPasswordErrorDelegate(string error)
+    {
+        LogUtil.Log("EventManager", $"ResetPassword Error : {error}");
+    }
+```
+
+#### 响应结构
+
+```json
+{
+    "code": 0
+}
+```
+
+## 合规
+
+### 实名认证
+
+#### 国内实名
+
+**接口原型**
+
+```csharp
+public void RealAuth(string realname, string idcard, RequestResponseDelegate onResponse, RequestErrorDelegate onError);
+```
+
+##### 参数说明
+
+| **字段** | **类型** | **是否必****填** | **说明**   |
+| -------- | -------- | ---------------- | ---------- |
+| realname | string   | 是               | 真实姓名   |
+| idcard   | string   | 是               | 身份证号码 |
+
+**调用示例**
+
+```csharp
+    public void OnRealAuth()
+    {
+        RXLogin.RealAuth("徐大强", "22028119932234", RealAuthdResponseDelegate, RealAuthErrorDelegate);
+    }
+
+    private void RealAuthdResponseDelegate(string data)
+    {
+        LogUtil.Log("EventManager", $"RealAuth Response : {data}");
+    }
+
+    private void RealAuthErrorDelegate(string error)
+    {
+        LogUtil.Log("EventManager", $"RealAuth Error : {error}");
+    }
+```
+
+##### 响应结构
+
+| **字段** | **类型** | **说明**                   |
+| -------- | -------- | -------------------------- |
+| age      | Number   | 从实名信息中提取的年龄信息 |
+| limit    | bool     | 防沉迷开关 :true 开启 false 未开启|
+| aas      | Number   | 剩余时间|
+
+**响应示例**
+
+```json
+{
+    "code": 0,
+    "data": {
+        "age": 18
+    }
+}
+```
+
+#### 日本实名
+
+**接口原型**
+
+```csharp
+void CreateRequest(string url, Dictionary header, Dictionary body, 
+        HttpMethod method, bool needLogin, RequestResponseDelegate onResponse, RequestErrorDelegate onError);
+```
+
+##### 参数说明
+
+| **字段** | **类型** | **是否必填** | **说明** | **示例** |
+| --- | --- | ---- | --- | --- |
+| birthday | String | 是 | 生日 格式:xxxx/xx/xx | 2002/08/01，月日不足两位补 0|
+
+**调用示例**
+
+```csharp
+
+    private void RequestResponseDelegate(string data)
+    {
+        LogUtil.Log("EventManager", $"RequestResponseDelegate: {data}");
+    }
+
+    private void RequestErrorDelegate(string error)
+    {
+        LogUtil.Log("EventManager", $"RequestErrorDelegate: {error}");
+    }
+
+    private void OnRXRequest()
+    {
+
+        string api="/v1/risk/sdk/auth/jp";
+        Dictionary body = new()
+        {
+            { "birthday", "2002/08/01" }
+        };
+        RuiXueSdk.CreateRequest(api, null, body, HttpMethod.POST, true, RequestResponseDelegate,
+                RequestErrorDelegate);
+    }
+```
+
+**响应示例**
+
+```json
+{
+    "code": 0,
+}
+```

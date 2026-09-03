@@ -1,0 +1,172 @@
+---
+sidebar_position: 1
+title: 服务端回调接口
+description: "望舒SDK 服务端回调接口服务端文档，提供接口请求参数与响应说明。"
+---
+
+> 推广系统事件
+>
+> 类型：同步
+>
+> Action: `promotion-callback`
+>
+> **认证方式：** [CPSign](/docs/开发者文档/入门指南/服务端接入须知)
+
+### 请求参数 (JSON)
+
+| 字段 | 类型 | 是否必填 | 说明 | 示例 |
+| --- | --- | --- | --- | --- |
+| type | String | 是 | [通知类型](/docs/开发者文档/游戏公告/服务端回调接口) | data |
+| [String](/docs/开发者文档/游戏公告/服务端回调接口) | 是 | 根据通知类型解析不同数据结构的 json 格式 |  |  |
+
+#### type通知类型定义
+
+| type 键值 | data 数据类型 | 说明 | 示例 |
+| --- | --- | --- | --- |
+| test | String | 固定值"test callback" | anchor_prop |
+| [GameAnchorProp](/docs/开发者文档/游戏公告/服务端回调接口) | 推广员道具变更 | anchor_add | [PromoterGameEvent](/docs/开发者文档/游戏公告/服务端回调接口) |
+| 添加主播游戏 id | anchor_update | [PromoterGameEvent](/docs/开发者文档/游戏公告/服务端回调接口) | 更新主播游戏 id （只更新 description 字段) |
+| anchor_delete | [PromoterGameEvent](/docs/开发者文档/游戏公告/服务端回调接口) | 删除主播游戏 id | anchor_welfare_code |
+| [WelfareCodeInfo](/docs/开发者文档/游戏公告/服务端回调接口) | 游戏内显示福利码 |  |  |
+
+##### GameAnchorProp
+
+| 字段 | 类型 | 是否必填 | 说明 | 示例 |
+| --- | --- | --- | --- | --- |
+| account_id | String | 游戏 id | props | [][GameProp](/docs/开发者文档/游戏公告/服务端回调接口) |
+| 道具变更信息 |  |  |  |  |
+
+##### GameProp
+
+
+| 字段 | 类型 | 是否必填 | 说明 |
+| --- | --- | --- | --- |
+| prop_id | String | 是 | 道具标识 |
+| count | Number | 是 | 道具数量 |
+| mode | Number | 是 | 补充道具方式 0:重置 1:累加 默认为 0 |
+| standard | Number | 是 | 标准值 默认为 0 ， 0 为不设置 |
+| standard_str | String | 否 | 标准值字符串 |
+
+
+###### 请求示例
+
+```json
+{
+ "account_id": "123",
+ "props": [
+ {
+ "prop_id": "1",
+ "count": 13,
+ "mode": 0
+ "standard": 0
+ }
+ ]
+}
+```
+
+##### PromoterGameEvent
+
+
+| 字段 | 类型 | 是否必填 | 说明 |
+| --- | --- | --- | --- |
+| product_id | String | 是 | 产品 ID |
+| promoter_id | Number | 是 | 推广员 ID |
+| game_account | Number | 是 | 游戏 ID |
+| description | String | 是 | 主播其它信息 |
+| openid | String | 是 | 望舒 openid |
+| anchor_status | Number | 是 | 主播状态 0:停播 1:正常 1 试用期 |
+| anchor_start_time | String | 否 | 直播开始时间(24 小时制)时分，未设置默认空字符串 |
+| 20:15 | anchor_end_time | String | 否 |
+| 直播结束时间(24 小时制)时分，未设置默认空字符串 | 23:30 | platforms | Array |
+| 否 | 使用的媒体平台 |  |  |
+
+
+##### WelfareCodeInfo
+
+
+| 字段 | 类型 | 是否必填 | 说明 |
+| --- | --- | --- | --- |
+| open_id | String | 是 | 达人 openid |
+| refresh_period | Number | 是 | 刷新周期，单位分 |
+| promo_name | String | 是 | 福利码名称 |
+| gift_name | String | 是 | 礼包名 |
+| promo_valid_start | String | 是 | 福利码有效期开始时间 |
+| promo_valid_end | String | 是 | 福利码有效期结束时间 |
+| promo_codes | [] [WelfarePromoCode](/docs/开发者文档/游戏公告/服务端回调接口) | 是 | 福利码 |
+
+
+##### WelfarePromoCode
+
+| 字段 | 类型 | 是否必填 | 说明 | 示例 |
+| --- | --- | --- | --- | --- |
+| promo_code | String | 是 | 福利码 | prop |
+| [] [WelfareProp](/docs/开发者文档/游戏公告/服务端回调接口) | 是 | 道具 |  |  |
+
+##### WelfareProp
+
+
+| 字段 | 类型 | 是否必填 | 说明 |
+| --- | --- | --- | --- |
+| prop_id | String | 是 | 道具标识 |
+| prop_name | String | 是 | 道具名称 |
+| prop_num | String | 是 | 道具数量 |
+
+
+###### 请求示例
+
+```json
+{
+ "product_id": "product123",
+ "promoter_id": 88,
+ "game_account": 81928372,
+ "openid": "rx123456789",
+ "description": "主播的一些描述信息",
+ "anchor_status":1,
+ "anchor_start_time":"20:15",
+ "anchor_end_time":"23:30"
+}
+```
+
+### 响应参数（JSON）
+
+**HTTP 状态码：**`200 OK`
+
+| 字段 | 类型 | 是否必填 | 说明 | 示例 |
+| --- | --- | --- | --- | --- |
+| code | Number | 是 | 响应状态码， 0 为成功，非 0 表示出错 | 0 |
+| msg | String | 否 | 响应信息，仅在 code 非 0 时返回 | data |
+| [Object](/docs/开发者文档/游戏公告/服务端回调接口) | 否 | 根据 type 不同，返回的信息不同 |  |  |
+
+#### data返回结构定义
+
+| type 类型 | data 数据类型 | 说明 | 示例 |
+| --- | --- | --- | --- |
+| test | 无 | 无 data 结构 | anchor_prop |
+| [][GamePropResp](/docs/开发者文档/游戏公告/服务端回调接口) | 推广员道具变更返回 | anchor_add | 无 |
+| 添加主播游戏 id | anchor_update | 无 | 更新主播游戏 id |
+| anchor_delete | 无 | 删除主播游戏 id |  |
+
+##### GamePropResp
+
+| 字段 | 类型 | 是否必填 | 说明 |
+| --- | --- | --- | --- |
+| prop_id | String | 是 | 道具标识 |
+| before | Number | 是 | 道具数量(重置前) |
+| after | Number | 是 | 道具数量(重置后) |
+
+###### 返回示例
+
+```json
+{
+ "data": {
+ "props": [
+ {
+ "prop_id": "1",
+ "before": 3,
+ "after": 13
+ }
+ ]
+ },
+ "code": 0
+}
+```

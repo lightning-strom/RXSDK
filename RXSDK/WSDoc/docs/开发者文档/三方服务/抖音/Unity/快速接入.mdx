@@ -1,0 +1,59 @@
+---
+sidebar_position: 1
+title: 快速接入
+description: "望舒SDK 三方服务 快速接入 Unity 接入文档，提供完整的接口调用说明与示例。"
+---
+
+## SDK集成
+
+
+:::tip[版本说明]
+`version` 为 SDK 版本号（替换为实际版本号），最新版本请从 [更新日志](/docs/开发者文档/入门指南/更新日志/Unity) 中查看。
+:::
+
+```groovy
+ implementation 'com.ruixue:rxsdk_douyin_gb:${version}'
+```
+
+## 配置说明
+
+将 config.json 放到 Assets/Plugins/Android 目录下
+
+```json
+{
+ "app_id": "游戏的appid",
+ "screen_orientation": "sensorPortrait",
+ "union_mode": 1,
+ "is_necessary_permission": false,
+ "login_fail_style": 0
+}
+```
+
+打开 settingsTemplate.gradle 文件，在 `dependencyResolutionManagement{repositories{}}` 中新增：
+
+```groovy
+maven {
+ url 'https://jitpack.io'
+ }
+ maven {
+ url 'https://artifact.bytedance.com/repository/ttgamesdk/'
+ }
+```
+
+初始化第三方 SDK
+
+```csharp
+
+ Dictionarystring, object> map = new();
+ RuiXueSdk.InitThirdSdk(map, InitThirdSdkResponseDelegate, InitThirdSdkErrorDelegate);
+
+ public void InitThirdSdkResponseDelegate(string data)
+ {
+ LogUtil.Log("EventManager", $"RequestResponseDelegate: {data}");
+ }
+ public void InitThirdSdkErrorDelegate(string data)
+ {
+ LogUtil.Log("EventManager", $"RequestErrorDelegate: {data}");
+ }
+
+```

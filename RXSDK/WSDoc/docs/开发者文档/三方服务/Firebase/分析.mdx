@@ -1,0 +1,501 @@
+---
+sidebar_position: 1
+title: 分析
+description: 望舒 分析 iOS / Android 接入文档，提供完整的接口调用说明与示例。
+---
+
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
+
+<Tabs groupId="platform">
+
+<TabItem value="ios" label="iOS">
+
+前往 [Firebase 官方文档](https://firebase.google.com/docs/analytics/get-started?platform=ios&hl=zh-cn)。
+
+本快速入门介绍如何将 Google Analytics （分析）添加到您的应用并开始记录事件。
+
+Google Analytics （分析）会收集您的应用的使用情况和行为数据。SDK 会记录两种主要类型的信息：
+
+事件：您的应用中发生了什么，例如用户操作、系统事件或错误。
+
+用户属性：您为描述自己的各个细分用户群而定义的特性，例如语言首选项或地理位置。
+
+Analytics 会自动记录某些事件和用户属性；您无需为此添加任何代码。
+
+## 准备工作
+
+前往 [Firebase 控制台](https://accounts.google.com/InteractiveLogin/signinchooser?continue=https%3A%2F%2Fconsole.firebase.google.com%2F%3Fhl%3Dzh-cn%26_gl%3D1*1a9u230*_ga*MTM3NTg2OTk4OS4xNjkyNjk5MDUy*_ga_CW55HF8NVT*MTY5Mjc1NzU3My4zLjEuMTY5Mjc2MDU0My4wLjAuMA..&followup=https%3A%2F%2Fconsole.firebase.google.com%2F%3Fhl%3Dzh-cn%26_gl%3D1*1a9u230*_ga*MTM3NTg2OTk4OS4xNjkyNjk5MDUy*_ga_CW55HF8NVT*MTY5Mjc1NzU3My4zLjEuMTY5Mjc2MDU0My4wLjAuMA..&hl=zh-cn&osid=1&passive=1209600&ifkv=AXo7B7UFbuc1e67sFU5hjReKwZhPZvz5w5tfQTjMjjpSorrLbJz5gXAZHR-juC0EMSy3eVBcf8xaDg&flowName=GlifWebSignIn&flowEntry=ServiceLogin) 注册并创建项目。
+
+## SDK 集成
+
+编辑 Podfile 文件，添加如下配置：
+
+```objectivec
+pod 'RXFirebaseSDK'
+```
+
+## 初始化配置
+
+在 [SDK 初始化方法](/docs/开发者文档/性能分析/GPM-SDK接入/快速开始) 之前调用。
+
+**接口原型**
+
+```objectivec
+/**
+ * 初始化配置
+ */
+- (void)configure;
+```
+
+**调用示例**
+
+```objectivec
+[[RXFirebaseService sharedSDK] configure];
+```
+
+## 记录事件
+
+您应该同时发送推荐事件及预设参数，以确保报告能够提供最详细的信息，并让您在未来功能和集成方案推出时马上就能受益。
+
+**接口原型**
+
+```objectivec
+/// 事件最多可以有25个参数
+/// 以下事件名称是保留的，不能使用:
+///
+
+///
+- ad_activeview
+///
+- ad_click
+///
+- ad_exposure
+///
+- ad_query
+///
+- ad_reward
+///
+- adunit_exposure
+///
+- app_clear_data
+///
+- app_exception
+///
+- app_remove
+///
+- app_store_refund
+///
+- app_store_subscription_cancel
+///
+- app_store_subscription_convert
+///
+- app_store_subscription_renew
+///
+- app_update
+///
+- app_upgrade
+///
+- dynamic_link_app_open
+///
+- dynamic_link_app_update
+///
+- dynamic_link_first_open
+///
+- error
+///
+- firebase_campaign
+///
+- first_open
+///
+- first_visit
+///
+- in_app_purchase
+///
+- notification_dismiss
+///
+- notification_foreground
+///
+- notification_open
+///
+- notification_receive
+///
+- os_update
+///
+- session_start
+///
+- session_start_with_rollout
+///
+- user_engagement
+///
+
+///
+/// @param name 事件的名称。应该包含1到40个字母数字字符或下划线。名称必须以字母开头。一些事件名称如下保留。请参阅FIREventNames.h查看保留的事件名称列表。“firebase_”,
+/// "google_"和"ga_"前缀是保留的，不应该使用。注意，事件名称是区分大小写，记录两个仅大小写不同的事件将导致
+/// 两个不同的事件。要手动记录屏幕视图事件，请使用' screen_view '事件名称。
+/// @param parameters 事件参数字典。传入' nil '表示该事件没有参数。参数名必须以“”开头，长度不超过40个字符只能包含字母、数字和下划线。只有字符串,
+/// 支持Int和Double形参类型。字符串参数值最多可达100个字符。“firebase_”，“google_”和“ga_”前缀是保留的
+- (void)logEventWithName:(NSString *)name
+ parameters:(nullable NSDictionaryNSString *, id> *)parameters;
+```
+
+**调用示例**
+
+```objectivec
+[[RXFirebaseService sharedSDK] logEventWithName:event
+ parameters:@{
+ kFIRParameterItemID:[NSString stringWithFormat:@"id-%@", self.title],
+ kFIRParameterItemName:self.title,
+ kFIRParameterContentType:@"image"
+ }];
+```
+
+如需在 Xcode 调试控制台中查看此事件，请启用 Analytics 调试功能：
+
+在 Xcode 中，依次选择 Product （产品）> Scheme （方案）> Edit scheme…（修改方案…）。
+
+从左侧菜单中选择 Run。
+
+选择 Arguments 标签页。
+
+在 Arguments Passed On Launch 部分，添加 -FIRAnalyticsDebugEnabled。
+
+## 设置默认事件参数
+
+您可以使用 setDefaultEventParameters 跨事件记录参数。默认参数会与记录的所有将来的事件相关联。
+
+与自定义参数一样，请注册默认事件参数，以确保这些自定义参数显示在 Analytics 报告中。
+
+如果您在 logEvent() 方法中指定了某个参数，系统将使用该值而非默认值。如需清除默认参数，请调用 setDefaultEventParameters 方法，并将参数设置为 nil。
+
+**接口原型**
+
+```objectivec
+/**
+ * 设置默认事件参数
+ */
+- (void)setDefaultEventParameters:(nullable NSDictionaryNSString *, id> *)parameters;
+```
+
+**调用示例**
+
+```objectivec
+[[RXFirebaseService sharedSDK] setDefaultEventParameters:
+ @{
+ @"level_name": "Caverns01",
+ @"level_difficulty": @(4)
+}];
+```
+
+## 设置用户属性
+
+您可以设置 Analytics 用户属性来描述应用的用户，还可以创建自定义设置，然后在报告中用这些设置进行对比或用作受众群体评估条件，来使用用户属性。
+
+如需设置用户属性，请按以下步骤操作：
+
+在 Firebase 控制台的 Analytics 的 [Custom Definitions （自定义设置）](https://console.firebase.google.com/project/_/analytics/userproperty?hl=zh-cn&_gl=1*alztdy*_ga*MTM3NTg2OTk4OS4xNjkyNjk5MDUy*_ga_CW55HF8NVT*MTY5Mjc1NzU3My4zLjEuMTY5Mjc2MTAyOS4wLjAuMA..&pli=1) 页面中，为用户属性创建自定义设置。如需了解详情，请参阅自定义维度和指标。
+
+使用 setUserProperty() 方法在您的应用中设置用户属性。
+
+**接口原型**
+
+```objectivec
+/**
+ * 设置用户属性
+ */
+- (void)setUserPropertyString:(nullable NSString *)value forName:(NSString *)name;
+```
+
+**调用示例**
+
+```objectivec
+[[RXFirebaseService sharedSDK] setUserPropertyString:value forName:name];
+```
+
+## 设置用户 ID
+
+Google Analytics （分析）提供一个 setUserID 调用，让您可为使用您应用的个人存储用户 ID。此调用是可选的，通常供希望将 Analytics 与 BigQuery 结合使用的组织用来跨多个应用、多个设备或多个分析服务提供方关联同一用户的分析数据。
+
+您可以通过多种方式构建有效的用户 ID。一种方法是使用您指定的标识符，并且只有您可以使用该标识符追溯到具体的用户。例如：假设某个移动游戏开发商 AwesomeGameCompany 拥有他们为每个用户创建的内部 AwesomeGameCompanyID。如果能保证外部组织无法使用 AwesomeGameCompanyID 追溯到原始用户，他们就可以考虑使用 AwesomeGameCompanyID 或经过哈希处理的 AwesomeGameCompanyID （更好）作为 Analytics 的用户 ID 值。这样，他们就可以计算出用户在其所有游戏中的总支出之类的值。
+
+无需设置用户 ID 即可让 Analytics 正常运行。如果您只想查找单个设备上同一应用中属于同一用户的事件数据，则可以使用 user_pseudo_id。该值由 Analytics 自动生成，并随每个事件存储在 BigQuery 中。
+
+**接口原型**
+
+```objectivec
+/**
+ * 设置用户 ID
+ * @param userID 要赋予该设备上该应用程序用户的用户ID，该ID必须为非空，长度不超过256个字符。将userID设置为' nil '将删除用户ID。
+ */
+- (void)setUserID:(NSString *)userID;
+```
+
+**调用示例**
+
+```objectivec
+[[RXFirebaseService sharedSDK] setUserID:userID];
+```
+
+## 是否启用数据收集
+
+在某些情况下，您可能出于某些原因（比如要获得最终用户同意或履行法律义务），需要暂时或永久停用 Analytics 数据收集。Google Analytics （分析）提供了多个用于暂时或永久停用 Analytics 数据收集的选项。您可以组合使用这些选项以应对多种使用场景。
+
+```objectivec
+/**
+ * 是否启用数据收集
+ * @param enable YES 为开启数据收集，NO 为关闭数据收集
+ */
+- (void)setAnalyticsCollectionEnabled:(BOOL)enable;
+```
+
+**调用示例**
+
+```objectivec
+[[RXFirebaseService sharedSDK] setAnalyticsCollectionEnabled:YES];
+```
+
+</TabItem>
+
+<TabItem value="android" label="Android">
+
+## 创建项目
+
+项目创建以及全局 gradle 配置参照 Firebase 官方文档
+
+[准备工作](https://firebase.google.com/docs/analytics/get-started?hl=zh-cn&platform=android)
+
+[将 Firebase 添加到您的 Android 项目](https://firebase.google.com/docs/android/setup?hl=zh-cn#groovy)
+
+## SDK集成
+
+官方 firebase-analytics SDK 无需引入，只需按以下方式接入SDK 即可。
+
+
+:::tip[版本说明]
+`version` 为 SDK 版本号（替换为实际版本号），最新版本请从 [更新日志](/docs/开发者文档/入门指南/更新日志/Android) 中查看。
+:::
+
+```groovy
+//海外渠道引用此库
+ implementation 'com.ruixue:rxsdk_firebase:${version}'
+```
+
+## 初始化SDK
+
+**接口原型**
+
+```java
+    /**
+    * 初始化fireBase
+    * @param context Context上下文
+    */
+    public void initFirebaseAnalytics(Context context);
+```
+
+**调用示例**
+
+```java
+FirebaseSdkWrapper.getInstance().initFirebaseAnalytics(this);
+```
+
+## 记录事件
+
+初始化 FirebaseAnalytics 后，您就可以使用 logEvent() 方法来记录事件。
+
+为帮助您着手使用， Analytics SDK 定义了许多常见于各类型应用（零售、电子商务、旅行以及游戏应用等）的推荐事件。如需详细了解[这些事件](https://support.google.com/analytics/answer/9267735?hl=zh-cn)及其适用情形，请参阅[推荐事件](https://support.google.com/analytics/answer/9267735?hl=zh-cn)。
+
+注意：为了让您的报告尽可能详尽，请记录对您的应用有意义的推荐事件及其预设参数。这也能确保您在最新的 Google Analytics （分析）功能推出时马上就能受益。
+
+您可在以下位置找到推荐的事件类型的实现详情：
+
+推荐事件：请参阅 [com.google.firebase.analytics.FirebaseAnalytics.Event](https://firebase.google.com/docs/reference/android/com/google/firebase/analytics/FirebaseAnalytics.Event?hl=zh-cn) 类参考文档。
+
+预设参数：请参阅 [com.google.firebase.analytics.FirebaseAnalytics.Param](https://firebase.google.com/docs/reference/android/com/google/firebase/analytics/FirebaseAnalytics.Param?hl=zh-cn) 参考文档。
+
+下面的示例演示了如何记录 SELECT_CONTENT 事件：
+
+注意：引入望舒 Firebase SDK 后， FirebaseAnalytics.Param 替换为 RxFirebaseAnalytics.Param ， FirebaseAnalytics.Event 替换为 RxFirebaseAnalytics.Event
+
+**接口原型**
+
+```java
+    /**
+    * 记录事件
+    * @param name 事件类型
+    * @param params 事件数据
+    */
+    public void logEvent(String name, @Nullable Bundle params);
+```
+
+**调用示例**
+
+```java
+    Bundle bundle = new Bundle();
+    bundle.putString(RxFirebaseAnalytics.Param.ITEM_ID, id);
+    bundle.putString(RxFirebaseAnalytics.Param.ITEM_NAME, name);
+    bundle.putString(RxFirebaseAnalytics.Param.CONTENT_TYPE, "image");
+    FirebaseSdkWrapper.getInstance().getFirebaseAnalytics().logEvent(RxFirebaseAnalytics.Event.SELECT_CONTENT, bundle);
+```
+
+除了预设参数外，您还可以将以下参数添加到事件中：
+
+自定义参数：可使用自定义参数作为 Analytics 报告中的维度或指标。 您可以对非数值事件参数数据使用自定义维度，而对更适合以数值形式表示的参数数据使用自定义指标。使用 SDK 记录自定义参数后，请注册维度或指标，以确保这些自定义参数能够出现在 Analytics 报告中。可依次点击以下各项完成此操作：“分析”>“事件”>“管理自定义设置”>“创建自定义维度”。
+
+自定义参数可用于每份报告都可能使用的受众群体定义中。如果您的应用已关联到 BigQuery 项目，自定义参数也将包含在导出至 BigQuery 的数据中。如需查看示例查询及更多内容，请访问 Google Analytics （分析） 4 BigQuery Export。
+
+VALUE 参数： VALUE 是一个通用参数，可用于累积与事件相关的关键指标，例如收入、距离、时间和分数。
+
+如果推荐的事件类型未涵盖您的应用的特定需求，您可以按以下示例所示的方式记录自己的自定义事件：
+
+**调用示例**
+
+```java
+    Bundle bundle = new Bundle();
+    Bundle params = new Bundle();
+    params.putString("image_name", name);
+    params.putString("full_text", text);
+    FirebaseSdkWrapper.getInstance().getFirebaseAnalytics().logEvent("share_image", bundle);
+```
+
+## 设置默认事件参数
+
+您可以使用 setDefaultEventParameters 跨事件记录参数。默认参数会与记录的所有将来的事件相关联。
+
+与自定义参数一样，请注册默认事件参数，以确保这些参数能显示在 Analytics 报告中。
+
+**接口原型**
+
+```java
+    /**
+    * 设置默认事件参数
+    * @param params 事件bundle
+    */
+    public void setDefaultEventParameters(@Nullable Bundle params);
+```
+
+**调用示例**
+
+```java
+    Bundle parameters = new Bundle();
+    parameters.putString("level_name", "Caverns01");
+    parameters.putInt("level_difficulty", 4);
+    FirebaseSdkWrapper.getInstance().getFirebaseAnalytics().setDefaultEventParameters(parameters);
+```
+
+如果您在 logEvent() 方法中指定了某个参数，系统将使用该值而非默认值。
+
+如需清除默认参数，请调用 setDefaultEventParameters 方法，并将参数设置为 null。
+
+## 设置用户属性
+
+您可以设置 Analytics 用户属性来描述应用的用户，还可以创建自定义设置，然后在报告中用这些设置进行对比或用作受众群体评估条件，来使用用户属性。
+
+如需设置用户属性，请按以下步骤操作：
+
+在 Firebase 控制台的 Analytics 的 [Custom Definitions （自定义设置）页面](https://console.firebase.google.com/project/_/analytics/userproperty?hl=zh-cn&_gl=1*w4pl1n*_ga*MTI3Njk0NTI3Ny4xNjkxMDUxMjYw*_ga_CW55HF8NVT*MTY5Mjc2MTUyNC4yMy4wLjE2OTI3NjE2NDMuMC4wLjA.)中，为用户属性创建自定义设置。如需了解详情，请参阅[自定义维度和指标](https://support.google.com/firebase/answer/6317519?hl=zh-cn)。
+
+使用 setUserProperty() 方法在您的应用中设置用户属性。
+
+下面的示例展示了如何添加一个假设的“最喜欢的食物”属性，将 mFavoriteFood 中的值分配给活跃用户：
+
+**接口原型**
+
+```java
+    /**
+    * 设置用户属性
+    * @param name 属性名
+    * @param value 属性值
+    */
+    public void setUserProperty(String name, String value);
+```
+
+**调用示例**
+
+```java
+    FirebaseSdkWrapper.getInstance().getFirebaseAnalytics().setUserProperty("favorite_food", "food");
+```
+
+注意：注册属性后，系统可能需要几个小时的时间才能将通过该属性收集到的数据纳入报告中。当新数据可用时，该用户属性可用作报告过滤条件或受众群体定义。
+
+您可以在 Firebase 控制台的 Analytics 的 [Custom Definitions （自定义设置）页面](https://console.firebase.google.com/project/_/analytics/userproperty?hl=zh-cn&_gl=1*katj34*_ga*MTI3Njk0NTI3Ny4xNjkxMDUxMjYw*_ga_CW55HF8NVT*MTY5Mjc2NzgxMy4yNC4wLjE2OTI3Njc4MTMuMC4wLjA.)中访问这些数据。该页面会显示您已为应用定义的用户属性列表。您可以在 Google Analytics （分析）提供的多份报告比较中使用这些属性。如需详细了解 [Analytics 报告信息中心](https://support.google.com/firebase/answer/6317517?hl=zh-cn)，请访问 Firebase 帮助中心。
+
+## 设置默认事件参数
+
+参考官网 [调试事件](https://firebase.google.com/docs/analytics/debugview?hl=zh-cn#android)
+
+## 跟踪屏幕
+
+参考官网 [跟踪屏幕](https://firebase.google.com/docs/analytics/screenviews?hl=zh-cn#java)
+
+## 设置用户 ID
+
+**接口原型**
+
+```java
+    /**
+    * 设置用户ID
+    * @param id 用户ID
+    */
+    public void setAnalyticsUserId(String id);
+```
+
+**调用示例**
+
+```java
+    FirebaseSdkWrapper.getInstance().getFirebaseAnalytics().setAnalyticsUserId("123456");
+```
+
+## 衡量电子商务数据
+
+参考官网 [衡量电子商务数据](https://firebase.google.com/docs/analytics/measure-ecommerce?hl=zh-cn)
+
+## 衡量广告收入
+
+参考官网 [衡量广告收入](https://firebase.google.com/docs/analytics/measure-ad-revenue?hl=zh-cn)
+
+## 在 WebView 中使用 Analytics
+
+参考官网 [在 WebView 中使用 Analytics](https://firebase.google.com/docs/analytics/webview?hl=zh-cn&platform=android)
+
+## 使用 Cloud Functions 扩展 Google Analytics
+
+参考官网 [Cloud Functions 扩展 Google Analytics](https://firebase.google.com/docs/analytics/extend-with-functions?hl=zh-cn)
+
+## 配置 Analytics 数据收集和使用方式
+
+参考官网 [配置 Analytics 数据收集和使用方式](https://firebase.google.com/docs/analytics/configure-data-collection?hl=zh-cn&platform=android)
+
+如需重新启用收集功能（例如在最终用户提供同意后），请调用 setAnalyticsCollectionEnabled() 方法。例如：
+
+**接口原型**
+
+```java
+    /**
+    * 设置用户ID
+    * @param id 用户ID
+    */
+    public void setAnalyticsUserId(String id);
+```
+
+**调用示例**
+
+```java
+    FirebaseSdkWrapper.getInstance().getFirebaseAnalytics().setAnalyticsCollectionEnabled(true);
+```
+
+如果您因任何原因需要再次暂停数据收集，可以调用
+
+**调用示例**
+
+```java
+    FirebaseSdkWrapper.getInstance().getFirebaseAnalytics().setAnalyticsCollectionEnabled(false);
+```
+
+## Analytics 错误代码
+
+参考官网 [Analytics 错误代码](https://firebase.google.com/docs/analytics/errors?hl=zh-cn)
+
+</TabItem>
+
+</Tabs>
+

@@ -1,0 +1,109 @@
+---
+sidebar_position: 1
+title: 微信小游戏发送订阅消息
+description: "望舒SDK 微信小游戏发送订阅消息文档，提供详细的功能说明与接入指引。"
+---
+
+## 微信小游戏发送订阅消息
+
+> **POST: ** `/v1/thirdparty/api/cgi-bin/message/subscribe/send`
+>
+> **认证方式:** [CPSign](/docs/开发者文档/入门指南/服务端接入须知)
+
+### CURL 示例
+
+```bash
+curl --location --request POST '{{接口域名}}/v1/thirdparty/api/cgi-bin/message/subscribe/send' \
+--header 'ruixue-language: {{语言}}' \
+--header 'ruixue-cpid: {{CPID}}' \
+--header 'ruixue-productid: {{产品标识}}' \
+--header 'ruixue-cpts: {{时间戳}}' \
+--header 'ruixue-traceid: {{TraceID}}' \
+--header 'ruixue-cpsign: {{请求签名}}' \
+--header 'ruixue-devicecode: {{设备码}}' \
+--header 'ruixue-channelid: {{渠道标识}}' \
+--header 'ruixue-platformid: {{平台标识}}'
+-d '{"rx_open_id":"望舒openid","template_id":"TEMPLATE_ID","page":"index","miniprogram_state":"developer","lang":"zh_CN","data":{"number01":{"value":"339208499"},"date01":{"value":"2015年01月05日"},"site01":{"value":"TIT创意园"},"site02":{"value":"广州市新港中路397号"}}}'
+```
+
+**请求头 Header 参数**
+
+| 参数 | 类型 | 备注 |
+| --- | --- | --- |
+| ruixue-language | String | zh-CN |
+| Content-Type | String | application/json |
+| ruixue-cpid | String | 内容提供商 CPID |
+| ruixue-productid | String | 产品 ID |
+| ruixue-channelid | String | 渠道 ID |
+| ruixue-platformid | String | 平台 platformid |
+| ruixue-devicecode | String | 设备码 |
+| ruixue-cpsign | String | CP 签名 |
+| ruixue-cpts | String | CP 签名时间戳 |
+| ruixue-traceid | String | TraceID |
+
+**请求示例**
+
+```json
+{
+ "rx_open_id": "望舒openid",
+ "template_id": "TEMPLATE_ID",
+ "page": "index",
+ "miniprogram_state": "developer",
+ "lang": "zh_CN",
+ "data": {
+ "number01": {
+ "value": "339208499"
+ },
+ "date01": {
+ "value": "2015年01月05日"
+ },
+ "site01": {
+ "value": "TIT创意园"
+ },
+ "site02": {
+ "value": "广州市新港中路397号"
+ }
+ }
+}
+```
+
+### 请求参数（JSON）
+
+微信小游戏发布订阅消息需要的原始参数[微信官方文档](https://developers.weixin.qq.com/minigame/dev/api-backend/open-api/subscribe-message/subscribeMessage.send.html)
+
+| 参数 | 类型 | 是否必填 | 备注 |
+| --- | --- | --- | --- |
+| cp_user_id | String | 是 | 游戏侧 userid,与望舒 openid 二选一 |
+| rx_open_id | String | 是 | 望舒 OpenID,与游戏侧 userid 二选一 |
+| template_id | String | 是 | 所需下发的订阅模板 id |
+| page | String | 否 | 文本点击模板卡片后的跳转页面，仅限本小程序内的页面。支持带参数,（示例 index?foo=bar ）。该字段不填则模板无跳转。 |
+| data | Object | 是 | 模板内容，格式形如 `{"key1": {"value": any}, "key2": {"value": any}}` |
+| miniprogram_state | String | 否 | 跳转小程序类型： developer 为开发版； trial 为体验版； formal 为正式版；默认为正式版 |
+| lang | String | 否 | 进入小程序查看”的语言类型，支持 zh_CN(简体中文)、en_US(英文)、zh_HK(繁体中文)、zh_TW(繁体中文)，默认为 zh_CN |
+
+**响应示例**
+
+```json
+{
+ "code": 0,
+ "data": {
+ "errcode": 2031, // 微信返回的错误
+ "errmsg": "错误信息"
+ }
+}
+```
+
+### 响应结构(JSON)
+
+| 参数 | 类型 | 备注 |
+| --- | --- | --- |
+| code | Number | 0 为成功 |
+| msg | String | 失败信息 |
+| data | [Data](/docs/开发者文档/意见反馈/Unity-接入) |  |
+
+#### Data
+
+| 参数 | 类型 | 说明 |
+| --- | --- | --- |
+| errcode | Number | 微信返回的错误 |
+| errmsg | String | 微信返回的错误提示 |

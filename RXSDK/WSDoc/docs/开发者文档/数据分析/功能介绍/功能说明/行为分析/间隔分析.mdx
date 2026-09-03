@@ -1,0 +1,119 @@
+---
+sidebar_position: 3
+title: 间隔分析
+description: "望舒SDK 数据分析 间隔分析文档，提供详细的功能说明与接入指引。"
+---
+
+# 间隔分析
+
+> 间隔分析是行为分析中最基础的模型。
+>
+> 通过间隔分析模型，了解用户某一核心行为的发生频率，或者获取两个具有前后因果关系的事件的转化时长。
+
+## 间隔分析的意义
+
+间隔分析是分析用户产生两个指定事件之间的时间间隔的分析模型，通过间隔分析模型，分析人员可以了解用户某一核心行为的发生频率，或者获取两个具有前后因果关系的事件的转化时长。
+
+通过间隔分析可以解决以下业务场景：
+
+分析用户注册后到首次付费的转化耗时
+
+分析用户产生两次付费之间的间隔时长
+
+分析用户首次通过两个关卡之间的间隔时长
+
+## 间隔分析使用方法
+
+进入望舒平台首页，点击左侧菜单：**大数据分析平台**。
+
+点击页面上方「行为分析」，选择「间隔分析」后点击进入。
+
+![](https://guanwangyun.oss-cn-beijing.aliyuncs.com/document/dataAnalysis/FFaYb7xscoplIjxkgTxcZnaQnMb.png)
+
+### 起点事件
+
+#### 选择起点事件
+
+「起点事件」与「终点事件」代表了一个时间间隔的起点与终点，相当于计算起点事件到终点事件的时间差。
+
+选框中可以选择某事件作为起点事件。
+
+![](https://guanwangyun.oss-cn-beijing.aliyuncs.com/document/dataAnalysis/Ean8byFXRobHtmx1NY5cugiWnCg.png)
+
+#### 添加条件
+
+点击【添加条件】可对当前的初始事件增加限制条件。
+
+添加多个条件时，条件之间可设置且和或的逻辑关系。最多支持 2 层逻辑嵌套
+
+筛选项目与筛选逻辑间关系
+
+| 数据类型 | 举例 | 可支持的筛选逻辑关键字 |
+| --- | --- | --- |
+| 数值 | 消费金额 | 等于、不等于、小于、小于等于、大于、大于等于、有值、无值、区间 |
+| 文本 | 省份 | 等于、不等于、包含、不包含、有值、无值 |
+| 列表 | ID 名单 | 存在元素、不存在元素、元素位置、有值、无值 |
+| 时间 | 注册时间、最后活跃日期 | 位于区间、小于等于、大于等于、相对当前日期、相对事件发生时刻、有值、无值 |
+| 布尔 | Wifi 使用 | 为真、为假、有值、无值 |
+
+![](https://guanwangyun.oss-cn-beijing.aliyuncs.com/document/dataAnalysis/F3a2bdLFLozNZrxCHFocXwJsnkf.png)
+
+### 终点事件
+
+#### 选择终点事件
+
+回访用户是指满足初始事件用户在特定时间后，完成回访事件的用户。
+
+选框中可以选择某“元事件”或“任意事件”。即是在特定日期中做过该回访事件的用户。
+
+![](https://guanwangyun.oss-cn-beijing.aliyuncs.com/document/dataAnalysis/TG9pb8X9dogvCSxYQT2cuNiZned.png)
+
+#### 添加条件
+
+点击【添加条件】可对当前的回访事件增加限制条件。
+
+添加多个条件时，条件之间可设置且和或的逻辑关系。最多支持 2 层逻辑嵌套
+
+筛选项目与筛选逻辑间关系
+
+| 数据类型 | 举例 | 可支持的筛选逻辑关键字 |
+| --- | --- | --- |
+| 数值 | 消费金额 | 等于、不等于、小于、小于等于、大于、大于等于、有值、无值、区间 |
+| 文本 | 省份 | 等于、不等于、包含、不包含、有值、无值 |
+| 列表 | ID 名单 | 存在元素、不存在元素、元素位置、有值、无值 |
+| 时间 | 注册时间、最后活跃日期 | 位于区间、小于等于、大于等于、相对当前日期、相对事件发生时刻、有值、无值 |
+| 布尔 | Wifi 使用 | 为真、为假、有值、无值 |
+
+![](https://guanwangyun.oss-cn-beijing.aliyuncs.com/document/dataAnalysis/EARzbxuWgomnwBx7UJ9cdlyAnX1.png)
+
+### 全局筛选
+
+#### 添加条件
+
+点击【添加条件】可设置多个条件。非必须设置。
+
+视图筛选条件对添加的所有分析指标全部生效。
+
+视图筛选条件可根据用户属性、事件属性进行限制。
+
+其他逻辑与事件的【添加条件】一致。查看第三点内容。
+
+![](https://guanwangyun.oss-cn-beijing.aliyuncs.com/document/dataAnalysis/Q6AMbhi3joG3R4xFOxDcADITnSf.png)
+
+### 分组项
+
+#### 添加分组项
+
+点击【添加分组项】可设置多个分组。
+
+分组项可根据用户属性、事件属性进行不同粒度划分数据。
+
+![](https://guanwangyun.oss-cn-beijing.aliyuncs.com/document/dataAnalysis/RdVabFYw6obPitxwMzGcrJysnOe.png)
+
+### 间隔上限
+
+默认间隔时间 1 小时。
+
+可切换选择分钟。
+
+![](https://guanwangyun.oss-cn-beijing.aliyuncs.com/document/dataAnalysis/GPvibVXnPoP2h0xAByBcF23Mnle.png)

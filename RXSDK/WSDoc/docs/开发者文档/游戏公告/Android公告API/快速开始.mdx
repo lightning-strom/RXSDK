@@ -1,0 +1,65 @@
+---
+sidebar_position: 1
+title: 快速开始
+description: "望舒SDK 游戏公告 快速开始 Android 接入文档，提供完整的接口调用说明与示例。"
+---
+
+## 获取公告
+
+**接口原型**
+
+```java
+    /**
+    * 获取公告列表
+    * @param limit 获取条数
+    * @param callback 回调
+    */
+    public void getAnnouncement(int limit, RXRequestCallback callback);
+```
+
+**调用示例**
+
+```java
+RXSDK.getInstance().getAnnouncement(10, new RXRequestCallback() {
+    @Override
+    public void onResponse(JSONObject jsonObject) {
+    Log.d("fasfasfas", "onResponse： " + jsonObject.toString());
+    }
+});
+```
+
+### 请求参数
+
+| 参数 | 类型 | 备注 |
+| --- | --- | --- |
+| limit | String | 返回条数 最多 100 条， 按公告开始时间倒序 |
+
+### 响应结构(JSON)
+
+| 参数 | 类型 | 备注 |
+| --- | --- | --- |
+| code | Number | 0 为成功 |
+| msg | String | 失败信息 |
+| data | [][Data](/docs/开发者文档/意见反馈/Unity-接入) |  |
+
+#### data
+
+| 参数 | 类型 | 说明 |
+| --- | --- | --- |
+| id | Number | 公告 id |
+| type | Number | 1 版本更新公告 3 常规公告 |
+| timezone | Number | 时区 |
+| start | String | 开始时间 |
+| end | Start | 结束时间 |
+| content_type | Number | 1 图文 2 图片 |
+| is_popup | Number | 是否弹出 1 是 2 否 |
+| title | String | 公告标题 |
+| content | String | 图文时的内容 |
+| images | [][Images](/docs/开发者文档/意见反馈/Unity-接入) | 图片时的内容 |
+
+##### images
+
+| 参数 | 类型 | 说明 |
+| --- | --- | --- |
+| image_url | String | 图片 url |
+| link_url | String | 跳转地址 |

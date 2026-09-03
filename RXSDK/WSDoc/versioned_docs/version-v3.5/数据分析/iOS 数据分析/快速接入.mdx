@@ -1,0 +1,221 @@
+---
+title: "快速接入"
+---
+
+## 上报事件
+
+可使用此功能将事件上报到望舒大数据后台中。
+:::tip
+需要在SDK初始化后调用！！！
+SDK只支持上报事件属性，用户属性请使用 [Go SDK](/docs/v3.5/数据分析/功能介绍/产品说明) 进行上报
+:::
+
+## 埋点配置
+
+**接口原型**
+
+```objectivec
+/**
+ * 埋点配置
+ * @note 需要在初始化后调用
+ * 添加埋点后SDK会根据配置定期上报
+ * @param reportTime 上报间隔（秒），默认60s
+ * @param maxCount 最大缓存数--达到最大缓存数量触发上报条件（例：传100 缓存数据量达到100时触发上报），默认100条
+ */
+- (void)trackConfigWithReportTime:(NSInteger)reportTime
+                         maxCount:(NSInteger)maxCount;
+```
+
+#### 参数说明
+
+| **字段**   | **类型**  | **是否必填** | **备注**                                                                                                       |
+| ---------- | --------- | ------------ | -------------------------------------------------------------------------------------------------------------- |
+| reportTime | NSInteger | 是           | 上报间隔（秒），默认 60s 传-1 为默认值                                                                         |
+| maxCount   | NSInteger | 是           | 最大缓存数--达到最大缓存数量触发上报条件（例：传 100 缓存数据量达到 100 时触发上报），默认 100 条传-1 为默认值 |
+
+**调用示例**
+
+```objectivec
+[[RXLogService sharedSDK] trackConfigWithReportTime:-1 maxCount:-1];
+```
+
+## 数据埋点
+
+**接口原型**
+
+```objectivec
+/**
+ * 数据埋点（批量上报）
+ * @note 需要在初始化后调用
+ * @param event 埋点标识
+ * @param distinctId 用户唯一标识
+ * ！！注：登录后SDK会将openID保存，distinctId传空默认为openID。首次登录前需先调用getDistinctId获取distinctId作为标识。
+ * ！！登录前的埋点行为可先调用[[RXService sharedSDK] getOpenID];查看本地是否存有openID，如果没有则调用getDistinctId获取distinctId作为标识。避免丢失埋点事件！！
+ * @param properties 自定义属性
+ */
+- (BOOL)dataTrackWithEvent:(NSString *)event
+                distinctId:(NSString * _Nullable)distinctId
+                properties:(NSDictionary * _Nullable)properties;
+```
+
+#### 参数说明
+
+| **字段**   | **类型**     | **是否必填** | **备注**                                      |
+| ---------- | ------------ | ------------ | --------------------------------------------- |
+| event      | NSString     | 是           | 埋点标识                                      |
+| distinctId | NSString     | 否           | 用户唯一标识传 nil 或 @"" SDK 默认填入 openid |
+| properties | NSDictionary | 否           | 自定义属性注意：properties 中上传的属性内容，必须与在后台中添加的属性内容保持一致。否则数据无法统计。 
+ 在 properties 中传入属性 `@"#env" : @"1"` 表示该条数据为测试数据。                               |
+
+**调用示例**
+
+```objectivec
+BOOL isSucces = [[RXLogService sharedSDK] dataTrackWithEvent:@"login" distinctId:@"" properties:nil];
+```
+
+### 响应结构
+
+返回boolean，标识数据上报是否被成功记录。
+
+## 设置测试数据
+
+**接口原型**
+
+```objectivec
+/**
+ * 是否为测试数据，YES 为测试数据，NO 为正式数据，默认 NO
+ */
+- (void)setTrackEnv:(BOOL)env;
+```
+
+**调用示例**
+
+```objectivec
+// 正式数据
+[[RXLogService sharedSDK] setTrackEnv:NO];
+// 测试数据
+[[RXLogService sharedSDK] setTrackEnv:YES];
+```
+
+## 获取 client_distinct_id
+
+**client_distinct_id** 是望舒中使用的重要属性，用于关联在没有 openid 时上报的数据。
+
+**接口原型**
+
+```objectivec
+/**
+ * 获取distinctId
+ */
+- (NSString *)getDistinctId;
+```
+
+**调用示例**
+
+```objectivec
+[[RXLogService sharedSDK] getDistinctId];
+```
+
+## 设置公共属性
+
+设置后由SDK填入自定义属性中进行上报，设置后SDK进行缓存，多次设置则会覆盖。
+
+**接口原型**
+
+```objectivec
+/**
+ * 设置公共属性
+ * 设置后由SDK填入自定义属性中进行上报，设置后SDK进行缓存，多次设置则会覆盖
+ * @properties 公共属性
+ */
+- (void)setPublicProperties:(NSDictionary *)properties;
+```
+
+**调用示例**
+
+```objectivec
+[[RXLogService sharedSDK] setPublicProperties:@{
+    @"property1" : @"test1",
+    @"property2" : @"test2",
+    @"property3" : @"test3",
+    @"property4" : @"test4",
+}];
+```
+
+## 修改公共属性
+
+修改的属性会将原有属性覆盖，未设置的属性则会补入缓存中。
+
+**接口原型**
+
+```objectivec
+/**
+ * 修改公共属性
+ * 修改的属性会将原有属性覆盖，未设置的属性则会补入缓存中
+ * @properties 公共属性
+ */
+- (void)updatePublicProperties:(NSDictionary *)properties;
+```
+
+**调用示例**
+
+```objectivec
+[[RXLogService sharedSDK] updatePublicProperties:@{
+    @"property1" : @"test1",
+    @"property2" : @"test2",
+    @"property3" : @"test3",
+    @"property4" : @"test4",
+}];
+```
+
+## 删除公共属性
+
+删除缓存的某个公共属性。
+
+**接口原型**
+
+```objectivec
+/**
+ * 删除公共属性
+ * 删除缓存的某个公共属性
+ * @properties 公共属性key
+ */
+- (void)deletePublicProperties:(NSArray *)properties;
+```
+
+**调用示例**
+
+```objectivec
+[[RXLogService sharedSDK] deletePublicProperties:@[@"property1", @"property2"]];
+```
+
+## 用户行为统计
+:::tip
+SDK 会自动收集从 初始化->登录-> 实名认证 产生的用户行为，可在大数据中查看具体行为数据 [用户行为统计](https://nctpoatgf0.feishu.cn/wiki/SqKswRM22ipDKOkvLxCc7jQ5nhb)，客户端可以在望舒预置事件中插入游戏行为统计。
+:::
+
+**接口原型**
+
+```objectivec
+/**
+ * 用户行为统计
+ */
+- (void)trackUserActionWithDistinctId:(NSString * _Nullable)distinctId
+                           properties:(NSDictionary * _Nullable)properties;
+
+/**
+ * 终止用户行为统计
+ */
+- (void)stopTrackUserAction;
+```
+
+**调用示例**
+
+```objectivec
+// 插入行为统计
+// @{@"scene" : @"game", @"action" : @"win"} 仅为示例
+[[RXApiService sharedSDK] trackUserActionWithDistinctId:@"" properties:@{@"scene" : @"game", @"action" : @"win"}];
+    
+// 终止行为统计
+[[RXApiService sharedSDK] stopTrackUserAction];
+```

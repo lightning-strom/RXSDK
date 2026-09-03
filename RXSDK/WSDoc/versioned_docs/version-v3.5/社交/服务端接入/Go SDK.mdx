@@ -1,0 +1,605 @@
+---
+title: "Go SDK"
+---
+
+## Go 项目设置依赖
+
+[接口依赖设置和初始化]](/docs/v3.5/入门指南/快速开始/Go SDK 初始化)
+
+---
+
+## 设置用户信息
+
+**接口原型**
+
+```go
+// SetUserInfo 设置用户信息
+func (c *Client)SetUserInfo(appID, openID string, userinfo *UserInfo) error 
+```
+
+### 参数说明
+
+| **字段** | **类型**                            | **是否必填** | **备注** |
+| --- |-----------------------------------| --- | --- |
+| openID | string                            | 是   | 望舒 open id |
+| userinfo | *[UserInfo](Go SDK#userinfo) | 是   |     |
+
+##### userinfo
+
+| **字段** | **类型** | **是否必填** | **备注** |
+| --- | --- | --- | --- |
+| AppID | string | 是   | CP 侧 APPID |
+| OpenID | string | 是   | 望舒 open id |
+| Nickname | string | 否   | 用户昵称 |
+| Avatar | string | 否   | 用户头像 |
+| Region | string | 否   | 用户所在地区 例如 220101 |
+
+**调用示例**
+
+```go
+err := ruixuego.GetDefaultClient().SetUserInfo("{{APPID}}", "openID", &UserInfo{    AppID: "{{APPID}}",    OpenID: "openID"})
+if err != nil { panic(err) }
+```
+
+### 响应结构
+
+| **字段** | **类型** | **是否必填** | **备注** |
+| --- | --- | --- | --- |
+| err | error | 是   | 成功时 nil, 其他为错误 |
+
+---
+
+## 用户设置自定义信息
+
+**接口原型**
+
+```go
+// SetCustom 给用户设置社交模块的自定义信息
+func (c *Client) SetCustom(appID, openID, cpUserID, custom string) error
+```
+
+### 参数说明
+
+| **字段** | **类型** | **是否必填** | **备注** |
+| --- | --- | --- | --- |
+| appID | string | 是   | APPID |
+| openID | string | 是   | 望舒 open id, 和cpUserID 任写一个即可|
+| CPUserID | string | 是   |  cp侧 user_id  和openID任写一个即可 |
+| custom | string | 否   | 给用户设置的自定义信息 |
+
+**调用示例**
+
+```go
+err := ruixuego.GetDefaultClient().SetCustom("{{APPID}}", "openID", "cp_user_id", "DIY_Custom")
+if err != nil { panic(err) }
+```
+
+### 响应结构
+
+| **字段** | **类型** | **是否必填** | **备注** |
+| --- | --- | --- | --- |
+| err | error | 是   | 成功时 nil, 其他为错误 |
+
+---
+
+## 添加自定义好友关系
+
+**接口原型**
+
+```go
+// AddRelation 添加自定义关系
+// remarks[0] openID 用户给 targetOpenID 用户设置的备注
+// remarks[1] targetOpenID 用户给 openID 用户设置的备注
+func (c *Client) AddRelation(  types RelationTypes, openID, userID, targetOpenID, targetUserID string, remarks ...string) error
+```
+
+### 参数说明
+
+| **字段** | **类型** | **是否必填** | **备注** |
+| --- | --- | --- | --- |
+| types | map[string]bool | 是   | 自定义关系类型对应的是否为双向好友 例如 {'{'}"friend" : true{'}'} |
+| openID | string | 是   | 望舒 open id, 和userID 任写一个即可|
+| userID | string | 是   |  cp侧 user_id  和openID任写一个即可 |
+| targetOpenID | string | 是   | 给用户设置的自定义信息 和targetUserID任写一个即可  |
+| targetUserID | string | 是   |  cp侧 user_id 和targetOpenID任写一个即可 |
+| remarks | slice(string) | 否   | 数组切片。仅支持两个元素，第一个元素为 targetOpenID 设置的 mark, 第二个元素为openID 设置的mark |
+
+**调用示例**
+
+```go
+err := ruixuego.GetDefaultClient().AddRelation(    
+    map[string]bool{"friend" : true},     
+    "openID",
+    "userID",     
+    "targetOpenID",
+    "targetUserID",    
+    "targetRemark",    
+    "openIDRemark")
+if err != nil { panic(err) }
+```
+
+### 响应结构
+
+| **字段** | **类型** | **是否必填** | **备注** |
+| --- | --- | --- | --- |
+| err | error | 是   | 成功时 nil, 其他为错误 |
+
+---
+
+## 删除自定义好友关系
+
+**接口原型**
+
+```go
+// DelRelation 删除自定义关系
+func (c *Client) DelRelation(types RelationTypes, openID, userID, targetOpenID, targetUserID string) error
+```
+
+### 参数说明
+
+| **字段** | **类型** | **是否必填**  | **备注** |
+| --- | --- |-----------| --- |
+| types | map[string]bool | 是         | 好友类型对应的是否为双向好友 例如 {'{'}"friend" : true{'}'} |
+| openID | string | 是   | 望舒 open id, 和userID 任写一个即可|
+| userID | string | 是   |  cp侧 user_id  和openID任写一个即可 |
+| targetOpenID | string | 是   | 给用户设置的自定义信息 和targetUserID任写一个即可  |
+| targetUserID | string | 是   |  cp侧 user_id 和targetOpenID任写一个即可 |
+
+**调用示例**
+
+```go
+err := ruixuego.GetDefaultClient().DelRelation(    
+    map[string]bool{"friend" : true},         
+    "openID",
+    "userID",     
+    "targetOpenID",
+    "targetUserID")
+if err != nil { panic(err) }
+```
+
+### 响应结构
+
+| **字段** | **类型** | **是否必填**  | **备注** |
+| --- | --- | --- | --- |
+| err | error | 是   | 成功时 nil, 其他为错误 |
+
+---
+
+## 更新自定义关系备注
+
+**接口原型**
+
+```go
+// UpdateRelationRemarks 更新自定关系备注
+func (c *Client) UpdateRelationRemarks(   typ, openID, userID, targetOpenID, targetUserID string, remarks string) error 
+```
+
+### 参数说明
+
+| **字段** | **类型** | **是否必填**  | **备注** |
+| --- | --- | --- | --- |
+| typ | string | 是   | 好友类型 "friend" |
+| openID | string | 是   | 望舒 open id, 和userID 任写一个即可|
+| userID | string | 是   |  cp侧 user_id  和openID任写一个即可 |
+| targetOpenID | string | 是   | 给用户设置的自定义信息 和targetUserID任写一个即可  |
+| targetUserID | string | 是   |  cp侧 user_id 和targetOpenID任写一个即可 |
+| remarks | string | 是   | 给targetOpenID 用户设置的备注 |
+
+**调用示例**
+
+```go
+err := ruixuego.GetDefaultClient().UpdateRelationRemarks(    
+    "friend",         
+    "openID",
+    "userID",     
+    "targetOpenID",
+    "targetUserID",    
+    "remarks")
+if err != nil { panic(err) }
+```
+
+### 响应结构
+
+| **字段** | **类型** | **是否必填**  | **备注** |
+| --- | --- | --- | --- |
+| err | error | 是   | 成功时 nil, 其他为错误 |
+
+---
+
+## 获取自定关系列表
+
+**接口原型**
+
+```go
+// RelationList 获取自定关系列表
+func (c *Client) RelationList(typ, openID, userID string) ([]*RelationUser, error) 
+```
+
+### 参数说明
+
+| **字段** | **类型** | **是否必填**  | **备注** |
+| --- | --- | --- | --- |
+| typ | string | 是   | 好友类型 "friend" |
+| openID | string | 是   | 望舒 open id, 和userID 任写一个即可|
+| userID | string | 是   |  cp侧 user_id  和openID任写一个即可 |
+
+**调用示例**
+
+```go
+users, err := ruixuego.GetDefaultClient().RelationList("friend", "openID", "userID")
+if err != nil { panic(err) }
+```
+
+### 响应结构
+
+| **字段** | **类型**                                      | **是否必填**  | **备注** |
+| --- |---------------------------------------------| --- | --- |
+| users | []*[RelationUser](Go SDK#relationuser) | 否   | 返回的好友信息列表 |
+| err | error                                      | 是   | 成功时 nil, 其他为错误 |
+
+##### RelationUser
+
+| **字段** | **类型** | **是否必填**  | **备注** |
+| --- | --- | --- | --- |
+| OpenID | string | 是   | 望舒 openid |
+| NickName | string | 否   | 昵称  |
+| Birthday | string | 否   | 生日  |
+| Remarks | string | 否   | 备注  |
+| Avatar | string | 否   | 头像  |
+| Custom | string | 否   | 用户自定义信息 |
+| Dist | float64 | 否   | 距离  |
+| Time | int64 | 否   | 添加好友时间 |
+| CPID | uint32 | 是   | Cp ID |
+| Sex | int32 | 否   | 性别  |
+| CPUserID | string | 否   | CP 侧 用户ID |
+
+---
+
+## 判断是否为指定关系
+
+**接口原型**
+
+```go
+// HasRelation 判断 Target 是否与 User 存在指定关系
+func (c *Client) HasRelation(typ, openID, userID, targetOpenID, targetUserID string) (bool, error)
+```
+
+### 参数说明
+
+| **字段** | **类型** | **是否必填**  | **备注** |
+| --- | --- | --- | --- |
+| typ | string | 是   | 好友类型 "friend" |
+| openID | string | 是   | 望舒 open id, 和userID 任写一个即可|
+| userID | string | 是   |  cp侧 user_id  和openID任写一个即可 |
+| targetOpenID | string | 是   | 给用户设置的自定义信息 和targetUserID任写一个即可  |
+| targetUserID | string | 是   |  cp侧 user_id 和targetOpenID任写一个即可 |
+
+**调用示例**
+
+```go
+ok, err := ruixuego.GetDefaultClient().HasRelation(
+    "friend", 
+    "openID",
+    "userID",     
+    "targetOpenID",
+    "targetUserID")
+if err != nil { panic(err) }
+```
+
+### 响应结构
+
+| **字段** | **类型** | **是否必填**  | **备注** |
+| --- | --- | --- | --- |
+| ok  | bool | 是   | 返回结果 |
+| err | error | 是   | 成功时 nil, 其他为错误 |
+
+---
+
+## 添加好友
+
+:::info
+固定了好友类型为 friend
+:::
+
+**接口原型**
+
+```go
+// AddFriend 添加好友
+// remarks[0] openID 用户给 targetOpenID 用户设置的备注
+// remarks[1] targetOpenID 用户给 openID 用户设置的备注
+func (c *Client) AddFriend(   openID, userID, targetOpenID, targetUserID string, remarks ...string) error
+```
+
+### 参数说明
+
+| **字段** | **类型** | **是否必填**  | **备注** |
+| --- | --- | --- | --- |
+| openID | string | 是   | 望舒 open id, 和userID 任写一个即可|
+| userID | string | 是   |  cp侧 user_id  和openID任写一个即可 |
+| targetOpenID | string | 是   | 给用户设置的自定义信息 和targetUserID任写一个即可  |
+| targetUserID | string | 是   |  cp侧 user_id 和targetOpenID任写一个即可 |
+| remarks | slice(string) | 否   | 数组切片。仅支持两个元素，第一个元素为 targetOpenID 设置的 mark, 第二个元素为openID 设置的mark |
+
+**调用示例**
+
+```go
+err := ruixuego.GetDefaultClient().AddFriend{        
+    "openID",
+    "userID",     
+    "targetOpenID",
+    "targetUserID",
+    "targetRemark",    
+    "openIDRemark")
+if err != nil { panic(err) }
+```
+
+### 响应结构
+
+| **字段** | **类型** | **是否必填**  | **备注** |
+| --- | --- | --- | --- |
+| err | error | 是   | 成功时 nil, 其他为错误 |
+
+---
+
+## 删除好友关系
+
+:::info
+固定了好友类型为 friend
+:::
+
+**接口原型**
+
+```go
+// DelFriend 删除好友
+func (c *Client) DelFriend( openID, userID, targetOpenID, targetUserID string) error 
+```
+
+### 参数说明
+
+| **字段** | **类型** | **是否必填**  | **备注** |
+| --- | --- | --- | --- |
+| openID | string | 是   | 望舒 open id, 和userID 任写一个即可|
+| userID | string | 是   |  cp侧 user_id  和openID任写一个即可 |
+| targetOpenID | string | 是   | 给用户设置的自定义信息 和targetUserID任写一个即可  |
+| targetUserID | string | 是   |  cp侧 user_id 和targetOpenID任写一个即可 |
+
+**调用示例**
+
+```go
+err := ruixuego.GetDefaultClient().DelFriend(         "openID",
+    "userID",     
+    "targetOpenID",
+    "targetUserID")
+if err != nil { panic(err) }
+```
+
+### 响应结构
+
+| **字段** | **类型** | **是否必填**  | **备注** |
+| --- | --- | --- | --- |
+| err | error | 是   | 成功时 nil, 其他为错误 |
+
+---
+
+## 更新好友备注
+:::info
+固定了好友类型为 friend
+:::
+**接口原型**
+
+```go
+// UpdateFriendRemarks 更新好友备注
+func (c *Client) UpdateFriendRemarks(   openID, userID, targetOpenID, targetUserID, remarks string) error
+```
+
+### 参数说明
+
+| **字段** | **类型** | **是否必填**  | **备注** |
+| --- | --- | --- | --- |
+| openID | string | 是   | 望舒 open id, 和userID 任写一个即可|
+| userID | string | 是   |  cp侧 user_id  和openID任写一个即可 |
+| targetOpenID | string | 是   | 给用户设置的自定义信息 和targetUserID任写一个即可  |
+| targetUserID | string | 是   |  cp侧 user_id 和targetOpenID任写一个即可 |
+| remarks | string | 是   | 给targetOpenID 用户设置的备注 |
+
+**调用示例**
+
+```go
+err := ruixuego.GetDefaultClient().UpdateFriendRemarks(   
+    "openID",
+    "userID",     
+    "targetOpenID",
+    "targetUserID",
+    "remarks")
+if err != nil { panic(err) }
+```
+
+### 响应结构
+
+| **字段** | **类型** | **是否必填**  | **备注** |
+| --- | --- | --- | --- |
+| err | error | 是   | 成功时 nil, 其他为错误 |
+
+---
+
+## 获取好友列表
+:::info
+固定了好友类型为 friend
+:::
+**接口原型**
+
+```go
+// FriendList 获取好友列表
+func (c *Client) FriendList(openID, userID string) ([]*RelationUser, error) 
+```
+
+### 参数说明
+
+| **字段** | **类型** | **是否必填**  | **备注** |
+| --- | --- | --- | --- |
+| openID | string | 是   | 望舒 open id, 和userID 任写一个即可|
+| userID | string | 是   |  cp侧 user_id  和openID任写一个即可 |
+
+**调用示例**
+
+```go
+users, err := ruixuego.GetDefaultClient().FriendList("openID", "userID")
+if err != nil { panic(err) }
+```
+
+### 响应结构
+
+| **字段** | **类型**                                      | **是否必填**  | **备注** |
+| --- |---------------------------------------------| --- | --- |
+| users | []*[RelationUser](Go SDK#relationuser) | 否   | 返回的好友信息列表 |
+| err | error                                       | 是   | 成功时 nil, 其他为错误 |
+
+---
+## 判断是否为好友
+
+**接口原型**
+
+```go
+// IsFriend 判断 Target 是否为 User 的好友
+func (c *Client) IsFriend(openID, userID, targetOpenID, targetUserID string) (bool, error) 
+```
+
+### 参数说明
+
+| **字段** | **类型** | **是否必填**  | **备注** |
+| --- | --- | --- | --- |
+| openID | string | 是   | 望舒 open id, 和userID 任写一个即可|
+| userID | string | 是   |  cp侧 user_id  和openID任写一个即可 |
+| targetOpenID | string | 是   | 给用户设置的自定义信息 和targetUserID任写一个即可  |
+| targetUserID | string | 是   |  cp侧 user_id 和targetOpenID任写一个即可 |
+
+**调用示例**
+
+```go
+ok, err := ruixuego.GetDefaultClient().HasRelation("friend",     
+    "openID",
+    "userID",     
+    "targetOpenID",
+    "targetUserID",)
+if err != nil { panic(err) }
+```
+
+### 响应结构
+
+| **字段** | **类型** | **是否必填**  | **备注** |
+| --- | --- | --- | --- |
+| ok  | bool | 是   | 返回结果 |
+| err | error | 是   | 成功时 nil, 其他为错误 |
+
+---
+
+## 更新用户坐标
+:::info
+坐标位置要满足 WGS84 要求
+:::
+
+**接口原型**
+
+```go
+//  types 为 CP 自定义坐标分组, 比如可以同时将用户加入到 all 和 female 两个列表中
+func (c *Client) LBSUpdate(openID, userID string, types []string, lon, lat float64) error 
+```
+
+### 参数说明
+
+| **字段** | **类型** | **是否必填**  | **备注** |
+| --- | --- | --- | --- |
+| openID | string | 是   | 望舒 open id, 和userID 任写一个即可|
+| userID | string | 是   |  cp侧 user_id  和openID任写一个即可 |
+| types | []string | 是   | 分组类型。需要在望舒后台先创建对应的分组 |
+| lon | float64 | 是   | 坐标 经度 |
+| lat | float64 | 是   | 坐标 纬度 |
+
+**调用示例**
+
+```go
+err := ruixuego.GetDefaultClient().LBSUpdate("openID", "userID",[]string{"test"}, 10.1, 100.1)
+if err != nil { panic(err) }
+```
+
+### 响应结构
+
+| **字段** | **类型** | **是否必填**  | **备注** |
+| --- | --- | --- | --- |
+| err | error | 是   | 成功时 nil, 其他为错误 |
+
+---
+
+## 删除用户坐标
+
+**接口原型**
+
+```go
+// LBSDelete 删除 WGS84 坐标
+func (c *Client) LBSDelete(openID,  userID string, types []string) error
+```
+
+### 参数说明
+
+| **字段** | **类型** | **是否必填**  | **备注** |
+| --- | --- | --- | --- |
+| openID | string | 是   | 望舒 open id, 和userID 任写一个即可|
+| userID | string | 是   |  cp侧 user_id  和openID任写一个即可 |
+| types | []string | 是   | 分组类型。需要在望舒后台先创建对应的分组 |
+
+**调用示例**
+
+```go
+err := ruixuego.GetDefaultClient().LBSDelete("openID","userID", []string{"test"})
+if err != nil { panic(err) }
+```
+
+### 响应结构
+
+| **字段** | **类型** | **是否必填**  | **备注** |
+| --- | --- | --- | --- |
+| err | error | 是   | 成功时 nil, 其他为错误 |
+
+---
+
+## 获取附近的人列表
+:::info
+先更新 openID 位置为参数中 lon lat 位置上， 然后查找这个位置 radius 半径内的其他玩家
+:::
+
+**接口原型**
+
+```go
+// LBSRadius 获取附近的人列表
+func (c *Client) LBSRadius(   openID, userID, typ string,   lon, lat, radius float64,   page, pageSize int,   count ...int) ([]*RelationUser, error) 
+```
+
+### 参数说明
+
+| **字段** | **类型** | **是否必填**  | **备注** |
+| --- | --- | --- | --- |
+| openID | string | 是   | 望舒 open id, 和userID 任写一个即可|
+| userID | string | 是   |  cp侧 user_id  和openID任写一个即可 |
+| types | string | 是   | 分组类型。需要在望舒后台先创建对应的分组 |
+| lon | float64 | 是   | 坐标 经度。 需满足 WGS84 标准 |
+| lat | float64 | 是   | 坐标 纬度。需满足 WGS84 标准 |
+| radius | float64 | 是   | 查询半径。单位 m |
+| page | int | 是   | 分页请求，第几页。 |
+| pageSize | int | 是   | 分页请求，每页数量 |
+| count | int | 是   | 最多查询多少玩家 |
+
+**调用示例**
+
+```go
+users, err := ruixuego.GetDefaultClient().LBSRadius(    "openID", "userID", "test", 10.1, 100.1, 100, 1, 20, 1000)
+if err != nil {   panic(err)}
+```
+
+### 响应结构
+
+| **字段** | **类型**                                      | **是否必填**  | **备注** |
+| --- |---------------------------------------------| --- | --- |
+| users | []*[RelationUser](Go SDK#relationuser) | 否   | 返回的好友信息列表 |
+| err | error                                       | 是   | 成功时 nil, 其他为错误 |
+
+---

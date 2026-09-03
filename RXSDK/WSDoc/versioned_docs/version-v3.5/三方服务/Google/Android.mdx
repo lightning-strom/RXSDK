@@ -1,0 +1,160 @@
+---
+title: "Android"
+---
+
+## 后台接入配置
+- [登录配置说明](/docs/v3.5/三方服务/Google/Android)
+- [支付配置说明](/docs/v3.5/三方服务/Google/Android)
+- [推送配置说明](/docs/v3.5/三方服务/Google/Android)
+
+## 望舒快速接入（必接）
+- [快速接入文档](/docs/v3.5/登录（通行证）/Android 登录API/快速接入)
+
+## 三方渠道接入说明（必读）
+- [三方渠道接入说明](/docs/v3.5/入门指南/快速开始/Android初始化/快速接入)
+ 
+Google  渠道自动集成Facebook ，Facebook 配置参考如下  
+- [facebook接入说明](/docs/v3.5/三方服务/Google/Android)
+
+## SDK集成
+:::tip
+使用 google` gaid` 时请先调用 `initThirdSdk` 初始化 `google` 服务再初始化望舒，否则可能影响激活时 gaid 采集成功率。
+:::
+
+```json
+//海外渠道引用此库
+  implementation 'com.ruixue:rxsdk_overseas:${version}'
+```
+
+## 配置说明
+
+* Google-services.json文件是用于在Android应用中集成Google服务的配置文件。它包含了应用的唯一标识符、API密钥和其他必要的配置信息。
+下载google-services.json文件并保存到你的项目的根目录下。
+
+* 在项目的根目录下找到build.gradle文件。在build.gradle文件中，添加以下代码：
+
+``` groovy
+dependencies {
+    classpath 'com.google.gms:google-services:4.1.0'
+}
+```
+
+* 在项目的根目录下找到app目录，然后打开app目录下的build.gradle文件。在build.gradle文件中，添加以下代码：
+
+``` groovy
+apply plugin: 'com.google.gms.google-services'
+
+```
+
+* 在Android Studio的工具栏中，点击"Sync Now"按钮，以同步项目的配置更改。
+完成以上步骤后，你的Android应用就可以使用Google服务了。google-services.json文件中的配置信息将被自动应用到你的应用中。
+
+## 参数说明
+
+`clientId` 您的 Google **Web 客户端 ID** 和 **Web 密钥**。如果您还没有 ID 和密钥，则可以从 [API 和服务](https://console.cloud.google.com/apis/credentials?hl=zh-cn)页面获取一个。
+
+| 参数     | 类型   | 说明              |
+| -------- | ------ | ----------------- |
+| clientId | String | initThirdSdk 传入 |
+
+## 三方 SDK 版本信息
+
+使用  `1.10.3` 版本
+
+## 依赖信息
+
+使用 `aar` 接入方式的的请添加下面依赖配置，否则无需添加
+
+```groovy
+api 'com.android.billingclient:billing:4.1.0'
+api 'com.google.android.gms:play-services-auth:20.1.0'
+api 'com.google.android.play:core:1.10.3'
+```
+
+## 初始化
+```java
+Map map = new HashMap<>();
+map.put("clientId", "自己的 clientId");
+RuiXueSdk.getRXSdkApi().initThirdSdk(this, map, new RXJSONCallback() {
+    @Override
+    public void onSuccess(@Nullable JSONObject jsonObject) {
+        Log.d(TAG, "init third sdk success");
+        Intent intent = getIntent();
+    }
+
+    @Override
+    public void onFailed(@NonNull JSONObject jsonObject) {
+        Log.d(TAG, "init third sdk failed " + jsonObject);
+    }
+});
+```
+
+## 登录
+请参考 [Android端登录API](/docs/v3.5/登录（通行证）/Android 登录API/快速接入)
+
+## 支付 (开计费必须接入)
+请参考 [Android端支付API](/docs/v3.5/三方服务/Google/Android)
+
+## Google 商品详情查询
+
+**接口原型**
+
+```java
+/** Google 商品详情查询接口
+ * @param skusList googleplay商品id列表
+ * @param callback 商品 json字符串信息回调 json 数组
+ */
+queryProductDetailsAsync(@NonNull List skusList, @NonNull RXStringCallback callback)
+```
+
+**调用示例**
+
+```java
+GoogleSdkWrapper.getInstance().queryProductDetailsAsync(productIdList, new RXStringCallback() {
+    @Override
+    public void onSuccess(@Nullable String data) {
+        RXLogger.i("product info: " + data);
+    }
+
+    @Override
+    public void onFailed(int code, String msg, @Nullable String traceId) {
+        activity.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                ToastUtils.showToast(activity, code + msg);
+            }
+        });
+
+        RXLogger.e("sss queryProductDetailsAsync:" + msg);
+    }
+});
+```
+
+**响应示例**
+
+```json
+[
+  {
+    "productId": "com.weile.bombchicken.1001",
+    "type": "inapp",
+    "title": "Diamonds * 10 (Bomb Chick)",
+    "name": "Diamonds * 10",
+    "description": "Spend $0.99 to get 10 diamonds",
+    "price": "US$0.99",
+    "price_amount_micros": 990000,
+    "price_currency_code": "USD",
+    "skuDetailsToken": "AEuhp4I3ayCb4X43SoGuAG4Gg9FvkeQhFJeDXqIbDnc59o7nSSCEAJjnW78m7SMN3_6X"
+  },
+  {
+    "productId": "com.weile.bombchicken.1002",
+    "type": "inapp",
+    "title": "Diamonds * 90 (Bomb Chick)",
+    "name": "Diamonds * 90",
+    "description": "Spend $6.99 to get 90 diamonds",
+    "price": "US$6.99",
+    "price_amount_micros": 6990000,
+    "price_currency_code": "USD",
+    "skuDetailsToken": "AEuhp4KzN0I3q_PcTW91D4iN1mXQfQl0Qzu61Wv6yQgMRJ6M4nwM3nMfylKk-bJuDNse"
+  }
+]
+```

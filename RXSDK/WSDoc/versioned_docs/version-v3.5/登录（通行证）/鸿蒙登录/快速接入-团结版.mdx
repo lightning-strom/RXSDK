@@ -1,0 +1,1048 @@
+---
+title: "快速接入-团结版"
+---
+
+## 自定义望舒API请求
+
+**接口原型**
+
+```csharp
+IRXRequest CreateRequest(string pathOrUrl)
+```
+
+**调用示例**
+
+```csharp
+
+   /// <summary>
+    /// 回调参数说明
+    /// </summary>
+    ///  错误码
+    ///  业务 data 数据一般情况是 json，具体类型看业务接口响应结构 
+    /// 错误消息
+    public void RXCallback(int code, object data, string msg)
+    {
+        Log.D("RXCallback code:" + code + ", msg:" + msg);
+        // ShowText("code:" + code + ", msg:" + msg + ", data:" + data);
+        if (code == 0)
+        {
+            if (data != null)
+            {
+                //todo 读取业务数据
+            }
+            // 处理成功业务逻辑
+            Log.D("RXCallback data= " + data);
+        }
+        else
+        {
+            // 处理失败业务
+            Log.D("RXCallback msg= " + msg);
+        }
+    }
+
+        Dictionary parm = new Dictionary();
+        parm.Add("tst", "values");
+
+        var request = RuiXueSdk.CreateRequest("https://gochsyj.pwypyq.com/v1/test1pi");
+
+        request.SetPostData(parm);
+        request.PostAsync(this, RXCallback);
+        
+```
+
+## 望舒通行证API
+### 注册
+
+**接口原型**
+
+```csharp
+void Register(RegisterArgs args, Action callback)
+```
+
+**参数说明**
+
+| **字段** | **类型** | **是否必填** | **说明** |
+| --- | --- | ---- | --- |
+| username | string | 是 | 用户名 |
+| password | string | 是 | 密码 |
+| nickname | string | 否 | 昵称 |
+| captcha\_code | string | 否 | 使用 `sendCaptcha` 接口获取 |
+| avatarUrl | string | 否 | 头像地址 |
+| user\_attrs | object | 否 | 设置大数据用户属性，仅对本次登录新注册的用户有效 |
+| sex | integer | 否 | 性别,1:男,0:女 |
+| migrate\_args | 任意合法的 json 类型, 比如 string, number, array, object | 否 | 账号迁移用的参数, 调用 CP account-query 及 account-queryandbind 接口时透传给 CP. |
+
+**调用示例**
+
+```csharp
+    RegisterArgs registerArgs = new()
+    {
+        type = AccountType.Phone,//手机号类型
+        username = usernameFiled.text,// 用户名
+        password = passwordFiled.text,//密码
+    };
+
+    RuiXueSdk.Register(registerArgs, (code, data, msg) =>
+    {
+        if (data != null)
+        {
+            Debug.Log("data= " + data);
+            mText.text = data.Tostring();
+        }
+        else
+        {
+            Debug.Log("code:" + code + ", msg:" + msg);
+            mText.text = "code:" + code + ", msg:" + msg;
+        }
+    });
+```
+
+#### 响应结构
+
+| **字段** | **类型** | **是否必填** | **说明** | **示例** |
+| --- | --- | ---- | --- | --- |
+| captcha\_code | String | 否 | 发送到"username"字段所指地址的，用于注册的验证码。 |  |
+| sex | Number | 否 | 0 表示女性，1 表示男性 |  |
+| distinct\_id | String | 是 | 客户端随机生成的 ID，在用户注册前作为这个用户的唯一标识。 |  |
+| username | String | 是 | 用户名，可以是手机号，邮箱地址，或者任意其他形式的用户名。 |  |
+| password | String | 否 | 密码，客户端传的密码，可以是用户输入的密码本身，或者将其经过特定步骤转化的结构。为保护用户隐私，建议将用户输入的密码原文进行 hash 运算后作为 password 参数的值。该值将作为登录接口 password 参数的值。 |  |
+| nickname | String | 否 | 昵称。 |  |
+| avatarUrl | String | 否 | 头像地址。 |  |
+| device | [Device](/docs/v3.5/登录（通行证）/鸿蒙登录/快速接入-团结版) | 是 | 客户端设备信息。具体结构参考下文 device 结构说明。 |  |
+| activate | [Activate](/docs/v3.5/登录（通行证）/鸿蒙登录/快速接入-团结版) | 否 | 激活相关信息，一个设备仅需在第一次调用登录或注册接口需要传递 |  |
+| user\_attrs | Map[String]Any | 否 | 设置大数据用户属性 |  |
+| user\_source | [UserSource](/docs/v3.5/登录（通行证）/鸿蒙登录/快速接入-团结版) | 否 | 用户推广来源。具体结构参考下文 user\_soruce 结构说明。 |  |
+| migrate\_args | 任意合法的 json 类型, 比如 String, Number 等 | 否 | 账号迁移用的参数, 调用 CP account-query 及 account-queryandbind 接口时透传给 CP. |  |
+| user\_transmits | 任意合法的 json 类型, 比如 String, Number 等 | 否 | 透传参数，如果有需要透传给cp侧的数据，放到里面，望舒侧在响应时透传给cp侧 |  |
+
+**Device**
+
+| **字段** | **类型** | **是否必填** | **说明** | **示例** |
+| --- | --- | ---- | --- | --- |
+| idfa | String | 否 | 仅用于 iOS 设备。目前 iOS 系统主流的广告获取设备标识符方式。用户可开启、关闭，每次切换会改变为新的取值。10 以下的版本关闭时也能取到唯一值, >=10 的 iOS 版本关闭时取到的值为 00000000000 ；系统大版本升级（如 11 到 12） IDFA 也会发生变化。 |  |
+| android\_id | String | 否 | 仅用于 Android 设备。Android 版本 = 8.0，应用签名、用户（即系统上的用户账号）和设备的每个组合都具有唯一的 ANDROID\_ID 值，即使系统升级也不变。 |  |
+| imei | String | 否 | 仅用于 Android 设备。Android 版本 < 6.0，只需要 READ\_PHONE\_STATE 静态权限（安装 App 时即可获取到该权限），即可通过系统 API TelephonyManager#getDeviceId API 获取准确值；6.0 &lt;= Android 版本 &lt;= 9.0，READ\_PHONE\_STATE 升级为动态权限，安装 App 时不会获得该权限，需要在 App 运行时用户在弹窗确认授权后才可以获取；Android 版本 >= 10.0，设备不可变 ID 的隐私保护得到进一步升级，需要 READ\_PRIVILEGED\_PHONE\_STATE 权限才可以获取 IMEI，而该权限只有系统级别的应用才可以获得，因此一般 App 无法获取到 IMEI。 |  |
+| oaid | String | 否 | 仅用于 Android 设备。移动安全联盟（简称 MSA）制定的匿名设备标识符。可用于 android 系统的补充设备标示，通常 android10 以上的国内主流设备都可以获取。具体 OAID 介绍以及最新覆盖厂商范围请详见 MSA 官网：[http://msa-alliance.cn](http://msa-alliance.cn)。 |  |
+| mac | String | 否 | 仅用于 Android 设备。设备 Mac 地址。 |  |
+| user\_agent | String | 否 | 一种方式获取的 user\_agent，若为空，则取 user-agent header 的值 |  |
+| user\_agent1 | String | 否 | 其他方式获取的 user\_agent |  |
+| user\_agent2 | String | 否 | 其他方式获取的 user\_agent |  |
+| ipv4 | String | 否 | 客户端检测到的自身外网 IPv4 地址，如果客户端调用本激活接口时是使用 IPv4，则激活接口服务端自动检测客户端的 IPv4 地址用于归因，否则使用此字段传的值。 |  |
+| ipv6 | String | 否 | 客户端检测到的自身外网 IPv6 地址，如果客户端调用本激活接口时是使用 IPv6，则激活接口服务端自动检测客户端的 IPv6 地址用于归因，否则使用此字段传的值。 |  |
+
+**Activate**
+
+| **字段** | **类型** | **是否必填** | **说明** | **示例** |
+| --- | --- | ---- | --- | --- |
+| result | Object | 否 | 若调用激活接口成功，则传激活接口返回的 json 信息中的 data 部分。若调用激活接口超时，则传 null 或不传此字段 |  |
+| args | [SourceAd](/docs/v3.5/登录（通行证）/鸿蒙登录/快速接入-团结版) | 否 | 若调用激活接口失败，则在此传递激活相关的参数。source\_ad 结构参考激活接口文档。 |  |
+
+**SourceAd**
+
+| **字段** | **类型** | **是否必填** | **说明** | **示例** |
+| --- | --- | ---- | --- | --- |
+| click\_id | String | 否 | *若客户端调用激活接口失败，则通过此字段传递用户激活的参数* |  |
+
+**UserSource**
+
+| **字段** | **类型** | **是否必填** | **说明** | **示例** |
+| --- | --- | ---- | --- | --- |
+| share | [Share](/docs/v3.5/登录（通行证）/鸿蒙登录/快速接入-团结版) | 否 | 分享来源信息，仅当是分享用户时才传递这个字段。具体结构参考下文 share 结构说明。 |  |
+| guide | [Guide](/docs/v3.5/登录（通行证）/鸿蒙登录/快速接入-团结版) | 否 | 导量来源信息，仅当是导量用户时才传递这个字段。具体结构参考下文 guide 结构说明。 |  |
+| sub\_package | [SubPackage](/docs/v3.5/登录（通行证）/鸿蒙登录/快速接入-团结版) | 否 | 用户自定义子包标识主要用于android分包。 |  |
+
+**Share**
+
+| **字段** | **类型** | **是否必填** | **说明** | **示例** |
+| --- | --- | ---- | --- | --- |
+| landing\_id | String | 否 | 广告推广来源信息。具体结构参考下文 ad 结构说明。 |  |
+| trigger\_id | String | 否 | 埋点 ID。 |  |
+| trigger\_tag | String | 是 | 埋点唯一标识。 |  |
+| trigger\_type | String | 是 | 埋点类型。 |  |
+| material\_type | String | 是 | 分享素材类型。 |  |
+| material\_id | String | 是 | 分享素材类型。 |  |
+| strategy\_type | String | 是 | 策略类型。 |  |
+| strategy\_id | String | 是 | 策略唯一 ID。 |  |
+| share\_time | String | 是 | 分享时间。 |  |
+| share\_type | String | 是 | 游戏客户端自定义的分享类型。 |  |
+| inviter\_region | String | 否 | 分享者所在地区编码。 |  |
+| inviter\_openid | String | 是 | 分享者的望舒 openid。 |  |
+| inviter\_productid | String | 否 | 分享者的产品 ID, 若为空, 则通行证通过 inviter\_openid 获取关联信息 |  |
+| inviter\_channelid | String | 否 | 分享者的渠道 ID, 若为空, 则通行证通过 inviter\_openid 获取关联信息 |  |
+| inviter\_subchannelid | String | 否 | 分享者的子渠道 ID, 若为空, 则通行证通过 inviter\_openid 获取关联信息 |  |
+
+**Guide**
+
+| **字段** | **类型** | **是否必填** | **说明** | **示例** |
+| --- | --- | ---- | --- | --- |
+| guide\_platform | String | 否 | 导量来源游戏平台。 |  |
+| guide\_app | String | 否 | 导量来源游戏 app 标识。 |  |
+
+**响应示例**
+
+```json
+{
+    "code": 0,
+    "data": {
+        "id": 2031,
+        "openid": "rxuIR2c1N1EdU9s/gkE8I8bEQ=="
+    }
+}
+```** SubPackage**
+| **字段**       | **类型** | **是否必填** | **说明**                | **示例** |
+| -------------- | -------- | ------------ | ----------------------- | -------- |
+| sub_channel_id | String   | 否           | 子渠道标识      |          |
+
+**响应示例**
+
+```json
+{
+
+        "sub_channel_id": "1235"
+    
+}
+```
+
+###  登录
+**接口原型**
+
+```csharp
+/// <summary>
+/// 登录
+/// </summary>
+/// 登录方式
+/// 登录参数
+/// 回调
+void Login(LoginMethod method, Dictionary keyValuePairs, Action callback)
+```
+
+#### 参数说明
+
+| **字段** | **类型** | **是否必填** | **说明** |
+| --- | --- | ---- | --- |
+| method | string | 否 | 登录方式 （默认 harmony） |
+| login\_openid | string | 否 | 上次登录返回的 login\_openid 数据，同时 method 也要使用上次登录获取 login\_openid 时使用的登录方式 |
+| user\_attrs | object | 否 | 设置大数据用户属性，仅对本次登录新注册的用户有效 |
+| sign\_fields | []string | 否 | 指定对登录成功后返回的特定字段, 使用 CPKEY 计算签名. CP 服务器可重新计算签名并与登录返回的签名比对, 作为对望舒登录数据的校验. 支持的字段包括: nickname, avatar, openid, region, sex, age, 计算签名的逻辑会对指定字段进行排序, 此处传参与顺序无关. |
+| migrate\_args | 任意合法的 json 类型, 比如 string, number, array, object | 否 | 账号迁移用的参数, 调用 CP account-query 及 account-queryandbind 接口时透传给 CP. |
+
+**调用示例**
+
+```
+string method="hwjos";
+Dictionary parm = new()
+{
+    {"sign_fields",new string[]{"openid"}}
+};
+RuiXueSdk.Login(method, parm, (code, data, msg) =>
+{
+    if (data != null)
+    {
+        Debug.Log("data= " + data.ToJson());
+        mText.text = data.ToJson();
+    }
+    else
+    {
+        Debug.Log("code:" + code + ", msg:" + msg);
+        mText.text = "code:" + code + ", msg:" + msg;
+    }
+});
+
+```
+
+### 鸿蒙UnionLogin登录
+**接口原型**
+
+```csharp
+/// <summary>
+///  鸿蒙union登录
+/// </summary>
+/// 登录参数
+/// 
+public static void UnionLogin(UnionLoginArgs unionLoginArgs, Action callback)
+```
+#### 参数说明
+UnionLoginArgs 主要字段
+| **字段** | **类型** | **是否必填** | **说明** |
+| --- | --- | ---- | --- |
+| showLoginDialog | bool | 否 | 是否强制弹出联合登录对话框，允许玩家选择重新登录，默认true |
+| indulgeAuth | int | 否 |  开启实名认证， 0 关闭 ,默认 1 。未实名用户登录成功后是否需要强制实名认证，默认读取望舒后台配置。 注：强制实名后登录数据将在实名认证成功后返回。
+| canCloseRealAuth | bool | 否 | 实名认证是否可关闭，默认读取望舒后台配置|
+| accountInfos| object | 否 | 可在union login 添加一个游戏官方账号类型 |
+| privacyText1 | string | 否 | 第一个协议文本，默认用户协议 |
+| privacyUrl1 | string | 否 | 第er个协议文本的链接，默认用户协议链接 |
+| privacyText2 | string | 否 | 第二个协议文本，默认隐私政策 |
+| privacyUrl2 | string | 否 | 第二个协议文本的链接，默认隐私政策链接 |
+| privacyText3 | string | 否 | 第三个协议文本，默认空 |
+| privacyUrl4 | string | 否 | 第三个协议文本的链接，默认空 |
+| loginMethods | List> | 否 | 显示在望舒ui 中的其他登录方式，默认读取后台配置 |
+| ext | Dictionary | 否 |  cp 自定义扩展参数 |
+
+**调用示例**
+
+```
+// union login demo 
+UnionLoginArgs unionLoginArgs = new()
+{
+    accountInfos = new List(),
+    //2.3.8 后版本开始支持
+        privacyEnable = true,//游戏官方账号登录界面是否显示隐私协议
+        privacyText1 = "用户协议",
+        privacyText2 = "隐私政策",
+        privacyText3 = "儿童隐私",
+        privacyUrl1 = "http://协议1",
+        privacyUrl2 = "http://协议2",
+        privacyUrl3 = "http://协议3",
+};
+
+//在unionlogin界面 添加一个游戏官方账号入口
+UnionLoginArgs.UnionAccountType unionAccountType = new()
+{
+    accountIcon = "app.media.app_icon",
+    accountName = "微乐游戏账号"
+};
+
+unionLoginArgs.accountInfos.Add(unionAccountType);
+
+// 添加一些 cp 自定义参数
+unionLoginArgs.ext = new Dictionary{
+    {"sign",new string[]{"openid","method"}},
+    {"migrate_args","cpcustom"},
+};
+RuiXueSdk.UnionLogin(unionLoginArgs, (code, data, msg) =>
+{
+    if (data != null)
+    {
+        // binding 字段可判定是否关联登录
+        Debug.Log("data= " + data.ToJson());
+        mText.text = data.ToJson();
+    }
+    else
+    {
+        Debug.Log("code:" + code + ", msg:" + msg);
+        mText.text = "code:" + code + ", msg:" + msg;
+    }
+});
+
+//用于账号和鸿蒙解绑
+ RuiXueSdk.UnBindPlayer(null, null, (json) =>
+        {
+            
+        });
+```
+
+### 解绑鸿蒙账号
+**接口原型**
+
+```csharp
+/// <summary>
+/// 调用此接口可以将游戏官方账号与华为teamPlayerId的解绑结果上报给华为游戏服务器。
+/// 该方法可以根据传入的鸿蒙团队玩家 ID 和第三方开放 ID 来解除相应的绑定。
+/// 解除绑定操作完成后，会通过回调函数返回操作结果的 JSON 字符串。
+/// </summary>
+/// 华为teamPlayerId。若不指定，可传入 null，默认去望舒账号下的tid
+/// 第三方开放 ID，用于指定要解除绑定的第三方平台的开放 ID。若不指定，可传入 null，默认取望舒openid
+/// 解除绑定操作完成后的回调函数，接受一个字符串类型的参数，该参数为解除绑定操作结果的 JSON 字符串。若不需要回调，可传入 null。
+ void UnBindPlayer(string teamPlayerId = null, string thirdOpenId = null, Action callback = null)
+```
+
+**调用示例**
+
+```
+//用于账号和鸿蒙解绑
+ RuiXueSdk.UnBindPlayer(null, null, (json) =>
+        {
+        });
+```
+
+### 获取验证码（发送验证码）
+
+**接口原型**
+
+```csharp
+void SendCaptcha(SendCaptchaArgs args, Action callback)
+```
+
+#### 参数说明
+
+| **字段** | **类型** | **是否必填** | **备注** |
+| --- | --- | ---- | --- |
+| email | string | 否 | 接收验证码的邮箱地址，邮箱手机号二选一 |
+| phone | string | 否 | 接收验证码的手机号，邮箱手机号二选一 |
+| purpose | string | 是 | 验证码的用途 |
+
+> `purpose` 字段值 验证码用途说明
+
+| **字段** | 备注 |
+| --- | --- |
+| register | 注册 |
+| bindphone | 绑定手机 |
+| unbindphone | 解绑手机 |
+| resetpwd | 重置密码 |
+| bindemail | 绑定邮箱 |
+| unbindemail | 解绑邮箱 |
+| login | 登录 |
+| setpwd | 设置密码 |
+
+**调用示例**
+
+```csharp
+data = new SendCaptchaArgs()
+{
+    phone = "1395xxxxxxx",
+    purpose = "xxxxxx"
+
+};
+RuiXueSdk.SendCaptcha(data, callback);
+```
+
+#### 响应结构
+
+```json
+{
+    "code": 0,
+    "data": {
+        "interval": 60,
+        "surplus": 60
+    }
+}
+```
+
+### 校验验证码
+
+:::tip
+用途和手机号或邮箱需要和调用发送验证码时一致。
+
+:::
+
+**接口原型**
+
+```csharp
+
+void VerifyCaptcha(VerifyCaptchaArgs args, Action callback)
+```
+
+#### 参数说明
+
+| **字段** | **类型** | **是否必填** | **备注** |
+| --- | --- | ---- | --- |
+| phone | string | 是 | 接收验证码的邮箱地址，邮箱手机号二选一 |
+| email | string | 是 | 接收验证码的邮箱地址，邮箱手机号二选一 |
+| purpose | string | 是 | 验证码的用途 |
+| captcha\_code | string | 是 | 验证码 |
+
+> `purpose` 字段值 验证码用途说明
+
+| **字段** | 备注 |
+| --- | --- |
+| register | 注册 |
+| bindphone | 绑定手机 |
+| unbindphone | 解绑手机 |
+| resetpwd | 重置密码 |
+| bindemail | 绑定邮箱 |
+| unbindemail | 解绑邮箱 |
+| login | 登录 |
+| setpwd | 设置密码 |
+
+**调用示例**
+
+```csharp
+ data = new VerifyCaptchaArgs()
+{
+    phone = phone1,
+    purpose = pru,
+    captcha_code = phone1.Substring(phone1.Length - 4),
+};
+RuiXueSdk.VerifyCaptcha(data,callback);
+```
+
+#### 响应结构
+
+不返回 data 信息，验证码不正确会直接返回相应的错误。
+
+```json
+{
+    "code": 0
+}
+```
+
+### 绑定邮箱
+
+**接口原型**
+
+```csharp
+void BindEmail(BindEmailArgs args, Action callback)
+```
+
+#### 参数说明
+
+| **字段** | **类型** | **是否必填** | **备注** |
+| --- | --- | ---- | --- |
+| captcha\_code | string | 是 | 使用 `sendCaptcha` 接口获取 |
+| password | string | 是 | 邮箱账号的密码 |
+| email | string | 是 | 邮箱账号 |
+| migrate\_args | 任意合法的 json 类型 | 否 | 账号迁移用的参数, 调用 CP account-query 及 account-queryandbind 接口时透传给 CP. |
+
+**调用示例**
+
+```csharp
+data = new BindEmailArgs()
+{
+    email = "lipeng@jixiang.cn",
+    password = "111111",
+    captcha_code = "0001",
+};
+RuiXueSdk.bindEmail(data, callback);
+```
+
+#### 响应结构
+
+```json
+{
+    "code": 0
+}
+```
+
+### 解绑邮箱
+
+**接口原型**
+
+```csharp
+void UnBindEmail(UnBindEmailArgs args, Action callback)
+```
+
+#### 参数说明
+
+| **字段** | **类型** | **是否必\*\*\*\*填** | **说明** |
+| --- | --- | -------- | --- |
+| captcha\_code | string | 是 | 验证码 |
+| email | string | 是 | 邮箱账号 |
+
+**调用示例**
+
+```csharp
+data = new UnBindEmailArgs()
+{
+    email = "test@jixiang.cn",
+    captcha_code = "0001",
+};
+RuiXueSdk.UnBindEmail(data, callback);
+```
+
+**响应结构**
+
+```json
+{
+    "code": 0
+}
+```
+
+### 绑定手机号
+
+**接口原型**
+
+```csharp
+void BindPhone(BindPhoneArgs args, Action callback)
+```
+
+#### 参数说明
+
+| **字段** | **类型** | **是否必填** | **说明** |
+| --- | --- | ---- | --- |
+| phone | string | 是 | 手机号码 |
+| password | string | 是 | 密码 |
+| captcha\_code | string | 是 | 使用 `SendCaptcha` 接口获取 |
+| migrate\_args | 任意合法的 json 类型, 比如 string, number, array, object | 否 | 账号迁移用的参数, 调用 CP account-query 及 account-queryandbind 接口时透传给 CP. |
+
+**调用示例**
+
+```csharp
+data = new BindPhoneArgs()
+{
+    phone = phone1,
+    password = "111111",
+    captcha_code = "0001",
+};
+RuiXueSdk.BindPhone(data, callback);
+```
+
+#### 响应结构
+
+```json
+{
+    "code": 0
+}
+```
+
+### 解绑手机号
+
+**接口原型**
+
+```csharp
+void UnBindPhone(UnBindPhoneArgs args, Action callback)
+```
+
+#### 参数说明
+
+| **字段** | **类型** | **是否必\*\*\*\*填** | **说明** |
+| --- | --- | -------- | --- |
+| captcha\_code | string | 是 | 使用 `SendCaptcha` 接口获取 |
+| phone | string | 是 | 手机号码 |
+
+**调用示例**
+
+```csharp
+data = new UnBindPhoneArgs()
+{
+    phone = phone1,
+    captcha_code = phone1.Substring(phone1.Length - 4),
+};
+RuiXueSdk.UnBindPhone(data, callback);
+```
+
+#### 响应结构
+
+请参考 [解绑手机 API]](/docs/v3.5/登录（通行证）/服务端接入/服务端 API#解绑手机号) 响应结构。
+
+### 修改手机号
+
+**接口原型**
+
+```csharp
+void ChangeBindPhone(ChangePasswordArgs args, Action callback)
+```
+
+#### 参数说明
+
+| **字段** | **类型** | **是否必\*\*\*\*填** | **说明** |
+| --- | --- | -------- | --- |
+| oldphone\_captcha | string | 当前登录的手机号的 purpose =`unbindphone` 验证码。 | 使用 `sendCaptcha` 接口获取 |
+| newphone | string | 新的手机号。 | 手机号码 |
+| newphone\_captcha | string | 新手机号的 purpose=`bindphone` 验证码。 | 使用 `sendCaptcha` 接口获取 |
+| migrate\_args | 任意合法的 json 类型 | 账号迁移用的参数, 调用 CP account-query 及 account-queryandbind 接口时透传给 CP. |  |
+
+**调用示例**
+
+```csharp
+data = new ChangePhoneArgs()
+{
+    oldphone_captcha = phone1,
+    newphone = phone2,
+    newphone_captcha ="1234",
+};
+RuiXueSdk.ChangePhone(data, callback);
+```
+
+#### 响应结构
+
+```json
+{
+    "code": 0
+}
+```
+
+### 获取用户信息
+
+* 接口原型
+
+```csharp
+void GetUserInfo(Action callback)
+```
+
+**调用示例**
+
+```csharp
+RuiXueSdk.GetUserInfo(callback);
+```
+
+#### 响应结构
+
+```json
+{
+    "code": 0,
+    "data": {
+        "avatarurl": "",
+        "mobile_phone": "159****7520",
+        "nickname": "rssllyn",
+        "openid": "rxuWFnlHRbTZ5ED5TkwAG5XVQ==",
+        "sex": 0,
+        "user_state": 0,
+        "attr": 0
+    }
+}
+```
+
+### 修改用户信息
+
+**接口原型**
+
+```csharp
+void UpdateUserInfo(UpdateUserInfoArgs args, Action callback)
+```
+
+**参数说明**
+
+| **字段** | **类型** | **是否必\*\*\*\*填** | **说明** |
+| --- | --- | -------- | --- |
+| avatarurl | string | 否 | 头像 |
+| nickname | string | 否 | 用户昵称 |
+| sex | number | 否 | 性别 1 男 0 女，无改动传-1，不传会默认修改为女性 |
+| wechat\_avatarurl | string | 否 | 微信原始头像 |
+
+**调用示例**
+
+```csharp
+data = new UpdateUserInfoArgs()
+{
+    avatarurl = "https://pics5.baidu.com/feed/f9198618367adab4ae93d01f4d2fd5158601e435.jpeg?token=dc16fc242c33735fa67c32567ce5fc0c",
+    sex = -1,
+    wechat_avatarurl = "https://thirdwx.qlogo.cn/mmopen/vi_32/Q0j4TwGTfTK7I2LkIqgwO1cunedHjwesjdRYn3rlJvib9ovibCGG30nibnLI6TCYxjVnuunFw4ZtrRLjf6uuW8L7w/132",
+    nickname = "你的神"
+};
+RuiXueSdk.UpdateUserInfo(data, callback);
+```
+
+#### 响应结构
+
+```json
+{
+    "nickname":"小吉",
+    "avatarurl":"图片地址",
+    "region":"220122",
+    "sex":0
+}
+```
+
+### 修改密码
+
+**接口原型**
+
+```csharp
+void ChangePassword(ChangePasswordArgs args, Action callback)
+```
+
+#### 参数说明
+
+| **字段** | **类型** | **是否必\*\*\*\*填** | **说明** |
+| --- | --- | -------- | --- |
+| old\_password | string | 是 | 旧密码 |
+| new\_password | string | 是 | 新密码 |
+
+**调用示例**
+
+```csharp
+data = new ChangePasswordArgs()
+{
+    old_password = "111111",
+    new_password = "222222",
+};
+RuiXueSdk.ChangePassword(data, callback);
+```
+
+#### 响应结构
+
+```json
+{
+    "code": 0
+}
+```
+
+### 重置密码
+
+**接口原型**
+
+```csharp
+void ResetPassword(ResetPasswordArgs args, Action callback)
+```
+
+**参数说明**
+
+| **字段** | **类型** | **是否必\*\*\*\*填** | **说明** |
+| --- | --- | -------- | --- |
+| username | string | 是 | 已经注册过账号的手机号或者邮箱地址用户名。 |
+| password | string | 是 | 新密码编码规则与注册账号时传递的密码编码规则相同。 |
+| captcha\_code | string | 是 | 使用 `sendCaptcha` 接口获取用于重置密码的验证码， |
+
+**调用示例**
+
+```csharp
+ data = new ResetPasswordArgs()
+{
+    username = phone1,
+    password = "222222",
+    captcha_code = phone1.Substring(phone1.Length - 4),
+};
+
+RuiXueSdk.ResetPassword(data, callback);
+```
+
+#### 响应结构
+
+```json
+{
+    "code": 0
+}
+```
+
+## 合规
+
+### 协议声明
+
+**UI示例**
+
+![](http://guanwangyun.oss-cn-beijing.aliyuncs.com/document/login/feishu-protocol.jpeg)
+
+**接口原型**
+
+```csharp
+
+/**
+ * 用户协议和隐私界面
+ * @param activity 应用上下文
+ * @param key      默认需要展示的协议条款key
+ * @param keyList  需要展示的协议条款key列表
+ */
+void ProtocolView(string key, string[] keyList)
+
+```
+
+#### 参数说明
+
+> keyList 说明
+
+| **key** | **备注**         |
+| ------- | ---------------- |
+| 00001   | 用户服务协议     |
+| 00002   | 隐私保护指引     |
+| 00003   | 第三方 SDK 目录  |
+| 00004   | 健康游戏公告     |
+| 00005   | 适龄提示         |
+| 00006   | 绿色游戏公告     |
+| 00007   | 版号信息         |
+| 00008   | 游戏账号注销条件 |
+| 00009   | 游戏账号注销协议 |
+| 00010   | 其他             |
+
+**调用示例**
+
+```csharp
+
+ RuiXueSdk.ProtocolView("00002", new string[] { "00001", "00002", "00003", "00004", "00005", "00006", "00007", "00008", "00009" });
+
+```
+
+### 实名认证
+
+**接口原型**
+
+```csharp
+void RealAuth(RealAuthArgs args, Action callback)
+```
+
+#### 参数说明
+
+| **字段** | **类型** | **是否必\*\*\*\*填** | **说明** |
+| --- | --- | -------- | --- |
+| realname | string | 是 | 真实姓名 |
+| idcard | string | 是 | 身份证号码 |
+| is_fast_auth | int | 否 |  1 使用 快速认证，0 不使用快速认证，默认 0|
+
+**调用示例**
+
+```csharp
+data = new RealAuthArgs
+{
+    idcard = "130532197901235712",
+    realname = "乐淳雅"
+};
+RuiXueSdk.RealAuth(data, callback);
+```
+
+#### 响应结构
+
+```json
+{
+    "code": 0,
+    "data": {
+        "age": 18
+    }
+}
+```
+
+## 用户中心
+
+:::tip
+在操作的结果页产生事件时会通过回调不同的 type，具体说明请参考响应结构。
+
+:::
+
+### 展示用户信息
+
+**UI示例**
+
+![](https://guanwangyun.oss-cn-beijing.aliyuncs.com/document/passportUI/JRY5bZ3JColj63xe5Y5cUaGBnsf.png)
+
+**接口原型**
+
+```csharp
+/// <summary>
+/// 用户中心UI
+/// </summary>
+/// 
+/// 
+void UserCenterUI(UserCenterUIArgs args, Action callback)
+```
+
+#### 参数说明
+
+> RXUserCenterConfig 结构说明
+
+| **字段** | **类型** | **备注** |
+| --- | --- | --- |
+| transmit\_args | String | 透传数据，使用 jsonString 形式 |
+| game\_user\_id | String | 用户的游戏 id，不传在望舒后台不会账号注销页面不显示游戏侧的用户id |
+| nickname | String | 用户昵称 |
+| head\_img\_url | String | 用户头像 |
+| queue\_name | String | 在望舒客服系统设置的接入点名称 不填写默认为 default |
+| btns | Array | 配置用户中心入口 |
+
+> btns 说明
+
+| **字段** | **备注** |
+| --- | --- |
+| real\_name | 实名认证 |
+| privacy\_policy | 隐私政策 |
+| acount\_cancel | 账号注销 |
+| phone\_management | 手机号管理 |
+| change\_pwd | 修改密码 |
+
+**调用示例**
+
+```csharp
+        UserCenterUIArgs custom = new()
+        {
+            transmit_args = "透传参数",
+            game_user_id = "1000",
+            nickname = "用户昵称",
+            head_img_url = "用户头像",
+            queue_name = "default"
+        };
+
+        RuiXueSdk.UserCenterUI(custom, (json) =>
+        {
+            // {
+            //     type:"用户中心回调事件类型"
+            // }
+            Debug.Log("UserCenterUI callback:" + json);
+
+        });
+```
+
+#### 响应结构
+
+> type 回调说明
+
+| **字段** | **备注** |
+| --- | --- |
+| switch\_user | 切换账号 |
+| underegister | 撤销注销 |
+| binding\_phone | 绑定手机 |
+| change\_phone | 换绑手机 |
+| real\_auth | 实名认证 |
+| resetpwd | 修改密码 |
+| logBackIn | 重新登陆 |
+
+**响应示例**
+
+```json
+{
+    "code" : 0,
+    "data" : {
+        "type" : "switch_user"
+    }
+}
+```
+
+### 申请账号注销
+
+显示注销申请 webview 窗口，如已处于注销中显示撤销注销。
+
+**UI示例**
+
+![image.png](https://haiqi-ruixue-test.oss-cn-beijing.aliyuncs.com/docOnline/image-1724032060422.png)
+
+**接口原型**
+
+```csharp
+/**
+ * 申请注销
+ * @param activity activity
+ * @param  自定义参数
+ * @param callback callback
+ */
+void ApplyForDeregisterUI(HelpCenterUIArgs args)
+```
+
+#### 参数说明
+
+> HelperCenterConfig 结构说明
+
+| **字段** | **备注** |
+| --- | --- |
+| transmit\_args | 透传数据，使用 jsonString 形式 |
+| game\_user\_id | 用户的游戏 id，不传在望舒后台不会账号注销页面不显示游戏侧的用户id |
+| nickname | 用户昵称 |
+| head\_img\_url | 用户头像 |
+| queue\_name | 在望舒客服系统设置的接入点名称 不填写默认为 default |
+
+**调用示例**
+
+```csharp
+        HelpCenterUIArgs custom = new()
+        {
+            transmit_args = "透传参数",
+            game_user_id = "1000",
+            nickname = "用户昵称",
+            head_img_url = "用户头像",
+            queue_name = "default"
+        };
+        RuiXueSdk.ApplyForDeregisterUI(custom);
+```
+
+## 身份证键盘
+
+**UI示例**
+![](https://guanwangyun.oss-cn-beijing.aliyuncs.com/sdk/help-image/img_v3_02ml_887e5df6-3de5-4db2-841d-4af26c85747g.png)
+
+**接口原型**
+```typescript
+customKeyboard(value: CustomBuilder, options?: KeyboardOptions): TextInputAttribute;
+```
+**调用示例**
+```typescript
+  private controller1: TextInputController = new TextInputController();
+
+  @Builder
+  customKeyboardBuilder1() {
+    IdCardKeyboard({
+      inputValue: "",
+      onKeyboardEvent: this.onKeyboardEvent.bind(this),
+      placeholder: "请输入...",
+      controller: this.controller1
+    })
+  }
+  
+  build() {
+    TextInput({
+        text: $$this.inputValue1,
+        placeholder: this.placeholder,
+        controller: this.controller
+      })
+        .id(TEXT_INPUT_ID)
+        .type(InputType.Normal)
+        .customKeyboard(this.customKeyboardBuilder(), { supportAvoidance: true })
+        .height(48)
+        .margin({ top: 24 })
+        
+ }
+```

@@ -1,0 +1,814 @@
+---
+title: "服务端API"
+---
+
+## 检查产品包（已废弃）
+
+:::warning
+已废弃，请使用 检查产品包（通用）接口。
+
+:::
+
+> **GET:**  `/v1/vcapi/update/{productID:[0-9a-zA-Z_]+}/{channelID:[0-9a-zA-Z_]+}/{clientVersion:[\d\.]+}/{devicecode:[0-9a-zA-Z]+}/{region:\d+}`
+> **认证方式：** 无
+
+:::warning
+格式为：/产品/渠道/客户端版本[.大厅组件版本]/设备码/地区码例：https://domain/v1/vcapi/update/222/1/1.0.1.0/test/150000?type=js
+
+:::
+
+### CURL 示例
+
+```bash
+curl --location --request GET '{{接口域名}}/v1/vcapi/update/222/1/1.0.1.0/test/150000?type=js' \
+--header 'ruixue-language: {{语言}}'
+```
+
+### Path请求参数
+
+| **参数** | **类型** | **是否必填** | **约束** |
+| --- | --- | ---- | --- |
+| productid | String | 是 | 产品 id |
+| channelid | String | 是 | 渠道 id |
+| clientversion | String | 是 | 客户端版本号， 3 段或 4 段 |
+| devicecode | String | 是 | 客户端设备码 |
+| region | Number | 是 | 地区码， 默认 0 |
+
+### Query请求参数
+
+| **参数** | **类型** | **约束** | **案例** |
+| --- | --- | --- | --- |
+| type | String | 脚本类型 默认 js， 可选 lua， u3d |
+| local\_country | String | 设备系统设置国家，客户端请求不区分大小写，服务端统一处理 | jp |
+| product\_info | String | 苹果商品信息 | ja\_JP@currency=JPY |
+| match_rule | Number | IOS 包匹配规则 | 1 商店账户归属地区优先 0 IP归属地区优先(默认) |
+
+**响应示例**
+
+```json
+{
+  "uri": "http://rxfile.weilekuiming.com/release/dir/2208311VcYLmwX1HWFpLBhHmTFSyunp0IWOmC/",
+  "latest": "1.0.1",
+  "games": {
+    "5157686": {
+      "latest": 1,
+      "uri": "http://rxfile.weilekuiming.com/test/dir/22090873urwkzpsTSXKz0LKL7WXjCiK5fUg0o/"
+    }
+  },
+  "hall": {
+    "hall_id": 222,
+    "uri": "http://rxfile.weilekuiming.com/test/dir/2209082kx8VFIzdGfbmQSLVKsGFGWqWzDZRmi/",
+    "latest": 1
+  },
+  "maintain": "",
+  "user_ip": "10.245.0.1",
+  "upgrade": 1,
+  "login_host": "",
+  "up_type": 1,
+  "force": 0,
+  "ext": {
+    "tag": true
+  },
+  "activities": {
+    "cc": {
+      "latest": 1,
+      "uri": "http://rxfile.weilekuiming.com/test/dir/22090834mx3Tw82eBGJFHV47uQ8BBrWJpnSeq/"
+    }
+  }
+}
+```
+
+### 响应结构（JSON）
+
+| **参数** | **类型** | **约束** |
+| --- | --- | --- |
+| login\_host | String | 登录地址 |
+| upgrade | Number | 更新状态 0 无更新 1 有更新 2 维护公告 |
+| latest | String | 升级后的版本号 |
+| up\_type | Number | 1 小版本热更 2 大版本整包更 |
+| games | Map[int][Data](/docs/v3.5/版本检查/功能介绍) | [游戏 id]版本 |
+| activities | Map[string][Data](/docs/v3.5/版本检查/功能介绍) | [活动别名]版本 |
+| hall | [Halldata](/docs/v3.5/版本检查/功能介绍) | 大厅组件 |
+| maintain | String | 维护公告 |
+| user\_ip | String | 客户端 ip |
+| force | Number | 1 为强制更新 |
+| ext | Map[string]interface{'{'}{'}'} | 自定义扩展信息， 值为望舒后台配置的类型 |
+| uri | Stirng | 包路径 |
+| login\_config | [][LoginConfig](/docs/v3.5/版本检查/功能介绍) | 登录配置 |
+| attr | Number | [状态标记 使用位运算 ](/docs/v3.5/版本检查/功能介绍) |
+
+##### 检查产品包通用Data
+
+| **参数** | **类型** | **约束** |
+| --- | --- | --- |
+| latest | Number | 升级到的大厅组件版本 |
+| uri | String | 热更包路径 |
+
+##### 检查产品包通用Halldata
+
+| **参数** | **类型** | **约束** |
+| --- | --- | --- |
+| latest | Number | 升级到的大厅组件版本 |
+| uri | String | 大厅组件路径 |
+| hall\_id | Number | 大厅组件 id |
+
+> 根据版本类型和状态， 下发的字段也会不同，并非所有字段都会下发 > 当有维护公告时下发的字段
+> `upgrade`、`maintain`
+> 
+> 客户端为 app 并且有更新时
+> `upgrade`、`login_host`、`uri`、`latest`、`up_type`、`force`、`ext`、`games`、`activities`、`hall`、`user_ip`
+> 
+> 客户端为 app 并且没有更新并且客户端版本为最新版本
+> `upgrade`、`login_host`、`uri`、`ext`、`games`、`activities`、`hall`、`user_ip`
+> 
+> 客户端为 app 并且没有更新且大于最新版本（错误的参数）
+> `upgrade`、`login_host`、`games`、`activities`、`hall`、`user_ip`
+> 
+> 客户端为小游戏时，返回客户端指定版本的信息，脚本类型为 u3d 时会返回 games、activities、hall 的最新版本
+> `upgrade`、`login_host`、`uri`、`ext`、`user_ip`
+> 
+> 客户端为 H5 时 返回客户端指定版本的信息
+> `upgrade`、`login_host`、`uri`、`ext`、`games`、`activities`、`hall`、`user_ip`
+
+##### LoginConfig
+
+:::tip
+数据会根据后台配置决定 如果登录配置类型为“默认配置”，则由服务端进行匹配，优先级如下
+
+* 商店账户归属地区优先：（指定地区>商店账户归属地区>IP归属地区>用户设备系统地区>默认地区），仅限 iOS，安卓无法使用
+* IP归属地区优先：（指定地区>IP归属地区>商店账户归属地区>用户设备系统地区>默认地区）
+
+如果登录配置类型为“多服手选”，则将配置直接下发
+
+:::
+
+| **参数** | **类型** | **说明** |
+| --- | --- | --- |
+| login\_host | String | 登录地址 |
+| login\_name | String | 登录名 |
+| ext\_param | String | 扩展参数 |
+| region\_tag | String | 地区标签 |
+| user\_region | String | 用户匹配到的地区（“默认配置”由服务端根据请求参数判断） |
+
+### 常见问题及处理
+
+**1、检查不到产品包版本**
+查看请求脚本类型是否和后台一致， 终端设备是否加入了测试 ip， 版本状态是否为自测、测试中或已发布, 客户端是否使用了没有的版本号，并且该产品包也没有一个大于客户端版本的已发布大版本更新（或加入测试 ip 的测试版本）
+
+**2、检查不到大厅组件版本**
+大厅组件版本是否关联了此产品包， 后台填写的产品包的主模块是否为此大厅组件
+
+**3、检查不到子游戏版本**
+请求的地区是否和游戏的地区一致， 产品包是否关联了游戏， 请求参数 games 里是否有此游戏
+
+**4、 检查不到活动版本**
+产品包是否关联了活动、请求参数 activities 里是否有此游戏, 检查是测试 ip 填写的否是最后一个版本
+检查顺序： 已发布包中最后版本 => 待发布包中最后版本 => 测试包中最后版本
+
+**5、返回值中有 res 字段**
+res 字段是为兼容 js 而返回的， 全部升级后会废弃掉
+
+## 检查产品包（通用）
+
+> **POST:**  `/v1/vcapi/update/{productID:[0-9a-zA-Z_]+}/{channelID:[0-9a-zA-Z_]+}/{clientVersion:[\d\.]+}/{devicecode:[0-9a-zA-Z]+}/{region:\d+}`
+> **认证方式：** 无
+
+:::warning
+格式为：/产品/渠道/客户端版本[.大厅组件版本]/设备码/地区码?type=脚本类型例：https://domain/v1/vcapi/update/222/1/1.0.1.0/test/150000?type=js
+
+:::
+
+### CURL 示例
+
+```bash
+curl --location --request POST '{{接口域名}}/v1/vcapi/update/222/1/1.0.1.0/test/150000?type=js' \
+--header 'ruixue-language: {{语言}}' \
+--data-raw '{
+  "games":{
+    "1":0
+  },
+  "activities":{
+    "hall_smrz":0
+  }
+}'
+```
+
+### Path请求参数
+
+| **参数** | **类型** | **是否必填** | **约束** |
+| --- | --- | ---- | --- |
+| productid | String | 是 | 产品 id |
+| channelid | String | 是 | 渠道 id |
+| clientversion | String | 是 | 客户端版本号， 3 段或 4 段 |
+| devicecode | String | 是 | 客户端设备码 |
+| region | Number | 是 | 地区码， 默认 0 |
+
+### Query 参数
+
+| 参数 | 类型 | 约束 | 案例｜ |
+| --- | --- | --- | --- |
+| type | String | 脚本类型 默认 js， 可选 lua， u3d |
+| vc | Number | 海外苹果包(header 中 overseas=yes), vc 参数不为 1 则不下发大厅版本 |
+| local\_country | String | 设备系统设置国家，客户端请求不区分大小写，服务端统一处理 | jp |
+| product\_info | String | 苹果商品信息 | ja\_JP@currency=JPY |
+| match_rule | Number | 传递此参数时“多服手选”才会响应region_tag字段，如无需此功能请不要传此参数，此方式会增加运算  降低接口的效率；
+参数值(IOS 包匹配规则优先级)：
+1 商店账户归属地区优先(依赖product_info) 
+2 IP归属地区优先 | |
+
+### Body 参数
+
+| 参数 | 类型 | 约束 |
+| --- | --- | --- |
+| games | Map[string]int | {'{'}"games:{'{'}"游戏 id": 客户端游戏版本{'}'}"{'}'} |
+| activities | Map[string]int | {'{'}"activities":{'{'}"活动别名": 客户端活动版本{'}'}{'}'} |
+
+**响应示例**
+
+```json
+{
+  "uptype": 1,
+  "ext": {
+    "zdy_test1": true
+  },
+  "uip": 2095806007,
+  "loginhost": "59.110.66.140:6532",
+  "latest": "1.1.96",
+  "games": {
+    "666": 1
+  },
+  "activities": {
+    "xxx": 1
+  },
+  "update": {
+    "games": {
+      "1": {
+        "fname": "94B79DD3B5FB1CE3AC083455E8230ED5EF8863AD.cuf",
+        "size": 1570334,
+        "uri": "https://rxfile.jiaxiangnetwork.com/test/dir/22110975MgIwex3ZIZeIw7xDt7lKO6hme1cE4/",
+        "latest": 253
+      }
+    },
+    "activities": {
+      "hall_smrz": {
+        "fname": "74E9C3C12DC9E9CF1A0E91D9BD38CE86C9B223C7.cuf",
+        "size": 14011,
+        "uri": "https://rxfile.jiaxiangnetwork.com/test/dir/2304103k17aaDztbXOivpZF1IRCnjXZPQ5OKA/",
+        "latest": 18
+      }
+    }
+  },
+  "upgrade": 1,
+  "ts": 1686133271,
+  "uri": "https://rxfile.jiaxiangnetwork.com/test/dir/2211101E6p4IPjlGggDykWPTDGOhxnTDDuyxG/",
+  "hall": {
+    "fname": "42E217D8F99CC5F206849F7DE0300D7FF7C14D11.cuf",
+    "size": 19835025,
+    "uri": "https://rxfile.jiaxiangnetwork.com/test/dir/2211102wF081LWF6IfTzHFC7tgxWYpOJQhz6M/",
+    "latest": 476
+  }
+}
+```
+
+### 响应结构（JSON）
+
+| **参数** | **类型** | **约束** |
+| --- | --- | --- |
+| loginhost | String | 登录地址 |
+| uri | String | 版本类型为 app 时返回更新地址目录，如无更新，返回客户端版本地址目录，如果客户端版本过低， 不返回。非 app 时为客户端指定版本的地址目录，如找不到版本或版本过低，返回最新版本地址目录 |
+| upgrade | Number | 更新状态 0 无更新 1 有更新 2 维护公告 |
+| latest | String | 升级后的版本号 |
+| uptype | Number | 1 小版本热更 2 大版本整包更 |
+| games | Map[string]int | 产品包关联的游戏 id=>最新版本号 |
+| activities | Map[string]int | 产品包关联的活动别名=>最新版本号 |
+| hall | [Halldata](/docs/v3.5/版本检查/功能介绍) | 热更信息（js 小游戏不下发） |
+| uip | Number | 客户端 ip |
+| ts | Number | 服务端时间戳 |
+| ext | Map[string]interface{'{'}{'}'} | 自定义扩展信息， 值为望舒后台配置的类型 |
+| update | [Update](/docs/v3.5/版本检查/功能介绍) | 客户端指定的版本下发详细 |
+| maintain | String | 维护公告 |
+| login\_config | []LoginConfig | 登录配置 |
+| attr | Number | [状态标记 使用位运算 ](/docs/v3.5/版本检查/功能介绍) |
+|region_tag|String|多服手选时用户正常匹配所属的区服|
+
+##### 检查产品包自定义Update
+
+| **参数** | **类型** | **约束** |
+| --- | --- | --- |
+| games | Map[gameid]热更信息 | 需要升级游戏 id=>热更信息 |
+| activities | Map[code]热更信息 | 需要升级活动别名=>热更信息 |
+
+##### 检查产品包自定义Halldata
+
+| **参数** | **类型** | **约束** |
+| --- | --- | --- |
+| uri | string | 热更包路径 |
+| fname | string | 热更文件 |
+| size | int | 热更文件大小 |
+| latest | int | 最后版本号 |
+
+**有维护公告时返回**
+
+| **参数** | **类型** | **约束** |
+| --- | --- | --- |
+| upgrade | Number | 值为 2 维护公告 |
+| maintain | String | 维护公告 |
+| ts | Number | 服务器时间 |
+
+**错误时返回**
+
+| **参数** | **类型** | **约束** |
+| --- | --- | --- |
+| code | int | 错误码 |
+| msg | string | 错误信息 |
+
+##### LoginConfig
+
+:::tip
+数据会根据后台配置决定 如果登录配置类型为“默认配置”，则由服务端进行匹配，优先级如下
+
+* 商店账户归属地区优先：（指定地区>商店账户归属地区>IP归属地区>用户设备系统地区>默认地区），仅限 iOS，安卓无法使用
+* IP归属地区优先：（指定地区>IP归属地区>商店账户归属地区>用户设备系统地区>默认地区）
+
+如果登录配置类型为“多服手选”，则将配置直接下发
+
+:::
+
+| **参数** | **类型** | **说明** |
+| --- | --- | --- |
+| login\_host | String | 登录地址 |
+| login\_name | String | 登录名 |
+| ext\_param | String | 扩展参数 |
+| region\_tag | String | 地区标签 |
+| user\_region | String | 用户匹配到的地区（“默认配置”由服务端根据请求参数判断） |
+
+##### attr 标记说明
+
+| **位（0 表示最低位）** | **说明** |
+| ---------- | --- |
+| 0 | 0: 非审核模式; 1: 审核模式 |
+
+示例：
+
+```json
+{
+  "msg": "the version number is invalid",
+  "code": 305201
+}
+```
+
+### 定义及解释
+
+> 1、参数 `type`, 脚本类型默认 js 可选值 `lua(.lua)` 、 `js(.json)` 、`u3d(.json)`
+> 2、约定产品包版本号为 4 段式，其中前 3 段为产品包版本号， 第 4 段为大厅组件版本号， 大厅组件、游戏和活动版本号为数字
+> 3、接口成功时返回的格式为 `{"code":0, "data":"版本信息 json 或 lua 格式字符串"}`， 失败时返回的格式为 `{"code":150000, "msg":"错误信息 code 不固定"}`
+> 4、状态 自测中，待测试， 测试中，已锁定待发布，待最终审核，等待发布中 状态下，指定的 ip 可以被检查到， 已发布状态所有ip都可检查到
+> 5、测试和预发布版本只检测指定IP的最新版本的， 比如有状态为自测中的版本 1 和版本 2，如果配置的IP相同，则只能返回版本2
+> 6、约定版本号第二位是大版本更新， 第三位是热更，例如 3.7.0 就不会更新到 3.6.1 的热更包， 当 3.7.0 在审核时， 可以为线上 3.6.x 热更， 不能跳过更新的包可以选择为里程碑， 客户端可以设置审核中不更新，避免更新 3.7.0 的包，跨大版本只能整包更新
+> 7、热更包格式为.zip , 上传后会自动解压并且地址会变为目录， 客户端可以通过地址+文件名的方式直接访问压缩包内的文件
+> 8、产品包为小游戏和 h5 时，返回客户端指定版本的信息，产品包可检查到最近 8 个历史版本， 大厅组件、子游戏和活动可检查到最近 10 个历史版本， 客户端包太旧时会返回最新版本
+> 9、app,h5 和 u3d 小游戏返回大厅组件，游戏和活动版本， 海外新增请求参数 vc， 如果不为 1 时不下发大厅组件，非海外的苹果审核模式不返回大厅组件、游戏和活动版本
+> 10、如果版本关联中产品包版本配置了模块版本， 则只能返回指定的模块版本中的最新版本
+
+### 常见问题及处理
+
+**1、检查不到产品包版本**
+查看请求脚本类型是否和后台一致， 终端设备是否加入了测试 ip， 版本状态是否为自测、测试中或已发布, 客户端是否使用了没有的版本号，并且该产品包也没有一个大于客户端版本的已发布大版本更新（或加入测试 ip 的测试版本）
+
+**2、检查不到大厅组件版本**
+大厅组件版本是否关联了此产品包， 后台填写的产品包的主模块是否为此大厅组件
+
+**3、检查不到子游戏版本**
+请求的地区是否和游戏的地区一致， 产品包是否关联了游戏， 请求参数 games 里是否有此游戏
+
+**4、 检查不到活动版本**
+产品包是否关联了活动、请求参数 activities 里是否有此游戏, 检查是测试 ip 填写的否是最后一个版本
+检查顺序： 已发布包中最后版本 => 待发布包中最后版本 => 测试包中最后版本
+
+**5、版本检查显示版本升级了，但是没有 fname 和 size 字段**
+此处依赖热更包中的 version.json 文件， 如果用户上传的压缩包中无此文件或格式错误， 则只会显示 uri，
+
+> 如果需要实现此功能，要在热更包根目录中添加 version.json 文件
+> json 文件内容示例：
+>
+> ```json
+> {
+>   "498": {
+>     "fname": "66C65E5C416C88EC3A7FB1CE5A1D5B7C5EE925E0.cuf",
+>     "size": 707949
+>   },
+>   "499": {
+>     "fname": "66C65E5C416C88EC3A7FB1CE5A1D5B7C5EE925E0.cuf",
+>     "size": 707949
+>   },
+>   "0": {
+>     "fname": "1136E7F9BD529B5008A3FB5422365A80CF429E93.cuf",
+>     "size": 14547037
+>   }
+> }
+> ```
+
+## 检查子游戏版本
+
+> **GET:**  `/v1/vcapi/update_game/{gameID:\d+}/{gameVersion:\d+}/{gameCheckVersion:\d+}`
+> **认证方式：** 无
+
+:::warning
+格式为：/游戏 id/客户端游戏版本号/优先获取版本号例：https:/domain/v1/vcapi/update\_game/1041697/0?type=js
+
+:::
+
+### CURL 示例
+
+```bash
+curl --location --request GET '{{接口域名}}/v1/vcapi/update_game/1041697/0?type=js' \
+--header 'ruixue-language: {{语言}}'
+```
+
+### 请求参数
+
+| **参数** | **类型** | **是否必填** | **约束** |
+| --- | --- | ---- | --- |
+| gameid | Number | 是 | 游戏 id |
+| gameversion | Number | 是 | 客户端版本号 |
+| gamecheckversion | Number | 是 | 优先检查这个版本，没用再返回最新版本， 没有传 0 |
+
+### Query 参数
+
+| **参数** | **类型** | **约束** |
+| --- | --- | --- |
+| type | String | 脚本类型 默认 lua， 可选 js， u3d |
+
+**响应示例**
+
+```json
+{
+  "uri": "http://rxfile.weilekuiming.com/test/dir/22090873urwkzpsTSXKz0LKL7WXjCiK5fUg0o/",
+  "version": "1",
+  "game_id": 1
+}
+```
+
+### 响应结构（JSON）
+
+| **参数** | **类型** | **约束** |
+| --- | --- | --- |
+| uri | String | 游戏热更地址路径 |
+| version | String | 最新版本 |
+| game\_id | Number | 游戏 id |
+
+返回参数有也会有“url”字段，是为兼容 js 而返回的， 全部升级后会废弃掉
+
+## 检查活动版本
+
+> **GET:**  `/v1/vcapi/update_activity/{activityShortName:[0-9a-zA-Z_]+}/{activityVersion:\d+}/{activityCheckVersion:\d+}`
+> **认证方式：** 无
+
+:::warning
+格式为：/活动别名/客户端活动版本号/优先获取版本号例：https://domain/v1/vcapi/update\_activity/xxx/1?type=js
+
+:::
+
+### CURL 示例
+
+```bash
+curl --location --request GET '{{接口域名}}/v1/vcapi/update_activity/xxx/1?type=js' \
+--header 'ruixue-language: {{语言}}'
+```
+
+### 请求参数
+
+| **参数** | **类型** | **是否必填** | **约束** |
+| --- | --- | ---- | --- |
+| activityshortname | String | 是 | 活动别名 |
+| activityversion | Number | 是 | 客户端版本号 |
+| activitycheckversion | Number | 是 | 优先检查这个版本，没用再返回最新版本，没有传 0 |
+
+### Query 参数
+
+| **参数** | **类型** | **约束** |
+| --- | --- | --- |
+| type | String | 脚本类型 默认 lua， 可选 js， u3d |
+
+**响应示例**
+
+```json
+{
+  "uri": "http://rxfile.weilekuiming.com/test/dir/22090873urwkzpsTSXKz0LKL7WXjCiK5fUg0o/",
+  "version": "1",
+  "activity_shortname": "huodong"
+}
+```
+
+### 响应结构（JSON）
+
+| **参数** | **类型** | **约束** |
+| --- | --- | --- |
+| uri | String | 热更地址的路径 |
+| version | String | 最新版本 |
+| activity\_shortname | String | 活动标识 |
+
+返回参数有也会有“url”字段，是为兼容 js 而返回的， 全部升级后会废弃掉
+
+## 获取渠道包信息
+
+> **GET:** `v1/publicapi/cpsync/apps`
+> **认证方式：** [CPSign](/docs/v3.5/入门指南/服务端接入须知)
+
+### CURL 示例
+
+```bash
+curl --location --request GET '{{接口域名}}/v1/publicapi/cpsync/apps?version=1729929906' \
+--header 'ruixue-language: {{语言}}' \
+--header 'ruixue-cpid: {{CPID}}' \
+--header 'ruixue-productid: {{产品标识}}' \
+--header 'ruixue-cpts: {{时间戳}}' \
+--header 'ruixue-traceid: {{TraceID}}' \
+--header 'ruixue-cpsign: {{签名}}' \
+--header 'ruixue-devicecode: {{设备码}}' \
+--header 'ruixue-channelid: {{渠道标识}}' \
+--header 'ruixue-platformid: {{平台标识}}'
+```
+
+### 请求参数（JSON）
+
+| **字段** | **类型** | **是否必填** | **说明** | **示例** |
+| --- | --- | ---- | --- | --- |
+| version | String | 是 | 缓存版本, 如果和服务器版本一致， 不下发渠道包信息 |  |
+
+### 响应参数（JSON）
+
+**HTTP 状态码：**`200 OK`
+
+| **字段** | **类型** | **说明** | **示例** |
+| --- | --- | --- | --- |
+| code | Number | 响应状态码，0为成功，非0表示出错 | 0 |
+| msg | String | 响应信息，仅在code为非0时不为空 |  |
+| data | Data | 响应内容 |  |
+
+#### Data
+
+| **字段** | **类型** | **说明** | **示例** |
+| --- | --- | --- | --- |
+| data | []Apps | 渠道包列表，cache为false时返回 |  |
+| version | String | 当前服务器版本 |  |
+| cache | bool | 是否为缓存 |  |
+
+#### Apps
+
+| **字段** | **类型** | **说明** | **示例** |
+| --- | --- | --- | --- |
+| product\_id | String | 产品id |  |
+| product\_name | String | 产品名 |  |
+| channel\_id | String | 渠道id |  |
+| channel\_name | String | 渠道名 |  |
+| channel\_type | Number | 渠道类型 1APP 2小游戏 |  |
+| platform\_id | Number | 小游戏平台 |  |
+| app\_key | String | appkey |  |
+| wechat\_syncid | String | 微信appid |  |
+
+小游戏平台：
+
+* platform\_id: 20 => "微信"
+* platform\_id: 21 => "QQ"
+* platform\_id: 22 => "抖音"
+* platform\_id: 23 => "Facebook"
+* platform\_id: 24 => "vivo"
+* platform\_id: 25 => "华为"
+* platform\_id: 26 => "淘宝"
+* platform\_id: 27 => "支付宝"
+* platform\_id: 28 => "oppo"
+* platform\_id: 29 => "快手"
+* platform\_id: 30 => "小米"
+* platform\_id: 31 => "uc"
+* platform\_id: 32 => "4399h5"
+* platform\_id: 33 => "4399"
+* platform\_id: 34 => "美团"
+* platform\_id: 35 => "爱微游"
+* platform\_id: 36 => "最右游"
+* platform\_id: 37 => "迅雷"
+* platform\_id: 38 => "bilibili"
+* platform\_id: 39 => "群黑"
+* platform\_id: 40 => "好游快爆"
+* platform\_id: 41 => "007"
+* platform\_id: 42 => "百度"
+* platform\_id: 43 => "七七"
+* platform\_id: 44 => "Quick"
+* platform\_id: 45 => "VNG"
+* platform\_id: 46 => "京东"
+
+**响应示例**
+
+```json
+{
+    "data": {
+        "version": 1,
+        "cache": false,
+        "data": [
+            {
+                "product_id": "1002",
+                "channel_id": "305",
+                "channel_type": 2,
+                "platform_id": 24,
+                "app_key": "c0ed91831778e10cadaca7035ef74c22",
+                "product_name": "测试1002",
+                "channel_name": "vivo小游戏"
+            }
+        ]
+    },
+    "code": 0
+}
+```
+
+## 获取渠道包主备登录信息（已作废）
+
+> **GET:** `api/v1/developapi/app/getmainbackloginip`
+> **认证方式：** [CPSign](/docs/v3.5/入门指南/服务端接入须知)
+
+### CURL 示例
+
+```bash
+curl --location --request GET '{{后台接口域名}}/api/v1/developapi/app/getmainbackloginip' \
+--header 'ruixue-language: {{语言}}' \
+--header 'ruixue-cpid: {{CPID}}' \
+--header 'ruixue-productid: {{产品标识}}' \
+--header 'ruixue-cpts: {{时间戳}}' \
+--header 'ruixue-traceid: {{TraceID}}' \
+--header 'ruixue-cpsign: {{签名}}' \
+--header 'ruixue-devicecode: {{设备码}}' \
+--header 'ruixue-channelid: {{渠道标识}}' \
+--header 'ruixue-platformid: {{平台标识}}'
+```
+
+### 请求参数（无）
+
+### 响应参数（JSON）
+
+**HTTP 状态码：**`200 OK`
+
+| **字段** | **类型** | **说明** | **示例** |
+| --- | --- | --- | --- |
+| code | Number | 响应状态码，0为成功，非0表示出错 | 0 |
+| msg | String | 响应信息，仅在code为非0时不为空 |  |
+| data | []Data | 响应内容 |  |
+
+#### Data
+
+| **字段** | **类型** | **说明** | **示例** |
+| --- | --- | --- | --- |
+| product\_id | String | 产品id |  |
+| product\_name | String | 产品名称 |  |
+| channel\_id | String | 渠道id |  |
+| channel\_name | String | 渠道名称 |  |
+| loginip | String | 登录地址， json字符串 |  |
+| loginip\_back | String | 备份登录地址， json字符串 |  |
+| is\_back | Number | 是否使用备份地址 1是 |  |
+
+## 切换渠道包主备登录信息（已作废）
+
+> **POST:** `api/v1/developapi/app/cutmainbackloginip`
+> **认证方式：** [CPSign](/docs/v3.5/入门指南/服务端接入须知)
+
+### CURL 示例
+
+```bash
+curl --location --request POST '{{后台接口域名}}/api/v1/developapi/app/cutmainbackloginip' \
+--header 'ruixue-language: {{语言}}' \
+--header 'ruixue-cpid: {{CPID}}' \
+--header 'ruixue-productid: {{产品标识}}' \
+--header 'ruixue-cpts: {{时间戳}}' \
+--header 'ruixue-traceid: {{TraceID}}' \
+--header 'ruixue-cpsign: {{签名}}' \
+--header 'ruixue-devicecode: {{设备码}}' \
+--header 'ruixue-channelid: {{渠道标识}}' \
+--header 'ruixue-platformid: {{平台标识}}' \
+--data-raw '{
+  "is_back": 0,
+  "apps":{
+    "product_id":"",
+    "channel_id":""
+  }
+}'
+```
+
+### 请求参数（JSON）
+
+| **字段** | **类型** | **是否必填** | **说明** | **示例** |
+| --- | --- | ---- | --- | --- |
+| is\_back | Number | 是 | 0使用主ip， 1使用备份ip |  |
+| apps | []Apps | 是 | 影响范围 |  |
+
+#### Apps
+
+| **字段** | **类型** | **说明** | **示例** |
+| --- | --- | --- | --- |
+| product\_id | String | 产品id |  |
+| channel\_id | String | 渠道id |  |
+
+### 响应参数（JSON）
+
+**HTTP 状态码：**`200 OK`
+
+| **字段** | **类型** | **说明** | **示例** |
+| --- | --- | --- | --- |
+| code | Number | 响应状态码，0为成功，非0表示出错 | 0 |
+| msg | String | 响应信息，仅在code为非0时不为空 |  |
+
+## 获取渠道包主备登录信息
+
+> **GET:** `api/v1/developapi/getmainbackloginip`
+> **认证方式：** [CPSign](/docs/v3.5/入门指南/服务端接入须知)
+
+### CURL 示例
+
+```bash
+curl --location --request GET '{{后台接口域名}}/api/v1/developapi/getmainbackloginip' \
+--header 'ruixue-language: {{语言}}' \
+--header 'ruixue-cpid: {{CPID}}' \
+--header 'ruixue-productid: {{产品标识}}' \
+--header 'ruixue-cpts: {{时间戳}}' \
+--header 'ruixue-traceid: {{TraceID}}' \
+--header 'ruixue-cpsign: {{签名}}' \
+--header 'ruixue-devicecode: {{设备码}}' \
+--header 'ruixue-channelid: {{渠道标识}}' \
+--header 'ruixue-platformid: {{平台标识}}'
+```
+
+### 请求参数（无）
+
+### 响应参数（JSON）
+
+**HTTP 状态码：**`200 OK`
+
+| **字段** | **类型** | **说明** | **示例** |
+| --- | --- | --- | --- |
+| code | Number | 响应状态码，0为成功，非0表示出错 | 0 |
+| msg | String | 响应信息，仅在code为非0时不为空 |  |
+| data | []Data | 响应内容 |  |
+
+#### Data
+
+| **字段** | **类型** | **说明** | **示例** |
+| --- | --- | --- | --- |
+| tag | String | 登录配置标识 |  |
+| name | String | 登录配置名称 |  |
+| loginip | String | 默认区服登录地址 |  |
+| loginip\_back | String | 默认区服备用登录地址 |  |
+| is\_back | Number | 是否使用备份地址 1是 0 否 |  |
+
+示例：
+
+```bash
+{
+    "data": [
+        {
+            "loginip": "cn-api-test.ruixueyun.com",
+            "loginip_back": "cn-api-test.ruixueyun.com",
+            "is_back": 0,
+            "name": "测试国内",
+            "tag": "ttttt"
+        },
+    ],
+    "code": 0
+}
+```
+
+## 切换渠道包主备登录信息
+
+> **POST:** `api/v1/developapi/cutmainbackloginip`
+> **认证方式：** [CPSign](/docs/v3.5/入门指南/服务端接入须知)
+
+### CURL 示例
+
+```bash
+curl --location --request POST '{{后台接口域名}}/api/v1/developapi/cutmainbackloginip' \
+--header 'ruixue-language: {{语言}}' \
+--header 'ruixue-cpid: {{CPID}}' \
+--header 'ruixue-productid: {{产品标识}}' \
+--header 'ruixue-cpts: {{时间戳}}' \
+--header 'ruixue-traceid: {{TraceID}}' \
+--header 'ruixue-cpsign: {{签名}}' \
+--header 'ruixue-devicecode: {{设备码}}' \
+--header 'ruixue-channelid: {{渠道标识}}' \
+--header 'ruixue-platformid: {{平台标识}}' \
+--data-raw '{
+  "is_back": 0,
+  "tag": "",
+}'
+```
+
+### 请求参数（JSON）
+
+| **字段** | **类型** | **是否必填** | **说明** | **示例** |
+| --- | --- | ---- | --- | --- |
+| is\_back | Number | 是 | 0使用主ip， 1使用备份ip |  |
+| tag | String | 是 | 登录配置标识 |  |
+
+### 响应参数（JSON）
+
+**HTTP 状态码：**`200 OK`
+
+| **字段** | **类型** | **说明** | **示例** |
+| --- | --- | --- | --- |
+| code | Number | 响应状态码，0为成功，非0表示出错 | 0 |
+| msg | String | 响应信息，仅在code为非0时不为空 |  |

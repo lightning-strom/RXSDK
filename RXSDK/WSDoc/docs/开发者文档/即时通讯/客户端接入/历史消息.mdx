@@ -1,0 +1,172 @@
+---
+sidebar_position: 4
+title: 历史消息
+description: 望舒即时通讯 iOS / Android 历史消息文档，提供完整的接口调用说明与示例。
+---
+
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
+
+<Tabs groupId="platform">
+
+<TabItem value="android" label="Android">
+
+## 获取历史消息模块
+
+```java
+HistoryModule historyModule = RXIMEngine.getInstance().catchModule(ProcessModuleInventory.HISTORY);
+```
+
+</TabItem>
+
+<TabItem value="ios" label="iOS">
+
+历史消息可以通过 `RXIMMessageDelegate` 协议中回调函数 `historyMessage` 通知客户端。
+
+</TabItem>
+
+</Tabs>
+
+## 获取服务器历史消息
+
+获取服务端的历史消息列表，因为服务端数据量很大，所以效率不会很高，建议在情况允许的情况下**优先考虑获取本地历史消息**方法。
+
+<Tabs groupId="platform">
+
+<TabItem value="ios" label="iOS">
+
+**接口原型**
+
+```objectivec
+/**
+ * 获取服务端历史消息
+ * @param msgId 消息锚点
+ * @param target 会话id
+ * @param limit 查询数量，最多一次拉取50条
+ */
+- (void)fetchHistoryMessages:(NSString * _Nullable)msgId
+ target:(NSString * _Nonnull)target
+ limit:(NSInteger)limit;
+
+#pragma mark -- RXIMMessageDelegate
+/**
+ * 服务端历史消息回执
+ */
+- (void)historyMessage:(RXIMHistoryMsgResp *)msgObj;
+```
+
+**调用示例**
+
+```objectivec
+[[RXIMChatService sharedSDK] fetchHistoryMessages:nil target:target limit:100];
+
+#pragma mark - 历史消息回执
+- (void)historyMessage:(RXIMHistoryMsgResp *)msgObj
+{
+ NSLog(@"历史消息回执 count = %ld", msgObj.count);
+ if (!msgObj.isDone) {
+ RXIMMessage *msg = msgObj.messages.firstObject;
+ [[RXIMChatService sharedSDK] fetchHistoryMessages:msg.msgId target:self.conversationId limit:30];
+ }
+}
+```
+
+### 响应结构
+
+| 字段 | 类型 | 备注 |
+| --- | --- | --- |
+| messages | NSArray | 消息列表 |
+| count | NSInteger | 本批消息记录数量 |
+| isDone | BOOL | 是否到底，YES:拉取完成 NO:还有消息 |
+
+</TabItem>
+
+<TabItem value="android" label="Android">
+
+**接口原型**
+
+```java
+public void fetchHistoryMessages(String conversationID, String startID, int count, IRXSendingObserver observer)
+```
+
+**调用示例**
+
+```java
+historyModule.fetchHistoryMessages("会话id", "锚点消息的msgID", 20, new IRXSendingObserver() {
+    @Override
+    public void onStart(RXSyncMessage contentMessage) {
+
+    }
+
+    @Override
+    public void complete(int code, RXSyncMessage contentMessage) {
+
+    }
+});
+```
+
+</TabItem>
+
+</Tabs>
+
+### 参数说明
+
+| 字段 | 类型 | 是否必填 | 备注 |
+| --- | --- | --- | --- |
+| msgId / startID | String | 否 | 消息锚点 |
+| target / conversationID | String | 是 | 会话 id |
+| limit / count | int | 是 | 查询数量，iOS 最多一次拉取 50 条 |
+
+## 获取本地历史消息
+
+<Tabs groupId="platform">
+
+<TabItem value="ios" label="iOS">
+
+**接口原型**
+
+```objectivec
+/**
+ * 获取本地历史消息
+ * @param msgId 消息锚点
+ * @param target 会话id
+ * @param sessionType 会话类型
+ * @param limit 查询数量
+ * @param completionHandler 返回的消息数组。
+ */
+- (void)getHistoryMessages:(NSString * _Nullable)msgId
+ target:(NSString * _Nonnull)target
+ sessionType:(RXIMSessionType)sessionType
+ limit:(NSInteger)limit
+ completionHandler:(void (^)(NSArray *messages, RXIMError *error))completionHandler;
+```
+
+**调用示例**
+
+```objectivec
+[[RXIMChatService sharedSDK] getHistoryMessages:nil target:target sessionType:RXIMSessionType_single limit:100 completionHandler:^(NSArray * _Nonnull messages, RXIMError *error) {
+ if (!error) {
+ NSLog(@"历史消息回执 %@", messages);
+ }
+}];
+```
+
+</TabItem>
+
+<TabItem value="android" label="Android">
+
+**接口原型**
+
+```java
+public List getHistoryMessages(String targetID, int count, int page)
+```
+
+**调用示例**
+
+```java
+historyModule.getHistoryMessages("对方id", 20, 1);
+```
+
+</TabItem>
+
+</Tabs>

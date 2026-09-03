@@ -1,0 +1,71 @@
+---
+title: "游戏道具商城"
+---
+
+# 游戏道具商城
+
+:::tip
+- 查询角色接口：{'{'}domain{'}'}/v1/thirdparty/notify/{'{'}product_id{'}'}/{'{'}channel_id{'}'}/huawei/query_role_info
+- 下单接口：{'{'}domain{'}'}/v1/thirdparty/notify/{'{'}product_id{'}'}/{'{'}channel_id{'}'}/huawei/order
+- 支付回调接口：{'{'}domain{'}'}/v1/ke/callback/f_channel/{'{'}product_id{'}'}/{'{'}channel_id{'}'}/hwjos
+
+{'{'}domain{'}'}: 望舒的 API 域名
+{'{'}product_id{'}'}：是望舒后台的产品ID
+{'{'}channel_id{'}'}：是望舒后台的渠道ID
+华为查询角色和下单接口目前望舒仅支持userIdType为（playerId和openId）两种类型
+:::
+
+## 回调配置
+华为道具商城配置上述的查询角色、下单接口；**配置回调时{'{'}domain{'}'}、{'{'}product_id{'}'}、{'{'}channel_id{'}'}等变量一定要替换成望舒后台真实的值**。
+![image.png](https://haiqi-ruixue-test.oss-cn-beijing.aliyuncs.com/docOnline/image-1774945105447.png)
+
+## 渠道包配置
+渠道包配置游戏私钥、游戏公钥；用于查询角色接口，下单接口的签名验证，返回的数据的签名；获取方式[参考文档](https://developer.huawei.com/consumer/cn/doc/AppGallery-connect-Guides/agcapi-prop-overview-0000002321821228)。
+### 格式
+如果渠道已经有-----BEGIN PRIVATE KEY----- 则直接复制就可以，如果没有需要填充。
+#### 游戏私钥
+```config
+-----BEGIN PRIVATE KEY-----
+xxx
+-----END PRIVATE KEY-----
+```
+
+#### 游戏公钥
+```config
+-----BEGIN PUBLIC KEY-----
+xxx
+-----END PUBLIC KEY-----
+```
+
+![image.png](https://haiqi-ruixue-test.oss-cn-beijing.aliyuncs.com/docOnline/image-1773823628027.png)
+
+## 支付账号配置
+华为、鸿蒙支付账号需要配置 ClientID、ClientSecret 用于验证道具商城通知的订单是否有效；具体获取方式参考[华为文档](https://developer.huawei.com/consumer/cn/doc/HMSCore-References/obtain-application-level-at-0000001051066052)。
+![image.png](https://haiqi-ruixue-test.oss-cn-beijing.aliyuncs.com/docOnline/image-1773811532507.png)
+
+## 默认区服设置
+华为获取用户角色接口需要区服 ID，区服名称，区服 ID 取值用户上报的角色信息是的区服标识，区服名称取值望舒区服配置对外名称。
+![image.png](https://haiqi-ruixue-test.oss-cn-beijing.aliyuncs.com/docOnline/image-1773823455475.png)
+
+## 计费点配置
+需要将华为道具商城[创建的商品](https://developer.huawei.com/consumer/cn/doc/app/game-center-creating-product-0000001239502323)在望舒计费点信息配置到三方计费点中，完成支付的验证闭环。
+![image.png](https://haiqi-ruixue-test.oss-cn-beijing.aliyuncs.com/docOnline/image-1773815083230.png)
+
+## CP 需要接入下单回调
+华为道具商城下单，需要同步给 CP 下单，支付成功之后通知 CP 发货；[回调协议](/docs/v3.5/三方服务/华为/游戏道具商城)
+要求：CP 整体链路控制在 100ms 以内，华为要求整体在 200ms 以内。
+如果没有接入下单回调，在支付成功通知 CP 发货接口 会缺少 CP 订单号参数（trade_no）
+![image.png](https://haiqi-ruixue-test.oss-cn-beijing.aliyuncs.com/docOnline/image-1773811902656.png)
+
+## 支付成功通知 CP 发货
+华为通知支付成功之后同步回调 CP 发货；[回调协议](/docs/v3.5/三方服务/华为/游戏道具商城)
+![image.png](https://haiqi-ruixue-test.oss-cn-beijing.aliyuncs.com/docOnline/image-1773819929498.png)
+
+:::tip
+- [游戏道具商城](https://developer.huawei.com/consumer/cn/doc/app/game-center-prop-mall-0000002302937820)
+- [开发概览](https://developer.huawei.com/consumer/cn/doc/AppGallery-connect-Guides/agcapi-prop-overview-0000002321821228)
+- [查询玩家区服角色](https://developer.huawei.com/consumer/cn/doc/AppGallery-connect-References/agcapi-propapi-getroleinfo-0000002355255377)
+- [下单](https://developer.huawei.com/consumer/cn/doc/AppGallery-connect-References/agcapi-propapi-order-0000002321296666)
+- [获取应用级AT](https://developer.huawei.com/consumer/cn/doc/HMSCore-References/obtain-application-level-at-0000001051066052)
+- [关键事件通知版本v2](https://developer.huawei.com/consumer/cn/doc/HMSCore-References/api-notifications-about-subscription-events-v2-0000001385268541)
+:::

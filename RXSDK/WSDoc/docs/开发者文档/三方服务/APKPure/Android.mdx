@@ -1,0 +1,160 @@
+---
+sidebar_position: 1
+title: Android
+description: APKPure Android 端接入指南，包含 SDK 集成、配置说明及接口调用示例。
+---
+
+## 后台接入配置
+
+[登录配置说明](/docs/开发者文档/入门指南/快速开始/荣耀/小游戏/登录)
+
+[支付配置说明](/docs/开发者文档/三方服务/九游/支付配置说明)
+
+## 望舒快速接入（必接）
+
+[快速接入文档](/docs/开发者文档/入门指南/快速开始/Unity-初始化/快速开始)
+
+## 三方渠道接入说明（必读）
+
+[三方渠道接入说明](/docs/开发者文档/三方服务/三方接入说明)
+
+## SDK集成
+
+
+:::tip[版本说明]
+`version` 为 SDK 版本号（替换为实际版本号），最新版本请从 [更新日志](/docs/开发者文档/入门指南/更新日志/Android) 中查看。
+:::
+
+```groovy
+implementation 'com.ruixue:rxsdk_apkpure:${version}'
+```
+
+## 参数说明
+
+| 参数 | 类型 | 说明 |
+| --- | --- | --- |
+| apkpure_appid | String | init 参数 |
+
+
+## 登录 (必须接入) 请一定确保要初始化成功再调用登录
+
+请参考 [Android 端登录 API](/docs/开发者文档/登录-通行证/Android-登录API/快速接入)
+
+使用 line 登录说明，参考文档：[line 登录说明](/docs/开发者文档/入门指南/快速开始/荣耀/小游戏/登录)
+
+**参考代码**
+
+```java
+String username = null;
+String loginType = "apkpure";
+String captchaCode = null;
+String loginOpenId = null;
+Map<String, Object> ext = null;
+String[] signFields = null;
+Object migrateArgs = null;
+RuiXueSdk.getApi().login(DemoActivity.this, loginType, username, password, captchaCode, loginOpenId, ext, signFields, migrateArgs, new RXJSONCallback() {
+    @Override
+    public void onSuccess(@Nullable JSONObject data) {
+    Toast.makeText(DemoActivity.this, "登录成功", Toast.LENGTH_SHORT).show();
+    }
+
+    @Override
+    public void onFailed(@NonNull JSONObject cause) {
+    Toast.makeText(DemoActivity.this, "登录失败", Toast.LENGTH_SHORT).show();
+    }
+});
+```
+
+## 支付 (必须接入)
+
+请参考 [Android 端支付 API](/docs/开发者文档/支付/功能介绍)
+
+## 商品详情查询
+
+**接口原型**
+
+```java
+
+    /**
+    * 向 VGamePop ASDK 拉取当前应用下全量可购商品信息。
+    * p>
+    * 需先完成 {@link #init(Context, Map, RXJSONCallback)} 且 ext 中提供 {@code apkpure_appid}，否则 ASDK
+    * 可能返回失败。
+    * p>
+    * b>返回实体 {@link Product}b>（位于 {@code com.vgamepop.android.asdk.core.net.entity}，由 ASDK
+    * 定义；字段以官方 AAR 版本为准，常用 getter 如下，便于对账与展示）：
+    * ul>
+    * li>{@code getId()} — 商品/Sku ID，与望舒订单 ext 中 {@code product_id} 对应，用于
+    * {@link ASDKManager#purchaseProduct}。li>
+    * li>{@code getName()} — 商品显示名称（本地化以 ASDK 为准）。li>
+    * li>{@code getPrice()} — 价格数值字符串或格式串（以 ASDK 实现为准）。li>
+    * li>{@code getUnit()} — 价格货币单位/符号，与 getPrice 组合用于 UI 展示。li>
+    * ul>
+    * p>
+    * b>回调 {@link ValueGetListener}b>（{@code com.vgamepop.android.asdk.base}）：
+    * ul>
+    * li>{@code onSucceed(ListProduct> value)} — 成功；可能为空列表，表示无配置商品。li>
+    * li>{@code onFailed(Throwable throwable)} — 失败；网络/未初始化等，勿为空时可取
+    * {@link Throwable#getMessage()}。li>
+    * ul>
+    * 注意：是否回调在 UI 线程以 ASDK 行为为准，更新 Activity UI 时建议
+    * {@code activity.runOnUiThread(...)}。
+    * @param listener 非空；接收商品列表或失败信息
+    * @see ASDKManager#getProducts(ValueGetListener)
+    * @see com.vgamepop.android.asdk.core.net.entity.Product
+    */
+    public void getProducts(@NonNull ValueGetListenerListProduct>> listener)
+
+    /**
+    * 按商品 ID 列表向 VGamePop ASDK 拉取指定 Sku 的商品信息（如后台已配置、仅需校验部分
+    * product_id）。
+    * p>
+    * {@code productIds} 中每一项应与望舒支付下单时 ext 的 {@code product_id} 及
+    * {@link Product#getId()} 使用同一套 ID 体系。
+    * p>
+    * {@link Product} 与 {@link ValueGetListener} 的字段/回调说明同
+    * {@link #getProducts(ValueGetListener)}。
+    * @param productIds 非空、非空列表；每一项为单个商品 Sku/商品 ID
+    * @param listener 同 {@link #getProducts(ValueGetListener)}
+    * @see ASDKManager#getProducts(java.util.List, ValueGetListener)
+    */
+    public void getProducts(@NonNull List<String> productIds, @NonNull ValueGetListenerListProduct>> listener)
+```
+
+**调用示例**
+
+```java
+
+1. 拉取全部商品
+// 需已 init 成功（ext 里传了 apkpure_appid）
+ApkpureSdkWrapper.getInstance().getProducts(new ValueGetListenerListProduct>>() {
+    @Override
+    public void onSucceed(ListProduct> value) {
+    for (Product p : value) {
+    // 根据 ASDK Product 实际 API 使用
+    String id = p.getId();
+    String name = p.getName();
+    String price = p.getPrice();
+    String unit = p.getUnit();
+    // ...
+    }
+    }
+    @Override
+    public void onFailed(Throwable throwable) {
+    String msg = throwable != null ? throwable.getMessage() : "unknown";
+    // 打日志 / Toast
+    }
+});
+
+2. 按商品 ID 列表拉取
+ApkpureSdkWrapper.getInstance().getProducts(ids, new ValueGetListenerListProduct>>() {
+    @Override
+    public void onSucceed(ListProduct> value) {
+    // 同上
+    }
+    @Override
+    public void onFailed(Throwable throwable) {
+    // 同上
+    }
+});
+```

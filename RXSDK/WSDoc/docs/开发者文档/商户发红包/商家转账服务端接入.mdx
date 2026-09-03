@@ -1,0 +1,316 @@
+---
+sidebar_position: 2
+title: 商家转账服务端接入
+description: "望舒SDK 商户发红包 商家转账服务端接入服务端文档，提供接口请求参数与响应说明。"
+---
+
+# 商家转账
+
+## 流程：
+
+1、游戏客户端调用游戏服务端， 游戏服务端验证是否可转账
+
+2、游戏服务端调用望舒发起转账接口获取商户号、微信 appid （渠道包类型不同可能返回小游戏 appid 或者 app 绑定的微信登录 appid ）、调起收款信息([微信小游戏收款](/docs/开发者文档/商户发红包/微信小游戏收款))
+
+3、游戏服务端将上一步的信息返回给游戏客户端
+
+3、客户端调起微信收款接口或SDK 提供的封装接口
+
+4、望舒通过 cp 回调将收款单状态同步给游戏服务器
+
+## 发起转账
+
+> 此接口返回的微信收款单状态正常为 "WAIT_USER_CONFIRM", 如果返回其他状态，客户端稍等再调起收款即可， 不要更换订单号重复调用此接口， 否则会重复发放， 更多状态详见附录
+
+> **POST: ** `/v1/operationtoolsapi/wechat/applyredpack`
+>
+> **认证方式:** [CPSign](/docs/开发者文档/入门指南/服务端接入须知)
+
+### CURL 示例
+
+```bash
+curl --location --request POST '{{接口域名}}/v1/operationtoolsapi/wechat/applyredpack' \
+--header 'ruixue-language: {{语言}}' \
+--header 'ruixue-cpid: {{CPID}}' \
+--header 'ruixue-productid: {{产品标识}}' \
+--header 'ruixue-cpts: {{时间戳}}' \
+--header 'ruixue-traceid: {{TraceID}}' \
+--header 'ruixue-cpsign: {{签名}}' \
+--header 'ruixue-devicecode: {{设备码}}' \
+--header 'ruixue-channelid: {{渠道标识}}' \
+--header 'ruixue-platformid: {{平台标识}}' \
+--header 'Content-Type: application/json' \
+--data-raw '{
+ "amount": 0,
+ "open_id": "rxxxx",
+ "cp_user_id":"xxx",
+ "remark":"xxx",
+ "bind_account":0
+}'
+```
+
+**请求头 Header 参数**
+
+| 参数 | 类型 | 备注 |
+| --- | --- | --- |
+| ruixue-language | String | zh-CN |
+| Content-Type | String | application/json |
+| ruixue-cpid | String | 内容提供商 CPID |
+| ruixue-productid | String | 产品 ID |
+| ruixue-channelid | String | 渠道 ID |
+| ruixue-platformid | String | 平台 platformid |
+| ruixue-devicecode | String | 设备码 |
+| ruixue-cpsign | String | 签名 |
+| ruixue-cpts | String | CP 签名时间戳 |
+| ruixue-traceid | String | TraceID |
+
+### 请求参数（JSON）
+
+| 参数 | 类型 | 是否必填 | 备注 |
+| --- | --- | --- | --- |
+| amount | Number | 是 | 金额分 |
+| open_id | String | 是 | 望舒 openid ，与 cp_user_id 传一个即可 |
+| cp_user_id | String | 是 | 游戏 id ， 与 open_id 传一个即可 |
+| remark | String | 否 | 转账备注， 不传默认为“活动红包” |
+| bind_account | Number | 否 | 是否查询绑定账号 0: 否 1:是 (已支持绑定账号功能传 1 才有效) |
+
+**响应示例**
+
+```json
+{
+ "msg": "success",
+ "code": 0
+}
+```
+
+### 响应结构(JSON)
+
+| 参数 | 类型 | 备注 |
+| --- | --- | --- |
+| code | Number | 0 为成功 |
+| msg | String | 失败信息 |
+| data | Object | 对象信息 |
+
+#### data
+
+| 参数 | 类型 | 备注 |
+| --- | --- | --- |
+| state | String | 微信状态，见附录 |
+| out_bill_no | String | 望舒订单号 |
+| transfer_bill_no | String | 微信转账单号 |
+| create_time | String | 创建时间 |
+| package_info | String | 客户端调起收款信息 |
+| mch_id | String | 商户号 |
+| wxappid | String | 应用 id |
+
+## 获取收款单状态
+
+> **POST: ** `/v1/operationtoolsapi/wechat/checkredpack`
+>
+> **认证方式:** [CPSign](/docs/开发者文档/入门指南/服务端接入须知)
+
+### CURL 示例
+
+```bash
+curl --location --request POST '{{接口域名}}/v1/operationtoolsapi/wechat/checkredpack' \
+--header 'ruixue-language: {{语言}}' \
+--header 'ruixue-cpid: {{CPID}}' \
+--header 'ruixue-productid: {{产品标识}}' \
+--header 'ruixue-cpts: {{时间戳}}' \
+--header 'ruixue-traceid: {{TraceID}}' \
+--header 'ruixue-cpsign: {{签名}}' \
+--header 'ruixue-devicecode: {{设备码}}' \
+--header 'ruixue-channelid: {{渠道标识}}' \
+--header 'ruixue-platformid: {{平台标识}}' \
+--header 'Content-Type: application/json' \
+--data-raw '{
+ "out_bill_no": "",
+}'
+```
+
+**请求头 Header 参数**
+
+| 参数 | 类型 | 备注 |
+| --- | --- | --- |
+| ruixue-language | String | zh-CN |
+| Content-Type | String | application/json |
+| ruixue-cpid | String | 内容提供商 CPID |
+| ruixue-productid | String | 产品 ID |
+| ruixue-channelid | String | 渠道 ID |
+| ruixue-platformid | String | 平台 platformid |
+| ruixue-devicecode | String | 设备码 |
+| ruixue-cpsign | String | 签名 |
+| ruixue-cpts | String | CP 签名时间戳 |
+| ruixue-traceid | String | TraceID |
+
+### 请求参数（JSON）
+
+| 参数 | 类型 | 是否必填 | 备注 |
+| --- | --- | --- | --- |
+| out_bill_no | String | 是 | 望舒订单号 |
+
+**响应示例**
+
+```json
+{
+ "msg": "success",
+ "code": 0,
+ "data":{
+ "status": 1 // 1 成功 2失败 3回调cp成功 4回调cp失败
+ "wx_status": "WAIT_USER_CONFIRM"
+ }
+}
+```
+
+### 响应结构(JSON)
+
+| 参数 | 类型 | 备注 |
+| --- | --- | --- |
+| code | Number | 0 为成功 |
+| msg | String | 失败信息 |
+| data | Object | 对象信息 |
+
+#### data
+
+| 参数 | 类型 | 备注 |
+| --- | --- | --- |
+| status | Number | 望舒状态 |
+| wx_status | String | 微信状态，见附录 |
+
+## CP回调
+
+实时将收款单状态变更通过回调给游戏测
+
+> 类型：同步
+
+> Action: wechat-transfer-bills
+
+### 请求参数
+
+| 参数 | 类型 | 备注 |
+| --- | --- | --- |
+| out_bill_no | String | 望舒单号 |
+| state | string | 微信状态，同 wx_status ， 见附录 |
+| fail_reason | string | 如果失败时的原因 |
+
+
+请求示例
+
+```json
+{
+ "out_bill_no": "",
+ "fail_reason": "",
+ "state": ""
+}
+```
+
+返回示例
+
+```json
+{
+ "code": 0,
+ "msg": ""
+}
+```
+
+**附录：**
+
+收款单状态
+
+ACCEPTED: 转账已受理
+
+PROCESSING: 转账锁定资金中。如果一直停留在该状态，建议检查账户余额是否足够，如余额不足，可充值后再原单重试。
+
+WAIT_USER_CONFIRM: 待收款用户确认，可拉起微信收款确认页面进行收款确认
+
+TRANSFERING: 转账中，可拉起微信收款确认页面再次重试确认收款
+
+SUCCESS: 转账成功
+
+FAIL: 转账失败
+
+CANCELING: 商户撤销请求受理成功，该笔转账正在撤销中
+
+CANCELLED: 转账撤销完成
+
+## 客户端风险等级微信信息解密
+
+> **POST: ** `/v1/thirdparty/wechat/decode`
+>
+> **认证方式:** [CPSign](/docs/开发者文档/入门指南/服务端接入须知)
+
+### CURL 示例
+
+```bash
+curl --location --request POST '{{接口域名}}/v1/thirdparty/wechat/decode' \
+--header 'ruixue-language: {{语言}}' \
+--header 'ruixue-cpid: {{CPID}}' \
+--header 'ruixue-productid: {{产品标识}}' \
+--header 'ruixue-cpts: {{时间戳}}' \
+--header 'ruixue-traceid: {{TraceID}}' \
+--header 'ruixue-cpsign: {{请求签名}}' \
+--header 'ruixue-devicecode: {{设备码}}' \
+--header 'ruixue-channelid: {{渠道标识}}' \
+--header 'ruixue-platformid: {{平台标识}}' \
+--header 'Content-Type: application/json' \
+--data-raw '{
+ "openid": "123",
+ "cp_user_id": "123",
+ "iv": "123",
+ "encrypted_data": "123"
+}'
+```
+
+**请求头 Header 参数**
+
+| 参数 | 类型 | 备注 |
+| --- | --- | --- |
+| ruixue-language | String | zh-CN |
+| Content-Type | String | application/json |
+| ruixue-cpid | String | 内容提供商 CPID |
+| ruixue-productid | String | 产品 ID |
+| ruixue-channelid | String | 渠道 ID |
+| ruixue-platformid | String | 平台 platformid |
+| ruixue-devicecode | String | 设备码 |
+| ruixue-cpsign | String | CP 签名 |
+| ruixue-cpts | String | CP 签名时间戳 |
+| ruixue-traceid | String | TraceID |
+
+### 请求参数（JSON）
+
+| 参数 | 类型 | 是否必填 | 备注 |
+| --- | --- | --- | --- |
+| openid | String | 是 | 望舒 openid |
+| cp_user_id | String | 是 | 游戏 id ，与 openid 二选一 |
+| iv | String | 是 | 初始向量 |
+| encrypted_data | String | 是 | 加密字符串 |
+
+**响应示例**
+
+```json
+{
+ "data": {
+ "openid": "123",
+ "decode_data": "123"
+ },
+ "msg": "success",
+ "code": 0
+}
+```
+
+### 响应结构(JSON)
+
+| 参数 | 类型 | 备注 |
+| --- | --- | --- |
+| code | Number | 0 为成功 |
+| msg | String | 失败信息 |
+| data | Data |  |
+
+#### Data
+
+| 参数 | 类型 | 备注 |
+| --- | --- | --- |
+| openid | String | 望舒 openid |
+| decode_data | String | 解密数据 |
+
+[微信支付发起转账](https://pay.weixin.qq.com/doc/v3/merchant/4012716434)

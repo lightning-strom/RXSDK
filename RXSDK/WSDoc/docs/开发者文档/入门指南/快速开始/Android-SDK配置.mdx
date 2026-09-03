@@ -1,0 +1,424 @@
+---
+sidebar_position: 10
+title: Android SDK 配置
+description: 望舒 Android SDK 高级配置，包括隐私开关、调试模式、子渠道、语言、地区、自定义错误消息、截屏控制及自定义请求等。
+---
+
+## 通知 SDK 已同意隐私协议（必须）
+
+使用自定义隐私时，请调用此接口通知 SDK 已同意隐私协议，使用 SDK 内置隐私窗口时无需调用此接口。
+
+用户需要同意隐私弹窗后，才使用 SDK 权限，在用户同意自定义隐私协议之后调用此接口。接入三方渠道时，需要每次启动都要调用。
+
+```java
+// 通知 SDK 已同意隐私协议
+RXSDK.setPrivacyAgree(new PrivacyCallback() {
+    @Override
+    public void onPrivacyAgree(boolean userClick) {
+    // 如果使用 sdk 的隐私，需要在此后再初始化三方 sdk
+    }
+});
+
+// 判断用户是否已经点击同意隐私
+RXSDK.isAgreedPrivacy();
+```
+
+## 设置用户隐私相关功能
+
+SDK 初始化会读取 AndroidID、OAID、IMEI、MAC 地址等敏感唯一标识信息。
+
+主要用途：设备码生成，游客登录，买量归因等接口。
+
+### 设置 SDK 敏感信息采集开关
+
+注意 ：默认为开启采集，如需关闭采集，请在 SDK 初始化接口前调用关闭敏感信息采集开关接口关闭采集。
+
+关闭敏感信息采集可能导致问题：
+
+- 设备码生成出现大概率重复，禁用后一旦生成设备码再次取消禁用也不会重新生成设备码，需要卸载重装
+- 因游客账号使用设备码生成，可能导致游客账号重复（不同设备生成同一账号）或卸载重装产生新游客
+- 因无法获取设备唯一标识，媒体买量归因成功率大大降低
+- 自 SDK v3.3.9 版本起，关闭敏感信息采集无法再使用游客登录
+
+```java
+/**
+    * @param disabled 是否关闭敏感信息采集， imei mac 地址等，关闭后相关信息不再采集
+    */
+RXSDK.disableReadSensitiveInfo(true);
+```
+
+### 我们如何使用 Cookie 和同类技术
+
+登录前使用客服功能会随机生成了一个字符串用于标识匿名用户，以便该匿名用户下次再使用客服时获取之前的聊天记录。
+
+## 设置调试模式
+
+```java
+/**
+    * 设置是否启用调试模式。
+    * 当启用调试模式时，日志工具将在记录日志时输出更多详细信息，
+    * @param enabled true 表示启用调试模式，false 表示禁用调试模式。
+    */
+public static void setDebugEnabled(boolean enabled)
+```
+
+**调用示例**
+
+```java
+RXSDK.setDebugEnabled(true);
+```
+
+## 设置子渠道
+
+通行证记录来源（分包）、子渠道参数。必须在 登录、注册 前调用。
+
+**接口原型**
+
+```java
+void setSubChannelId(String subChannelid);
+```
+
+**调用示例**
+
+```java
+RXSDK.setSubChannelId("your sub_channel_id");
+```
+
+## 设置 OAID
+
+如果需要设置 OAID ，必须在望舒初始化前设置 OIAD ，如何获取 OAID 请 [参考文档](/docs/开发者文档/三方服务/Oaid/客户端接入)
+
+```java
+    /**
+    * 设置oaid
+    * @param oaid 来自移动安全联盟sdk 的oaid
+    */
+public static void setOAID(String oaid)
+```
+
+**调用示例**
+
+```java
+RXSDK.setOAID(oaidFromMsaSdk);
+```
+
+## 设置语言
+
+客户端可设置 SDK 语言，在初始化前调用。
+
+海外项目需要根据发行地区或 App 的语言进行设置，避免出现 SDK 的文案和 App 内语言不一致的情况。
+
+**接口原型**
+
+```java
+/**
+    * 设置当前语言
+    * @param language 语言需符合标准格式
+    */
+void setLanguage(String language)
+
+/**
+* 禁用 SDK 多语言切换（禁用后 SDK 不会修改应用的 Locale）
+* @param disabled true=禁用多语言，false=启用多语言（默认）
+*/
+public static void disableMultiLanguage(boolean disabled)
+```
+
+**调用示例**
+
+```java
+//设置 SDK 自定义多语言
+RXSDK.setLanguage(this, "zh");
+
+//禁用 SDK 自定义多语言
+RXSDK.disableMultiLanguage(true)
+```
+
+### 支持语言列表
+
+| 字段 | 备注 |
+| --- | --- |
+| zh | 简体中文 |
+| tc | 繁体中文 |
+| ja | 日文 |
+| en | 英文 |
+| th | 泰文 |
+| vi | 越南语 |
+| tl | 菲律宾语 |
+| id | 印尼语 |
+| ar | 阿拉伯语 |
+
+## 设置地区
+
+客户端可设置 SDK 地区，设置后自动在请求头添加 ruixue-area 传给服务器。
+
+海外项目需要根据发行地区进行设置，查看 [地区码](/docs/开发者文档/支付/服务端接入/国家编码-币种字典)，默认获取系统设置地区。
+
+**接口原型**
+
+```java
+/**
+    * 设置当前地区
+    * @param area 标准地区代码
+    */
+void setArea(String area)
+```
+
+**调用示例**
+
+```java
+RXSDK.setArea("CN");
+```
+
+## 设置自定义错误消息提示
+
+规则 1 ：根据设置的错误码直接读取对应提示替换 msg ；规则 2 ：如果设置中有 default 的 key ，将未配置的错误码 msg 统一替换为 default 的 value ；
+
+规则 3 ：$code$ $msg$ $thirdcode$ $thirdmsg$ 为模板占位符，使用后将分别被替换为 sdk 接口默认返回 code msg thirdcode thirdmsg
+
+以上规则仅适用于调用了 ***setErrorMsg*** 方法，未调用此方法，则返回 sdk 默认提示信息，映射键值对中 key 对应 value 不能为空字符串，否则该对映射不生效
+
+**接口原型**
+
+```java
+/**
+*设置自定义错误码信息
+* @param customErrorMsg 设置自定义错误码的字典
+*/
+public static void setErrorMsg(Map<String, Map<String, String>> customErrorMsg)
+```
+
+**数据结构**
+
+错误码设置的参数形式，应按照语言进行分类设置，无需将提示的语言类型配置齐全，为方便未来扩展语言结构，设置的数据结构例如：
+
+```json
+{
+  "en": {
+    "3001": "error1",
+    "3002": "error2"
+  },
+  "zh": {
+    "3001": "错误1",
+    "3002": "错误2"
+  }
+}
+```
+
+**调用示例**
+
+```java
+Map<String, Map<String, String>> map = new HashMap<>();
+Map<String, String> zh = new HashMap<>();
+zh.put("2002", "自定义消息 $code$$thirdcode$$thirdmsg$");
+zh.put("2000", "");
+zh.put("default", "$msg$:$code$");
+
+Map<String, String> en = new HashMap<>();
+en.put("2002", "custom error $code$$thirdcode$$thirdmsg$");
+en.put("2000", "error demo ");
+en.put("default", "$msg$:$code$");
+map.put("zh", zh);
+map.put("en", en);
+
+RXSDK.setErrorMsg(map);
+```
+
+## 设置是否禁止截屏
+
+**接口原型**
+
+```java
+/**
+    * 设置是否禁止截屏
+    * @param disable 是否禁止
+    */
+void setScreenCaptureDisable(boolean disable)
+```
+
+**调用示例**
+
+```java
+RXSDK.setScreenCaptureDisable(true);
+```
+
+## SDK 通用回调说明
+
+所有接口 `RXJSONCallback` 类型回调提供额外 `RXRequestCallback` 扩展调用方式，可替换 `RXJSONCallback` 使用。
+
+`RXRequestCallback` 回调不区分成功失败，通过 `code` 错误码自行判断成功失败，错误说明参照服务器错误表。
+
+**调用示例**
+
+```java
+RXRequestCallback rxcallback = new RXRequestCallback() {
+    @Override
+    public Map<String, Object> onClickHandle(Map<String, Object> params) {
+    return params;
+    }
+
+    /**
+    * @param jsonObject code 错误码
+    * msg 错误消息 为空时不返回
+    * data 响应数据 为空时不返回
+    */
+    @Override
+    public void onResponse(JSONObject jsonObject) {
+    showLog(jsonObject.toString());
+    }
+    @Override
+    public void onError(RXException e) {
+    super.onError(e);
+    }
+};
+```
+
+## 自定义接口请求
+
+项目组实现该接口，可以处理一些紧急的线上事故（不依赖发版）。
+
+**接口原型**
+
+```java
+public interface IRXRequest {
+    IRXRequest addHeaders(Map<String, String> headerMap);
+    IRXRequest addHeaders(String key, String value);
+
+    IRXRequest setBody(String jsonStr);
+    IRXRequest setBody(JSONObject jsonObject);
+    IRXRequest setBody(Map<String, Object> bodyMap);
+    IRXRequest setRestfulData(boolean restfulData);
+    //接口是否需要登录
+    IRXRequest setNeedLoggedIn(boolean needLoggedIn);
+
+    void getAsync(@NonNull RXRequestCallback callback);
+    void postAsync(@NonNull RXRequestCallback callback);
+}
+
+/**
+    * 自定义接口请求
+    * @param api 接口路径 完整路径或相对路径,注意相对路径不能以/开头 例: v1/operationapi/legal
+    * @param bodyMap 接口map参数
+    * @return RXRequest 请求对象
+    */
+IRXRequest createRequest(String api, Map<String, Object> bodyMap);
+```
+
+**调用示例**
+
+```java
+//示例 1
+Map<String, Object> params = new HashMap<>();
+String apiPath="v1/operationapi/legal";
+RXSDK.getRXSdkApi().createRequest(apiPath, params)
+    .setRestfulData(false)//接收数组data数据,或data需要code值,请传false.
+    .setNeedLoggedIn(true) //设置接口是否需要验证登录
+    .postAsync(new RXRequestCallback() {
+    @Override
+    public void onResponse(JSONObject jsonObject) {
+    int code = jsonObject.optInt("code", -1);
+    if (code == 0) {
+    //todo 请求成功 时一些逻辑处理
+    }else {
+    //todo 请求业务出现错误 时一些逻辑处理
+    }
+    }
+    });
+
+//示例 2
+String api="v1/operationapi/legal";
+Map<String,Object> body=new HashMap<>();
+Map<String,String> headers=new HashMap<>();
+RXSDK.getRXSdkApi().createRequest(api, body)
+    .setMethod(HttpMethod.POST)
+    .setRestfulData(false)//接收数组data数据,或data需要code值,请传false.
+    .setNeedLoggedIn(true) //设置接口是否需要验证登录
+    .addHeaders(headers)
+    .setCallback(new RXRequestCallback() {
+    @Override
+    public void onResponse(JSONObject jsonObject) {
+    int code = jsonObject.optInt("code", -1);
+    if (code == 0) {
+    //todo 请求成功 时一些逻辑处理
+    }else {
+    //todo 请求业务出现错误 时一些逻辑处理
+    }
+    }
+    }).execRequestAsync();
+```
+
+## 全局通用回调
+
+一些需要特定条件触发的事件会通过全局通用回调将事件通知给客户端，通过回调的 type 区分事件类型，并处理相应的业务逻辑。
+
+**接口原型**
+
+```java
+void rxPublicCallback(int type, Map<String, Object> map);
+```
+
+**调用示例**
+
+```java
+RXSDK.setRuiXueSdkCallback(new RuiXueSdkCallback() {
+    /**
+     * 通用回调
+     * @param type 回调类型 10001 上报日志
+     * @param map 附加参数
+     */
+    @Override
+    public void rxPublicCallback(int type, Map<String, Object> map) {
+        String path = activity.getExternalFilesDir(null).getAbsolutePath() + "/rxconfig.json";
+        File file = new File(path);
+        try {
+            FileInputStream fis = new FileInputStream(file);
+            byte[] byteArr = new byte[(int) file.length()];
+            fis.read(byteArr);
+            fis.close();
+            RuiXueSdk.reportFeedbackLog(activity, byteArr, new RXRequestCallback() {
+                @Override
+                public void onResponse(JSONObject jsonObject) {
+                    int code = jsonObject.optInt("code", -1);
+                    if (code == 0) {
+                        // todo 请求成功时一些逻辑处理
+                    } else {
+                        // todo 请求业务出现错误时一些逻辑处理
+                    }
+                }
+            });
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    /**
+     * 切换账号全局回调,如果有游戏内切换账号可关注此回调,渠道包回调为望舒透传回调，实际调用以各渠道为准。
+     * @param code 0
+     * @param data 三方数据
+     */
+    @Override
+    public boolean onSwitchAccount(int code, String data) {
+        return false;
+    }
+
+    /**
+     * 游戏内执行 logout 的通知
+     * @param code 0 成功 目前只有成功情况 ,渠道包回调为望舒透传回调，实际调用以各渠道为准。
+     * @param msg
+     */
+    @Override
+    public void onLogout(int code, String msg) {
+
+    }
+});
+```
+
+### type 说明
+
+| type | 备注 |
+| --- | --- |
+| 10001 | 上报用户反馈日志 |
+
+## 接入三方渠道
+
+参考 [三方服务 ->（ Android 渠道接入说明）](/docs/开发者文档/三方服务/三方接入说明)

@@ -1,0 +1,83 @@
+---
+sidebar_position: 2
+title: Unity 接入
+description: "望舒SDK 三方服务 Unity 接入文档，提供详细的功能说明与接入指引。"
+---
+
+## SDK集成
+
+
+:::tip[版本说明]
+`version` 为 SDK 版本号（替换为实际版本号），最新版本请从 [更新日志](/docs/开发者文档/入门指南/更新日志/Unity) 中查看。
+:::
+
+```groovy
+ implementation 'com.ruixue:rxsdk_xiaomi:${version}'
+```
+
+## 配置说明
+
+打开 launcherTemplate.gradle ， 在 `defaultConfig{}` 中新增：
+
+```groovy
+ manifestPlaceholders = [
+ MI_APP_ID : "2882303761519905875",
+ MI_APP_KEY : "5831990527875"
+ ]
+```
+
+打开 settingsTemplate.gradle ， 打开 settingsTemplate.gradle 文件，在 `dependencyResolutionManagement{repositories{}}` 中新增：
+
+```groovy
+ //增加小米游戏SDK的Maven仓库地址
+ maven {
+ url "https://repos.xiaomi.com/maven"
+ credentials {
+ username 'YOUR_MAVEN_USERNAME'
+ password 'YOUR_MAVEN_PASSWORD'
+ }
+ }
+```
+
+## 混淆配置
+
+[参考链接](https://dev.mi.com/distribute/doc/details?pId=1420)
+
+在应用级根目录下打开混淆配置文件 `proguard-rules.pro` ，加入排除 SDK 的混淆配置
+
+```plaintext
+#小米SDK
+-keep class com.xiaomi.** {*;}
+-keep class com.wali.** {*;}
+-keep class cn.com.wali.** {*;}
+-keep class com.miui.**{*;}
+
+#支付宝SDK
+-keep class com.alipay.android.app.IAlixPay{*;}
+-keep class com.alipay.android.app.IAlixPay$Stub{*;}
+-keep class com.alipay.android.app.IRemoteServiceCallback{*;}
+-keep class com.alipay.android.app.IRemoteServiceCallback$Stub{*;}
+-keep class com.alipay.sdk.app.PayTask{ public *;}
+-keep class com.alipay.sdk.app.AuthTask{ public *;}
+-keep class com.alipay.sdk.app.H5PayCallback {
+ ;
+ ;
+}
+-keep class com.alipay.android.phone.mrpc.core.** { *; }
+-keep class com.alipay.apmobilesecuritysdk.** { *; }
+-keep class com.alipay.mobile.framework.service.annotation.** { *; }
+-keep class com.alipay.mobilesecuritysdk.face.** { *; }
+-keep class com.alipay.tscenter.biz.rpc.** { *; }
+-keep class org.json.alipay.** { *; }
+-keep class com.alipay.tscenter.** { *; }
+-keep class com.ta.utdid2.** { *;}
+-keep class com.ut.device.** { *;}
+
+-dontwarn com.ta.utdid2.**
+-dontwarn com.ut.device.**
+
+-dontwarn com.alipay.mobilesecuritysdk.**
+-dontwarn com.alipay.security.**
+
+-dontwarn android.net.SSLCertificateSocketFactory
+```

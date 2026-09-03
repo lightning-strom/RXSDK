@@ -1,0 +1,467 @@
+---
+title: "附加功能"
+---
+
+## 归因回传
+您可以注册一个委托回传，以获取跟踪链接归因变化的通知。Adjust SDK 无法同步提供此信息。这是因为归因时需要考虑不同的来源。
+SDK 接收到最终归因数据后，会调用委托功能。在委托功能内，您可以访问 attribution 对象。
+
+所有属性都以 JSON 对象的形式返回。任何未填充的值都会返回 nil。
+
+```objectivec
+#pragma mark -- 添加代理
+
+@interface ViewController () 
+
+#pragma mark -- 指定代理
+
+[RXAdjust sharedSDK].delegate = self;
+
+/**
+ * @brief 归因回传
+ * @param attribution 回传参数
+ */
+- (void)adjustAttributionChanged:(nullable RXADJAttribution *)attribution;
+
+```
+
+#### RXADJAttribution 说明
+
+| **字段** | **类型** | **备注** |
+| -------- | -------- |  -------- |
+| trackerToken | NSString | 设备当前归因跟踪链接的跟踪码 |
+| trackerName   | NSString |  设备当前归因跟踪链接的名称   |
+| network | NSString | 设备当前归因渠道的名称 |
+| campaign | NSString | 设备当前归因推广活动的名称| 
+| adgroup | NSString | 设备当前归因广告组的名称 |
+| creative | NSString | 设备当前归因素材的名称 |
+| clickLabel | NSString | 安装被标记的 点击标签 | 
+| adid | NSString | 设备的唯一 Adjust ID |
+| costType | NSString | 推广活动定价模型 (如 cpi) |
+| costAmount | NSInteger | 安装成本 |
+| costCurrency | NSString | 成本相关的货币代码。应符合 ISO 4217 标准且包含 3 个字符。|
+
+### 用户归因
+您可以调用attribution方法来获取用户的当前归因。此操作会以 JSON 对象的形式返回 RXADJAttribution 类中发现的所有信息。
+
+:::tip
+后端跟踪到安装后，当前归因数据即可用。归因回传会为您调取此信息。
+:::
+
+**接口原型**
+
+```objectivec
+/**
+ * 用户归因
+ */
+- (nullable RXADJAttribution *)attribution;
+```
+
+**调用示例**
+
+```objectivec
+ADJAttribution *attribution = [[RXAdjust sharedSDK] attribution];
+```
+
+## 延迟信息发送
+
+### 离线模式
+如果您需要暂停向后端发送事件和会话数据，可以将 Adjust SDK 设置为离线模式。在离线模式中，Adjust SDK 会将所有信息作为一个文件存储在设备上。Adjust SDK 会在上线后将此信息发送至 Adjust 后端。
+
+**接口原型**
+
+```objectivec
+/**
+ * 离线模式
+ * @param enabled YES 为激活离线模式，NO 为关闭离线模式
+ */
+- (void)setOfflineMode:(BOOL)enabled;
+```
+
+**调用示例**
+
+```objectivec
+[[RXAdjust sharedSDK] setOfflineMode:YES];
+```
+
+### 事件缓冲
+如果您在应用中大量使用事件跟踪，那么则可以对事件的发送时间进行统筹。此做法会减少 SDK 发送至后端的请求数量。
+
+**接口原型**
+
+```objectivec
+/**
+ * 事件缓冲
+ * @param enabled YES 为激活事件缓冲，NO 为关闭事件缓冲
+ */
+- (void)setEventBufferingEnabled:(BOOL)enabled;
+```
+
+**调用示例**
+
+```objectivec
+[[RXAdjust sharedSDK] setEventBufferingEnabled:YES];
+```
+
+## 隐私功能
+
+### GDPR 的被遗忘权
+根据欧盟的《一般数据保护条例》(GDPR) 第 17 条规定，用户行使被遗忘权时 (RTBF)，您可以通知 Adjust。
+
+**接口原型**
+
+```objectivec
+/**
+ * GDPR 的被遗忘权
+ * 根据欧盟的《一般数据保护条例》(GDPR) 第 17 条规定，用户行使被遗忘权时 (RTBF)，您可以通知 Adjust。调用gdprForgetMe方法让 Adjust SDK 将用户的 RTBF 请求发送至 Adjust 后端。
+ */
+- (void)gdprForgetMe;
+```
+
+**调用示例**
+
+```objectivec
+[[RXAdjust sharedSDK] gdprForgetMe];
+```
+
+### 针对特定用户禁用或开启第三方分享
+有些用户可能希望退出第三方数据分享。
+
+**接口原型**
+
+```objectivec
+/**
+ * 针对三方分享的处理
+ */
+- (void)trackThirdPartySharing:(nonnull RXADJThirdPartySharing *)thirdPartySharing;
+```
+
+**调用示例**
+
+```objectivec
+RXADJThirdPartySharing *adjustThirdPartySharing = [[RXADJThirdPartySharing alloc] initWithIsEnabledNumberBool:@NO];
+[[RXAdjust sharedSDK] trackThirdPartySharing:adjustThirdPartySharing];
+```
+
+### 向 Adjust 后端发送精细信息
+当用户更新第三方数据分享设置时，您可以附加较精细的信息，以此发送用户决定的更多细节。
+
+**调用示例**
+
+```objectivec
+RXADJThirdPartySharing *adjustThirdPartySharing = [[RXADJThirdPartySharing alloc] initWithIsEnabledNumberBool:nil];
+[adjustThirdPartySharing addGranularOption:@"PartnerA" key:@"foo" value:@"bar"];
+[[RXAdjust sharedSDK] trackThirdPartySharing:adjustThirdPartySharing];
+```
+
+### 针对特定合作伙伴的第三方分享
+您可以允许用户根据每个合作伙伴自定义起第三方分享。用户许可分为三个层级： 允许​ ， 数据分析​ ，和 不允许​ 。
+
+**调用示例**
+
+```objectivec
+RXADJThirdPartySharing *adjustThirdPartySharing = [[RXADJThirdPartySharing alloc] initWithIsEnabledNumberBool:nil];
+[adjustThirdPartySharing addPartnerSharingSetting:@"PartnerA" key:@"install" value:@YES];
+[adjustThirdPartySharing addPartnerSharingSetting:@"PartnerA" key:@"events" value:@YES];
+[adjustThirdPartySharing addPartnerSharingSetting:@"PartnerA" key:@"sessions" value:@YES];
+[[RXAdjust sharedSDK] trackThirdPartySharing:adjustThirdPartySharing];
+```
+
+#### 可合作的伙伴
+
+| **合作伙伴名称** | **对应值** |
+| -------------- | --------  |
+| Apple Ads | apple_ads|
+| Facebook | Facebook |
+| Google Ads | adwords |
+| Google Marketing Platform | google_marketing_platform |
+| Snapchat | Snapchat |
+| 腾讯 | tencent | 
+| TikTok SAN | tiktok_san |
+| Twitter | Twitter |
+| Yahoo Gemini | yahoo_gemini |
+| Yahoo Japan Search | yahoo_japan_search |
+
+### 管理 Facebook "限制数据使用" 功能
+:::tip
+应用一经安装，Adjust SDK 就会开始向 Facebook 发送信息。您需要确保在初始化 SDK 前调用该方法。
+:::
+为遵守《加州消费者隐私法案》(CCPA) 的规定，Facebook 提供了 "限制数据使用" (LDU) 功能。借助该功能，在有位于美国加利福尼亚州的用户选择拒绝数据出售时，您就能向 Facebook 发送通知。如果您希望将所有用户的默认许可状态设为拒绝，也可以使用该功能。
+
+**调用示例**
+
+```objectivec
+RXADJThirdPartySharing *adjustThirdPartySharing = [[RXADJThirdPartySharing alloc] initWithIsEnabledNumberBool:@YES];
+[adjustThirdPartySharing addGranularOption:@"facebook" key:@"data_processing_options_country" value:@"1"];
+[adjustThirdPartySharing addGranularOption:@"facebook" key:@"data_processing_options_state" value:@"1000"];
+[[RXAdjust sharedSDK] trackThirdPartySharing:adjustThirdPartySharing];
+```
+
+### 禁用第三方数据分享
+你可以在 SDK 层级禁用第三方分享。这意味着 Adjust 不会与第三方分享任何用户信息。
+
+**接口原型**
+
+```objectivec
+/**
+ * 禁用第三方数据分享
+ * 你可以在 SDK 层级禁用第三方分享。这意味着 Adjust 不会与第三方分享任何用户信息。要完成此操作，请调用disableThirdPartySharing方法。
+ */
+- (void)disableThirdPartySharing;
+```
+
+**调用示例**
+
+```objectivec
+[[RXAdjust sharedSDK] disableThirdPartySharing];
+```
+
+### 数据驻留
+通过数据驻留 (data residency) 功能，您可以选择 Adjust 将您的数据存储在哪个国家。当应用运营的国家拥有严格的隐私规定时，此功能会非常有用。设置数据驻留后，Adjust 会将您的数据存储在所选地区的数据中心。
+
+**接口原型**
+
+```objectivec
+/**
+ * 数据驻留
+ * 通过数据驻留 (data residency) 功能，您可以选择 Adjust 将您的数据存储在哪个国家。当应用运营的国家拥有严格的隐私规定时，此功能会非常有用。设置数据驻留后，Adjust 会将您的数据存储在所选地区的数据中心。
+ */
+- (void)setUrlStrategy:(NSString *)urlStrategy;
+```
+
+**调用示例**
+
+```objectivec
+[[RXAdjust sharedSDK] setUrlStrategy:@""];
+```
+
+### 针对特定用户的许可监测
+如果您正在 Adjust 控制面板中使用数据隐私设置，那么则需要对 Adjust SDK 做出相应设置。这包括设置许可有效期和用户数据留存期。
+
+**接口原型**
+
+```objectivec
+/**
+ * 针对特定用户的许可监测
+ */
+- (void)trackMeasurementConsent:(BOOL)enabled;
+```
+
+**调用示例**
+
+```objectivec
+[[RXAdjust sharedSDK] trackMeasurementConsent:YES];
+```
+
+## 跟踪广告收入
+:::tip
+此功能只能用于特定广告收入来源。请查看 SDK 引用，了解受支持的来源。
+:::
+Adjust SDK 支持从特定渠道合作伙伴接收广告收入信息。您可以将渠道合作伙伴 SDK 记录的信息以 JSON 对象的形式发送到 Adjust SDK。
+
+**接口原型**
+
+```objectivec
+/**
+ * 跟踪广告收入
+ * @param source Ad revenue source.
+ * @param payload Ad revenue payload.
+ */
+- (void)trackAdRevenue:(nonnull NSString *)source payload:(nonnull NSData *)payload;
+```
+
+**调用示例**
+
+```objectivec
+// initilise ADJAdRevenue instance with appropriate ad revenue source
+RXADJAdRevenue *adRevenue = [[RXADJAdRevenue alloc] initWithSource:source];
+// pass revenue and currency values
+[adRevenue setRevenue:1.6currency:@"USD"];
+// pass optional parameters
+[adRevenue setAdImpressionsCount:adImpressionsCount];
+[adRevenue setAdRevenueUnit:adRevenueUnit];
+[adRevenue setAdRevenuePlacement:adRevenuePlacement];
+[adRevenue setAdRevenueNetwork:adRevenueNetwork];
+// attach callback and/or partner parameter if needed
+[adRevenue addCallbackParameter:key value:value];
+[adRevenue addPartnerParameter:key value:value];
+
+// track ad revenue
+[[RXAdjust sharedSDK] trackAdRevenue:YES payload:payload];
+```
+
+## 跟踪订阅
+:::tip
+下列步骤仅会在 Adjust SDK 中设置订阅跟踪。要启动该功能，Adjust 需要设置应用相关的具体信息。请发送邮件至 support@adjust.com 或与您的技术客户经理联系进行设置。
+:::
+您可以用 Adjust SDK 跟踪 App Store 的订阅，并验证这些订阅是否有效。
+
+### 创建您的订阅实例
+
+**调用示例**
+
+```objectivec
+RXADJSubscription *subscription = [[RXADJSubscription alloc] initWithPrice:price
+                                                                  currency:currency
+                                                             transactionId:transactionId
+                                                                andReceipt:receipt];
+
+// 记录订阅事件日期。
+[subscription setTransactionDate:transactionDate];
+// 提取购买地区信息
+[subscription setSalesRegion:salesRegion];
+// 回传参数和合作伙伴参数发送回 Adjust 后端
+[subscription addCallbackParameter:@"foo" value:@"bar"];
+[subscription addPartnerParameter:@"foo" value:@"bar"];
+```
+
+### 跟踪订阅
+
+**调用示例**
+
+```objectivec
+RXADJSubscription *subscription = [[RXADJSubscription alloc] initWithPrice:price
+                                                                  currency:currency
+                                                             transactionId:transactionId
+                                                                andReceipt:receipt];
+
+// 记录订阅事件日期。
+[subscription setTransactionDate:transactionDate];
+// 提取购买地区信息
+[subscription setSalesRegion:salesRegion];
+// 回传参数和合作伙伴参数发送回 Adjust 后端
+[subscription addCallbackParameter:@"foo" value:@"bar"];
+[subscription addPartnerParameter:@"foo" value:@"bar"];
+
+[[RXAdjust sharedSDK] trackSubscription:subscription];
+```
+
+## 收集设备 ID
+Adjust SDK 可以收集有用的设备标识符。您可以将此信息包含在回传中用于报告目的。
+
+### iOS 广告主 ID (IDFA)
+有些数据分析服务会需要您协调设备和客户 ID。这对避免重复报告数据来说是必要的。您可以通过调用idfa方法来收集设备 IDFA。
+
+**调用示例**
+
+```objectivec
+[[RXAdjust sharedSDK] idfa];
+```
+
+### Adjust 设备 ID (ADID)
+当后端跟踪到一台设备时，就会为其生成一个唯一的 ID。要获取设备的 ADID，请调用adid方法。
+:::tip
+ADID 仅在 Adjust 后端跟踪到安装后才可用。在初始化 Adjust SDK 前无法获取 ADID。Adjust SDK 将安装信息发送至 Adjust 后端后，您就能获得 ADID 了。
+:::
+
+**调用示例**
+
+```objectivec
+[[RXAdjust sharedSDK] adid];
+```
+
+## 设置外部设备 ID
+:::tip
+如果您想使用外部设备 ID，请联系 Adjust 代表。他们会带您了解最适合您的解决方法。
+:::
+外部设备标识符是您为设备或用户自定义的一个值。您可以通过这个值在不同的会话和平台中识别用户。您也可以通过用户对安装进行去重，这样同一位用户就不会被记录为多次新安装了。
+
+您还可以使用外部设备 ID 作为设备的自定义标识符。如果您在其他地方使用这些标识符且想要保持一致性，那么这是一个非常有用的办法。    
+
+**接口原型**
+
+```objectivec
+/**
+ * 设置外部设备 ID
+ */
+- (void)setExternalDeviceId:(NSString *)deviceId;
+```
+
+**调用示例**
+
+```objectivec
+[[RXAdjust sharedSDK] setExternalDeviceId:deviceId];
+```
+
+## 预装应用
+您可以通过 Adjust SDK 查看您的应用是否被预安装在了用户设备上。要完成此操作，您需要设置一个默认跟踪链接：
+
+- 在控制面板中创建新跟踪链接。该链接将作为默认跟踪链接，用来跟踪应用是否已被预安装。
+- 打开您的应用委托文件。在ADJConfig实例上调用setDefaultTracker方法。控制面板会用如下方式将识别码显示在链接中：https://app.adjust.com/abc123。跟踪码是位于链接最后的六位至八位代码。
+
+**接口原型**
+
+```objectivec
+/**
+ * 预装应用
+ * 您可以通过 Adjust SDK 查看您的应用是否被预安装在了用户设备上。要完成此操作，您需要设置一个默认跟踪链接：
+ * 在控制面板中创建新跟踪链接。该链接将作为默认跟踪链接，用来跟踪应用是否已被预安装。
+ * 控制面板会用如下方式将识别码显示在链接中：https://app.adjust.com/abc123 跟踪码是位于链接最后的六位至八位代码。
+ */
+- (void)setDefaultTracker:(NSString *)tracker;
+```
+
+**调用示例**
+
+```objectivec
+[[RXAdjust sharedSDK] setDefaultTracker:tracker];
+```
+
+## 推送标签
+推送标签 (Push token) 用于受众分群工具和客户回传。
+您可以在获得推送标签或推送标签发生更新时将其发送至 Adjust。要完成此操作，请使用推动标签调用setDeviceToken方法。您应该在委托文件的didRegisterForRemoveNotificationsWithDeviceToken方法中进行调用。
+
+**接口原型**
+
+```objectivec
+/**
+ * 推送标签
+ * 推送标签 (Push token) 用于受众分群工具和客户回传。
+ * 您可以在获得推送标签或推送标签发生更新时将其发送至Adjust。
+ * 要完成此操作，请使用推动标签调用setDeviceToken方法。您应该在委托文件的didRegisterForRemoveNotificationsWithDeviceToken方法中进行调用。
+ */
+- (void)setDeviceToken:(NSData *)deviceToken;
+```
+
+**调用示例**
+
+```objectivec
+[[RXAdjust sharedSDK] setDeviceToken:deviceToken];
+```
+
+## 开启后台跟踪
+默认情况下，应用在后台运行时，Adjust SDK 会暂停发送请求。您可以通过在设置实例中调用setSendInBackground方法来进行变更。
+
+**接口原型**
+
+```objectivec
+/**
+ * 开启后台跟踪
+ * 默认情况下，应用在后台运行时，Adjust SDK 会暂停发送请求。您可以通过在设置实例中调用setSendInBackground方法来进行变更。
+ */
+- (void)setSendInBackground:(BOOL)enabled;
+```
+
+**调用示例**
+
+```objectivec
+[[RXAdjust sharedSDK] setSendInBackground:YES];
+```
+
+## 停用 Adjust SDK
+您可以通过停用和重启 Adjust SDK 来停止和恢复信息发送。要进行设置，请调用setEnabled方法。
+
+```objectivec
+/**
+ * 停用 Adjust SDK
+ * 可以通过停用和重启 Adjust SDK 来停止和恢复信息发送
+ * @note 该设置在会话间保存
+ */
+- (void)setEnabled:(BOOL)enable;
+```
+
+**调用示例**
+
+```objectivec
+[[RXAdjust sharedSDK] setEnabled:NO];
+```

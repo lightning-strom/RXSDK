@@ -1,0 +1,74 @@
+---
+sidebar_position: 4
+title: Unity 接入
+description: "望舒SDK DNS Unity 接入文档，提供详细的功能说明与接入指引。"
+---
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
+
+## 接入方式
+* Package Manager 导入 RuiXue.TxDns
+
+## SDK 集成
+
+<Tabs groupId="platform">
+
+<TabItem value="ios" label="iOS">
+
+iOS依赖的相关SDK已通过脚本自动引用到工程中，您无需手动引用。受网络环境等因素影响，相关SDK有可能引用失败，所以在生成iOS工程后，您需要检查工程中的Podfile文件中的SDK名称，在Podfile.lock文件中是否存在，如果Podfile中的SDK名称在Podfile.lock中未存在，说明SDK未完全下载成功，您需要进入Podfile文件所在路径，执行以下命令安装SDK：
+```objectivec
+pod install 
+```
+
+</TabItem>
+
+<TabItem value="android" label="Android">
+
+```groovy
+implementation 'com.ruixue:ruixue_tencent_dns:${version}'
+```
+
+</TabItem>
+
+</Tabs>
+
+## 初始化
+
+:::warning
+DNS initAppID  初始化应放在 RuiXueSdk.initialize 之前
+:::
+
+**接口原型**
+
+```java
+/// <summary>
+/// 初始化腾讯DNS
+/// </summary>
+/// <param name="bundleID">bundleID，iOS传bundle id, Android传空字符串</param>
+/// <param name="dnsID">dnsID</param>
+/// <param name="dnsKey">dnsKey</param>
+/// <param name="isDebug">isDebug 调试日志模式，true 开启，false 关闭，默认</param>
+public void TencentDNSInitAppID(string bundleID, string dnsID, string dnsKey, bool isDebug);
+```
+
+**调用示例**
+
+```csharp
+RXTxDns.TencentDNSInitAppID("", "xxx", "xxxx", false);
+```
+
+## 开启
+在调用初始化设置时
+
+```csharp
+RXSdkInitConfig rxSdkInitConfig = new RXSdkInitConfig();
+rxSdkInitConfig.cpId = cpId;
+rxSdkInitConfig.channelId = channelId;
+rxSdkInitConfig.productId = productId;
+rxSdkInitConfig.baseUrlList = list;
+rxSdkInitConfig.isUseDNS = true;
+
+RXTxDns.TencentDNSInitAppID("", "86004", "F0F03Gd9", true);
+
+RuiXueSdk.Initialize(rxSdkInitConfig, RequestResponseDelegate, RequestErrorDelegate);
+```

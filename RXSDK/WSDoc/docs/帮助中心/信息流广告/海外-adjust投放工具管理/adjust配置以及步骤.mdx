@@ -1,0 +1,59 @@
+---
+sidebar_position: 1
+title: "adjust配置以及步骤"
+description: "望舒帮助中心 adjust配置以及步骤 文档"
+---
+
+### adjust 归因和国内媒体归因逻辑的区别
+    国内是由瑞雪归因，  adjust 是自归因后通知瑞雪
+
+### 接入准备
+   #### 客户端接入adjust的sdk
+参考sdk接入文档： [https://doc.ruixueyun.com/main/#/view?path=48e08bc1-943b-4e9b-a14a-a496b6f16721](https://doc.ruixueyun.com/main/#/view?path=48e08bc1-943b-4e9b-a14a-a496b6f16721)
+   ####  adjust 配置
+   ##### 创建应用
+   红框处为**应用id**， 需要填写到瑞雪后台的**Adjust应用识别码**
+   ![image.png](https://haiqi-ruixue-test.oss-cn-beijing.aliyuncs.com/docOnline/image-1740450004113.png)
+   
+
+
+  ##### 配置服务器回传
+   ![image.png](https://haiqi-ruixue-test.oss-cn-beijing.aliyuncs.com/docOnline/image-1740450068290.png)
+
+   回传事件为客户端触发， 上报给adjust，  adjust再通过服务端回传给瑞雪，  目前支持（安装、 再归因、归因更新），  由于adjust自判断的数据与瑞雪统计有差异， 瑞雪又上报了  rx_activation 作为补充，   回传url的域名为瑞雪api域名， 参数为瑞雪需要的变量
+
+ ##### 配置回传事件
+:::tip
+应用下需要配置回传事件，事件名需要添加固定前缀， 用于区分，配置到瑞雪后台的应用信息里面。
+:::
+
+![image.png](https://haiqi-ruixue-test.oss-cn-beijing.aliyuncs.com/docOnline/image-1740452767716.png)
+
+
+
+  
+####  瑞雪后台配置应用
+1.**Adjust应用识别码**为**项目应用id**
+2.**应用事件前缀**为回传事件配置的固定前缀
+3.**注册事件识别码**：为了提升归因关联用户成功率，sdk预埋注册事件，在adjust后台应用的
+对应平台（安卓/IOS）下新增一个事件并命名为rx_login_in后，将事件识别码填入
+4.**激活事件识别码**：为了提升归因关联用户成功率，sdk预埋注册事件，在adjust后台应用的
+对应平台（安卓/IOS）下新增一个事件并命名为rx_activation后，将事件识别码填入
+5.**S2S安全识别码**：用于服务端事件回传保护 S2S 事件的安全，抵御伪造请求用户，
+[https://dev.adjust.com/zh/api/s2s-api/security/](https://dev.adjust.com/zh/api/s2s-api/security/)
+点击链接可查看如何生成。配置后需要在adjust后台开启S2S安全
+6.**Meta appid**：用于Meta referrer 集成使用，以获得Meta的更多推广结构数据归因信息
+**其中，注册事件和激活事件需要单独指定， 配置好应用后， 瑞雪会主动拉取adjust的事件**
+![image.png](https://haiqi-ruixue-test.oss-cn-beijing.aliyuncs.com/docOnline/image-1740460490997.png)
+
+##### 映射
+映射功能为瑞雪提供的事件上报规则引擎，  用来将瑞雪事件映射到adjust事件，  当瑞雪事件发生事， 瑞雪会将事件通知给**adjust**用于分析
+![image.png](https://haiqi-ruixue-test.oss-cn-beijing.aliyuncs.com/docOnline/image-1740453278739.png)
+
+##### 回流
+开启回流后， adjust回传的再归因中超过窗口期的为新注册
+![image.png](https://haiqi-ruixue-test.oss-cn-beijing.aliyuncs.com/docOnline/image-1740453124657.png)
+
+##### 上报媒体消耗
+由于adjust无法主动获取到媒体的消耗， 所以需要将adjust中的消耗手动填到瑞雪后台， 用于**瑞雪大数据**侧计算。同日期同媒体多次上报系统默认取最后一次。
+![image.png](https://haiqi-ruixue-test.oss-cn-beijing.aliyuncs.com/docOnline/image-1740453433607.png)

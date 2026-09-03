@@ -1,0 +1,138 @@
+---
+sidebar_position: 1
+title: 客户端接入
+description: Facebook iOS / Android 端原生接入指南，包含 SDK 集成、配置说明及接口调用示例。
+---
+
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
+
+在 [Facebook 开发者](https://developers.facebook.com) 中创建项目，并获取相关参数。
+
+## SDK 集成
+
+<Tabs groupId="platform">
+
+<TabItem value="ios" label="iOS">
+
+可通过 **pod** 方式接入 **RXFacebookSDK** 组件。在需要使用功能的类中引用头文件 `#import <RXFacebookSDK/RXFacebookSDK.h>`
+
+```objectivec
+pod 'RXFacebookSDK'
+```
+
+### 工程配置
+
+在 **Xcode > Info > URL Types** 中添加 **fbid**。
+
+![](https://guanwangyun.oss-cn-beijing.aliyuncs.com/document/%E4%B8%89%E6%96%B9/HsklbkE9Oo0aFmxY2CzcOad4n5b.png)
+
+在 **info.plist->Queried URL Schemes** 中添加 **fbapi** 和 **fbid** 配置。
+
+![](https://guanwangyun.oss-cn-beijing.aliyuncs.com/document/%E4%B8%89%E6%96%B9/QmtObH0IYoGEVNxSwZkclxkJnDf.png)
+
+在 **info.plist** 中添加 **FacebookAppID** 和 **FacebookClientToken** 配置。
+
+![](https://guanwangyun.oss-cn-beijing.aliyuncs.com/document/%E4%B8%89%E6%96%B9/ClAjbBilPoJBs1xzUEMcj6oInXe.png)
+
+</TabItem>
+
+<TabItem value="android" label="Android">
+
+重要：请先查看渠道接入说明！[快速入口](/docs/开发者文档/三方服务/三方接入说明)
+
+:::tip[版本说明]
+`version` 为 SDK 版本号（替换为实际版本号），最新版本请从 [更新日志](/docs/开发者文档/入门指南/更新日志/Android) 中查看。
+:::
+
+```groovy
+// 海外渠道引用此库
+implementation 'com.ruixue:rxsdk_facebook:${version}'
+```
+
+### 参数说明
+
+| 参数 | 类型 | 说明 |
+| --- | --- | --- |
+| facebook_app_id | Long | strings.xml 内配置 FACEBOOK_APP_ID 值 |
+| facebook_client_token | String | strings.xml 内配置 |
+
+### 配置说明
+
+在 `src/main/res/values/strings` 文件下：
+
+```xml
+<string name="facebook_app_id">268619981955495</string>
+<string name="facebook_client_token">0799c45bcb03a3153cbfba1920dee0e8</string>
+```
+
+在 AndroidManifest.xml 配置：
+
+```xml
+</application>
+<meta-data android:name="com.facebook.sdk.ApplicationId" android:value="@string/facebook_app_id" />
+<meta-data android:name="com.facebook.sdk.ClientToken" android:value="@string/facebook_client_token" />
+</application>
+```
+
+> 由于 meta-data 不支持 long 数据类型，如果配置的值为数字类型，需要配置在 `strings.xml` 文件内。
+
+在 build.gradle (Module: app) 的 `defaultConfig` 块中添加：
+
+```groovy
+manifestPlaceholders = [
+    FACEBOOK_APP_ID : "xxxxxxx"
+]
+```
+
+### 三方 SDK 版本信息
+
+使用 `14.1.1` 版本
+
+### 测试
+
+测 FB 登录需要加 FB 开发者后台的开发者权限，需要自行先注册 FB 开发者，然后通过 FB ID 提供给管理员添加权限。
+
+![](https://haiqi-ruixue-test.oss-cn-beijing.aliyuncs.com/docOnline/img_v3_02gb_f6b83a4a-b659-441f-88a2-f98aecea98eg-1730773276644.jpg)
+
+</TabItem>
+
+</Tabs>
+
+## 初始化
+
+<Tabs groupId="platform">
+
+<TabItem value="ios" label="iOS">
+
+### 注册 Facebook
+
+```objectivec
+- (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions {
+ [[RXFacebookService sharedSDK] FBRegistWithApplication:application launchOptions:launchOptions];
+ return YES;
+}
+```
+
+### 跳转 openURL
+
+必须实现此方法，否则无法正常使用 Facebook 登录或分享功能。
+
+```objectivec
+- (BOOL)application:(UIApplication *)app openURL:(NSURL *)url options:(NSDictionary<NSString *, id> *)options {
+ if ([[RXFacebookService sharedSDK] FBApplication:app openURL:url options:options]) {
+ return YES;
+ }
+ return YES;
+}
+```
+
+</TabItem>
+
+<TabItem value="android" label="Android">
+
+集成 SDK 并配置参数后自动完成初始化。
+
+</TabItem>
+
+</Tabs>

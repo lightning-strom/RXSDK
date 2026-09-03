@@ -1,0 +1,205 @@
+---
+sidebar_position: 1
+title: 快速接入
+description: "望舒SDK 客服 快速接入 iOS 接入文档，提供完整的接口调用说明与示例。"
+---
+
+## 准备工作
+
+## SDK 集成
+
+接入请前先做好准备工作。
+
+可通过 pod 方式接入通行证 UIKit 组件，并使用通行证 UIKit 相关功能。
+
+**国内版**
+
+编辑 Podfile 文件，添加如下配置：
+
+```objectivec
+pod 'RXUIKit'
+```
+
+在需要使用功能的类中引用头文件 `#import <RXUIKit/RXUIKit.h>`
+
+**海外版**
+
+编辑 Podfile 文件，添加如下配置：
+
+```objectivec
+pod 'RXOSUIKit'
+```
+
+在需要使用功能的类中引用头文件 `#import <RXUIKit_OS/RXUIKit_OS.h>`
+
+## 工程配置
+
+在 **Info.plist** 中添加 **Privacy - Microphone Usage Description** 麦克风权限 和 **Privacy - Camera Usage Description** 获取相机权限。
+
+![](https://guanwangyun.oss-cn-beijing.aliyuncs.com/document/socialize/20241021-112137.png)
+
+![](https://guanwangyun.oss-cn-beijing.aliyuncs.com/document/socialize/20241022-192241.png)
+
+不添加权限在客服页面选择 **拍照或录像 */ 视频** 功能时会导致闪退。
+
+## 帮助中心
+
+### 展示帮助中心
+
+**UI 示例**
+
+![](https://guanwangyun.oss-cn-beijing.aliyuncs.com/document/charts/helpdark.png)
+
+![](https://guanwangyun.oss-cn-beijing.aliyuncs.com/document/charts/helpligth.png)
+
+**接口原型**
+
+```objectivec
+/**
+ * 帮助中心
+ * @param config 基础配置
+ */
+- (void)serviceCenterWithConfig:(RXUserCenterConfig *)config
+ complete:(void(^)(NSDictionary *response, RX_CommonRequestError *error))complete;
+```
+
+#### 参数说明
+
+> RXUserCenterConfig 结构说明
+
+| 字段 | 类型 | 备注 |
+| --- | --- | --- |
+| transmit_args | NSString | 透传数据，使用 jsonString 形式 |
+| game_user_id | NSString | 用户的游戏 id |
+| nickname | NSString | 用户昵称 |
+| head_img_url | NSString | 用户头像 |
+| queue_name | NSString | 在望舒客服系统设置的接入点名称 不填写默认为 default |
+| setLightTheme | BOOL | 设置主体模式， YES 为浅色， NO 为深色模式，默认 YES |
+
+**调用示例**
+
+```objectivec
+// 国内版
+RXUserCenterConfig *config = [[RXUserCenterConfig alloc] init];
+[[RXUIKitService sharedSDK] serviceCenterWithConfig:config complete:^(NSDictionary * _Nonnull response, RX_CommonRequestError * _Nonnull error) {
+
+}];
+
+// 海外版
+RXOSUserCenterConfig *config = [[RXOSUserCenterConfig alloc] init];
+[[RXOSUIKitService sharedSDK] serviceCenterWithConfig:config complete:^(NSDictionary * _Nonnull response, RX_CommonRequestError * _Nonnull error) {
+
+}];
+```
+
+### 客服会话
+
+**UI 示例**
+
+![](https://guanwangyun.oss-cn-beijing.aliyuncs.com/document/chatService/HrMKbwZDDo5CayxoqPWcQfLinfw.png)
+
+**接口原型**
+
+```objectivec
+/**
+ * 客服
+ * @param config 基础配置
+ */
+- (void)chatServiceWithConfig:(RXUserCenterConfig *)config
+ complete:(void(^)(NSDictionary *response, RX_CommonRequestError *error))complete;
+```
+
+#### 参数说明
+
+> RXUserCenterConfig 结构说明
+
+| 字段 | 备注 |
+| --- | --- |
+| transmit_args | 透传数据，使用 jsonString 形式 |
+| game_user_id | 用户的游戏 id |
+| nickname | 用户昵称 |
+| head_img_url | 用户头像 |
+| queue_name | 在望舒客服系统设置的接入点名称 不填写默认为 default |
+| setLightTheme | BOOL |
+
+**调用示例**
+
+```objectivec
+// 国内版
+RXUserCenterConfig *config = [[RXUserCenterConfig alloc] init];
+[[RXUIKitService sharedSDK] chatServiceWithConfig:config complete:^(NSDictionary * _Nonnull response, RX_CommonRequestError * _Nonnull error) {
+
+}];
+
+// 海外版
+RXOSUserCenterConfig *config = [[RXOSUserCenterConfig alloc] init];
+[[RXOSUIKitService sharedSDK] chatServiceWithConfig:config complete:^(NSDictionary * _Nonnull response, RX_CommonRequestError * _Nonnull error) {
+
+}];
+```
+
+## 获取客服消息未读数
+
+**接口原型**
+
+```objectivec
+/**
+ * 获取客服消息未读数
+ */
+- (void)getServiceChatUnreadCount:(RequestComplete)complete;
+```
+
+**调用示例**
+
+```objectivec
+[[RXApiService sharedSDK] getServiceChatUnreadCount:^(NSDictionary * _Nullable response, RX_CommonRequestError * _Nullable error) {
+
+}];
+```
+
+### 响应结构
+
+| 字段 | 类型 | 说明 |
+| --- | --- | --- |
+| code | Number | 状态码 0 为成功 |
+| msg | String | 失败时的错误信息 |
+| data | Object | 返回信息 |
+
+> data 说明
+
+| 字段 | 类型 | 说明 |
+| --- | --- | --- |
+| unread | Number | 未读数 |
+
+**响应示例**
+
+```json
+{
+ "code" : 0,
+ "data" : {
+ "unread" : 5
+ },
+ "trace_id" : "F989D228-6BBC-4508-B972-D45174E579A9"
+}
+```
+
+## 清空客服消息未读数
+
+连接客服会话后会自动清除未读数，需要在未连接时清空未读数调用此接口。
+
+**接口原型**
+
+```objectivec
+/**
+ * 清空客服消息未读数
+ */
+- (void)clearServiceChatUnreadCount:(RequestComplete)complete;
+```
+
+**调用示例**
+
+```objectivec
+[[RXApiService sharedSDK] clearServiceChatUnreadCount:^(NSDictionary * _Nullable response, RX_CommonRequestError * _Nullable error) {
+
+}];
+```

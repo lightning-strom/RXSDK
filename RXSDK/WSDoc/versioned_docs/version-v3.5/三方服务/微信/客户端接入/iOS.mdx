@@ -1,0 +1,236 @@
+---
+title: "iOS"
+---
+
+## 准备工作
+
+::: tip
+接入请前先做好准备工作。
+可通过 pod 方式接入 RXWXSDK 组件，并使用 RXWXSDK 相关功能。
+在需要使用功能的类中引用头文件#import 
+前往 [微信开放平台](https://open.weixin.qq.com) 申请相关配置权限。
+:::
+
+## SDK 集成
+
+- 编辑 Podfile 文件，添加如下配置：
+
+```objectivec
+pod 'RXWXSDK'
+```
+
+## 工程配置
+
+- 在**Xcode > Info > URL Types** 中添加 **微信appid**。
+
+![](https://guanwangyun.oss-cn-beijing.aliyuncs.com/document/%E4%B8%89%E6%96%B9/Ds25brht9oRdVoxi39qc8OT5nbc.png)
+
+- 打开 **Associated Domains** 开关，将**Universal Links**域名加到配置上。
+![image.png](https://haiqi-ruixue-test.oss-cn-beijing.aliyuncs.com/docOnline/image-1750232177041.png)
+
+- 在 **info** 标签栏的 **LSApplicationQueriesSchemes** 添加 **weixin、weixinULAPI、weixinURLParamsAPI**（如下图所示）。
+![image.png](https://haiqi-ruixue-test.oss-cn-beijing.aliyuncs.com/docOnline/image-1750232239182.png)
+
+## 配置 Universallink
+
+::: tip
+如何生成Universallink可参考 [配置Universallink](https://blog.csdn.net/qq_19484963/article/details/131577424)
+注：不配置无法拉起微信
+:::
+
+**接口原型**
+
+```objectivec
+/**
+ * 配置universallink
+ */
+- (void)configUniversallink:(NSString *)universallink;
+```
+
+**调用示例**
+
+```objectivec
+[[RXWXService sharedSDK] configUniversallink:@"https://open.weileapp.com/toolapi/"];
+```
+
+## 跳转到微信并打开小程序
+
+::: tip
+[小程序跳转APP开发指南](https://developers.weixin.qq.com/miniprogram/dev/framework/open-ability/launchApp.html)
+:::
+
+**接口原型**
+
+```objectivec
+/**
+ * 跳转到微信并打开小程序
+ * @param params 跳转参数
+ * ！username 小程序原始id    #NSString类型
+ * ！appid 微信appid    #NSString类型
+ * ！path 拉起小程序页面的可带参路径，不填默认拉起小程序首页，对于小游戏，可以只传入 query 部分，来实现传参效果，如：传入 "?foo=bar"。    #NSString类型
+ * ！miniProgramType 小程序类型  0正式版 1开发版 2体验版    #NSInteger类型
+ * ！ext 扩展信息    #NSString类型
+ * ！extDic 可存放图片等比较大的数据    #NSDictionary类型
+ * @param complete 回调，需要小程序接入跳转回到app的功能，否则回调不会执行
+ */
+- (void)openMiniProgram:(NSDictionary *)params
+               complete:(void(^)(NSString *extMsg))complete;
+```
+
+**调用示例**
+
+```objectivec
+NSDictionary *dic = @{@"username" : @"小程序原始id",
+                      @"appid" : @"微信appid",
+                      @"path" : @"小程序路径",
+                      @"miniProgramType" : @(0)
+};
+[[RXWXService sharedSDK] openMiniProgram:dic complete:^(NSString * _Nonnull extMsg) {
+        
+}];
+```
+
+## 检测是否安装微信
+
+**接口原型**
+
+```objectivec
+/**
+ * 检测是否安装微信
+ */
+- (BOOL)isWXAppInstalled;
+```
+
+**调用示例**
+
+```objectivec
+[WXApi isWXAppInstalled]
+```
+
+## 处理 openURL
+
+处理旧版微信通过 URL 启动 App 时传递的数据。
+
+::: tip
+此系统方法用于处理app之间跳转的参数传递，在此添加微信跳转url用于接收微信跳转回客户端所携带的参数。此方法与处理OpenUniversalLink必须实现一种，否则无法正常使用微信登录或分享功能。
+:::
+
+- 在系统 **openURL:** 方法中添加 **微信跳转url**
+
+**接口原型**
+
+```objectivec
+/**
+ * 处理旧版微信通过URL启动App时传递的数据
+ * 需要在 application:openURL:sourceApplication:annotation:或者application:handleOpenURL中调用。
+ * @param url 微信启动第三方应用时传递过来的URL
+ */
+- (BOOL)handleOpenUrl:(NSURL *)url;
+```
+
+**调用示例**
+
+```objectivec
+- (BOOL)application:(UIApplication *)app openURL:(NSURL *)url options:(NSDictionary *)options{
+    if([[RXWXService sharedSDK] handleOpenUrl:url]){
+        return YES;
+    }
+    return YES;
+}
+```
+
+## 处理 openUniversalLink
+
+::: tip
+此系统方法用于处理app之间跳转的参数传递，在此添加微信通过Universallink跳转用于接收微信跳转回客户端所携带的参数。此方法与处理openURL必须实现一种，否则无法正常使用微信登录或分享功能。
+:::
+
+处理微信通过 Universal Link 启动 App 时传递的数据。
+
+- 在系统 **continueUserActivity:** 方法中添加**微信跳转url**
+
+**接口原型**
+
+```objectivec
+/**
+ * 处理微信通过Universal Link启动App时传递的数据
+ * 需要在 application:continueUserActivity:restorationHandler:中调用。
+ * @param userActivity 启动第三方应用时系统API传递过来的userActivity
+ */
+- (BOOL)handleOpenUniversalLink:(NSUserActivity *)userActivity;
+```
+
+调用示例
+
+```objectivec
+- (BOOL)application:(UIApplication *)application continueUserActivity:(NSUserActivity *)userActivity restorationHandler:(void(^)(NSArray> * __nullable restorableObjects))restorationHandler {
+    if ([[RXWXService sharedSDK] handleOpenUniversalLink:userActivity]) {
+        return YES;
+    }
+    return YES;
+}
+```
+
+## 商家转账
+
+**接口原型**
+
+```objectivec
+/**
+ * business
+ */
+- (void)openBusinessViewWithModel:(RXWXBusinessModel *)model
+                         complete:(void(^)(NSDictionary *response, RX_CommonRequestError *error))complete;
+```
+
+### 参数说明
+
+| **参数** | **类型** | **说明**     |
+| -------- | -------- | ------------ |
+| appid | String | 发起商家转账的微信 appid |
+| businessType | String | 【业务类型】固定配置：requestMerchantTransfer |
+| query | String | 【查询参数】使用URL的query string方式传递参数，格式为key=value&key2=value2，其中value、value2需要进行UrlEncode处理。 |
+
+> query 说明
+
+| **参数** | **类型** | **说明**     |
+| -------- | -------- | ------------ |
+| mchId | String | 【商户号】商户号，由微信支付生成并下发，和发起转账传入的mchid必须是同一个 |
+| appId | String | 【商户AppID】微信开放平台审核通过的移动应用appid，和发起转账传入的appid必须是同一个 |
+| package | String | 【package信息】对应发起转账接口应答参数中的package_info（仅当转账单据状态为WAIT_USER_CONFIRM: 待收款用户确认时才返回），用于唤起用户确认收款页面。|
+
+**调用示例**
+
+3.8.3 以上
+```objectivec
+RXWXBusinessModel *model = [[RXWXBusinessModel alloc] init];
+model.appid = @"wx8888888888888888";
+model.businessType = @"requestMerchantTransfer";
+model.query = @"mchId=1230000000&appId=wx8888888888888888&package=affffddafdfafddffda%3D%3D"; // 示例，根据实际情况填写
+[[RXWXService sharedSDK] openBusinessViewWithModel:model complete:^(NSDictionary * _Nonnull response, RX_CommonRequestError * _Nonnull error) {
+    if (!error) {
+        NSLog(@"调用成功");
+    } else {
+        NSLog(@"调用失败");
+    }
+}];
+```
+
+3.8.3 以下
+```objectivec
+// 微信初始化
+[[RXWXService sharedSDK] shareToWWithShareInfo:@{@"appid" : @"wx8888888888888888"} complete:^(BOOL success) {
+
+}];
+
+RXWXBusinessModel *model = [[RXWXBusinessModel alloc] init];
+model.businessType = @"requestMerchantTransfer";
+model.query = @"mchId=1230000000&appId=wx8888888888888888&package=affffddafdfafddffda%3D%3D"; // 示例，根据实际情况填写
+[[RXWXService sharedSDK] openBusinessViewWithModel:model complete:^(NSDictionary * _Nonnull response, RX_CommonRequestError * _Nonnull error) {
+    if (!error) {
+        NSLog(@"调用成功");
+    } else {
+        NSLog(@"调用失败");
+    }
+}];
+```

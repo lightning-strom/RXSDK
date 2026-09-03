@@ -1,0 +1,105 @@
+---
+sidebar_position: 3
+title: Unity 接入
+description: "望舒SDK 法务配置 Unity 接入文档，提供详细的功能说明与接入指引。"
+unlisted: true
+---
+
+### 接入方式
+
+Package Manager 导入 RuiXue.Legal
+
+## 获取法务配置
+
+**接口原型**
+
+```csharp
+ public void Legal(RequestResponseDelegate onResponse,
+ RequestErrorDelegate onError);
+```
+
+**调用示例**
+
+```csharp
+ private void OnLegal()
+ {
+ RXLegal.Legal(LegalResponseDelegate, LegalErrorDelegate);
+ }
+
+ private void LegalResponseDelegate(string data)
+ {
+ LogUtil.Log("EventManager", $"LegalResponseDelegate : {data}");
+ }
+
+ private void LegalErrorDelegate(string error)
+ {
+ LogUtil.Log("EventManager", $"LegalErrorDelegate : {error}");
+ }
+```
+
+### 响应参数(JSON)
+
+| 参数 | 类型 | 是否必须 | 说明 |
+| --- | --- | --- | --- |
+| code | Number | 是 | 响应状态码， 0 为成功，非 0 表示出错 |
+| msg | String | 否 | 响应信息，仅在 code 非 0 时返回 |
+| data | [Data](/docs/开发者文档/openinstall/原生接入) | 否 | key 跟请求的 keys 对应 |
+
+#### 获取法务信息Data
+
+| 参数 | 类型 | 是否必须 | 说明 |
+| --- | --- | --- | --- |
+| terms | [Terms](/docs/开发者文档/openinstall/原生接入) | 是 | 文档类 |
+| permissions | [Permissions](/docs/开发者文档/openinstall/原生接入) | 是 | 权限类 |
+| minor | [Minor](/docs/开发者文档/openinstall/原生接入) | 是 | 未成年人保护 |
+
+##### 获取法务信息Terms
+
+| 参数 | 类型 | 是否必须 | 说明 |
+| --- | --- | --- | --- |
+| id | Number | 是 | 文档 id |
+| Key | String | 是 | 文档标识 |
+| title | String | 是 | 稳定标题 |
+| content | String | 是 | 内容 |
+| is_default | Number | 是 | 是否默认 |
+
+##### 获取法务信息Permissions 作废
+
+| 参数 | 类型 | 是否必须 | 说明 |
+| --- | --- | --- | --- |
+| title | String | 是 | 权限名称 |
+| content | String | 是 | 权限类总说明 |
+| list | [][List](/docs/开发者文档/openinstall/原生接入) | 是 | 内容列表 |
+
+###### 获取法务信息List
+
+| 参数 | 类型 | 是否必须 | 说明 |
+| --- | --- | --- | --- |
+| id | Number | 是 | 权限 id |
+| key | String | 是 | 权限标识 |
+| name | String | 是 | 展示的文字 |
+| content | String | 是 | 详细说明 |
+| enable | Number | 是 | 0 无需获取 1 需要获取 |
+
+##### 获取法务信息Minor
+
+| 参数 | 类型 | 是否必须 | 说明 |
+| --- | --- | --- | --- |
+| age | Number | 是 | 法务法规适用的年龄 |
+| image | String | 是 | 对外展示的图片 |
+| real_name | [][RealName](/docs/开发者文档/openinstall/原生接入) | 是 | 实名认证 |
+| login | String | 是 | 未成年大于等于适龄年龄非节假日时间访问提示语 |
+| login_lt | String | 是 | 未成年小于适龄年龄非节假日时间访问提示语 |
+| age_8 | String | 是 | 幼儿（未满 8 岁及以下）充值限制提示语 作废 |
+| age_8_16 | String | 是 | 儿童（ 8~16 岁）充值限制提示语 作废 |
+| age_16_18 | String | 是 | 青少年(16~18 岁)充值限制提示语 作废 |
+| age_group1 | String | 是 | 幼儿（未满 8 岁及以下）充值限制提示语 |
+| age_group2 | String | 是 | 儿童（ 8~16 岁）充值限制提示语 |
+| age_group3 | String | 是 | 青少年(16~18 岁)充值限制提示语 |
+
+##### 获取法务信息RealName
+
+| 参数 | 类型 | 是否必须 | 说明 |
+| --- | --- | --- | --- |
+| title | String | 是 | 未成年保护标题 |
+| content | String | 是 | 未成年保护内容 |

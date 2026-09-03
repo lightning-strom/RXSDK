@@ -1,0 +1,208 @@
+## 拉起分享
+
+**调用示例**
+
+```javascript
+sdk.share()
+```
+
+## 分享调度
+
+### 分享调度初始化
+
+如果在望舒后台开启了分享调度功能必须调用 分享调度初始化 接口，否则将无法正常使用分享调度功能
+
+#### 参数说明
+
+| 字段 | 类型 | 是否必填 | 备注 |
+| --- | --- | --- | --- |
+| params | IReqShareScheduleInit | 是 | 参数 |
+| callback | IMethodParams | 是 | 回调函数集合 |
+
+> IReqShareScheduleInit 说明
+
+| 字段 | 类型 | 是否必填 | 备注 |
+| --- | --- | --- | --- |
+| funcs | string[] | 否 | 埋点标识数组，传空获取所有埋点调度 |
+
+> IMethodParams 说明
+
+| 字段 | 备注 |
+| --- | --- |
+| complete | (data) => void |
+
+complete ：为函数且必传， data 为结果数据
+
+**调用示例**
+
+```javascript
+sdk.shareSchedulingInit(
+ {
+ funcs: ['maidian'],
+ },
+ {
+ complete: (data: any) => {
+ console.log('shareSchedulingInit: ', data)
+ },
+ }
+)
+```
+
+#### **响应结构**
+
+**响应示例**：
+
+```json
+{
+ "code": 0,
+ "msg":"",
+ "data": "func1": {
+ "scheduling_sign": "xx",
+ "scheduling_type": "ad",
+ "user_type": 1, // 1有效用户 2无效用户
+ }
+}
+```
+
+**响应参数（ JSON ）**
+
+未命中策略的埋点不返回
+
+| 参数 | 类型 | 是否必填 | 备注 |
+| --- | --- | --- | --- |
+| scheduling_sign | String | 是 | 调度分享看广告总次数 |
+| scheduling_type | String | 是 | 分享 share 广告 ad |
+| user_type | Number | 是 | 用户状态 1 有效用户 2 无效用户 |
+
+### 获取埋点调度
+
+分享调度初始化后 SDK 会将数据缓存，客户端需要使用时可以调用 获取埋点调度 来获取需要的埋点调度数据，无需再次初始化。需要在登录后调用。
+
+#### 参数说明
+
+| 字段 | 类型 | 是否必填 | 备注 |
+| --- | --- | --- | --- |
+| params | IReqShareSchedule | 是 | 参数 |
+| callback | IMethodParams | 是 | 回调函数集合 |
+
+> IReqShareSchedule 说明
+
+| 字段 | 类型 | 是否必填 | 备注 |
+| --- | --- | --- | --- |
+| funcs | string[] | 否 | 埋点标识数组，传空获取所有埋点调度 |
+
+**调用示例**
+
+```javascript
+// 同步函数
+const data = sdk.getShareScheduling()
+```
+
+## 分享/广告结果上报
+
+如果在望舒后台开启了分享调度功能，在上报时需要将调用 获取分享信息 时的 func、platform、region、transmits 传入。
+
+### 参数说明
+
+| 字段 | 类型 | 是否必填 | 备注 |
+| --- | --- | --- | --- |
+| params | IReqShareScheduleReport | 是 | 参数 |
+| callback | IMethodParams | 是 | 回调函数集合 |
+
+> IMethodParams 说明
+
+| 字段 | 备注 |
+| --- | --- |
+| complete | (data) => void |
+
+complete ：为函数且必传， data 为结果数据
+
+> IReqShareScheduleReport 说明
+
+| 字段 | 类型 | 是否必填 | 备注 |
+| --- | --- | --- | --- |
+| func | string | 是 | 埋点 |
+| scheduling_type | string | 是 | 调度类型， 'share' ｜ 'ad' |
+| scheduling_event | boolean | 是 | 结果状态， true ：成功， false ：失败 只有成功时，才会进入下一步骤；例如循环为广告->分享->广告 只有这个参数为 true 时，才会进入分享 |
+| region | string | 否 | 地区码 |
+| transmits | string | 否 | 透传参数，原样返回， 请使用 key1=val1&key2=val2 的形式(querystring) |
+| properties | object | 否 | 自定义属性 |
+
+， 上报区服和角色需要在 game_info 中传入属性，具体使用方式参考下方 game_info 字段说明
+
+> `properties` 字段说明
+
+| 字段 | 类型 | 是否必填 | 备注 |
+| --- | --- | --- | --- |
+| game_info | object | 否 | 游戏自定义数据 |
+
+> `game_info` 字段说明
+
+| 字段 | 类型 | 是否必填 | 备注 |
+| --- | --- | --- | --- |
+| cp_game_character_id | string | 否 | 角色 id |
+| cp_game_area_id | string | 否 | 区服 id |
+
+**调用示例**
+
+```javascript
+sdk.shareSchedulingReport(
+ {
+ func: 'maidian',
+ scheduling_type: 'share',
+ scheduling_event: true,
+ properties: {
+ region: 'en',
+ }
+ },
+ {
+ complete: (data: any) => {
+ console.log('schedulingReport complete: ', data)
+ },
+ }
+)
+```
+
+## 调度分享(分享、广告)
+
+### 参数说明
+
+| 字段 | 类型 | 是否必填 | 备注 |
+| --- | --- | --- | --- |
+| params | IShareData | 是 | 参数 |
+| callback | IMethodParams | 是 | 回调函数集合 |
+
+> IShareData 说明
+
+| 字段 | 类型 | 是否必填 | 备注 |
+| --- | --- | --- | --- |
+| func | string | 是 | 埋点标记 |
+
+> IMethodParams 说明
+
+| 字段 | 备注 |
+| --- | --- |
+| complete | (data) => void |
+
+complete ：为函数且必传， data 为结果数据
+
+**调用示例**
+
+```javascript
+sdk.schedulingAction({
+ func:'haoyou',
+},
+ {
+ complete: (data) => {
+ console.log(data);
+ },
+ })
+```
+
+### 响应结构
+
+| 字段 | 类型 | 说明 |
+| --- | --- | --- |
+| code | Number | 状态码 0 为成功 |
+| msg | String | 失败时的错误信息 |
+| scheduling_type | String | share / ad |

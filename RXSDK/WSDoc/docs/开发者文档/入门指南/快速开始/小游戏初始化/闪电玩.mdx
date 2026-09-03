@@ -1,0 +1,217 @@
+---
+sidebar_position: 26
+title: 闪电玩
+description: "望舒SDK 闪电玩 小游戏 接入文档，提供完整的接口调用说明与示例。"
+---
+
+## 准备工作
+
+请登录望舒系统初始化相关服务，如果还没有望舒账号请[查看准备工作说明](/docs/开发者文档/入门指南/准备工作)。
+
+望舒系统地址，可登录企业管理后台 > 已部署项目中查看。
+
+## 环境要求
+
+[点击下载 SDK 最新版本](https://pan.jiaxianghudong.com/s/vEiCVfQhGWu)
+
+把 SDK 导入项目工程中
+
+## SDK 初始化
+
+1、初始化为异步调用，失败将不能使用 SDK 功能，请注意处理调用逻辑
+
+2、类库必须在 html 的 script 里进行引用，不能动态加载
+
+```html
+head>
+ script src="https://pay.17m3.com/gamepay/dhpay.min.js">script>
+ script src="https://www.shandw.com/libs/js/sdwJs.min.js">script>
+head>
+```
+
+初始化 SDK 时需传入 `productId`、`channelId`、`cpid`、`baseUrlList` 参数信息。
+
+
+| 字段 | 类型 | 是否必填 | 说明 |
+| --- | --- | --- | --- |
+| string | 是 | 产品 id ，望舒游戏发行平台创建产品，[查看使用说明](/docs/开发者文档/入门指南/准备工作)。 | **channelId** |
+| string | 是 | 渠道 id ，望舒游戏发行平台创建渠道，[查看使用说明](/docs/开发者文档/入门指南/准备工作)。 | **cpid** |
+| string | 是 | CP id ，望舒企业管理后台创建项目，[查看使用说明](/docs/开发者文档/入门指南/准备工作)。 | **baseUrlList** |
+| string[] | 是 | 请求域名队列，望舒企业管理后台创建项目，[查看使用说明](/docs/开发者文档/入门指南/准备工作)。 | **complete** |
+| function | 是 | 初始化回调函数 |  |
+
+
+接口实例：
+
+```javascript
+// 路径仅为示例，需要传入SDK在项目中的真实路径，如出现引用错误请检查路径是否正确
+const channelSdk = require("your path/channelSDK/index.js")
+//以下参数为测试参数，需要更换为接入方对应的参数
+const sdk = new channelSdk({
+ productId: '1', //产品 id
+ channelId: '818', //渠道id
+ cpid: '1000049', //CP id
+ baseUrlList: ['https://ruixue.weiletest.com'],//请求域名队列
+ complete: (data) => {
+ console.log('init complete: ', data)
+ if (data.code === 0) {
+ // 初始化成功
+ }
+ },
+})
+```
+
+### 设置子渠道
+
+通行证记录来源（分包）、子渠道参数。必须在 登录 前调用。
+
+#### 参数说明
+
+| 字段 | 类型 | 是否必填 | 备注 |
+| --- | --- | --- | --- |
+| params | string | 是 | 子渠道 id |
+
+**调用示例**
+
+```javascript
+// 同步函数
+const result = sdk.setSubChannelId('your sub_channel_id')
+console.log('setSubChannelId res: ', result)
+```
+
+#### 响应结构
+
+成功 code 为 0
+
+### 设置自定义返回错误消息
+
+规则 1 ：根据错误码直接读取对应提示替换 msg ；
+
+规则 2 ：如果表中有 default 的 key ，将未配置的错误码 msg 统一替换为 default 的 value ；
+
+规则 3 ：$code$ $thirdcode$ $thirdmsg$ 为动态配置字段，如下所示，最终展示的信息为 支付错误 4002
+
+以上规则仅适用于调用了 setErrorMsg 接口，未调用保持原有规则
+
+**调用示例**
+
+```javascript
+// 同步函数
+sdk.setErrorMsg({
+ 4001: 'cancel pay',
+ 4002: '支付错误$code$',
+ 2001: 'init fail',
+ default: 'default$code$$thirdcode$'
+})
+```
+
+### 清除自定义返回错误消息
+
+**调用示例**
+
+```javascript
+// 同步函数
+sdk.clearErrorMsg()
+```
+
+## 接入功能
+
+SDK 提供了众多功能。请在初始化 SDK 后，根据项目需要，参考相应功能的文档，接入相应功能。 绝大多数游戏都会接入望舒登录，所以我们推荐从这一功能开始。
+
+### 接入望舒登录
+
+请根据开发者指南，[登录（通行证）](/docs/开发者文档/登录-通行证/小游戏渠道登录/快速接入) 完成操作。
+
+### 上报游戏基础信息
+
+调用登录接口后才可调用
+
+#### 参数说明
+
+| 字段 | 类型 | 是否必填 | 备注 |
+| --- | --- | --- | --- |
+| isCreateRole | boolean | 是 | 仅创建角色时传 true,更新信息时传 false |
+| roleCreateTime | number | 是 | 角色创建时间戳（秒） |
+| serverId | number | 是 | 区服 ID |
+| serverName | string | 是 | 区服名称 |
+| userRoleId | string | 是 | 游戏内角色 ID |
+| userRoleName | string | 是 | 游戏内角色名称 |
+| userRoleBalance | number | 是 | 角色游戏内货币余额 |
+| vipLevel | number | 是 | 角色 VIP 等级 |
+| userRoleLevel | number | 是 | 角色等级 |
+| partyId | number | 是 | 公会/社团 ID |
+| partyName | string | 是 | 角色性别 （男/女） |
+| gameRoleGender | string | 是 | 游戏内角色名称 |
+| gameRolePower | string | 是 | 角色战力 |
+| gameType | string | 是 | 游戏类型 |
+| createRole | number | 是 | 是否创角（ 0 或 1 ） |
+| partyRoleId | number | 否 | 角色在帮派中的 ID |
+| partyRoleName | string | 否 | 角色在帮派中的名称 |
+| professionId | string | 否 | 角色职业 ID |
+| profession | string | 否 | 角色职业名称 |
+| friendlist | string | 否 | 角色好友列表 |
+
+**调用示例**
+
+```javascript
+sdk.roleReport({
+ isCreateRole: true,
+ roleCreateTime: 1732326024,
+ serverId: 1,
+ serverName: '内测1区',
+ userRoleId: 'roleId1',
+ userRoleName: '小朋友',
+ userRoleBalance: 1000,
+ vipLevel: 1,
+ userRoleLevel: 1,
+ partyId: 1,
+ partyName: '行会名称',
+ gameRoleGender: '男',
+ gameRolePower: 100,
+ partyRoleId: 1,
+ partyRoleName: '会长',
+ professionId: '1',
+ profession: '武士',
+ gameType: 'xx',
+ createRole: 1,
+ friendlist: '',
+}, {
+ complete(res: any) {
+ console.log(res)
+ }
+})
+```
+
+#### 响应结构
+
+成功 code 为 0
+
+### 实名认证
+
+#### 参数说明
+
+| 字段 | 类型 | 是否必填 | 备注 | complete |
+| --- | --- | --- | --- | --- |
+| IMethodParams | 是 | 初始化回调函数 |  |  |
+
+> IMethodParams 说明
+
+| 字段 | 备注 |
+| --- | --- |
+| complete | (data) => void |
+
+complete ：为函数且必传， data 为结果数据
+
+**调用示例**
+
+```javascript
+sdk.chooseSDWIdentify({
+ complete: (data) => {
+ console.log('实名认证: ', data)
+ }
+})
+```
+
+#### 响应结构
+
+成功 code 为 0,已经实名认证 code 为 1 ，其他为实名认证失败

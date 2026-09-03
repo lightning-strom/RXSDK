@@ -1,0 +1,456 @@
+---
+sidebar_position: 7
+title: "服务端API(作废)"
+---
+
+:::warning[已作废]
+
+此接口已作废，新项目请勿接入。区服角色上报请使用最新版本的区服上报接口。
+
+:::
+
+# 区服
+## 创建游戏区服
+
+> **POST:**  `/v1/report/cp/game_area`
+> **认证方式：** [CPSign](/docs/v3.5/入门指南/服务端接入须知)
+
+### CURL 示例
+
+```bash
+curl --location --request POST '{{接口域名}}/v1/report/cp/game_area' \
+--header 'ruixue-language: {{语言}}' \
+--header 'ruixue-cpid: {{cpid}}' \
+--header 'ruixue-cpts: {{时间戳}}' \
+--header 'ruixue-traceid: {{TraceID}}' \
+--header 'ruixue-cpsign: {{签名}}' 
+--data-raw '{
+    "area_id": "ut labore",
+    "area_name": "ipsum quis Duis cillum in"
+}'
+```
+
+### 请求参数（JSON）
+
+| **字段** | **类型** | **是否必填** | **说明** | **示例** |
+| --- | --- | ---- | --- | --- |
+| area_id | String | 是 | 区服id |  |
+| area_name | String | 是 | 区服名 |  |
+| extension | json | 否 | 符合json格式的数据 |  |
+
+### 响应参数（JSON）
+
+**HTTP 状态码：**`200 OK`
+
+| **字段** | **类型** | **是否必填** | **说明** | **示例** |
+| --- | --- | ---- | --- | --- |
+| code | Number | 是 | 响应状态码，0为成功，非0表示出错 | 0 |
+| msg | String | 否 | 响应信息，仅在code为非0时不为空 |  |
+| data | Data | 否 | 响应内容 |  |
+
+**响应示例**
+
+```json
+{
+    "code": 0,
+    "msg": "string"
+}
+```
+
+## 修改游戏区服
+
+> **PUT:**  `/v1/report/cp/game_area`
+> **认证方式：** [CPSign](/docs/v3.5/入门指南/服务端接入须知)
+
+### CURL 示例
+
+```bash
+curl --location --request PUT '{{接口域名}}/v1/report/cp/game_area' \
+--header 'ruixue-language: {{语言}}' \
+--header 'ruixue-cpid: {{cpid}}' \
+--header 'ruixue-cpts: {{时间戳}}' \
+--header 'ruixue-traceid: {{TraceID}}' \
+--header 'ruixue-cpsign: {{签名}}' 
+--data-raw '{
+    "area_id": "ut labore",
+    "area_name": "ipsum quis Duis cillum in"
+}'
+```
+
+### 请求参数（JSON）
+
+| **字段** | **类型** | **是否必填** | **说明** | **示例** |
+| --- | --- | ---- | --- | --- |
+| area_id | String | 是 | 区服id |  |
+| area_name | String | 是 | 区服名 |  |
+
+### 响应参数（JSON）
+
+**HTTP 状态码：**`200 OK`
+
+| **字段** | **类型** | **是否必填** | **说明** | **示例** |
+| --- | --- | ---- | --- | --- |
+| code | Number | 是 | 响应状态码，0为成功，非0表示出错 | 0 |
+| msg | String | 否 | 响应信息，仅在code为非0时不为空 |  |
+| data | Data | 否 | 响应内容 |  |
+
+**响应示例**
+
+```json
+{
+    "code": 0,
+    "msg": "string"
+}
+```
+
+## 删除游戏区服
+
+> **Delete:**  `/v1/report/cp/game_area`
+> **认证方式：** [CPSign](/docs/v3.5/入门指南/服务端接入须知)
+
+### CURL 示例
+
+```bash
+curl --location --request Delete~~~~ '{{接口域名}}/v1/report/cp/game_area' \
+--header 'ruixue-language: {{语言}}' \
+--header 'ruixue-cpid: {{cpid}}' \
+--header 'ruixue-cpts: {{时间戳}}' \
+--header 'ruixue-traceid: {{TraceID}}' \
+--header 'ruixue-cpsign: {{签名}}' 
+--data-raw '{
+    "area_id": "ut labore"
+}'
+```
+
+### 请求参数（JSON）
+
+| **字段** | **类型** | **是否必填** | **说明** | **示例** |
+| --- | --- | ---- | --- | --- |
+| area_id | String | 是 | 区服id |  |
+
+### 响应参数（JSON）
+
+**HTTP 状态码：**`200 OK`
+
+| **字段** | **类型** | **是否必填** | **说明** | **示例** |
+| --- | --- | ---- | --- | --- |
+| code | Number | 是 | 响应状态码，0为成功，非0表示出错 | 0 |
+| msg | String | 否 | 响应信息，仅在code为非0时不为空 |  |
+| data | Data | 否 | 响应内容 |  |
+
+**响应示例**
+
+```json
+{
+    "code": 0,
+    "msg": "string"
+}
+```
+
+## 查询区服信息
+
+> **GET:**  `/v1/report/cp/game_area`
+> **认证方式：** [CPSign](/docs/v3.5/入门指南/服务端接入须知)
+
+### CURL 示例
+
+```bash
+curl --location --request GET '{{接口域名}}/v1/report/cp/game_area?area_id={{area_id}}' \
+--header 'ruixue-language: {{语言}}' \
+--header 'ruixue-cpid: {{cpid}}' \
+--header 'ruixue-cpts: {{时间戳}}' \
+--header 'ruixue-traceid: {{TraceID}}' \
+--header 'ruixue-cpsign: {{签名}}' 
+--data-raw '{
+    "area_id": "ut labore"
+}'
+```
+
+### 请求参数（Query）
+
+| **字段** | **类型** | **是否必填** | **说明** | **示例** |
+| --- | --- | ---- | --- | --- |
+| area_id | String | 是 | 区服id |  |
+
+### 响应参数（JSON）
+
+**HTTP 状态码：**`200 OK`
+
+| **字段** | **类型** | **是否必填** | **说明** | **示例** |
+| --- | --- | ---- | --- | --- |
+| code | Number | 是 | 响应状态码，0为成功，非0表示出错 | 0 |
+| msg | String | 否 | 响应信息，仅在code为非0时不为空 |  |
+| data | Data | 否 | 响应内容 |  |
+
+#### Data
+| **字段** | **类型** | **是否必填** | **说明** | **示例** |
+| --- | --- | ---- | --- | --- |
+| area_id | String | 是 | 区服id | 0 |
+| area_name | String | 否 | 区服名 |  |
+| extension | Json | 否 | 扩展字段 |  |
+
+**响应示例**
+
+```json
+{
+  "data": {
+    "area_id": "",
+    "area_name": "",
+    "extension": {"a":1}
+  },
+  "trace_id": "123456",
+  "code": 0
+}
+```
+
+# 角色
+
+## 创建游戏角色
+
+> **POST:**  `/v1/report/cp/game_character`
+> **认证方式：** [CPSign](/docs/v3.5/入门指南/服务端接入须知)
+
+### CURL 示例
+
+```bash
+curl --location --request POST '{{接口域名}}/v1/report/cp/game_character' \
+--header 'ruixue-language: {{语言}}' \
+--header 'ruixue-cpid: {{cpid}}' \
+--header 'ruixue-cpts: {{时间戳}}' \
+--header 'ruixue-traceid: {{TraceID}}' \
+--header 'ruixue-cpsign: {{签名}}' 
+--data-raw '{
+    "area_id": "ex fugiat labore commodo nisi",
+    "character_id": "reprehenderit quis et exercitation",
+    "character_name": "ullamco",
+    "cp_user_id": "pariatur",
+    "rx_openid": "consequat mollit labore sint"
+}'
+```
+
+### 请求参数（JSON）
+
+| **字段** | **类型** | **是否必填** | **说明** | **示例** |
+| --- | --- | ---- | --- | --- |
+| rx_openid | String | 是 | |  |
+| cp_user_id | String | 是 |  |  |
+| area_id | String | 是 | 区服id |  |
+| character_id | String | 是 | 角色id|  |
+| character_name | String | 是 | 角色名 |  |
+| character_profession | String | 否 | 角色职业 |  |
+| character_level | String | 否 | 角色等级 |  |
+| character_vip_level | String | 否 | vip等级 |  |
+| character_faction | String | 否 | 角色阵营 |  |
+| character_status | String | 否 | 角色状态|  |
+| extension | json | 否 | 符合json格式的数据 |  |
+
+### 响应参数（JSON）
+
+**HTTP 状态码：**`200 OK`
+
+| **字段** | **类型** | **是否必填** | **说明** | **示例** |
+| --- | --- | ---- | --- | --- |
+| code | Number | 是 | 响应状态码，0为成功，非0表示出错 | 0 |
+| msg | String | 否 | 响应信息，仅在code为非0时不为空 |  |
+| data | Data | 否 | 响应内容 |  |
+
+**响应示例**
+
+```json
+{
+    "code": 0,
+    "msg": "string"
+}
+```
+
+## 修改游戏角色
+
+> **PUT:**  `/v1/report/cp/game_character`
+> **认证方式：** [CPSign](/docs/v3.5/入门指南/服务端接入须知)
+
+### CURL 示例
+
+```bash
+curl --location --request PUT '{{接口域名}}/v1/report/cp/game_character' \
+--header 'ruixue-language: {{语言}}' \
+--header 'ruixue-cpid: {{cpid}}' \
+--header 'ruixue-cpts: {{时间戳}}' \
+--header 'ruixue-traceid: {{TraceID}}' \
+--header 'ruixue-cpsign: {{签名}}' 
+--data-raw '{
+    "area_id": "ex fugiat labore commodo nisi",
+    "character_id": "reprehenderit quis et exercitation",
+    "character_name": "ullamco",
+    "cp_user_id": "pariatur",
+    "rx_openid": "consequat mollit labore sint"
+}'
+```
+
+### 请求参数（JSON）
+
+| **字段** | **类型** | **是否必填** | **说明** | **示例** |
+| --- | --- | ---- | --- | --- |
+| rx_openid | String | 是 | 与cp_user_id  二选一|  |
+| cp_user_id | String | 是 | 与rx_openid  二选一 |  |
+| area_id | String | 是 | 区服id |  |
+| character_id | String | 是 | 角色id|  |
+| character_name | String | 是 | 角色名 
+ 注意：
+此字段以下参数如果没有变更则不传并且至少存在一个变更字段 |  |
+| character_profession | String | 否 | 角色职业 |  |
+| character_level | String | 否 | 角色等级 |  |
+| character_vip_level | String | 否 | vip等级 |  |
+| character_faction | String | 否 | 角色阵营 |  |
+| character_status | String | 否 | 角色状态|  |
+| extension | json | 否 | 符合json格式的数据 |  |
+
+### 响应参数（JSON）
+
+**HTTP 状态码：**`200 OK`
+
+| **字段** | **类型** | **是否必填** | **说明** | **示例** |
+| --- | --- | ---- | --- | --- |
+| code | Number | 是 | 响应状态码，0为成功，非0表示出错 | 0 |
+| msg | String | 否 | 响应信息，仅在code为非0时不为空 |  |
+| data | Data | 否 | 响应内容 |  |
+
+**响应示例**
+
+```json
+{
+    "code": 0,
+    "msg": "string"
+}
+```
+
+## 删除游戏角色
+
+> **DELETE:**  `/v1/report/cp/game_character`
+> **认证方式：** [CPSign](/docs/v3.5/入门指南/服务端接入须知)
+
+### CURL 示例
+
+```bash
+curl --location --request DELETE '{{接口域名}}/v1/report/cp/game_character' \
+--header 'ruixue-language: {{语言}}' \
+--header 'ruixue-cpid: {{cpid}}' \
+--header 'ruixue-cpts: {{时间戳}}' \
+--header 'ruixue-traceid: {{TraceID}}' \
+--header 'ruixue-cpsign: {{签名}}' 
+--data-raw '{
+    "area_id": "ex fugiat labore commodo nisi",
+    "character_id": "reprehenderit quis et exercitation",
+    "cp_user_id": "pariatur",
+    "rx_openid": "consequat mollit labore sint"
+}'
+```
+
+### 请求参数（JSON）
+
+| **字段** | **类型** | **是否必填** | **说明** | **示例** |
+| --- | --- | ---- | --- | --- |
+| rx_openid | String | 是 | 与cp_user_id  二选一|  |
+| cp_user_id | String | 是 | 与rx_openid  二选一 |  |
+| area_id | String | 是 | 区服id |  |
+| character_id | String | 是 | 角色id|  |
+
+### 响应参数（JSON）
+
+**HTTP 状态码：**`200 OK`
+
+| **字段** | **类型** | **是否必填** | **说明** | **示例** |
+| --- | --- | ---- | --- | --- |
+| code | Number | 是 | 响应状态码，0为成功，非0表示出错 | 0 |
+| msg | String | 否 | 响应信息，仅在code为非0时不为空 |  |
+| data | Data | 否 | 响应内容 |  |
+
+**响应示例**
+
+```json
+{
+    "code": 0,
+    "msg": "string"
+}
+```
+
+## 查询具体角色信息
+
+> **GET:**  `/v1/report/cp/game_character/account/area/character`
+> **认证方式：** [CPSign](/docs/v3.5/入门指南/服务端接入须知)
+
+### CURL 示例
+
+```bash
+curl --location --request GET '{{接口域名}}/v1/report/cp/game_character/account/area/character' \
+--header 'ruixue-language: {{语言}}' \
+--header 'ruixue-cpid: {{cpid}}' \
+--header 'ruixue-cpts: {{时间戳}}' \
+--header 'ruixue-traceid: {{TraceID}}' \
+--header 'ruixue-cpsign: {{签名}}' 
+--data-raw '{
+    "area_id": "ex fugiat labore commodo nisi",
+    "character_id": "reprehenderit quis et exercitation",
+    "cp_user_id": "pariatur",
+    "rx_openid": "consequat mollit labore sint"
+}'
+```
+
+### 请求参数（Query）
+
+| **字段** | **类型** | **是否必填** | **说明** | **示例** |
+| --- | --- | ---- | --- | --- |
+| rx_openid | String | 是 | 与cp_user_id  二选一|  |
+| cp_user_id | String | 是 | 与rx_openid  二选一 |  |
+| area_id | String | 是 | 区服id |  |
+| character_id | String | 是 | 角色id|  |
+
+### 响应参数（JSON）
+
+**HTTP 状态码：**`200 OK`
+
+| **字段** | **类型** | **是否必填** | **说明** | **示例** |
+| --- | --- | ---- | --- | --- |
+| code | Number | 是 | 响应状态码，0为成功，非0表示出错 | 0 |
+| msg | String | 否 | 响应信息，仅在code为非0时不为空 |  |
+| data | Data | 否 | 响应内容 |  |
+
+#### Data
+| **字段** | **类型** | **是否必填** | **说明** | **示例** |
+| --- | --- | ---- | --- | --- |
+| rx_openid | String | 是 | 与cp_user_id  二选一|  |
+| cp_user_id | String | 是 | 与rx_openid  二选一 |  |
+| area_id | String | 是 | 区服id |  |
+| character_id | String | 是 | 角色id|  |
+| character_name | String | 是 | 角色名 
+ 注意：
+此字段以下参数如果没有变更则不传并且至少存在一个变更字段 |  |
+| character_profession | String | 否 | 角色职业 |  |
+| character_level | String | 否 | 角色等级 |  |
+| character_vip_level | String | 否 | vip等级 |  |
+| character_faction | String | 否 | 角色阵营 |  |
+| character_status | String | 否 | 角色状态|  |
+| extension | json | 否 | 符合json格式的数据 |  |
+
+**响应示例**
+
+```json
+{
+  "data": {
+    "openid": "",
+    "rx_openid": "",
+    "cp_user_id": "",
+    "area_id": "",
+    "character_id": "",
+    "character_name": "",
+    "extension": {},
+    "id": 0,
+    "cpid": 0,
+    "description": "",
+    "created_at": "0001-01-01T00:00:00Z",
+    "updated_at": "0001-01-01T00:00:00Z",
+    "deleted_at": "0001-01-01T00:00:00Z"
+  },
+  "trace_id": "123456",
+  "code": 0
+}
+```

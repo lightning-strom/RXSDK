@@ -1,0 +1,599 @@
+---
+sidebar_position: 3
+title: 插屏广告
+description: 望舒 插屏广告 iOS / Android 接入文档，提供完整的接口调用说明与示例。
+---
+
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
+
+<Tabs groupId="platform">
+
+<TabItem value="ios" label="iOS">
+
+## 手动广告加载
+
+### 集成建议
+
+1.加载广告：
+
+在开屏广告展示后通过 loadADWithPlacementID 来执行加载广告，请提前调用加载方法进行广告的请求（比如在开屏展示之后就可以预加载广告），以便需要触发广告时可以快速展示
+
+建议进入可展示广告场景后调用 entryInterstitialScenarioWithPlacementID 统计当前广告位的缓存状态，具体的统计说明可查看广告场景区分不同业务场景的数据
+
+2.展示广告：
+
+展示前请先调用 interstitialReadyForPlacementID 判断广告是否准备好了
+
+YES ：调用 showInterstitialWithPlacementID 行广告展示
+
+NO ：需要根据你们的需求决定是否放弃该次展示，预加载下一次广告，还是重新加载广告，等待成功后展示
+
+3.广告预加载：
+
+插屏广告展示后，可以在广告展示之后 interstitialDidShowForPlacementID 或广告关闭之后 interstitialDidCloseForPlacementID 的回调中调用 loadADWithPlacementID 进行预加载，有助于提升优先级比较高的广告源的展示量
+
+可参考自动请求广告，开启自动请求广告，若已实现上方展示后预加载逻辑，则自动请求不用开启，反之亦然。
+
+4.预置策略：
+
+我们建议使用预置策略，提高首次冷启动的广告加载效果，具体说明和接入教程见[SDK 预置策略使用说明](https://help.toponad.com/cn/docs/vkNd2V)
+
+### 注意事项
+
+1.禁止在 didFailToLoadADWithPlacementID 回调中执行广告加载的方法，否则会引起很多无用请求且可能会导致应用卡顿
+
+2.避免在 didFinishLoadingADWithPlacementID 回调中直接展示插屏广告，若后台开启自动请求广告，则 SDK 会在广告展示后自动请求广告，开发者无法精准控制插屏广告展示的时机
+
+3.不推荐 App 处于后台的情况下加载广告，避免系统回收资源引起的不必要的异常
+
+### 加载广告
+
+**接口原型**
+
+```objectivec
+/**
+ * 加载视频广告
+ * @param placementID 需全自动加载广告位Id
+ * @param extra 本地参数
+ */
+- (void)loadADWithPlacementID:(NSString *)placementID
+ extra:(NSDictionary *)extra;
+```
+
+**调用示例**
+
+```objectivec
+// 加载广告
+- (void)loadAd {
+ CGSize size = CGSizeMake(CGRectGetWidth(self.view.bounds) - 30.0f, 300.0f);
+ NSDictionary *extraDic = @{
+ // 设置半屏插屏广告大小，支持平台：快手，可能会影响展示效果
+ kATInterstitialExtraAdSizeKey:[NSValue valueWithCGSize:size],
+ };
+ [[RXTopOnATAdManager sharedSDK] loadADWithPlacementID:self.placementID extra:extraDic];
+ [RXTopOnATAdManager sharedSDK].loadingDelegate = self;
+ [RXTopOnATAdManager sharedSDK].interstitialDelegate = self;
+}
+```
+
+### 检查广告是否准备完成
+
+**接口原型**
+
+```objectivec
+/**
+ * 判断当前是否存在可展示的广告
+ */
+- (BOOL)interstitialReadyForPlacementID:(NSString *)placementID;
+```
+
+**调用示例**
+
+```objectivec
+- (void)checkAd {
+ BOOL isready = [[RXTopOnATAdManager sharedSDK] interstitialReadyForPlacementID:self.placementID];
+ if (isready) {
+ NSLog(@"广告准备好了");
+ }else{
+ NSLog(@"广告未准备好");
+ }
+}
+```
+
+### 到达场景统计
+
+关于统计用户到达场景的相关信息，可前往[广告场景](https://help.toponad.com/cn/docs/ctWq9Q)进行了解。
+
+统计用户到达该场景的几率，呈现在后台的数据 [数据报表 -> 漏斗分析报表 -> 到达广告场景](https://portal.toponad.com/m/report/funnel)
+
+一般在广告场景展示前调用此 API。
+
+**接口原型**
+
+```objectivec
+/**
+ * 对应广告位进入业务场景缓存状态统计
+ * @param placementID 广告位Id
+ * @param scene 广告展示场景，可从后台创建场景参数和使用请参考 业务场景缓存状态统计
+ */
+- (void)entryInterstitialScenarioWithPlacementID:(NSString *)placementID
+ scene:(NSString *)scene;
+```
+
+**调用示例**
+
+```objectivec
+- (void)entryAdScenario {
+ [[RXTopOnATAdManager sharedSDK] entryInterstitialScenarioWithPlacementID:self.placementID scene:"your scene id"];
+}
+```
+
+### 展示广告
+
+**接口原型**
+
+```objectivec
+/**
+ 展示插屏广告
+ placementId：TopOn的广告位id
+ scene:场景id
+ inViewController:展示广告的window
+ */
+- (void)showInterstitialWithPlacementID:(NSString *)placementID
+ scene:(NSString *)scene
+ inViewController:(UIViewController *)viewController;
+```
+
+**调用示例**
+
+```objectivec
+- (void)showInterstitialAd {
+ // 到达场景
+ [self entryAdScenario];
+
+ if ([[RXTopOnATAdManager sharedSDK] interstitialReadyForPlacementID:self.placementID]) {
+ [[RXTopOnATAdManager sharedSDK] showInterstitialWithPlacementID:self.placementID scene:"your scene id" inViewController:self];
+ } else {
+ // reload AD
+ [self loadAd];
+ }
+}
+```
+
+### 加载与展示广告的代理方法
+
+**遵循协议**
+
+```objectivec
+@interface RewardViewController ()RXTopOnATAdLoadingrDelegate,RXTopOnATInterstitialDelegate>
+
+@end
+```
+
+**实现代理方法**
+
+```objectivec
+#pragma mark - delegate
+- (void)didFailBiddingADSourceWithPlacementID:(NSString *)placementID extra:(NSDictionary *)extra error:(NSError *)error {
+
+}
+
+- (void)didFailToLoadADSourceWithPlacementID:(NSString *)placementID extra:(NSDictionary *)extra error:(NSError *)error {
+
+}
+
+- (void)didFailToLoadADWithPlacementID:(NSString *)placementID error:(NSError *)error {
+
+}
+
+- (void)didFinishBiddingADSourceWithPlacementID:(NSString *)placementID extra:(NSDictionary *)extra {
+
+}
+
+- (void)didFinishLoadingADSourceWithPlacementID:(NSString *)placementID extra:(NSDictionary *)extra {
+
+}
+
+- (void)didFinishLoadingADWithPlacementID:(NSString *)placementID {
+
+}
+
+- (void)didStartBiddingADSourceWithPlacementID:(NSString *)placementID extra:(NSDictionary *)extra {
+
+}
+
+- (void)didStartLoadingADSourceWithPlacementID:(NSString *)placementID extra:(NSDictionary *)extra {
+
+}
+
+- (void)interstitialDeepLinkOrJumpForPlacementID:(NSString *)placementID extra:(NSDictionary *)extra result:(BOOL)success {
+
+}
+
+- (void)interstitialDidClickForPlacementID:(NSString *)placementID extra:(NSDictionary *)extra {
+
+}
+
+- (void)interstitialDidCloseForPlacementID:(NSString *)placementID extra:(NSDictionary *)extra {
+
+}
+
+- (void)interstitialDidEndPlayingVideoForPlacementID:(NSString *)placementID extra:(NSDictionary *)extra {
+
+}
+
+- (void)interstitialDidFailToPlayVideoForPlacementID:(NSString *)placementID error:(NSError *)error extra:(NSDictionary *)extra {
+
+}
+
+- (void)interstitialDidShowForPlacementID:(NSString *)placementID extra:(NSDictionary *)extra {
+
+}
+
+- (void)interstitialDidStartPlayingVideoForPlacementID:(NSString *)placementID extra:(NSDictionary *)extra {
+
+}
+
+- (void)interstitialFailedToShowForPlacementID:(NSString *)placementID error:(NSError *)error extra:(NSDictionary *)extra {
+
+}
+
+```
+
+## 全自动加载广告
+
+**介绍**
+
+全自动加载模式，是 TopOn 推出的一站式请求维护方案，开发者只需要关注调用加载和展示的时机，减少接入时间的成本。
+
+### 集成建议
+
+1.初始化：
+
+建议在展示完开屏后调用 autoInterstitial_addAutoLoadAdPlacementIDArray 进行全自动插屏广告的加载，如需设置代理和传入 localExtra ，请在调用自动加载方法调用前设置
+
+2.场景统计：
+
+建议进入可展示广告场景后调用 autoInterstitial_entryAdScenarioWithPlacementID 统计当前广告位的缓存状态，具体的统计说明可查看广告场景区分不同业务场景的数据
+
+3.广告展示：
+
+展示前需先调用 autoInterstitial_autoLoadInterstitialReadyForPlacementID 判断广告是否准备好
+
+YES ：即可直接调用 autoInterstitial_showAutoLoadInterstitialWithPlacementID 进行广告展示
+
+NO ：则跳过这次展示的机会， SDK 会加载该广告来填充。
+
+**接口原型**
+
+```objectivec
+/**
+ 添加需全自动加载广告位
+ placementIds：需全自动加载广告位Id数组
+ */
+- (void)autoInterstitial_addAutoLoadAdPlacementIDArray:(NSArray NSString *> *)placementIDArray;
+```
+
+**调用示例**
+
+```objectivec
+// 全自动加载广告
+- (void)loadAd {
+ [RXTopOnATAdManager sharedSDK].loadingDelegate = self;
+ [RXTopOnATAdManager sharedSDK].interstitialDelegate = self;
+ [[RXTopOnATAdManager sharedSDK] setLocalExtra:@{} placementID:self.placementID];
+ [[RXTopOnATAdManager sharedSDK] autoInterstitial_addAutoLoadAdPlacementIDArray:@[self.placementID]];
+}
+```
+
+### 全自动加载广告位移除
+
+**接口原型**
+
+```objectivec
+/**
+ 移除无需全自动加载广告位
+ placementIds：无需全自动加载广告位Id数组
+ */
+- (void)autoInterstitial_removeAutoLoadAdPlacementIDArray:(NSArrayNSString *> *)placementIDArray;
+```
+
+**调用示例**
+
+```objectivec
+[[RXTopOnATAdManager sharedSDK] autoInterstitial_removeAutoLoadAdPlacementIDArray:@[self.placementID]];
+```
+
+### 全自动检查广告是否准备完成
+
+**接口原型**
+
+```objectivec
+/**
+ 判断该广告位是否存在可展示的广告
+ placementId：需查询的广告位Id
+ */
+- (BOOL)autoInterstitial_autoLoadInterstitialReadyForPlacementID:(NSString *)placementID;
+```
+
+**调用示例**
+
+```objectivec
+- (void)checkAd {
+ BOOL isready = [[RXTopOnATAdManager sharedSDK] autoInterstitial_autoLoadInterstitialReadyForPlacementID:self.placementID];
+ if (isready) {
+ NSLog(@"广告准备好了");
+ }else{
+ NSLog(@"广告未准备好");
+ }
+}
+```
+
+### 全自动到达场景统计
+
+关于统计用户到达场景的相关信息，可前往[广告场景](https://help.toponad.com/cn/docs/ctWq9Q)进行了解。
+
+统计用户到达该场景的几率，呈现在后台的数据 [数据报表 -> 漏斗分析报表 -> 到达广告场景](https://portal.toponad.com/m/report/funnel)
+
+一般在广告场景展示前调用此 API。
+
+**接口原型**
+
+```objectivec
+/**
+ 对应广告位进入业务场景缓存状态统计
+ placementId：广告位Id
+ scenario：广告展示场景，可从后台创建场景参数和使用请参考 业务场景缓存状态统计
+ */
+- (void)autoInterstitial_entryAdScenarioWithPlacementID:(NSString *)placementID scenarioID:(NSString *)scenarioID;
+```
+
+**调用示例**
+
+```objectivec
+- (void)entryAdScenario {
+ [[RXTopOnATAdManager sharedSDK] autoInterstitial_entryAdScenarioWithPlacementID:self.placementID scenarioID:"your scene id"];
+}
+```
+
+### 全自动展示广告
+
+**接口原型**
+
+```objectivec
+/**
+ 展示该广告位插屏广告
+ inViewController：展示广告的viewController
+ placementId：需展示的广告位Id
+ scene:展示广告的场景ID
+ */
+- (void)autoInterstitial_showAutoLoadInterstitialWithPlacementID:(NSString*)placementID scene:( NSString* _Nullable )scene inViewController:(UIViewController*)viewController;
+```
+
+**调用示例**
+
+```objectivec
+- (void)showInterstitialAd {
+ // 到达场景
+ [self entryAdScenario];
+
+ if ([[RXTopOnATAdManager sharedSDK] autoInterstitial_autoLoadInterstitialReadyForPlacementID:self.placementID]) {
+ [[RXTopOnATAdManager sharedSDK] autoInterstitial_showAutoLoadInterstitialWithPlacementID:self.placementID scene:"your scene id" inViewController:self];
+ }else{
+ [self loadAd];
+ }
+}
+
+```
+
+### 全自动加载与展示广告的代理方法
+
+与 [插屏广告代理方法](/docs/开发者文档/三方服务/TopOn/插屏广告) 相同。
+
+</TabItem>
+
+<TabItem value="android" label="Android">
+
+## 手动广告加载
+
+### 集成建议
+
+注意： SDK 不会持有广告实例（ RxATInterstitial ）和回调实例（ ATInterstitialListener ），所以需要开发者保证广告结束之前广告实例不会被回收掉，以避免回调丢失的情况
+
+加载广告：
+
+启动应用或者游戏后通过 RxATInterstitial.load 来执行加载广告，请提前调用加载方法进行广告的请求（比如在应用启动就开始加载广告），以便需要触发广告时可以快速展示
+
+建议进入可展示广告场景后调用 entryAdScenario(placementId,scenarioId)统计当前广告位的缓存状态，具体的统计说明可查看广告场景区分不同业务场景的数据
+
+展示广告：
+
+展示前判断 isAdReady()是否准备好，准备好后再调用 show 进行广告展示；若未准备好则发起广告加载，等待广告加载成功；如果需要在加载成功的回调（ onInterstitialAdLoaded ）中展示广告，必须先判断当前应用在前台才能执行展示方法，否则有可能会引起广告在应用外展示或者无法正常展示的情况；
+
+广告预加载：
+
+插屏广告展示后， onInterstitialAdShow 或 onInterstitialAdClose 的回调中无需 isAdReady 判断，直接调用 load 进行预加载（有助于提升优先级比较高的广告源的展示量）
+
+可参考自动请求广告，开启自动请求广告（若已实现上方展示后预加载则不用开启）
+
+推荐使用全自动请求方案，详情见全自动加载模式说明
+
+建议配置预置策略：提高首次冷启动的广告加载效果。
+
+### 注意事项
+
+禁止在 onRewardedVideoAdFailed 回调中执行广告加载的方法，否则会引起很多无用请求且可能会导致应用卡顿
+
+### 加载广告
+
+**接口原型**
+
+```java
+    // 初始化插入广告
+    public RxATInterstitial(Context context, String placementId);
+    // 设置监听
+    public void setAdListener(ATInterstitialListener listener);
+    // 加载广告
+    public void load();
+```
+
+**调用示例**
+
+```java
+    RxATInterstitial mInterstitialAd;
+    private void interLoadAd() {
+    if (mInterstitialAd == null) {
+    mInterstitialAd = new RxATInterstitial(this, "b62b41f080cfc5");
+    mInterstitialAd.setAdListener(new ATInterstitialListener() {
+    @Override
+    public void onInterstitialAdLoaded() {
+
+    Log.d(TAG, "onInterstitialAdLoaded : 我正在运行。。。");
+
+    }
+
+    @Override
+    public void onInterstitialAdLoadFail(AdError adError) {
+    //注意：禁止在此回调中执行广告的加载方法进行重试，否则会引起很多无用请求且可能会导致应用卡顿
+    //AdError，请参考 https://docs.toponad.com/#/zh-cn/android/android_doc/android_test?id=aderror
+    Log.e(TAG, "onInterstitialAdLoadFail:" + adError.getFullErrorInfo());
+    }
+
+    @Override
+    public void onInterstitialAdClicked(ATAdInfo atAdInfo) {
+    Log.d(TAG, "onInterstitialAdClicked : 我正在运行。。。");
+    }
+
+    @Override
+    public void onInterstitialAdShow(ATAdInfo atAdInfo) {
+    //ATAdInfo可区分广告平台以及获取广告平台的广告位ID等
+    //请参考 https://docs.toponad.com/#/zh-cn/android/android_doc/android_sdk_callback_access?id=callback_info
+    //建议在此回调中调用load进行广告的加载，方便下一次广告的展示（不需要调用isAdReady()）
+    mInterstitialAd.load();
+    Log.d(TAG, "onInterstitialAdShow : 我正在运行。。。");
+    }
+
+    @Override
+    public void onInterstitialAdClose(ATAdInfo atAdInfo) {
+    Log.d(TAG, "onInterstitialAdClose : 我正在运行。。。");
+    }
+
+    @Override
+    public void onInterstitialAdVideoStart(ATAdInfo atAdInfo) {
+    Log.d(TAG, "onInterstitialAdVideoStart : 我正在运行。。。");
+    }
+
+    @Override
+    public void onInterstitialAdVideoEnd(ATAdInfo atAdInfo) {
+    Log.d(TAG, "onInterstitialAdVideoEnd : 我正在运行。。。");
+    }
+
+    @Override
+    public void onInterstitialAdVideoError(AdError adError) {
+    //AdError，请参考 https://docs.toponad.com/#/zh-cn/android/android_doc/android_test?id=aderror
+    Log.e(TAG, "onInterstitialAdVideoError:" + adError.getFullErrorInfo());
+    }
+    });
+    mInterstitialAd.load();
+    }
+    }
+```
+
+### 展示广告
+
+**接口原型**
+
+```java
+// 进入业务场景当前广告位缓存状态统计
+    public static void entryAdScenario(String placementId, String scenarioId);
+    // 判断当前Interstitial是否存在可展示的广告
+    public boolean isAdReady();
+    // 展示Interstitial广告
+    public void show(Activity activity);
+```
+
+**调用示例**
+
+```java
+    private void InnerShowAd() {
+    /*
+    为了统计场景到达率，相关信息可查阅 "https://docs.toponad.com/#/zh-cn/android/NetworkAccess/scenario/scenario"
+    在满足广告触发条件时调用“进入广告场景”方法，比如：
+    ** 广告场景是在清理结束后弹出广告，则在清理结束时调用；
+    * 1、先调用 "entryAdScenario"
+    * 2、在调用 "isAdReady" 是否可展示
+    * 3、最后调用 "show" 展示
+    */
+    RxATInterstitial.entryAdScenario("b62b41f080cfc5", "");
+    if (mInterstitialAd.isAdReady()) {
+    mInterstitialAd.show(this);
+    }
+    }
+```
+
+## 全自动广告加载
+
+### 初始化
+
+**接口原型**
+
+```java
+    // 初始化
+    public static void rxInit(Context context, String[] placementIds, ATInterstitialAutoLoadListener loadListener);
+    // 对应广告位进入业务场景缓存状态统计
+    public static void rxEntryAdScenario(String placementId, String scenarioId);
+    // 判断该广告位是否是否存在可展示的广告
+    public static boolean rxIsAdReady(String placementId);
+    // 展示该广告位插屏广告
+    public static void rxShow(Activity activity, String placementId, ATInterstitialAutoEventListener eventListener);
+```
+
+**调用示例**
+
+```java
+    RxATInterstitial.rxEntryAdScenario("b62b41f080cfc5", "");
+    //需判断广告位是否准备好
+    if(RxATInterstitialAutoAd.rxIsAdReady("b62b41f080cfc5")){
+    RxATInterstitialAutoAd.rxShow(
+    InnerAudoActivity.this,
+    "b62b41f080cfc5",
+    new ATInterstitialAutoEventListener() {
+    @Override
+    public void onInterstitialAdClicked(ATAdInfo atAdInfo) {
+    Log.d(TAG, "onInterstitialAdClicked");
+    }
+
+    @Override
+    public void onInterstitialAdShow(ATAdInfo atAdInfo) {
+    Log.d(TAG, "onInterstitialAdShow");
+    }
+
+    @Override
+    public void onInterstitialAdClose(ATAdInfo atAdInfo) {
+    Log.d(TAG, "onInterstitialAdClose");
+    }
+
+    @Override
+    public void onInterstitialAdVideoStart(ATAdInfo atAdInfo) {
+    Log.d(TAG, "onInterstitialAdVideoStart");
+    }
+
+    @Override
+    public void onInterstitialAdVideoEnd(ATAdInfo atAdInfo) {
+    Log.d(TAG, "onInterstitialAdVideoEnd");
+    }
+
+    @Override
+    public void onInterstitialAdVideoError(AdError adError) {
+    Log.d(TAG, "onInterstitialAdVideoError");
+    }
+    }
+    );
+    }
+```
+
+</TabItem>
+
+</Tabs>
+

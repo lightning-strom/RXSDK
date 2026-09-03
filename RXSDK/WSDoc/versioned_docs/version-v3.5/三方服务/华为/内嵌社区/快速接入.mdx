@@ -1,0 +1,319 @@
+---
+title: "快速接入"
+---
+
+# 接入前需要先接入华为渠道
+[接入文档](/docs/v3.5/三方服务/Android 渠道接入说明)
+
+# 内嵌社区开通及设置官方文档
+[官方文档](https://developer.huawei.com/consumer/cn/doc/AppGallery-connect-Guides/pgsmoment-agc-config-0000001291569413)
+[接口调用流程文档](https://developer.huawei.com/consumer/cn/doc/AppGallery-connect-Guides/pgsmoment-devprocess-0000001294107806)
+
+# 隐私声明
+[SDK 隐私声明](https://developer.huawei.com/consumer/cn/doc/AppGallery-connect-Guides/pgsmoment-sdk-security-0000001713760973)
+[SDK 合规使用指南](https://developer.huawei.com/consumer/cn/doc/AppGallery-connect-Guides/pgsmoment-sdk-compliance-guidelines-0000001665681436)
+使用方根据自己的使用情况结合上面文档做必要的处理。
+
+# 华为后台获取参数
+1. 登录 [AppGallery Connect](https://developer.huawei.com/consumer/cn/)，位置：**AppGallery Connect > 项目设置**。获取**应用**下的`APP ID`,**项目**下的`Client ID`,`Client Secret`,`API密钥（凭据）`。
+  ![image.png](https://haiqi-ruixue-test.oss-cn-beijing.aliyuncs.com/docOnline/image-1736754929771.png)
+---
+
+# SDK 集成
+```groovy
+implementation 'com.ruixue:rxsdk_huawei_moment:${version}'
+```
+
+# 动态申请权限(只有发布功能需要此权限)
+在需要发布动态前，需要动态申请权限，否则可能导致发布不成功。参考代码
+- 在游戏页面，初始化该 SDK 之前，调用如下代码申请权限
+```java
+// REQUEST_PERMISSION 这个变量定义为页面全局变量即可。
+if (ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+        requestPermissions(new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, REQUEST_PERMISSION);
+    } else {
+        Toast.makeText(this, "缺少文件读写权限，可能会导致社区发布功能无法使用", Toast.LENGTH_SHORT).show();
+    }
+}
+```
+- 在游戏界面，覆写如下方法
+```java
+@Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+    super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+    if (requestCode == REQUEST_PERMISSION) {
+        RXLogger.d("rxsdk", "grant results " + Arrays.toString(grantResults));
+        // 游戏根据权限是否赋予，处理逻辑，如果用户未赋予权限，则高光时刻功能不能使用。
+    }
+}
+```
+
+# 初始化
+- API 定义
+```java
+/**
+ * 初始化
+ * 
+ * @param context 上下文，一般为 activity
+ * @param params 初始化参数
+ * @param callback 回调
+ */
+public void init(Context context, Map params, RXJSONCallback callback)
+```
+
+- params Map 结构说明
+
+| **字段**         | **类型** | **是否必填** | **说明**                                                          |
+| ---------------- | -------- | ------------ | ----------------------------------------------------------------- |
+| appId             | String   | 是           | 应用APP ID                                             |
+| clientId           | String   | 是           |  游戏应用在AGC项目中的客户端ID                                                          |
+| clientSecret | String   | 是           |  游戏应用在AGC项目中的客户端密钥                                        |
+| cpAccessToken     | String   | 否          |  开发者AGC认证凭证 ，clientSecret和cpAccessToken二者传其一即可                                   |
+| orientation | int | 否 | 内嵌社区的打开方向，此处以竖屏方向为例，默认值为 ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE， 还可以设置 SCREEN_ORIENTATION_PORTRAIT  |
+
+- 示例代码
+```java
+Map params = new HashMap<>();
+params.put("appId", "应用APP ID ");
+params.put("clientId", "游戏应用在AGC项目中的客户端ID");
+params.put("clientSecret", "游戏应用在AGC项目中的客户端密钥");
+// params.put("cpAccessToken", "xxx");
+params.put("orientation", ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
+HuaweiMomentHelper.getInstance().init(this, params, new RXJSONCallback() {
+    @Override
+    public void onSuccess(@Nullable JSONObject data) {
+        // 初始化成功
+    }
+
+    @Override
+    public void onFailed(@NonNull JSONObject cause) {
+        // 初始化失败
+    }
+});
+```
+
+# 未成年检查
+- API 定义
+```java
+/**
+ * 未成年检查
+ * 
+ * @param callback 回调
+ */
+public void checkAdult(RXJSONCallback callback) 
+```
+- 示例代码
+```java
+HuaweiMomentHelper.getInstance().checkAdult(new RXJSONCallback() {
+    @Override
+    public void onSuccess(@Nullable JSONObject data) {
+        if (data != null) {
+            int adult = data.optInt("adult");
+            if (adult == 0) {
+                // 未成年
+            } else if (adult == 1) {
+                // 已成年
+            } else {
+                // 当前用户未完成实名认证
+            }
+        }
+    }
+
+    @Override
+    public void onFailed(@NonNull JSONObject cause) {
+        ToastUtils.showToast(HuaweiMomentDemoActivity.this, "check adult failed " + cause);
+    }
+});
+```
+
+# 打开社区
+- API 定义
+```java
+public void openForumPage(RXJSONCallback callback)
+```
+- 示例代码
+```java
+ HuaweiMomentHelper.getInstance().openForumPage(new RXJSONCallback() {
+    @Override
+    public void onSuccess(@Nullable JSONObject data) {
+        ToastUtils.showToast(HuaweiMomentDemoActivity.this, "打开成功");
+    }
+
+    @Override
+    public void onFailed(@NonNull JSONObject cause) {
+        ToastUtils.showToast(HuaweiMomentDemoActivity.this, "open forum failed " + cause);
+    }
+});
+```
+# 检查场景化入口
+- 使用说明
+    - 需要在华为后台配置场景化入口，并获得 ID，[查看详情](https://developer.huawei.com/consumer/cn/doc/AppGallery-connect-Guides/pgsmoment-agc-config-0000001291569413#section121186165147)
+- API 定义
+```java
+/**
+ * 检查场景化入口
+ * 
+ * @param sceneId 场景 ID
+ * @param callback 回调
+ */
+public void checkScene(String sceneId, RXJSONCallback callback)
+```
+- 示例代码
+```java
+String sceneId = "xxx";
+HuaweiMomentHelper.getInstance().checkScene(sceneId, new RXJSONCallback() {
+    @Override
+    public void onSuccess(@Nullable JSONObject data) {
+        if(data !=null) {
+            boolean valid = data.optBoolean("valid");
+            if (valid) {
+                // 场景有效
+            } else {
+                // 场景无效
+            }
+        }
+    }
+
+    @Override
+    public void onFailed(@NonNull JSONObject cause) {
+        ToastUtils.showToast(HuaweiMomentDemoActivity.this, "check scene failed " + cause);
+    }
+});
+```
+# 打开场景化入口
+- 使用说明
+    - 如果检查场景化入口有效，即可调用该接口打开
+- API 定义
+```java
+/**
+ * 打开场景化入口
+ * 
+ * @param sceneId 场景 ID
+ * @param callback 回调
+ */
+ public void openScene(String sceneId, RXJSONCallback callback)
+```
+- 示例代码
+```java
+String sceneId = "xxx";
+HuaweiMomentHelper.getInstance().openScene(sceneId, new RXJSONCallback() {
+    @Override
+    public void onSuccess(@Nullable JSONObject data) {
+        // 打开成功
+    }
+
+    @Override
+    public void onFailed(@NonNull JSONObject cause) {
+        ToastUtils.showToast(HuaweiMomentDemoActivity.this, "open scene failed " + cause);
+    }
+});
+```
+# 一键发布
+- 使用说明
+    - 如果从望舒后台获取，前提需要在后台配置分享埋点
+    - [望舒配置说明](/docs/v3.5/三方服务/华为/内嵌社区/快速接入)
+- API 定义
+```java
+/**
+ * 一键发布
+ *
+ * @param context     上下文，一般为 activity
+ * @param shareReqMap 如果该参数为 null，则直接调起发布页，不带任何参数，如果非空则会从望舒SDK获取分享参数
+ * @param callback    回调
+ */
+public void publish(Context context, Map shareReqMap, RXJSONCallback callback)
+```
+
+- shareReqMap 结构说明
+
+| **字段**         | **类型** | **是否必填** | **说明**                                                          |
+| ---------------- | -------- | ------------ | ----------------------------------------------------------------- |
+| func             | String   | 是           | 埋点标识数组                                                      |
+| region           | String   | 否           | [望舒地区码](https://pan.jiaxianghudong.com/disk/s/pdEzbPRkDS9)                                                            |
+| protocol_android | String   | 是           | cp 方  android app scheme                                         |
+| protocol_ios     | String   | 是           | cp 方 启动 ios app  scheme                                        |
+| auto_report | boolean | 否 | 是否自动上报分享结果  true 自动上报，false 不自动上报，默认 true  |
+
+- 示例代码
+```java
+Map shareReqMap = new HashMap<>();
+shareReqMap.put("func", "111");//分享埋点
+shareReqMap.put("platform", "system");//分享平台
+shareReqMap.put("protocol_android", "jixiang433://");//android 客户端scheme
+shareReqMap.put("protocol_ios", "jixiang433://");//iOS 客户端scheme
+shareReqMap.put("auto_report", false);
+HuaweiMomentHelper.getInstance().publish(this, shareReqMap, new RXJSONCallback() {
+    @Override
+    public void onSuccess(@Nullable JSONObject data) {
+        ToastUtils.showToast(HuaweiMomentDemoActivity.this, "调起发布界面");
+    }
+
+    @Override
+    public void onFailed(@NonNull JSONObject cause) {
+        ToastUtils.showToast(HuaweiMomentDemoActivity.this, "publish failed " + cause);
+    }
+});
+```
+
+# 一键发布(使用方自定义)
+- API 定义
+```java
+/**
+ * 一键发布（自定义）
+ *
+ * @param images String[] 本地图片路径数组， 如果images 为空并且 content 为空字符，则会调起发送动态界面，不携带任何内容
+ * @param content 发表的动态内容
+ * @param callback 回调
+ */
+public void publish(String[] images, String content, RXJSONCallback callback)
+```
+
+- 示例代码
+```java
+String[] imagePaths = new String[] {
+        "/storage/emulated/0/Android/data/test/files/test1.jpg", // app 本地能否访问的绝对路径
+        "/storage/emulated/0/Android/data/test/files/test2.jpg",
+        "/storage/emulated/0/Android/data/test/files/test3.jpg"
+};
+String content = "默认想要携带的内容";
+HuaweiMomentHelper.getInstance().publish(imagePaths, content, new RXJSONCallback() {
+    @Override
+    public void onSuccess(@Nullable JSONObject data) {
+        ToastUtils.showToast(HuaweiMomentDemoActivity.this, "调起发布界面");
+    }
+
+    @Override
+    public void onFailed(@NonNull JSONObject cause) {
+        ToastUtils.showToast(HuaweiMomentDemoActivity.this, "publish failed " + cause);
+    }
+});
+```
+
+# 关闭社区
+- API 定义
+```java
+/**
+ * 关闭社区
+ * 
+ * @param content 自定义弹窗正文，不超过50个字符。
+ *                若传入空字符串，则采用默认文案：“匹配成功，是否立即返回游戏？”
+ * @param callback 回调
+ */
+public void closeWithConfirm(String content, RXJSONCallback callback)
+```
+- 示例代码
+```java
+String content = "";
+HuaweiMomentHelper.getInstance().closeWithConfirm(content, new RXJSONCallback() {
+    @Override
+    public void onSuccess(@Nullable JSONObject data) {
+        ToastUtils.showToast(HuaweiMomentDemoActivity.this, "关闭成功");
+    }
+
+    @Override
+    public void onFailed(@NonNull JSONObject cause) {
+        ToastUtils.showToast(HuaweiMomentDemoActivity.this, "close failed " + cause);
+    }
+});
+```

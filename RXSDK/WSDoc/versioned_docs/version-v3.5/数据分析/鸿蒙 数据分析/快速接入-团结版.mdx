@@ -1,0 +1,143 @@
+---
+title: "快速接入-团结版"
+---
+
+## 上报事件
+
+可使用此功能将事件上报到望舒大数据后台中。
+:::tip
+需要在SDK初始化后调用！！！
+SDK只支持上报事件属性，用户属性请使用 [Go SDK](/docs/v3.5/数据分析/功能介绍/产品说明) 进行上报
+:::
+
+**接口原型**
+
+```csharp
+/**
+ * 埋点数据上报
+ *
+ * @param eventName  埋点标识事件
+ * @param properties CP 自定义属性（由CP调用时传入）
+  * @param distinctId 用户唯一标识，默认为 OpenID
+ * @return 数据上报是否成功记录 自3.3.9版本起添加
+ */
+bool Track(string eventName, Dictionary keyValuePairs, string distinctId = null)
+
+```
+
+### 参数说明
+
+| **字段**      | **类型**            | **是否必填** | **说明**                                                                                              |
+| ------------- | ------------------- | ------------ | ----------------------------------------------------------------------------------------------------- |
+| eventName     | string              | 是           | 埋点标识                                                                                              |
+| properties    | Dictionary | 是           | 自定义属性注意：properties 中上传的属性内容，必须与在后台中添加的属性内容保持一致。否则数据无法统计。 |                                                                 |
+
+**调用示例**
+
+```csharp
+Dictionary hashDictionary = new ();
+hashDictionary.Add("testval", "testval");
+boolean isSuccess= RuiXueSdk.Track("event_name",  hashDictionary,"open id");
+
+```
+
+### 响应结构
+
+返回boolean，标识数据上报是否被成功记录。
+
+## 设置公共属性
+
+设置后由SDK填入自定义属性中进行上报，设置后SDK进行缓存，多次设置则会覆盖。
+
+**接口原型**
+
+```csharp
+/**
+ * 修改公共属性
+ * 修改的属性会将原有属性覆盖，未设置的属性则会补入缓存中
+ * @publicProperties 公共属性
+ */
+void SetPublicProperties(Dictionary publicProperties) 
+```
+
+**调用示例**
+
+```csharp
+    Dictionary pub = new ();
+    pub.Add("a", 1);
+    pub.Add("b", 2);
+    RuiXueSdk.SetPublicProperties(pub);
+```
+
+## 修改公共属性
+
+修改的属性会将原有属性覆盖，未设置的属性则会补入缓存中。
+
+**接口原型**
+
+```csharp
+/**
+ * 修改公共属性
+ * 修改的属性会将原有属性覆盖，未设置的属性则会补入缓存中
+ * @key 公共属性key
+ * @value 公共属性value
+ */
+void UpdatePublicProperties(string key, object value) 
+```
+
+**调用示例**
+
+```csharp
+RuiXueSdk.UpdatePublicProperties("a","update");
+```
+
+## 删除公共属性
+
+删除缓存的某个公共属性。
+
+**接口原型**
+
+```csharp
+/**
+ * 删除公共属性
+ * 删除缓存的某个公共属性
+ * @key 公共属性key
+ */
+void DeletePublicProperties(string key) 
+```
+
+**调用示例**
+
+```csharp
+RuiXueSdk.DeletePublicProperties("a");
+```
+
+## 用户行为统计
+:::tip
+SDK 会自动收集从 初始化->登录-> 实名认证 产生的用户行为，可在大数据中查看具体行为数据 [用户行为统计](https://nctpoatgf0.feishu.cn/wiki/SqKswRM22ipDKOkvLxCc7jQ5nhb)，客户端可以在望舒预置事件中插入游戏行为统计。
+:::
+
+**接口原型**
+
+```csharp
+/**
+ * 用户行为统计
+ */
+ void TrackUserAction(Dictionary trackData, string distinctId = null)
+
+/**
+ * 终止用户行为统计
+ */
+void StopTrackUserAction()
+```
+
+**调用示例**
+
+```csharp
+// 插入行为统计
+
+RuiXueSdk.TrackUserAction(自定义用户行为字典数据);
+    
+// 终止行为统计
+RuiXueSdk.StopTrackUserAction();
+```

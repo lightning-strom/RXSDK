@@ -1,0 +1,820 @@
+---
+title: "快速接入-团结版"
+---
+
+本模块提供接入鸿蒙 Nex的游戏近场快传能力。
+**系统版本要求**
+- 鸿蒙系统起始版本：5.1.0(API Level 18)
+- 兼容性校验：可通过 NearbyTransferService.isSupport() 方法检测当前设备是否满足版本要求
+- 更多功能说明 ：参照[华为官方文档](https://developer.huawei.com/consumer/cn/doc/harmonyos-guides/gameservice-nearbytransfer-introduction)
+
+# 导入模块
+```typescript
+import { NearbyTransferService, NearbyEventType } from 'hmssdk';
+```
+# 开发准备
+在工程的entry模块module.json5文件中，新增metadata并配置app_id，同时新增requestPermissions并配置如下权限。
+```json
+"module": {
+  "name": "entry",
+  "type": "entry",
+  "description": "xxxx",
+  "mainElement": "xxxx",
+  "deviceTypes": [
+    "phone"
+  ],
+  "deliveryWithInstall": true,
+  "pages": "$profile:main_pages",
+  "abilities": [],
+  "metadata": [ // 配置如下信息
+    {
+      "name": "app_id",
+      "value": "xxxxxx" // 配置为前面步骤中获取的APP ID
+    }
+  ],
+   "requestPermissions": [ // 配置权限
+     {
+       "name": "ohos.permission.INTERNET" // 允许使用Internet网络权限
+     },
+     {
+       "name": "ohos.permission.GET_NETWORK_INFO"  // 允许应用获取数据网络信息权限
+     },
+     {
+       "name": "ohos.permission.SET_NETWORK_INFO" // 允许应用配置数据网络权限
+     },
+     {
+       "name": "ohos.permission.DISTRIBUTED_DATASYNC", // 允许不同设备间的数据交换权限
+       "reason": "$string:distributed_permission",
+       "usedScene": {
+         "abilities": [
+           "EntryAbility"
+         ],
+         "when": "inuse"
+       }
+     }
+   ]
+}
+```
+# 处理协作授权
+:::tip
+- 注意必须添加，否则无法连接附近设备 ，团结引擎请在TuanjiePlayerAbility中添加
+:::- API 定义
+```typescript
+  /**
+   * 处理协作请求（需在 UIAbility 的 onCollaborate 生命周期函数中调用）
+   * @description 接收并处理外部设备发起的协作请求，完成协作参数解析、设备绑定及协作流程初始化，
+   *              通常与系统协作机制联动，由 UIAbility 的 onCollaborate 生命周期触发调用
+   * @param acceptParameters - 协作请求参数（来自系统传递的 wantParam）
+   *                           包含协作所需的设备信息、请求类型等关键数据，结构为键值对形式
+   * @returns Promise - 异步协作处理结果，无返回值（处理结果通过事件回调反馈）
+   * @example
+  * // 在 UIAbility 中集成调用示例
+   * onCollaborate(wantParam: Record): AbilityConstant.CollaborateResult {
+   *   // 异步处理协作请求（不阻塞生命周期返回）
+   *   NearbyTransferService.acceptCollaboration(wantParam).catch(err => {
+   *     LogUtil.error("协作请求处理失败：", err);
+   *   });
+   *   // 同步返回接受协作的结果给系统
+   *   return AbilityConstant.CollaborateResult.ACCEPT;
+   * }
+   * @throws {BusinessError} 协作处理异常时抛出错误（如参数无效、协作服务未初始化、设备连接失败等）
+   */
+  public static async acceptCollaboration(acceptParameters: Record): Promise 
+```
+
+- 示例代码
+```typescript
+   //Ability.ets 文件中添加
+  onCollaborate(wantParam: Record): AbilityConstant.CollaborateResult {
+    NearbyTransferService.acceptCollaboration(wantParam);
+    return AbilityConstant.CollaborateResult.ACCEPT;
+  }
+```
+# 基础类型定义
+参考手册 [应用沙箱目录](https://developer.huawei.com/consumer/cn/doc/harmonyos-guides/app-sandbox-directory)
+```csharp
+ /// <summary>
+    /// 创建参数（初始化附近传输服务的入参）
+    /// </summary>
+    /// SystemCapability.GameService.GameNearby
+    /// 5.1.0(18)
+    public class CreateParameters
+    {
+        /// <summary>
+        /// 模块名称（必填）
+        /// </summary>
+        public string moduleName = string.Empty;
+
+        /// <summary>
+        /// 能力名称（对应应用的Ability名称，必填）
+        /// </summary>
+        public string abilityName = string.Empty;
+
+        /// <summary>
+        /// 是否需要显示系统UI（可选）
+        /// </summary>
+        public bool needShowSystemUI;
+
+        /// <summary>
+        /// 连接模式（可选）
+        /// </summary>
+        /// 6.0.0(20)
+        public Mode mode;
+    }
+
+    /// <summary>
+    /// 连接相关通知（接收连接状态变更的回调数据）
+    /// </summary>
+    /// SystemCapability.GameService.GameNearby
+    /// 5.1.0(18)
+    public class ConnectNotification
+    {
+        /// <summary>
+        /// 连接状态（已连接/断开连接）
+        /// </summary>
+        public ConnectState connectState;
+
+        /// <summary>
+        /// 连接结果描述（可选）
+        /// </summary>
+        public string message;
+
+        /// <summary>
+        /// 远端设备名称（可选）
+        /// </summary>
+        public string remoteDeviceName;
+    }
+
+    /// <summary>
+    /// 绑定附近传输服务的参数（与指定设备建立绑定的入参）
+    /// </summary>
+    /// SystemCapability.GameService.GameNearby
+    /// 6.0.0(20)
+    public class BindParameters
+    {
+        /// <summary>
+        /// 设备ID（必填）
+        /// </summary>
+        public string deviceId = string.Empty;
+
+        /// <summary>
+        /// 设备网络ID（必填）
+        /// </summary>
+        public string networkId = string.Empty;
+    }
+
+    /// <summary>
+    /// 已发现设备的信息（扫描附近设备后返回的设备详情）
+    /// </summary>
+    /// SystemCapability.GameService.GameNearby
+    /// 6.0.0(20)
+    public class NearbyGameDevice
+    {
+        /// <summary>
+        /// 设备名称（必填）
+        /// </summary>
+        public string deviceName = string.Empty;
+
+        /// <summary>
+        /// 设备ID（必填）
+        /// </summary>
+        public string deviceId = string.Empty;
+
+        /// <summary>
+        /// 设备网络ID（必填）
+        /// </summary>
+        public string networkId = string.Empty;
+    }
+
+    /// <summary>
+    /// 发现设备结果（扫描附近设备后的返回结果）
+    /// </summary>
+    /// SystemCapability.GameService.GameNearby
+    /// 6.0.0(20)
+    public class DiscoveryResult
+    {
+        /// <summary>
+        /// 附近游戏设备列表（必填）
+        /// </summary>
+        public List nearbyGameDevices = new();
+    }
+
+    /// <summary>
+    /// 附近传输服务的连接模式枚举
+    /// </summary>
+    /// SystemCapability.GameService.GameNearby
+    /// 6.0.0(20)
+    public enum Mode
+    {
+        /// <summary>
+        /// API模式（通过接口调用连接）
+        /// </summary>
+        API = 1,
+
+        /// <summary>
+        /// 敲击模式（设备间物理敲击连接）
+        /// </summary>
+        KNOCK = 2
+    }
+
+    /// <summary>
+    /// 创建服务结果（初始化附近传输服务后的返回结果）
+    /// </summary>
+    /// SystemCapability.GameService.GameNearby
+    /// 5.1.0(18)
+    public class CreateResult
+    {
+        /// <summary>
+        /// 本地设备名称（必填）
+        /// </summary>
+        public string localDeviceName = string.Empty;
+    }
+
+    /// <summary>
+    /// 连接状态枚举
+    /// </summary>
+    /// SystemCapability.GameService.GameNearby
+    /// 5.1.0(18)
+    public enum ConnectState
+    {
+        /// <summary>
+        /// 已建立连接
+        /// </summary>
+        CONNECTED = 0,
+
+        /// <summary>
+        /// 已断开连接
+        /// </summary>
+        DISCONNECTED = 1
+    }
+
+    /// <summary>
+    /// 传输相关通知（接收文件传输状态变更的回调数据）
+    /// </summary>
+    /// SystemCapability.GameService.GameNearby
+    /// 5.1.0(18)
+    public class TransferNotification
+    {
+        /// <summary>
+        /// 包传输状态（必填）
+        /// </summary>
+        public TransferState transferState;
+
+        /// <summary>
+        /// 包传输详情（必填）
+        /// </summary>
+        public TransferInfo transferInfo = new();
+
+        /// <summary>
+        /// 文件存储路径（接收文件时的保存路径，可选）
+        /// </summary>
+        public string fileStoragePath;
+    }
+
+    /// <summary>
+    /// 包传输状态枚举
+    /// </summary>
+    /// SystemCapability.GameService.GameNearby
+    /// 5.1.0(18)
+    public enum TransferState
+    {
+        /// <summary>
+        /// 即将开始发送
+        /// </summary>
+        SEND_START = 0,
+
+        /// <summary>
+        /// 发送中
+        /// </summary>
+        SEND_PROCESS = 1,
+
+        /// <summary>
+        /// 发送完成
+        /// </summary>
+        SEND_FINISH = 2,
+
+        /// <summary>
+        /// 发送失败
+        /// </summary>
+        SEND_ERROR = 3,
+
+        /// <summary>
+        /// 开始接收
+        /// </summary>
+        RECEIVE_START = 4,
+
+        /// <summary>
+        /// 接收中
+        /// </summary>
+        RECEIVE_PROCESS = 5,
+
+        /// <summary>
+        /// 接收完成
+        /// </summary>
+        RECEIVE_FINISH = 6,
+
+        /// <summary>
+        /// 接收失败
+        /// </summary>
+        RECEIVE_ERROR = 7
+    }
+
+    /// <summary>
+    /// 文件信息（单个文件的详情）
+    /// </summary>
+    /// SystemCapability.GameService.GameNearby
+    /// 5.1.0(18)
+    public class FileInfo
+    {
+        /// <summary>
+        /// 文件路径（必填）
+        /// </summary>
+        public string path = string.Empty;
+
+        /// <summary>
+        /// 文件哈希值（用于完整性校验，可选）
+        /// </summary>
+        public string hash;
+    }
+
+    /// <summary>
+    /// 包信息（传输包的整体信息，包含多个文件）
+    /// </summary>
+    /// SystemCapability.GameService.GameNearby
+    /// 5.1.0(18)
+    public class PackageInfo
+    {
+        /// <summary>
+        /// 包名称（可选）
+        /// </summary>
+        public string name;
+
+        /// <summary>
+        /// 版本号（可选）
+        /// </summary>
+        public string version;
+
+        /// <summary>
+        /// 文件列表（可选）
+        /// </summary>
+        public List files;
+
+        /// <summary>
+        /// 包的额外数据（自定义扩展信息，可选）
+        /// </summary>
+        public string extraData;
+    }
+
+    /// <summary>
+    /// 包文件信息（传输包中单个文件的源路径和目标路径映射）
+    /// </summary>
+    /// SystemCapability.GameService.GameNearby
+    /// 5.1.0(18)
+    public class PackageFile
+    {
+        /// <summary>
+        /// 源文件路径（发送方的文件原始路径，必填）
+        /// </summary>
+        public string srcPath = string.Empty;
+
+        /// <summary>
+        /// 目标文件路径（接收方的文件保存路径，必填）
+        /// </summary>
+        public string destPath = string.Empty;
+    }
+
+    /// <summary>
+    /// 包数据（用于传输的包的完整数据，包含文件列表和元信息）
+    /// </summary>
+    /// SystemCapability.GameService.GameNearby
+    /// 5.1.0(18)
+    public class PackageData
+    {
+        /// <summary>
+        /// 包名称（可选）
+        /// </summary>
+        public string name;
+
+        /// <summary>
+        /// 版本号（可选）
+        /// </summary>
+        public string version;
+
+        /// <summary>
+        /// 包文件列表（必填）
+        /// </summary>
+        public List files = new();
+    }
+
+    /// <summary>
+    /// 返回结果（通用接口调用返回结果）
+    /// </summary>
+    /// SystemCapability.GameService.GameNearby
+    /// 5.1.0(18)
+    public class ReturnResult
+    {
+        /// <summary>
+        /// 返回码（0成功，非0失败）
+        /// </summary>
+        public int code;
+
+        /// <summary>
+        /// 返回信息（成功描述或失败原因，可选）
+        /// </summary>
+        public string message;
+    }
+
+    /// <summary>
+    /// 包信息对比结果码枚举（判断远端设备的包是否可用）
+    /// </summary>
+    /// SystemCapability.GameService.GameNearby
+    /// 5.1.0(18)
+    public enum PackageInfoResultCode
+    {
+        /// <summary>
+        /// 错误（对比过程异常）
+        /// </summary>
+        ERROR = -1,
+
+        /// <summary>
+        /// 对比后包可用（远端包符合要求）
+        /// </summary>
+        PACKAGE_AVAILABLE_COMPARED = 0,
+
+        /// <summary>
+        /// 对比后包不可用（远端包不符合要求）
+        /// </summary>
+        PACKAGE_UNAVAILABLE_COMPARED = 1
+    }
+
+    /// <summary>
+    /// 包信息对比结果（对比远端设备包后的返回结果）
+    /// </summary>
+    /// SystemCapability.GameService.GameNearby
+    /// 5.1.0(18)
+    public class PackageInfoResult
+    {
+        /// <summary>
+        /// 对比结果码（必填）
+        /// </summary>
+        public PackageInfoResultCode packageInfoResultCode;
+
+        /// <summary>
+        /// 对比结果描述（可选）
+        /// </summary>
+        public string message;
+    }
+
+    /// <summary>
+    /// 传输相关信息（传输进度、速度、剩余时间等详情）
+    /// </summary>
+    /// SystemCapability.GameService.GameNearby
+    /// 5.1.0(18)
+    public class TransferInfo
+    {
+        /// <summary>
+        /// 预计传输时长（单位：秒，必填）
+        /// </summary>
+        public int expectedTime;
+
+        /// <summary>
+        /// 已传输包大小（单位：字节，必填）
+        /// </summary>
+        public long transferredPackageSize;
+
+        /// <summary>
+        /// 包总大小（单位：字节，必填）
+        /// </summary>
+        public long totalPackageSize;
+
+        /// <summary>
+        /// 传输速度（单位：字节/秒，必填）
+        /// </summary>
+        public long rate;
+    }
+
+    /// <summary>
+    /// 附近传输错误码枚举（接口调用失败时的具体原因）
+    /// </summary>
+    /// SystemCapability.GameService.GameNearby
+    /// 5.1.0(18)
+    public enum NearbyTransferErrorCode
+    {
+        /// <summary>
+        /// 系统内部错误
+        /// </summary>
+        INTERNAL_ERROR = 1018300001,
+
+        /// <summary>
+        /// 认证失败
+        /// </summary>
+        AUTH_FAILED = 1018300002,
+
+        /// <summary>
+        /// 无效请求
+        /// </summary>
+        INVALID_REQUEST = 1018300003,
+
+        /// <summary>
+        /// 无可用服务
+        /// </summary>
+        NO_SERVICE_AVAILABLE = 1018300004,
+
+        /// <summary>
+        /// 必须同时开启无线网络和蓝牙
+        /// </summary>
+        WLAN_BLUETOOTH_MUST_BE_ON = 1018300005,
+
+        /// <summary>
+        /// 发布失败
+        /// </summary>
+        PUBLISH_FAILED = 1018300006,
+
+        /// <summary>
+        /// 发现失败
+        /// </summary>
+        DISCOVERY_FAILED = 1018300007,
+
+        /// <summary>
+        /// 参数无效
+        /// </summary>
+        /// 6.0.0(20)
+        INVALID_PARAMETER = 1018300008
+    }
+```
+
+# 事件回调注册
+- API 定义
+```csharp
+/// <summary>
+/// 初始化近场通信模块（必须最先调用，模块使用前需完成初始化）
+/// </summary>
+/// 初始化参数 
+/// 初始化结果回调：
+/// 
+void Create(CreateParameters param, Action> callback);
+```
+
+- 示例代码
+```csharp
+
+RuiXueSdk.GameNearbyTransfer().RegisterCallback((ret) =>
+{
+
+    if (ret.type == NearbyGameEventType.ConnectNotify)
+    {
+        Log.D("Nearby onEvent ConnectionStateChanged:" + ret.ToJson());
+    }
+    else if (ret.type == NearbyGameEventType.TransferNotify)
+    {
+        Log.D("Nearby onEvent MessageReceived:" + ret.ToJson());
+    }
+    else if (ret.type == NearbyGameEventType.BindNearbyGame)
+    {
+        Log.D("Nearby onEvent BindNearbyGameResult:" + ret.ToJson());
+    }
+    else
+    {
+            Log.D("Nearby onEvent other type:" + ret.ToJson());
+    }
+
+    Log.D("Nearby onEvent:" + ret.ToJson());
+    ShowText(RXUtility.ObjectToJson(ret));
+});
+```
+
+ # 注销事件监听
+- API 定义
+```csharp
+/// <summary>
+/// 注销全局回调（模块销毁前建议调用，避免回调重复执行/内存泄漏）
+/// </summary>
+/// 注销后全局回调不再触发，单接口回调不受影响
+void UnregisterCallback();
+```
+
+- 示例代码
+```csharp
+RuiXueSdk.GameNearbyTransfer()..UnregisterCallback()
+```
+
+ # 发布近场快传服务
+- API 定义
+```csharp
+/// <summary>
+/// 发布当前游戏到近场网络（让周边设备能发现本设备的游戏联机服务）
+/// </summary>
+/// 发布结果回调：
+/// 
+/// 需先调用 Create 初始化成功后再执行
+void PublishNearbyGame(Action> callback);
+```
+
+- 示例代码
+```csharp
+
+RuiXueSdk.GameNearbyTransfer().PublishNearbyGame((ret) =>
+{
+    Log.D("Nearby callback:" + ret.ToJson());
+
+    ShowText("reslut :" + RXUtility.ObjectToJson(ret));
+
+});
+
+```
+
+ # 自动绑定发现的设备
+- API 定义
+```csharp
+/// <summary>
+/// 自动绑定已发现的近场游戏设备（适用于「一键联机」场景，无需手动选择设备）
+/// </summary>
+/// 绑定结果回调：
+/// 
+/// 建议先调用 Discovery 发现设备后再执行，否则大概率绑定失败
+void AutoBindNearbyGame(Action> callback);
+```
+
+- 示例代码
+```csharp
+RuiXueSdk.GameNearbyTransfer().AutoBindNearbyGame((ret) =>
+{
+    Log.D("Nearby callback:" + ret.ToJson());
+
+    ShowText("reslut :" + RXUtility.ObjectToJson(ret));
+
+});
+
+```
+
+# 发现附近设备
+- API 定义
+```csharp
+/// <summary>
+/// 扫描发现周边可联机的游戏设备（主动探测近场网络内的游戏设备）
+/// </summary>
+/// 发现结果回调：
+/// - Data 为 DiscoveryResult 类型，包含已发现的设备列表（NearbyGameDevice 集合）
+/// 
+/// 扫描结果仅包含已发布游戏的设备（对方需调用 PublishNearbyGame）
+void Discovery(Action> callback);
+```
+
+- 示例代码
+```csharp
+  RuiXueSdk.GameNearbyTransfer().Discovery((ret) =>
+           {
+               Log.D("Nearby discovery:" + ret.ToJson());
+               ShowText("discovery :" + RXUtility.ObjectToJson(ret));
+               devices = ret.data.nearbyGameDevices;
+
+           });
+```
+
+# 绑定指定的设备
+- API 定义
+```csharp
+  /// <summary>
+/// 手动绑定指定的近场游戏设备（适用于「选择指定设备联机」场景）
+/// </summary>
+/// 待绑定的设备实例（需从 Discovery 接口的结果中获取）
+/// 绑定结果回调：
+/// 
+void BindNearbyGame(NearbyGameDevice device, Action> callback);
+```
+
+```csharp
+NearbyGameDevice device =要绑定的设备数据
+  RuiXueSdk.GameNearbyTransfer().BindNearbyGame(device, (ret) =>
+                     {
+                         Log.D("Nearby bindDevice:" + ret.ToJson());
+                         ShowText("bindDevice :" + RXUtility.ObjectToJson(ret));
+
+                     });
+```
+
+# 发送包信息
+- API 定义
+```csharp
+/// <summary>
+/// 发送数据包基础信息（传输实际数据前的「握手」步骤，告知对方数据包元信息）
+/// </summary>
+/// 数据包元信息（含包ID、包大小、业务数据类型等）
+/// 发送结果回调：
+/// 
+/// 需先完成设备绑定，再执行该接口
+void SendPackageInfo(PackageInfo packageInfo, Action> callback);
+```
+
+- 示例代码
+```csharp
+  PackageInfo packageInfo= new PackageInfo
+            {
+                name = "test_package_id",
+         
+                version = "1.0.0",    
+                files=new List
+                {
+                    new FileInfo
+                    {
+                        path="文件沙盒路径",
+                        hash="sdfdsfsdfdsf",
+               
+                    },
+                   
+                }   
+            };
+
+            RuiXueSdk.GameNearbyTransfer().SendPackageInfo(packageInfo, (ret) =>
+            {
+                Log.D("Nearby SendPackageInfo:" + ret.ToJson());
+                ShowText("SendPackageInfo :" + RXUtility.ObjectToJson(ret));    
+            });
+```
+
+# 响应包信息对比结果
+```csharp
+/// <summary>
+/// 回复数据包信息的处理结果（接收方收到 PackageInfo 后，告知发送方是否接受该数据包）
+/// </summary>
+/// 回复结果（含包ID、是否接受、拒绝原因等）
+/// 回复结果回调：确认回复是否成功发送给对方
+/// 接收方专属接口，需在收到 SendPackageInfo 后调用
+void ReplyPackageInfoResult(PackageInfoResult packageInfoResult, Action> callback);
+```
+
+- 示例代码
+```csharp
+PackageInfoResult packageInfoResult = new PackageInfoResult
+{
+    packageInfoResultCode = PackageInfoResultCode.PACKAGE_AVAILABLE_COMPARED,
+    message = " Package is available and compared successfully",
+
+};
+
+RuiXueSdk.GameNearbyTransfer().ReplyPackageInfoResult(packageInfoResult, (ret) =>
+{
+    Log.D("Nearby ReplyPackageInfoResult sent");
+});
+```
+
+# 开始传输包数据
+- API 定义
+```csharp
+/// <summary>
+/// 传输数据包的实际内容（核心数据传输接口，需先完成 PackageInfo 握手）
+/// </summary>
+/// 实际数据包（含包ID、二进制数据、传输进度等）
+/// 传输结果回调：
+/// 
+/// 大文件建议分块传输，避免单次传输超时
+void TransferPackageData(PackageData packageData, Action> callback);
+```
+
+- 示例代码
+```csharp
+PackageData packageData = new PackageData
+{
+    name = "hello nearby game",
+    version = "1.1.1",
+    files = new List
+                {
+                    new PackageFile
+                    {
+                        srcPath = "文件沙盒路径/test1.txt",
+                        destPath = "文件沙盒路径/nearbygame/test1.txt",
+
+                    },
+
+                }
+};
+RuiXueSdk.GameNearbyTransfer().TransferPackageData(packageData, (ret) =>
+{
+    Log.D("Nearby TransferPackageData:" + ret.ToJson());
+    ShowText("TransferPackageData :" + RXUtility.ObjectToJson(ret));
+
+});
+```
+
+# 销毁游戏近场快传服务
+- API 定义
+```csharp
+/// <summary>
+/// 销毁近场通信模块（最后调用，释放所有资源）
+/// </summary>
+/// 销毁结果回调：确认模块是否成功释放
+/// 
+/// 1. 销毁前建议先调用 UnregisterCallback 注销全局回调
+/// 2. 销毁后所有接口不可再调用，需重新 Create 才能使用
+/// 
+void Destroy(Action> callback);
+```
+
+- 示例代码
+```csharp
+RuiXueSdk.GameNearbyTransfer().Destroy((ret) =>
+{
+    Log.D("NearbyDestory:" + ret.ToJson());
+    ShowText("NearbyDestory :" + RXUtility.ObjectToJson(ret));
+});
+```

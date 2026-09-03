@@ -1,0 +1,73 @@
+---
+sidebar_position: 10
+title: 获取设备已安装应用
+description: 接入 RXAppListSDK / rxsdk_install_appinfo 后，登录成功自动上报设备已安装应用列表（已过滤系统应用）。
+---
+
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
+
+接入 SDK 组件后无需客户端操作，登录成功后 SDK 自动获取设备上的已安装应用，并过滤掉系统应用后上报到大数据中。
+
+:::warning
+获取设备已安装应用列表在 iOS、Android 平台中属于违规行为，请谨慎使用！！！
+:::
+
+<Tabs groupId="platform">
+
+<TabItem value="ios" label="iOS">
+
+## SDK 集成
+
+RXAppListSDK 版本为 1.0.0。
+
+- 编辑 Podfile 文件，添加如下配置：
+
+```objectivec
+pod 'RXAppListSDK'
+```
+
+## 初始化
+
+:::warning
+在 [瑞雪初始化方法](/docs/开发者文档/入门指南/快速开始/iOS初始化/快速开始) 之前调用。
+:::
+
+**接口原型**
+
+```objectivec
+/**
+ * 初始化
+ */
+- (void)regist;
+```
+
+**调用示例**
+
+```objectivec
+[[RXAppListService sharedSDK] regist];
+```
+
+</TabItem>
+
+<TabItem value="android" label="Android">
+
+- 编辑 `AndroidManifest.xml` 文件，添加如下权限配置：
+
+```xml
+<uses-permission android:name="android.permission.QUERY_ALL_PACKAGES" />
+```
+
+- 编辑 `build.gradle` 文件，添加如下配置：
+
+```groovy
+implementation "com.ruixue:rxsdk_install_appinfo:${version}"
+```
+
+:::info[初始化时机]
+在 [Android 瑞雪 SDK 初始化](/docs/开发者文档/入门指南/快速开始/Android初始化/快速接入) 之前完成上述集成；接入后登录成功即自动上报，无需额外客户端调用。
+:::
+
+</TabItem>
+
+</Tabs>

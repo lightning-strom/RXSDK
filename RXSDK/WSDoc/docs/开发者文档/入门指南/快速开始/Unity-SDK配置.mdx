@@ -1,0 +1,221 @@
+---
+sidebar_position: 12
+title: Unity SDK 配置
+description: 望舒 Unity SDK 高级配置，包括语言、地区、子渠道、截屏控制、自定义错误消息、全局回调及自定义请求等。
+---
+
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
+
+## 设置子渠道
+
+通行证记录来源（分包）、子渠道参数。必须在 登录、注册 前调用。
+
+```csharp tab={"label":"接口原型"}
+void SetSubChannelId(string subChannelId);
+```
+
+```csharp tab={"label":"调用示例"}
+private void OnSetSubChannelId()
+{
+    RuiXueSdk.SetSubChannelId("your sub_channel_id");
+}
+```
+
+## 设置语言
+
+客户端可设置 SDK 语言。
+
+海外项目需要根据发行地区或 App 的语言进行设置，避免出现 SDK 的文案和 App 内语言不一致的情况。
+
+```csharp tab={"label":"接口原型"}
+void SetLanguage(string language);
+```
+
+```csharp tab={"label":"调用示例"}
+RuiXueSdk.SetLanguage("en");
+```
+
+### 支持语言列表
+
+| 字段 | 备注 |
+| --- | --- |
+| zh | 简体中文 |
+| tc | 繁体中文 |
+| ja | 日文 |
+| en | 英文 |
+| th | 泰文 |
+| vi | 越南语 |
+| tl | 菲律宾语 |
+| id | 印尼语 |
+
+## 设置地区
+
+客户端可设置 SDK 地区，设置后自动在请求头添加 ruixue-area 传给服务器。
+
+海外项目需要根据发行地区进行设置，查看 [地区码](/docs/开发者文档/支付/服务端接入/国家编码-币种字典)，默认获取系统设置地区。
+
+```csharp tab={"label":"接口原型"}
+/// <summary>
+/// 设置地区
+/// </summary>
+/// <param name="area">地区</param>
+public void SetArea(string area);
+```
+
+```csharp tab={"label":"调用示例"}
+RuiXueSdk.SetArea("CN");
+```
+
+## 设置是否禁止截屏
+
+```csharp tab={"label":"接口原型"}
+void SetScreenCaptureDisable(bool disable);
+```
+
+```csharp tab={"label":"调用示例"}
+private void SetScreenCaptureDisable()
+{
+    RuiXueSdk.SetScreenCaptureDisable(true);
+}
+```
+
+## 设置自定义错误消息提示
+
+- 规则 1：根据设置的错误码直接读取对应提示替换 `msg`；
+- 规则 2：如果设置中有 `default` 的 key，将未配置错误码的 `msg` 统一替换为 `default` 的 value；
+- 规则 3：`$code$`、`$msg$`、`$thirdcode$`、`$thirdmsg$` 为模板占位符，使用后将分别被替换为 SDK 接口默认返回值。
+
+以上规则仅适用于调用了 `configErrorMsg` 方法，未调用此方法，则返回 SDK 默认提示信息，映射键值对中 key 对应 value 不能为空字符串，否则该对映射不生效。
+
+**接口原型**
+
+```csharp
+/**
+ * 设置自定义错误消息提示
+ * @param errorMsgMap 错误消息字典
+ */
+public void configErrorMsg(Dictionary<string, object> errorMsgMap);
+```
+
+**数据结构**
+
+错误码设置的参数形式，应按照语言进行分类设置，无需将提示的语言类型配置齐全，为方便未来扩展语言结构，设置的数据结构例如：
+
+```json
+{
+  "en": {
+    "3001": "error1",
+    "3002": "error2"
+  },
+  "zh": {
+    "3001": "错误1",
+    "3002": "错误2"
+  }
+}
+```
+
+```csharp tab={"label":"调用示例"}
+private void customErrorMsg()
+{
+    Dictionary<string, string> zhDic = new()
+    {
+        { "3001", "错误码信息1" },
+        { "3002", "错误码信息2" },
+        { "default", "测试66666 $msg$ $code$ $thirdcode$ $thirdmsg$" }
+    };
+    Dictionary<string, string> enDic = new()
+    {
+        { "3001", "error1" },
+        { "3002", "error2" },
+        { "default", "测试77777 $msg$ $code$ $thirdcode$ $thirdmsg$" }
+    };
+    Dictionary<string, object> errorDic = new();
+    errorDic.Add("zh", zhDic);
+    errorDic.Add("en", enDic);
+
+    RuiXueSdk.configErrorMsg(errorDic);
+}
+```
+
+## 自定义接口请求
+
+项目组实现该接口，可以处理一些紧急的线上事故（不依赖发版）。
+
+```csharp tab={"label":"接口原型"}
+void CreateRequest(string url, Dictionary<string, string> header, Dictionary<string, string> body,
+ HttpMethod method, bool needLogin, RequestResponseDelegate onResponse, RequestErrorDelegate onError);
+```
+
+```csharp tab={"label":"调用示例"}
+private void RequestResponseDelegate(string data)
+{
+    LogUtil.Log("EventManager", $"RequestResponseDelegate: {data}");
+}
+
+private void RequestErrorDelegate(string error)
+{
+    LogUtil.Log("EventManager", $"RequestErrorDelegate: {error}");
+}
+
+private void OnRXRequest()
+{
+    string api = "v1/operationapi/legal";
+    Dictionary<string, string> body = new()
+    {
+        { "body", "body test" }
+    };
+    Dictionary<string, string> headers = new()
+    {
+        { "headers", "headers test" }
+    };
+
+    RuiXueSdk.CreateRequest(api, headers, body, HttpMethod.POST, true, RequestResponseDelegate,
+        RequestErrorDelegate);
+}
+```
+
+## 全局通用回调
+
+一些需要特定条件触发的事件会通过全局通用回调将事件通知给客户端，通过回调的 type 区分事件类型，并处理相应的业务逻辑。
+
+```csharp tab={"label":"接口原型"}
+public void SetSdkCallback(PublicDelegate publicDelegate, LogoutDelegate onLogout,
+ SwitchAccountDelegate onSwitchAccount);
+```
+
+```csharp tab={"label":"调用示例"}
+private void SetRuiXueSdkCallback()
+{
+    RuiXueSdk.SetSdkCallback(PublicDelegate, LogOut, SwitchAccountDelegate);
+}
+
+public void PublicDelegate(int type, string jsonDicData)
+{
+    if (type == 10001)
+    {
+        /*
+        RXFeedback.ReportFeedbackLog();
+        */
+    }
+
+    LogUtil.Log("EventManager", $"type: {type}, jsonDicData: {jsonDicData}");
+}
+
+private void LogOut(int code, string msg)
+{
+    LogUtil.Log("EventManager", $"code: {code}, msg: {msg}");
+}
+
+public bool SwitchAccountDelegate(int code, string data)
+{
+    LogUtil.Log("EventManager", $"code: {code}, data: {data}");
+    return true;
+}
+```
+
+### type 说明
+
+| type | 备注 |
+| --- | --- |
+| 10001 | 上报用户反馈日志 |

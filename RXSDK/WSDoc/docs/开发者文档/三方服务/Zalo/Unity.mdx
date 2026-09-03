@@ -1,0 +1,149 @@
+---
+sidebar_position: 2
+title: Unity 接入
+description: Zalo Unity 端接入指南，包含 SDK 集成、配置说明及接口调用示例。
+---
+
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
+
+### 接入方式
+
+Package Manager 导入 RuiXue.Zalo
+
+## SDK 集成
+
+<Tabs groupId="platform">
+  <TabItem value="ios-sdk" label="iOS" default>
+
+:::caution 暂未提供
+此部分接入文档暂未提供，请联系望舒技术支持获取帮助。
+:::
+
+  </TabItem>
+  <TabItem value="android-sdk" label="Android">
+
+将下面方法放到自己的项目中，在 Application 初始化的时候，调用并打印出来即可，给后台配置后就可以删除掉该方法了。
+
+```java
+    /**
+        * 此方法用来根据包名和证书生成 key，给配置后台配置即可
+        *
+        * @param ctx
+        * @return
+        * @throws Exception
+        */
+private static String getApplicationHashKey(Context ctx) throws Exception {
+                PackageInfo info = ctx.getPackageManager().getPackageInfo(ctx.getPackageName(), PackageManager.GET_SIGNATURES);
+                for (Signature signature : info.signatures) {
+                                MessageDigest md = MessageDigest.getInstance("SHA");
+                                md.update(signature.toByteArray());
+                                String sig = Base64.encodeToString(md.digest(), Base64.DEFAULT).trim();
+                                if (sig.trim().length() > 0) {
+                                                return sig;
+                                }
+                }
+                return null;
+}
+```
+
+  </TabItem>
+</Tabs>
+
+
+## 参数说明
+
+| 参数 | 类型 | 说明 |
+| --- | --- | --- |
+| zaloAppId | Long | string.xml 中配置 ZALO_APP_ID 值 |
+
+
+## 配置说明
+
+<Tabs groupId="platform">
+  <TabItem value="ios-config" label="iOS" default>
+
+:::caution 暂未提供
+此部分接入文档暂未提供，请联系望舒技术支持获取帮助。
+:::
+
+  </TabItem>
+  <TabItem value="android-config" label="Android">
+
+将下面方法放到自己的项目中，在 Application 初始化的时候，调用并打印出来即可，给后台配置后就可以删除掉该方法了。
+
+```java
+    /**
+        * 此方法用来根据包名和证书生成 key，给配置后台配置即可
+        *
+        * @param ctx
+        * @return
+        * @throws Exception
+        */
+private static String getApplicationHashKey(Context ctx) throws Exception {
+                PackageInfo info = ctx.getPackageManager().getPackageInfo(ctx.getPackageName(), PackageManager.GET_SIGNATURES);
+                for (Signature signature : info.signatures) {
+                                MessageDigest md = MessageDigest.getInstance("SHA");
+                                md.update(signature.toByteArray());
+                                String sig = Base64.encodeToString(md.digest(), Base64.DEFAULT).trim();
+                                if (sig.trim().length() > 0) {
+                                                return sig;
+                                }
+                }
+                return null;
+}
+```
+
+  </TabItem>
+</Tabs>
+
+
+## 初始化
+
+<Tabs groupId="platform">
+  <TabItem value="ios-init" label="iOS" default>
+
+:::caution 暂未提供
+此部分接入文档暂未提供，请联系望舒技术支持获取帮助。
+:::
+
+  </TabItem>
+  <TabItem value="android-init" label="Android">
+
+将下面方法放到自己的项目中，在 Application 初始化的时候，调用并打印出来即可，给后台配置后就可以删除掉该方法了。
+
+```java
+    /**
+        * 此方法用来根据包名和证书生成 key，给配置后台配置即可
+        *
+        * @param ctx
+        * @return
+        * @throws Exception
+        */
+private static String getApplicationHashKey(Context ctx) throws Exception {
+                PackageInfo info = ctx.getPackageManager().getPackageInfo(ctx.getPackageName(), PackageManager.GET_SIGNATURES);
+                for (Signature signature : info.signatures) {
+                                MessageDigest md = MessageDigest.getInstance("SHA");
+                                md.update(signature.toByteArray());
+                                String sig = Base64.encodeToString(md.digest(), Base64.DEFAULT).trim();
+                                if (sig.trim().length() > 0) {
+                                                return sig;
+                                }
+                }
+                return null;
+}
+```
+
+  </TabItem>
+</Tabs>
+
+
+## 登录
+
+[点此跳转到 UI 登录方式](/docs/开发者文档/社交/Unity-接入/快速接入)
+
+[点此跳转到 API 登录方式](/docs/开发者文档/登录-通行证/服务端接入/服务端-API)
+
+## 分享
+
+[点此跳转到分享 API](/docs/开发者文档/分享/服务端接入/服务端-API)

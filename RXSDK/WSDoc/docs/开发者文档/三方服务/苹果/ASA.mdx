@@ -1,0 +1,52 @@
+---
+sidebar_position: 4
+title: ASA
+description: "望舒SDK 三方服务 ASA文档，提供详细的功能说明与接入指引。"
+---
+
+## 准备工作
+
+## SDK 集成
+
+接入请前先做好准备工作。可通过 pod 方式接入 **RXASAKit** 组件，并使用 **RXASAKit** 相关功能。在需要使用功能的类中引用头文件 `#import <RXASAKit/RXASAKit.h>`
+
+接入请前先做好准备工作。
+
+可通过 pod 方式接入通行证 RXASAKit 组件，并使用通行证 ASA 相关功能。
+
+编辑 Podfile 文件，添加如下配置：
+
+```objectivec
+pod 'RXASAKit'
+```
+
+## 工程配置
+
+在 TARGETS > Project Name > General > Frameworks, Libraries, and Embedded Content 菜单，点击 +，将 AppTrackingTransparency、AdServices 添加。
+
+注：引用到 **RXSDK_Pure.framework** 的 **target** 都需要添加，否则会引起闪退问题。
+
+![](https://guanwangyun.oss-cn-beijing.aliyuncs.com/document/introduction/WechatIMG420.jpg)
+
+在 TARGETS > Build Phases > Link Binary With Libraries 中将 Status 设置为 Optional。
+
+![](https://guanwangyun.oss-cn-beijing.aliyuncs.com/document/introduction/WechatIMG421.jpg)
+
+## 初始化
+
+在 [SDK 初始化方法](/docs/开发者文档/性能分析/GPM-SDK接入/快速开始) 之前调用。
+
+**接口原型**
+
+```objectivec
+/**
+ * 初始化
+ */
+- (void)regist;
+```
+
+**调用示例**
+
+```objectivec
+[[RXASAService sharedSDK] regist];
+```

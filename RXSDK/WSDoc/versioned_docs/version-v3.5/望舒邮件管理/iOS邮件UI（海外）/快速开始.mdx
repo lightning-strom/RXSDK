@@ -1,0 +1,46 @@
+---
+title: "快速开始"
+---
+
+邮件提供横屏、竖屏两种展示方式，根据Xcode工程配置显示横屏或竖屏。
+
+## SDK 集成
+
+接入请前先做好准备工作。
+可通过 pod 方式接入通行证 UIKit 组件，并使用邮件相关功能。
+
+- 编辑 Podfile 文件，添加如下配置，已添加则无需重复添加：
+
+```objectivec
+pod 'RXOSUIKit'
+```
+
+- 在需要使用功能的类中引用头文件
+```objectivec
+#import 
+```
+
+## 邮件展示
+
+**接口原型**
+
+```objectivec
+/**
+ * 展示邮件
+ * cpUserId cp方userID
+ * complet 展示邮件成功或失败的回调
+ */
+- (void)showEmailViewWithCpUserId:(NSString *)cpUserId
+                     withComplete:(void(^)(NSDictionary *response, RX_CommonRequestError *error))complet;
+```
+
+**调用示例**
+
+```objectivec
+[[RXOSUIKitService sharedSDK] showEmailViewWithCpUserId:@"your cpUserId" withComplete:^(NSDictionary * _Nonnull response, RX_CommonRequestError * _Nonnull error) {
+                
+}];
+```
+
+**UI示例**
+![](https://guanwangyun.oss-cn-beijing.aliyuncs.com/document/tripartite/email1.png)

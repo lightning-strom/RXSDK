@@ -1,0 +1,120 @@
+---
+sidebar_position: 1
+title: 客户端接入
+description: "望舒SDK 三方服务 客户端接入文档，提供详细的功能说明与接入指引。"
+---
+
+## 后台接入配置
+
+[登录配置说明](/docs/开发者文档/三方服务/九游/登录配置说明)
+
+[支付配置说明](/docs/开发者文档/三方服务/九游/支付配置说明)
+
+## 望舒快速接入（必接）
+
+[快速接入文档](/docs/开发者文档/入门指南/快速开始/Unity-初始化/快速开始)
+
+## 三方渠道接入说明（必读）
+
+[三方渠道接入说明](/docs/开发者文档/三方服务/三方接入说明)
+
+## 雷电官方文档
+
+[雷电官方文档](https://docs.ldmnq.com/docs/3iyTEo)
+
+## SDK集成
+
+
+:::tip[版本说明]
+`version` 为 SDK 版本号（替换为实际版本号），最新版本请从 [更新日志](/docs/开发者文档/入门指南/更新日志/Android) 中查看。
+:::
+
+```groovy
+ implementation 'com.ruixue:rxsdk_ld:${version}'
+```
+
+出包的包体建议带上 x86/x64 指令集的库，模拟器上运行流畅度和稳定性会更好。
+
+使用闪屏角标里的文件（建议将闪屏页放在 hdpi 目录下）附件📎：[雷电闪屏角标](https://guanwangyun.oss-cn-beijing.aliyuncs.com/document/%E9%97%AA%E5%B1%8F%E8%A7%92%E6%A0%87.zip)
+
+## 配置说明
+
+```xml
+
+ <meta-data android:name="GAME_ID" android:value="10000">
+ <meta-data android:name="CHANNEL_ID" android:value="10001">
+ <meta-data android:name="SUN_CHANNEL_ID" android:value="10002">
+ 注意：GAME_ID 如果和游戏有冲突，可改为LD_GAME_ID
+```
+
+## 初始化
+
+```java
+    HashMap<String, Object> hashMap = new HashMap<>();
+    // 雷电 appKey
+    hashMap.put("ld_app_key", "xxxxx");
+
+    RuiXueSdk.getApi().initThirdSdk(this, hashMap, new RXRequestCallback() {
+    @Override
+    public void onResponse(JSONObject jsonObject) {
+
+    }
+    });
+```
+
+## 角色数据接口
+
+```java
+    LdGameInfo ldGameInfo = new LdGameInfo();
+    ldGameInfo.serverId = "23";// 服务器id（必传）
+    ldGameInfo.serverName = "内测服";//服务器名字（必传）
+    ldGameInfo.roleId = "10086";// 角色id（必传）
+    ldGameInfo.roleName = "张三";// 角色名字（必传）
+    ldGameInfo.roleType = "屠夫"; //角色类型，例如：战士，魔法师，弓箭手
+    ldGameInfo.level = "99"; //等级（必传）
+    ldGameInfo.money = "10000000000000"; //游戏的金币数（必传）
+    ldGameInfo.partyName = "公会";//公会
+    ldGameInfo.vipLevel= 12;//VIP等级
+    ldGameInfo.powerNum= 9999;//角色战斗力
+
+    LDSdkHelper.enterGame(this, ldGameInfo, new RXRequestCallback() {
+    @Override
+    public void onResponse(JSONObject jsonObject) {
+
+    }
+    });
+```
+
+## 登录
+
+请参考 [Android 端登录 API](/docs/开发者文档/登录-通行证/Android-登录API/快速接入)
+
+## 支付
+
+请参考 [Android 端支付 API](/docs/开发者文档/支付/功能介绍)
+
+## 退出
+
+请参考 [Android 三方渠道文档](/docs/开发者文档/三方服务/三方接入说明)
+
+## 混淆说明
+
+```proguard
+-keep class com.ld.sdk.** { *; }
+-keep class com.changzhi.net.** { *; }
+-dontwarn retrofit2.**
+-keep class retrofit2.** { *; }
+-keepattributes Signature
+-keepattributes Exceptions
+```
+
+## 引包冲突
+
+```groovy
+ configurations {
+ // okhttp 库冲突
+ all*.exclude group: 'com.squareup.okhttp3', module: 'okhttp'
+ // goson库冲突
+ all*.exclude group: 'com.google.code.gson', module: 'gson'
+}
+```

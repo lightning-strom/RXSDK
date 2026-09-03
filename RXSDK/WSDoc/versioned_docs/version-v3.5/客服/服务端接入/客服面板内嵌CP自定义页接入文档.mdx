@@ -1,0 +1,117 @@
+---
+title: "客服面板内嵌CP自定义页接入文档"
+---
+
+> 如何接入？
+> 答：CP 方在望舒后台绑定客服面板自定义内嵌页面地址后，在客服面板右侧使用 IFrame 的形式提供给客服人员使用
+
+## 接入定义
+
+### 引入客服面板内嵌页
+
+- 引入地址 <strong>：CP 在望舒后台定义的面板内嵌页地址</strong>
+- 引入方式 <strong>：Iframe</strong>
+- 传参方式 <strong>：GET</strong>
+
+### 参数
+
+| 参数
+          | 名称
+         | 含义
+                                                                                                          | 必填
+   | 注意
+                       |
+| ----------------- | ---------------- | ----------------------------------------------------------------------------------------------------------------- | ---------- | ------------------------------ |
+| username
+
+  | 用户名
+
+   | 在望舒后台客服登陆的用户名
+                                                                                    | 是
+     | 
+                           |
+| name
+
+      | 姓名
+         | 在望舒后台客服的真实姓名
+
+                                                                                  | 是
+     | 
+                           |
+| service_admin
+ | 客服主管标识
+ | 是否是客服主管
+                                                                                                | 是
+     | 1 是 0 否
+                  |
+| timestamp
+
+ | 时间戳
+
+   | 当前时间秒级时间戳
+                                                                                            | 是
+     | 
+                           |
+| trace_id
+      | 请求 ID
+      | 用于追踪的请求 ID
+                                                                                             | 是
+     | 
+                           |
+| sigin
+
+     | 参数签名
+
+ |  | 是
+
+ | 请 CP 方对签名进行验证
+
+ |
+
+## FAQ
+
+### 如何进行验签
+
+1. sha1(trace_id+timestamp+cpKey)
+
+#### GO 示例
+
+```go
+package example
+import (
+  
+    "crypto/sha1"
+    "encoding/hex"
+   
+)
+func Sign(traceID, timestamp, cpKey string) string {
+   h := sha1.New()
+   _, _ = h.Write([]byte(traceID + timestamp + cpKey))
+   ret := hex.EncodeToString(h.Sum(nil))
+   h.Reset()
+   return ret
+}
+```
+
+#### PHP 示例
+
+```php
+<?php
+$name = $_GET["name"];
+$username = $_GET["username"];
+$trace_id = $_GET["trace_id"];
+$timestamp = $_GET["timestamp"];
+$sign = $_GET["sign"];
+$cpkey ="cpkey";
+function VerifySign($trace_id,$time,$sign){
+    global $cpkey;
+    return sha1($trace_id.$time.$cpkey) == $sign;
+}
+
+if(!VerifySign($trace_id,$timestamp,$sign)){
+    echo "签名错误";
+    exit;
+}
+echo $username." 登陆成功";
+?>
+```

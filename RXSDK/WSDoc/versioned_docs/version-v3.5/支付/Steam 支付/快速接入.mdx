@@ -1,0 +1,56 @@
+---
+title: "快速接入"
+---
+
+## Steam 支付配置  
+[Steam支付配置](/docs/v3.5/支付/功能介绍)
+**注：Steam 支付功能要求从Steam客户端启动的游戏才可以拉起支付界面**
+
+### 接口原型
+
+```csharp
+/**
+ * 支付
+ * @param args  参数，参照参数说明
+ * @param callback 回调函数
+ */
+void Pay(PayArgs args, Action callback)
+```
+
+### 参数说明
+
+| **字段**      | **类型** | **是否必填** | **说明**                                                                                                                                         |
+| ------------- | -------- | ------------ | ------------------------------------------------------------------------------------------------------------------------------------------------ |
+|  pay_type     | string   | 否           | 支付类型 steam                                                                                                                    |
+|  goods_tag     | string   | 是           | 望舒计费点标识                                                                                                                     |
+| trade_no      | string   | 是           | 商户订单号                                                                                                                                       |
+| transmit_args | string   | 否           | 透传参数                                                                                                                                         |
+| notify_url    | string   | 否           | 支付成功通知 CP 发货地址                                                                                                                         |
+| currency      | string   | 是           | 币种 全大写 默认: CNY，参考 [国家编码 币种字典]](/docs/v3.5/支付/服务端接入/国家编码 币种字典)|
+| ext           | object   | 否           | 支付下单扩展信息，不同渠道具体对接                                                                                                               |
+| indulge_auth  | int      | 否           | 默认(0)， 是否进行防沉迷验证 ，0 不验证、1 验证。                                                            |
+| age           | int      | 否           | 年龄用于防沉迷验证                                                                                                                          |
+| user_real_currency  | string    | 否           | 用户实际支付币种 |
+| user_real_price     | int    | 否           | 用户实际支付金额 |
+
+**调用示例**
+
+```csharp
+var data = new PayArgs()
+{
+    pay_type = "steam",
+    goods_tag = "bytest",
+    trade_no = "" + TimeUtility.GetTimeMillis(),
+};
+
+RuiXueSdk.Pay(data, (code, data, msg) =>
+{
+    Debug.Log("Pay code:" + code + ", msg:" + msg);
+    mText.text = "code:" + code + ", msg:" + msg + ", data:" + data;
+
+    if (data != null)
+    {
+        Debug.Log("data= " + data);
+    }
+});
+```

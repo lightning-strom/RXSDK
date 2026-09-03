@@ -1,0 +1,142 @@
+---
+title: "Go SDK"
+---
+
+### Go 项目设置依赖
+
+``` go
+    go get github.com/ruixueyun/ruixuego
+    go mod tidy
+```
+
+### 初始化 Go SDK
+
+```go
+// Init 初始化 SDK
+func Init(conf *Config) (err error)
+```
+
+#### 参数说明
+
+| **字段** | **类型**                                                                                            | **是否必填** | **备注**    |
+| -------- | --------------------------------------------------------------------------------------------------- | ------------ | ----------- |
+| conf     | [Config](/docs/v3.5/内容安全/服务端接入/Go SDK) | 是           | CP 配置信息 |
+
+##### Config结构信息
+
+| **字段**     | **类型**                                                                                                    | **是否必填** | **备注**                        |
+| ------------ | ----------------------------------------------------------------------------------------------------------- | ------------ | ------------------------------- |
+| APIDomain    | string                                                                                                      | 是           | CP 对外 API  接口域名           |
+| AppKeys      | map[string]map[string]string                                                                                | 是           | APPID 对应的 ChannelID : APPKEY |
+| Timeout      | int32                                                                                                       | 否           | 请求超时时间(毫秒)              |
+| TrackTimeout | int32                                                                                                       | 否           | 埋点数据上报超时时间(毫秒)      |
+| Concurrency  | int                                                                                                         | 否           | 并发请求限制                    |
+| CPKey        | string                                                                                                      | 是           | 产品密钥                        |
+| CPID         | uint32                                                                                                      | 是           | CP id                           |
+| ServiceMark  | string                                                                                                      | 否           | 区服标识                        |
+| ProductID    | string                                                                                                      | 是           | 产品 ID                         |
+| ChannelID    | string                                                                                                      | 是           | 渠道 ID                         |
+| BigData      | *[BigDataConfig](/docs/v3.5/内容安全/服务端接入/Go SDK) | 否           | 大数据上传配置                  |
+
+##### BigDataConfig结构
+
+| **字段**          | **类型** | **是否必填** | **备注**                   |
+| ----------------- | -------- | ------------ | -------------------------- |
+| CacheCapacity     | int      | 是           | 缓存容量                   |
+| BatchSize         | int      | 是           | 大数据埋点批量发送每批条数 |
+| AutoFlushInterval | int      | 是           | 自动上传间隔, 单位秒       |
+| AutoFlush         | bool     | 是           | 是否启动自动上传           |
+| DisableCompress   | bool     | 是           | 是否禁用 GZip 压缩         |
+
+**调用示例**
+
+```go
+err := ruixuego.Init(&ruixuego.Config{
+   APIDomain:   "{{接口域名}}",
+   AppKeys:     map[string]map[string]string{"{{AppID}}": {"{{ChannelID}}": "{{AppKey}}"}},
+   CPKey:       "{{CPKEY}}",
+   CPID:        {{CPID}},
+   ProductID:   "{{产品ID}}",
+   ChannelID:   "{{渠道ID}}",
+   ServiceMark: "{{区服标识}}",
+})
+if err != nil {
+   panic(err)
+}
+```
+
+#### 响应结构
+
+| **字段** | **类型** | **是否必填** | **备注**                |
+| -------- | -------- | ------------ | ----------------------- |
+| err      | error    | 是           | 成功时 nil,  其他为错误 |
+
+## 图片检测（增强）
+
+### 调用方法：
+
+```go
+ RiskContentImageScan(url string) (resp*RiskContentImageScanResp, error)
+```
+
+参数
+
+| 序号 | 参数   | 类型     | 是否必填 | 备注                         |
+| ---- | ------ | -------- | -------- | ------------------------------- |
+| 1    | url   | string | 是     | 图片地址                                |
+
+### 响应结构(JSON)
+
+| **参数** | **类型**                                                               | **备注** |
+| -------- | --------------------------------------------------------------------- | -------- |
+| resp  | [*RiskContentImageScanResp](/docs/v3.5/内容安全/功能介绍)  |      |
+
+## 文本检测（增强）
+
+### 调用方法：
+
+```go
+ RiskContentTextScan(req *RiskContentTextScanReq) (resp *RiskContentTextScanResp,err error)
+```
+
+参数
+
+| 序号 | 参数   | 类型     | 是否必填 | 备注                         |
+| ---- | ------ | -------- | -------- | ------------------------------- |
+| 1    | req   | [*RiskContentTextScanReq](/docs/v3.5/内容安全/功能介绍) | 是     | 文本参数                                |
+
+### 响应结构(JSON)
+
+| **参数** | **类型**                                                               | **备注** |
+| -------- | --------------------------------------------------------------------- | -------- |
+| resp  | [*RiskContentTextScanResp](/docs/v3.5/内容安全/功能介绍)  |      |
+
+## 实名检测
+
+### 调用方法：
+
+```go
+  RealAuth(productID, idCard, realName string) (*RealAuthResponse, error) 
+```
+
+参数
+
+| 序号 | 参数   | 类型     | 是否必填 | 备注                         |
+| ---- | ------ | -------- | -------- | ------------------------------- |
+| 1    | productID   | string | 是     | 产品id                                |
+| 2    | idCard   | string | 是     | 身份证号                                |
+| 3    | realName   | string | 是     | 真实姓名                                |
+
+### 响应结构(JSON)
+
+| **参数** | **类型**                                             | **备注** |
+| -------- | ---------------------------------------------------- | -------- |
+| code     | Number                                               | 0 为成功 |
+| msg      | String                                               | 失败信息 |
+| data     | [Data](/docs/v3.5/内容安全/功能介绍)            |          |
+
+##### 实名检测data
+
+| **参数**   | **类型**  | **说明** |
+| ---------- | ----------| -------- |
+| verified | Number    | 审核结果 1: 通过；其它: 未通过|

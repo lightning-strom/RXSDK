@@ -1,0 +1,72 @@
+---
+sidebar_position: 5
+title: 推送相关
+description: "望舒SDK 推送相关文档，提供详细的功能说明与接入指引。"
+---
+
+推送功能依赖于大数据进行分发。测试时需要注意,各个项目的数据同步时间不同，需要到大数据中用户属性查到最新上报的**推送渠道设备码**信息在创建对应的推送任务。
+
+各个渠道厂商推送相关限制：[厂商通道限额&QPS 说明](/docs/开发者文档/推送/厂商推送限制参考)
+
+#### 1.使用开发者后台配置推送回执地址
+
+如果您需要配置推送回执地址，按照此格式：
+
+api 域名/v1/pusher/notify/honor(渠道)?product_id=产品 ID&channel_id=渠道 ID
+
+API 域名,产品 ID,渠道 ID ：望舒游戏平台首页信息有展示。
+
+渠道：是哪个平台就配置哪个平台(例： huawei harmony oppo xiaomi vivo flyme honor )
+
+#### 2.后台已创建App推送，但是设备没有收到信息
+
+1.检查对应渠道包在企业后台是否配置了推送功能所需的参数。ios 核对推送证书是否在有效期。
+
+| 渠道 | 地址 | 说明 | 服务端消息回执地址 |
+| --- | --- | --- | --- |
+| 苹果 | [https://appstoreconnect.apple.com/apps](https://appstoreconnect.apple.com/apps) | [请查看配置说明文档](/docs/开发者文档/三方服务/银联/配置说明) | 客户端回执 |
+| 华为 | [https://developer.huawei.com/](https://developer.huawei.com/) | [请查看配置说明文档](/docs/开发者文档/三方服务/银联/配置说明) | api 域名/v1/pusher/notify/huawei?product_id=产品 ID&channel_id=渠道 ID |
+| 小米 | [https://dev.mi.com/platform/appstore](https://dev.mi.com/platform/appstore) | [请查看配置说明文档](/docs/开发者文档/三方服务/银联/配置说明) | api 域名/v1/pusher/notify/xiaomi?product_id=产品 ID&channel_id=渠道 ID |
+| oppo | [https://open.oppomobile.com/](https://open.oppomobile.com/) | [请查看配置说明文档](/docs/开发者文档/三方服务/银联/配置说明) | api 域名/v1/pusher/notify/oppo?product_id=产品 ID&channel_id=渠道 ID |
+| vivo | [https://dev.vivo.com.cn/](https://dev.vivo.com.cn/) | [请查看配置说明文档](/docs/开发者文档/三方服务/银联/配置说明) | api 域名/v1/pusher/notify/vivo?product_id=产品 ID&channel_id=渠道 ID |
+| 荣耀 | [https://developer.honor.com/cn/manageCenter/](https://developer.honor.com/cn/manageCenter) | [请查看配置说明文档](/docs/开发者文档/三方服务/银联/配置说明) | api 域名/v1/pusher/notify/honor?product_id=产品 ID&channel_id=渠道 ID |
+| 鸿蒙 | [https://developer.huawei.com/](https://developer.huawei.com/) | [请查看配置说明文档](/docs/开发者文档/三方服务/银联/配置说明) | api 域名/v1/pusher/notify/harmony?product_id=产品 ID&channel_id=渠道 ID |
+| Firebase/Google | [https://console.firebase.google.com/](https://console.firebase.google.com/) | [请查看配置说明文档](/docs/开发者文档/三方服务/银联/配置说明) | 客户端回执 |
+
+2.确认推送所选的人群标签是否存在当前用户的设备。
+
+3.当前已更换注册使用时的设备。并确保已上报推送设备码。确认系统通知权限是否打开。
+
+4.查看当天也设置的推送数量，一般厂商要求游戏主体的推送一般上限为 2 次/天。具体可以查看厂商支持的限制次数是多少。
+
+5.所选择的产品渠道不存在该用户，如果新注册/登录上报的设备信息需要等大数据数据同步完成后在建立对应推送。可以到大数据平台查询用户属性中的**推送渠道设备码**和**推送渠道类型**进行查询。
+
+#### 3.创建推送选择指定人群时，收不到推送消息
+
+1.首先排查上面问题的情况。
+
+2.选择人群标签后，请点击预计发送设备/人数，查看预计发送是不是不为 0.
+
+3.如果预计发送设备为 0 ，到大数据后台确认选择的人群标签是否有数据并且为自动更新标签。如果是手动更新的标签，需要点击一下更新，刷新标签后在查看预计发送设备数据。
+
+#### 4.大数据查看推送数据时只有发送总量，没有发送成功数等数据（其余数据都是0）的情况。
+
+1.检查对应渠道包在企业后台是否配置了推送功能所需的参数。
+
+2.如果配置了参数核查参数是否正确。在对应的渠道开放平台是否正确配置推送回执地址。
+
+3.都无问题联系望舒排查。
+
+#### 5.语言匹配情况
+
+1.相关数据均由大数据侧进行推送，不同 CP 的数据同步时间不同，海外项目可能会导致语言个别存在差异。例如：用户语言当前为 10:48 英语，调整了为泰语，数据同步时间为整点更新。那么 11:00 之前的推送还是会按照用户当前语言为英语进行匹配推送。
+
+2.同产品，同渠道下如果一个设备有多个用户不同语言，可能会收到多条推送消息。同产品，同渠道下同语言的多用户是收到一条推送信息。
+
+3.不同产品、渠道在同一设备也会收到多条推送信息。
+
+4.如果获取语言为空的时候会根据配置的默认语言进行发送。其余的按照用户匹配语言进行推送。
+
+#### 6.厂商推送通道限额&QPS说明
+
+[厂商通道限额&QPS 说明](/docs/开发者文档/推送/厂商推送限制参考)

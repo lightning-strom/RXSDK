@@ -1,0 +1,1123 @@
+---
+sidebar_position: 2
+title: 消息操作
+description: 望舒即时通讯 iOS / Android 消息操作文档，提供完整的接口调用说明与示例。
+---
+
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
+
+<Tabs groupId="platform">
+
+<TabItem value="ios" label="iOS">
+
+## 基本功能
+
+### 同步消息
+
+拉取用户离线后收到的消息或者在全新设备上拉取当前账号的所有消息。消息会通过 **RXIMMessageDelegate** 协议回调函数 `receiveMessage` 通知客户端；同步完成会通过回调函数 `syncMessageFinished` 通知客户端。可以选择在登录成功之后的回调中触发。
+
+**接口原型**
+
+```objectivec
+/**
+ * 同步消息
+ */
+-(void)syncMessage;
+```
+
+**调用示例**
+
+```objectivec
+[[RXIMChatService sharedSDK] syncMessage];
+```
+
+### 发送消息
+
+生成 RXIMMessage 的对象之后，通过此接口进行发送消息操作。客户端需要通过 **RXIMMessageDelegate** 协议里的方法 `sendMessageSuccess` 和 `sendMessageFailure` 来进行消息发送结果的监听。
+
+**接口原型**
+
+```objectivec
+/**
+ * 发送消息
+ * @param sendMessage 发送的消息对象
+ * @param completionHandler 返回消息对象，处理本地逻辑用，发送成功以delegate方式回调。
+ */
+- (void)sendMessage:(RXIMSendMessage * _Nonnull)sendMessage
+ completionHandler:(void (^)(RXIMMessage * message,RXIMError *error))completionHandler;
+
+#param mark -- 发送结果监听
+/**
+ * 消息发送成功
+ */
+- (void)sendMessageSuccess:(RXIMMessage *)msgObj;
+/**
+ * 消息发送失败
+ */
+- (void)sendMessageFailure:(RXIMMessage *)msgObj error:(RXIMError *)error;
+```
+
+**调用示例**
+
+```objectivec
+#pragma mark - RXIMMessageDelegate>
+#pragma mark - 消息发送成功回执
+- (void)sendMessageSuccess:(RXIMMessage *)msgObj
+{
+ NSLog(@"消息发送成功");
+ self.msgObj = msgObj;
+ [SVProgressHUD showSuccessWithStatus:[NSString stringWithFormat:@"%@ 发送成功",msgObj.msgId]];
+}
+
+#pragma mark - 消息发送失败回执
+- (void)sendMessageFailure:(RXIMMessage *)msgObj error:(RXIMError *)error
+{
+ NSLog(@"消息发送失败");
+ [SVProgressHUD showErrorWithStatus:[NSString stringWithFormat:@"code = %ld errMsg = %@",error.code,error.developerMessage]];
+}
+```
+
+#### 会话内提示消息发送
+
+此接口一般用于如进入群聊、更改信息等提示消息的发送。
+
+**调用示例**
+
+```objectivec
+RXIMMsgConvTipsContent *content = [[RXIMMsgConvTipsContent alloc]init];
+content.text = [NSString stringWithFormat:@"%@ 发起了群聊，并邀请 %@ 加入群聊",[JX_UserUtility sharedManager].openId,[members objectAtIndex:0]];
+content.type = 1;
+content.userids = members;
+RXIMSendMessage *sendMsg = [[RXIMSendMessage alloc] init];
+sendMsg.content = content;
+sendMsg.msgType = RXIMMessageType_Tips;
+sendMsg.sessionID = self.groupId.text;
+sendMsg.sessionType = RXIMSessionType_group;
+sendMsg.option = RXIMMsgOption_enableSync|RXIMMsgOption_saveHistory|RXIMMsgOption_readReceipt;
+[[RXIMChatService sharedSDK] sendMessage:sendMsg completionHandler:^(RXIMMessage * _Nullable message,RXIMError *error){
+ NSLog(@"");
+}];
+
+#param mark -- 发送结果监听
+#pragma mark - 消息发送成功回执
+- (void)sendMessageSuccess:(RXIMMessage *)msgObj
+{
+ NSLog(@"消息发送成功");
+ self.msgObj = msgObj;
+ [SVProgressHUD showSuccessWithStatus:[NSString stringWithFormat:@"%@ 发送成功",msgObj.msgId]];
+}
+
+#pragma mark - 消息发送失败回执
+- (void)sendMessageFailure:(RXIMMessage *)msgObj error:(RXIMError *)error
+{
+ NSLog(@"消息发送失败");
+ [SVProgressHUD showErrorWithStatus:[NSString stringWithFormat:@"code = %ld errMsg = %@",error.code,error.developerMessage]];
+}
+```
+
+#### 文本消息发送
+
+**调用示例**
+
+```objectivec
+RXIMMsgTextContent *textContent = [[RXIMMsgTextContent alloc] init];
+textContent.text = @"text111";
+RXIMSendMessage *msg = [[RXIMSendMessage alloc] init];
+msg.sessionId = self.sessionId;
+msg.content = textContent;
+msg.sessionType = self.sessionType;
+msg.msgType = RXIMMessageType_Text;
+[[RXIMChatService sharedSDK] sendMessage:msg completionHandler:^(RXIMMessage * _Nullable message, RXIMError * _Nonnull error) {
+ if(!error){
+ NSLog(@"发送消息处理成功");
+ }
+}];
+```
+
+#### 图片消息发送
+
+**调用示例**
+
+```objectivec
+NSString *imgPath = [[NSBundle mainBundle] pathForResource:@"location" ofType:@"png"];
+NSData *imageData = [[NSData alloc] initWithContentsOfFile:imgPath];
+UIImage *image = [UIImage imageWithContentsOfFile:imgPath];
+NSData *thumbImageData = UIImageJPEGRepresentation(image, 0.01);
+RXIMMsgImageContent *imgContent = [[RXIMMsgImageContent alloc] init];
+imgContent.original_data = imageData;
+imgContent.blurred_data = thumbImageData;
+NSArray *path = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES);
+NSString *result = [path objectAtIndex:0];
+imgContent.path = result;
+imgContent.width = image.size.width;
+imgContent.height = image.size.height;
+RXIMSendMessage *msg = [[RXIMSendMessage alloc] init];
+msg.content = imgContent;
+msg.sessionId = self.sessionId;
+msg.sessionType = self.sessionType;
+msg.msgType = RXIMMessageType_Image;
+msg.option = 7;
+msg.receiversArray = [self getReceiveAryWithCovType];
+[[RXIMChatService sharedSDK] sendMessage:msg completionHandler:^(RXIMMessage * _Nullable
+message, RXIMError * _Nonnull error) {
+ if (!error) {
+ NSLog(@"消息处理成功");
+ }else{
+ [SVProgressHUD showErrorWithStatus:[NSString stringWithFormat:@"code = %ld,errMsg = %@",error.code,error.developerMessage]];
+ }
+}];
+```
+
+#### 语音消息发送
+
+**调用示例**
+
+```objectivec
+NSString *filePath = [[NSBundle mainBundle] pathForResource:@"audio" ofType:@"amr"];
+NSData *audioData = [[NSData alloc] initWithContentsOfFile:filePath];
+RXIMMsgAudioContent *audioContent = [[RXIMMsgAudioContent alloc]init];
+audioContent.duration = 3;
+audioContent.audioData = audioData;
+audioContent.audio_type = @"amr";
+RXIMSendMessage *msg = [[RXIMSendMessage alloc] init];
+msg.content = audioContent;
+msg.sessionId = self.sessionId;
+msg.sessionType = self.sessionType;
+msg.msgType = RXIMMessageType_Audio;
+msg.option = 7;
+msg.receiversArray = [self getReceiveAryWithCovType];
+[[RXIMChatService sharedSDK] sendMessage:msg completionHandler:^(RXIMMessage * _Nullable
+message,RXIMError *error) {
+ if (!error) {
+ NSLog(@"消息处理成功");
+ }else{
+ [SVProgressHUD showErrorWithStatus:[NSString stringWithFormat:@"code = %ld,errMsg = %@",error.code,error.developerMessage]];
+ }
+}];
+```
+
+#### 视频消息发送
+
+**调用示例**
+
+```objectivec
+NSString *filePath = [[NSBundle mainBundle] pathForResource:@"video" ofType:@"mp4"];
+NSData *videoData = [[NSData alloc] initWithContentsOfFile:filePath];
+filePath = [[NSBundle mainBundle] pathForResource:@"video_cover" ofType:@"png"];
+UIImage *coverImage = [UIImage imageWithContentsOfFile:filePath];
+NSData *coverData = [[NSData alloc] initWithContentsOfFile:filePath];
+RXIMMsgVideoContent *videoContent = [[RXIMMsgVideoContent alloc]init];
+videoContent.video_data = videoData;
+videoContent.cover_data = coverData;
+videoContent.cover_width = coverImage.size.width;
+videoContent.cover_height = coverImage.size.height;
+videoContent.video_type = @"mp4";
+videoContent.duration = 3;
+RXIMSendMessage *msg = [[RXIMSendMessage alloc] init];
+msg.content = videoContent;
+msg.sessionId = self.sessionId;
+msg.sessionType = self.sessionType;
+msg.msgType = RXIMMessageType_Video;
+msg.option = 7;
+msg.receiversArray = [self getReceiveAryWithCovType];
+[[RXIMChatService sharedSDK] sendMessage:msg completionHandler:^(RXIMMessage * _Nullable
+message,RXIMError *error){
+ if (!error) {
+ NSLog(@"消息处理成功");
+ }else{
+ [SVProgressHUD showErrorWithStatus:[NSString stringWithFormat:@"code = %ld,errMsg = %@",error.code,error.developerMessage]];
+ }
+}];
+```
+
+#### 文件消息发送
+
+**调用示例**
+
+```objectivec
+NSString *filePath = [[NSBundle mainBundle] pathForResource:@"file" ofType:@"txt"];
+NSData *fileData = [[NSData alloc] initWithContentsOfFile:filePath];
+RXIMMsgFileContent *fileContent = [[RXIMMsgFileContent alloc]init];
+fileContent.file_data = fileData;
+fileContent.file_type = @"txt";
+fileContent.name = @"file";
+RXIMSendMessage *msg = [[RXIMSendMessage alloc] init];
+msg.content = fileContent;
+msg.sessionId = self.sessionId;
+msg.sessionType = self.sessionType;
+msg.msgType = RXIMMessageType_File;
+msg.option = 7;
+msg.receiversArray = [self getReceiveAryWithCovType];
+[[RXIMChatService sharedSDK] sendMessage:msg completionHandler:^(RXIMMessage * _Nullable
+message,RXIMError *error){
+ if (!error) {
+ NSLog(@"消息处理成功");
+ }else{
+ [SVProgressHUD showErrorWithStatus:[NSString stringWithFormat:@"code = %ld,errMsg = %@",error.code,error.developerMessage]];
+ }
+}];
+```
+
+#### 位置消息发送
+
+**调用示例**
+
+```objectivec
+NSString *geoPath = [[NSBundle mainBundle] pathForResource:@"location" ofType:@"png"];
+NSData *geoData = [[NSData alloc] initWithContentsOfFile:geoPath];
+RXIMMsgLBSContent *geoContent = [[RXIMMsgLBSContent alloc]init];
+geoContent.name = @"经济开发区七区";
+geoContent.latitude = 43.844622945296109;
+geoContent.longitude = 125.37923983960859;
+geoContent.cover_data = geoData;
+RXIMSendMessage *msg = [[RXIMSendMessage alloc] init];
+msg.content = geoContent;
+msg.sessionId = self.sessionId;
+msg.sessionType = self.sessionType;
+msg.msgType = RXIMMessageType_Position;
+msg.option = 7;
+msg.receiversArray = [self getReceiveAryWithCovType];
+[[RXIMChatService sharedSDK] sendMessage:msg completionHandler:^(RXIMMessage * _Nullable
+message,RXIMError *error){
+ if (!error) {
+ NSLog(@"消息处理成功");
+ }else{
+ [SVProgressHUD showErrorWithStatus:[NSString stringWithFormat:@"code = %ld,errMsg = %@",error.code,error.developerMessage]];
+ }
+}];
+```
+
+#### 回复消息发送
+
+此功能为针对某条已经发送成功的消息进行回复并展示。
+
+**调用示例**
+
+```objectivec
+RXIMMsgReplyContent *replyContent = [[RXIMMsgReplyContent alloc]init];
+RXIMReferenceMsg *referenceMsg = [[RXIMReferenceMsg alloc]init];
+RXIMMessage *msgObj = self.selectModel.message;
+referenceMsg.fromId = msgObj.fromId;
+referenceMsg.msgType = msgObj.msgType;
+referenceMsg.msgId = msgObj.msgId;
+referenceMsg.content = msgObj.content;
+referenceMsg.timestamp = msgObj.timestamp;
+referenceMsg.subType = msgObj.subType;
+
+RXIMReplyMsg *replyMsg = [[RXIMReplyMsg alloc]init];
+replyMsg.msgType = RXIMMessageType_Text;
+RXIMMsgTextContent *textContent = [[RXIMMsgTextContent alloc]init];
+textContent.text = text;
+replyMsg.content = textContent;
+
+replyContent.reference = referenceMsg;
+replyContent.reply = replyMsg;
+RXIMSendMessage *msg = [[RXIMSendMessage alloc] init];
+msg.content = replyContent;
+msg.sessionID = self.convModel.session.sessionID;;
+msg.sessionType = self.convModel.session.type;
+msg.msgType = RXIMMessageType_Reply;
+msgObj.snapchatTimeout = [self getMsgSnapchatTimeout];
+if (msgObj.snapchatTimeout > 0) {
+msgObj.option = RXIMMsgOption_enableSync|RXIMMsgOption_saveHistory|RXIMMsgOption_readReceipt|RXIMMsgOption_snapchat;
+}else{
+ msgObj.option = RXIMMsgOption_enableSync|RXIMMsgOption_saveHistory|RXIMMsgOption_readReceipt;
+}
+[[RXIMChatService sharedSDK] sendMessage:msg completionHandler:^(RXIMMessage * _Nullable message,RXIMError *error){
+ if (!error) {
+ NSLog(@"消息处理成功");
+ }else{
+ [SVProgressHUD showErrorWithStatus:[NSString stringWithFormat:@"code = %ld,errMsg = %@",error.code,error.developerMessage]];
+ }
+}];
+```
+
+### 接收消息
+
+当收到服务器发来的消息时，可以通过此接口对其进行处理，如您可以 RXIMMessage 中的 RXIMMessageType 来区分消息类型用于不同场景。接收消息会通过 **RXIMMessageDelegate** 协议回调函数 `receiveMessage` 通知客户端。
+
+**接口原型**
+
+```objectivec
+/**
+ * 消息接收
+ */
+- (void)receiveMessage:(NSArrayRXIMMessage *> *)msgs;
+```
+
+**调用示例**
+
+```objectivec
+#pragma mark - RXIMMessageDelegate>
+#pragma mark - 消息接收回执
+- (void)receiveMessage:(NSArrayRXIMMessage *> *)msgs
+{
+ NSLog(@"接收消息");
+ self.msgObj = msgs.lastObject;
+ for (RXIMMessage *msg in msgs) {
+ self.msgCount++;
+ NSLog(@"%@", [NSString stringWithFormat:@"接收消息%ld成功",(long)self.msgCount]);
+ }
+
+}
+```
+
+### 重发消息
+
+如网络原因导致的发送消息失败时，可以调用重发消息的接口重试发送。
+
+**接口原型**
+
+```objectivec
+/**
+ * 重发消息
+ * @param message 发送的消息对象
+ * @param completionHandler 返回消息对象，处理本地逻辑用，发送成功以delegate方式回调。
+ */
+- (void)resendMessage:(RXIMMessage * _Nonnull)message
+ completionHandler:(void (^)(RXIMMessage * message,RXIMError *error))completionHandler;
+```
+
+**调用示例**
+
+```objectivec
+[[RXIMChatService sharedSDK] resendMessage:msg completionHandler:^(RXIMMessage * _Nullable message,RXIMError *error) {
+ if(!error){
+ NSLog(@"重发消息处理成功");
+ }
+}];
+```
+
+### 转发消息
+
+此功能可以将已经成功生成的消息进行转发，可选择转发类型，作为新消息发送。
+
+**接口原型**
+
+```objectivec
+/**
+ * 转发消息
+ * @param mids 消息id数组
+ * @param receives 会话id数组
+ * @param type 转发类型 0：逐条转发 1：合并转发
+ * @Param exts 扩展数组
+ * @param option 消息选项
+ * @param completionHandler 返回消息对象，处理本地逻辑用，发送成功以delegate方式回调。
+ */
+- (void)forwardMessage:(NSArray * _Nonnull)mids
+ receives:(NSArray * _Nonnull)receives
+ type:(NSInteger)type
+ ext:(NSArray * _Nullable)exts
+ option:(NSInteger)option
+ completionHandler:(void (^)(NSArrayRXIMMessage *> *messages,RXIMError *error))completionHandler;
+```
+
+#### 参数说明
+
+| 字段 | 类型 | 是否必填 | 备注 |
+| --- | --- | --- | --- |
+| mids | NSArray | 是 | 消息 id 数组 |
+| receives | NSArray | 是 | 会话 id 数组 |
+| type | NSInteger | 是 | 转发类型 0 ：逐条转发 1 ：合并转发 |
+| exts | NSArray | 否 | 扩展数组 |
+| option | NSInteger | 是 | 消息选项 |
+
+**调用示例**
+
+```objectivec
+[[RXIMChatService sharedSDK] forwardMessage:mids receives:sessionIds type:contactFrom ext:nil option:option completionHandler:^(NSArrayRXIMMessage *> * _Nonnull messages, RXIMError * _Nonnull error) {
+ if (!error) {
+ [SVProgressHUD showSuccessWithStatus:@"转发成功"];
+ }else{
+ [SVProgressHUD showErrorWithStatus:@"转发失败"];
+ }
+}];
+```
+
+### 通过消息 id 获取消息体
+
+**接口原型**
+
+```objectivec
+/**
+ * 通过消息id获取消息体
+ * @param msgId 消息id
+ */
+-(RXIMMessage *)getMessageWithMsgId:(NSString * _Nonnull)msgId;
+```
+
+**调用示例**
+
+```objectivec
+RXIMMessage *msg = [[RXIMChatService sharedSDK] getMessageWithMsgId:msgId];
+```
+
+## 消息处理
+
+### 消息已读
+
+**接口原型**
+
+```objectivec
+/**
+ * 消息已读
+ * @param message 已读的消息体
+ * @param completionHandler 返回消息处理是否正常，发送成功以delegate方式回调。
+ */
+- (void)hasReadMessage:(RXIMMessage * _Nonnull)message completionHandler:(void (^)(RXIMError *error))completionHandler;
+```
+
+**调用示例**
+
+```objectivec
+[[RXIMChatService sharedSDK] hasReadMessage:self.msgObj completionHandler:^(RXIMError * _Nonnull error) {
+ if (!error) {
+ NSLog(@"消息处理成功");
+ }
+}];
+```
+
+### 消息撤回
+
+**接口原型**
+
+```objectivec
+/**
+ * 消息撤回
+ * @param message 撤回的消息体
+ * @param completionHandler 返回消息处理是否正常，发送成功以delegate方式回调。
+ */
+- (void)revokeMessage:(RXIMMessage * _Nonnull)message completionHandler:(void (^)(RXIMError *error))completionHandler;
+```
+
+**调用示例**
+
+```objectivec
+[[RXIMChatService sharedSDK] revokeMessage:self.msgObj completionHandler:^(RXIMError * _Nonnull error) {
+ if (!error) {
+ NSLog(@"消息处理成功");
+ }
+}];
+```
+
+### 更新本地消息扩展字段
+
+当用户更新个人信息时，可以通过此接口通知本地数据库更新。在更新完成后，本地保存的个人信息将会得到更新。
+
+**接口原型**
+
+```objectivec
+/**
+ * 更新本地消息扩展字段
+ * @param msgIds 消息id数组
+ * @param ext 扩展字段
+ * @return 更新是否成功
+ */
+- (BOOL)updateLocalMessageExt:(NSArray * _Nonnull)msgIds
+ ext:(NSDictionaryNSString *,NSString *> * _Nonnull)ext;
+```
+
+#### 参数说明
+
+| 字段 | 类型 | 是否必填 | 备注 |
+| --- | --- | --- | --- |
+| msgIds | NSArray | 是 | 消息 id 数组（单次最多 20 条） |
+| ext | NSDictionary | 否 | 扩展字段 |
+
+**调用示例**
+
+```objectivec
+[[RXIMChatService sharedSDK] updateLocalMessageExt:@[] ext:@{}];
+```
+
+</TabItem>
+
+<TabItem value="android" label="Android">
+
+## 基本功能
+
+### 同步消息
+
+拉取用户离线后收到的消息或者在全新设备上拉取当前账号的所有消息。
+
+**获取会话模块**
+
+```plaintext
+SessionModule sessionModule = RXIMEngine.getInstance().catchModule(ProcessModuleInventory.SESSION);
+```
+
+**接口原型**
+
+```java
+/**
+    * 同步消息
+    * @param observer 返回的消息列表回调函数
+    */
+public void syncMessage2(final IRXSendingObserverListRXIMMessage>> observer)
+```
+
+**调用示例**
+
+```java
+SessionModule sessionModule = RXIMEngine.getInstance().catchModule(ProcessModuleInventory.SESSION);
+sessionModule.syncMessage2(new IRXSendingObserverListRXIMMessage>>() {
+    @Override
+    public void onStart(ListRXIMMessage> contentMessage) {
+
+    }
+
+    @Override
+    public void complete(int code, ListRXIMMessage> contentMessages) {
+    for (RXIMMessage contentMessage : contentMessages) {
+    mStatusTv.append(" --- " + contentMessage.getInboxID() + "\n");
+    LG.e(" ===同步消息 = " + contentMessage.getInboxID());
+    }
+    }
+});
+```
+
+### 发送消息
+
+**获取消息模块**
+
+```plaintext
+ConversationModule conversationModule = RXIMEngine.getInstance().catchModule(ProcessModuleInventory.CONVERSATION);
+```
+
+说明：发送消息时，使用 Conversation#sendMessage()方法，传入不同的消息模型，发送不同消息。这些消息模型都实现 ISenderMessageEntity 接口。
+
+**接口原型**
+
+```java
+/**
+    * 发送消息
+    * @param receiver 接收人，使用OpenID
+    * @param entity 目标消息模型
+    * @param extend 扩展字段
+    * @param option 发送消息选项
+    * @param type 聊天模式，单聊、群聊、自定义单聊、频道会话
+    * @param moreReceivers @群成员，只有群聊生效
+    * @param observer 发送消息状态回调
+    */
+public void sendMessage(String receiver, ISenderMessageEntity entity, String extend, int option, ConversationType type, List<String> moreReceivers, IRXSendingObserverRXIMMessage> observer)
+```
+
+#### 回调参数说明
+
+> 作为发送消息的回调接口，IRXSendingAttachmentObserver 接口继承自 IRXSendingObserver 接口，前者更多使用在带附件上传的场景中，比如：发送图片、视频、文件等，需要使用 IRXSendingAttachmentObserver 接口用于监听文件上传过程；而对于普通消息，如：发送文本、转发文本、撤回消息等，只需要使用 IRXSendingObserver 接口监听消息发送状态。
+>
+> IRXSendingObserver 结构说明
+
+```java
+public interface IRXSendingObserverT>{
+    void onStart(T contentMessage);//消息发送开始
+    //消息发送完成，注意只是代表消息发送完成，需要根据code值判断消息状态，具体值参考状态码部分
+    void complete(int code, T contentMessage);
+}
+```
+
+> IRXSendingAttachmentObserver 结构说明
+
+```java
+public interface IRXSendingAttachmentObserverT> extends IRXSendingObserverT>{
+    void onUploadStart(RXIMMessage message);//附件上传开始
+    void onUploadProgress(String percent, long currentSize);//进度，多附件回显示整体进度
+    void onUploadComplete(RXIMMessage message);//上传完成
+    void onUploadErrorOccur(RXIMMessage unSendMessage,String errorFromClient,String errorCodeFromRemote,String errorFromRemote);//上传出现错误
+}
+```
+
+#### 会话内提示消息发送
+
+此接口一般用于如进入群聊、更改信息等提示消息的发送。
+
+```java
+SenderTipMessageEntity senderTipMessageEntity = new SenderTipMessageEntity("xxx 邀请 xxx加入群聊",true,Arrays.asList("userid"));
+
+conversationModule.sendMessage(sessionID, senderTipMessageEntity, "", option, ConversationType.SINGLE, null, new IRXSendingObserverRXIMMessage>() {
+    @Override
+    public void onStart(RXIMMessage contentMessage) {
+    LG.e("消息发送开始");
+    }
+
+    @Override
+    public void complete(int code, RXIMMessage contentMessage) {
+    if (contentMessage != null) {
+    rximMessage = contentMessage;
+    if (BaseMessage.MESSAGE_TRANSFORM_STATE_ERROR == contentMessage.getSendState()) {
+    LG.e("消息发送失败 code:" + code);
+    showMsg(contentMessage.getInboxID() + " --- 消息发送失败");
+    } else {
+    LG.e("消息发送成功 inboxid" + contentMessage.getInboxID() + " --- " + contentMessage.getContent() + "\n");
+    showMsg("消息 inboxid=" + contentMessage.getInboxID() + "，text=" + contentMessage.getContent() + "");
+    }
+    }
+    }
+});
+```
+
+#### 文本消息发送
+
+```java
+conversationModule.sendMessage($openID$, new SenderTextMessageEntity("textfromandroid" + date), "", option,ConversationType.SINGLE, new IRXSendingObserverRXContentMessage>() {
+    @Override
+    public void onStart(RXIMMessage contentMessage) {
+    LG.e("消息发送开始");
+    }
+
+    @Override
+    public void complete(int code, RXIMMessage contentMessage) {
+    LG.e("消息发送成功");
+    }
+});
+```
+
+#### 图片消息发送
+
+```java
+conversationModule.sendMessage($openID$, new SenderPicMessageEntity(localPath), "", option, ConversationType.SINGLE, null, new IRXSendingAttachmentObserverRXIMMessage>() {
+
+    //上传开始
+    @Override
+    public void onUploadStart(RXIMMessage message) {
+
+    }
+
+    @Override
+    public void onUploadProgress(String percent, long currentSize) {
+
+    }
+    //上传完成
+    @Override
+    public void onUploadComplete(RXIMMessage message) {
+
+    }
+
+    @Override
+    public void onUploadErrorOccur(RXIMMessage unSendMessage, String errorFromClient, String errorCodeFromRemote, String errorFromRemote) {
+
+    }
+    //开始发送
+    @Override
+    public void onStart(RXIMMessage contentMessage) {
+
+    }
+    //发送成功
+    @Override
+    public void complete(int code, RXIMMessage contentMessage) {
+    mStatusTv.append(contentMessage.getInboxID() + " --- " + contentMessage.getContent() + "\n");
+    }
+    });
+    }
+});
+```
+
+#### 语音消息发送
+
+```java
+ConversationModule conversationModule = RXIMEngine.getInstance().catchModule(ProcessModuleInventory.CONVERSATION);
+VoiceMessageEntity voiceMessageEntity= new VoiceMessageEntity();
+String filePath = Environment.getExternalStorageDirectory().getAbsolutePath() + "/" + "bbb.amr";
+voiceMessageEntity.setPath(filePath);
+SenderAudioMessageEntity senderAudioMessageEntity = new SenderAudioMessageEntity(voiceMessageEntity);
+
+conversationModule.sendMessage("test", senderAudioMessageEntity, "", option, ConversationType.SINGLE, null, new IRXSendingAttachmentObserverRXIMMessage>() {
+    //上传开始
+    @Override
+    public void onUploadStart(RXIMMessage message) {
+
+    }
+
+    @Override
+    public void onUploadProgress(String percent, long currentSize) {
+
+    }
+    //上传完成
+    @Override
+    public void onUploadComplete(RXIMMessage message) {
+
+    }
+
+    @Override
+    public void onUploadErrorOccur(RXIMMessage unSendMessage, String errorFromClient, String errorCodeFromRemote, String errorFromRemote) {
+
+    }
+    //开始发送
+    @Override
+    public void onStart(RXIMMessage contentMessage) {
+
+    }
+    //发送成功
+    @Override
+    public void complete(int code, RXIMMessage contentMessage) {
+    mStatusTv.append(contentMessage.getInboxID() + " --- " + contentMessage.getContent() + "\n");
+    }
+});
+```
+
+#### 视频消息发送
+
+```java
+conversationModule.sendMessage($openID$, new SenderVideoMessageEntity(localPath), "", option, ConversationType.SINGLE, null, new IRXSendingAttachmentObserverRXIMMessage>() {
+    //上传开始
+    @Override
+    public void onUploadStart(RXIMMessage message) {
+
+    }
+
+    @Override
+    public void onUploadProgress(String percent, long currentSize) {
+
+    }
+    //上传完成
+    @Override
+    public void onUploadComplete(RXIMMessage message) {
+
+    }
+
+    @Override
+    public void onUploadErrorOccur(RXIMMessage unSendMessage, String errorFromClient, String errorCodeFromRemote, String errorFromRemote) {
+
+    }
+    //开始发送
+    @Override
+    public void onStart(RXIMMessage contentMessage) {
+
+    }
+    //发送成功
+    @Override
+    public void complete(int code, RXIMMessage contentMessage) {
+    mStatusTv.append(contentMessage.getInboxID() + " --- " + contentMessage.getContent() + "\n");
+    }
+});
+```
+
+#### 文件消息发送
+
+```java
+conversationModule.sendMessage($openID$, new SenderFileMessageEntity(localPath), "", option, ConversationType.SINGLE, null, new IRXSendingAttachmentObserverRXIMMessage>() {
+    //上传开始
+    @Override
+    public void onUploadStart(RXIMMessage message) {
+
+    }
+
+    @Override
+    public void onUploadProgress(String percent, long currentSize) {
+
+    }
+    //上传完成
+    @Override
+    public void onUploadComplete(RXIMMessage message) {
+
+    }
+
+    @Override
+    public void onUploadErrorOccur(RXIMMessage unSendMessage, String errorFromClient, String errorCodeFromRemote, String errorFromRemote) {
+
+    }
+    //开始发送
+    @Override
+    public void onStart(RXIMMessage contentMessage) {
+
+    }
+    //发送成功
+    @Override
+    public void complete(int code, RXIMMessage contentMessage) {
+    mStatusTv.append(contentMessage.getInboxID() + " --- " + contentMessage.getContent() + "\n");
+    }
+});
+```
+
+#### 位置消息发送
+
+```java
+conversationModule.sendMessage($openID$, new SenderLocationMessageEntity(localPath, "北京天安门", 121.487899486, 31.24916171), "", option, ConversationType.SINGLE, null, new IRXSendingAttachmentObserverRXIMMessage>() {
+    //上传开始
+    @Override
+    public void onUploadStart(RXIMMessage message) {
+
+    }
+
+    @Override
+    public void onUploadProgress(String percent, long currentSize) {
+
+    }
+    //上传完成
+    @Override
+    public void onUploadComplete(RXIMMessage message) {
+
+    }
+
+    @Override
+    public void onUploadErrorOccur(RXIMMessage unSendMessage, String errorFromClient, String errorCodeFromRemote, String errorFromRemote) {
+
+    }
+    //开始发送
+    @Override
+    public void onStart(RXIMMessage contentMessage) {
+
+    }
+    //发送成功
+    @Override
+    public void complete(int code, RXIMMessage contentMessage) {
+    mStatusTv.append(contentMessage.getInboxID() + " --- " + contentMessage.getContent() + "\n");
+    }
+});
+```
+
+#### 回复消息发送
+
+```java
+ConversationModule conversationModule = RXIMEngine.getInstance().catchModule(ProcessModuleInventory.CONVERSATION);
+
+SenderReplyMessageEntity senderReplyMessageEntity=new SenderReplyMessageEntity("回复内容", RXIMMessage);
+
+conversationModule.sendMessage(et_send_to.getText().toString(), senderReplyMessageEntity, "{\n" + "\"social\": [\n" + "{ \"weibo\": \"https://weibo.com/leiqikui\" },\n" + "{ \"github\": \"https://github.com/leiqikui\" }\n" + "]\n" + "}", option, ConversationType.SINGLE, Collections.singletonList("1051029"), new IRXSendingObserverRXIMMessage>() {
+    @Override
+    public void onStart(RXIMMessage contentMessage) {
+    LG.e("消息发送开始");
+    }
+
+    @Override
+    public void complete(int code, RXIMMessage contentMessage) {
+    if (contentMessage != null) {
+    rximMessage = contentMessage;
+    if (BaseMessage.MESSAGE_TRANSFORM_STATE_ERROR == contentMessage.getSendState()) {
+    LG.e("消息发送失败 code:" + code);
+    showMsg(contentMessage.getInboxID() + " --- 消息发送失败");
+    } else {
+    LG.e("消息发送成功 inboxid" + contentMessage.getInboxID() + " --- " + contentMessage.getContent() + "\n");
+    showMsg("消息 inboxid=" + contentMessage.getInboxID() + "，text=" + contentMessage.getContent() + "");
+    }
+    }
+    }
+});
+```
+
+### 接收消息
+
+当收到服务器发来的消息时，可以通过此接口对其进行处理。
+
+**接口原型**
+
+```java
+/**
+    * 消息接收监听
+    */
+void registerConversationObserver(IRXConversationObserver observer)
+```
+
+**调用示例**
+
+```java
+RXIMEngine.getInstance().registerConversationObserver(new IRXConversationObserver() {
+    @Override
+    public void onReceive(ConversationType conversationType, RXIMMessage contentMessage) {
+// LG.e(contentMessage.toString());
+    LG.e(contentMessage.getExtend());
+    if(contentMessage.getMsgType() == MessageTypeInventory2.TEXT){
+    TextMessageEntity entity = contentMessage.getContentEntity();
+    LG.e(entity.toString());
+    }else if(contentMessage.getMsgType() == MessageTypeInventory2.PIC){
+    PicMessageEntity entity = contentMessage.getContentEntity();
+    LG.e(entity.toString());
+    }else if(contentMessage.getMsgType() == MessageTypeInventory2.AUDIO){
+    VoiceMessageEntity entity = contentMessage.getContentEntity();
+    LG.e(entity.toString());
+    } else if(contentMessage.getMsgType() == MessageTypeInventory2.VIDEO){
+    VideoMessageEntity entity = contentMessage.getContentEntity();
+    LG.e(entity.toString());
+    }else if(contentMessage.getMsgType() == MessageTypeInventory2.POSITION){
+    LocationMessageEntity entity = contentMessage.getContentEntity();
+    LG.e(entity.toString());
+    }else if(contentMessage.getMsgType() == MessageTypeInventory2.FACE){
+    EmotionMessageEntity entity = contentMessage.getContentEntity();
+    LG.e(entity.toString());
+    }else if(contentMessage.getMsgType() == MessageTypeInventory2.FILE){
+    FileMessageEntity entity = contentMessage.getContentEntity();
+    LG.e(entity.toString());
+    }
+    mStatusTv.append(contentMessage.getInboxID() + " --- " + contentMessage.getMsgType() + " ---- " + contentMessage.getContent() + "\n");
+    }
+    });
+```
+
+### 重发消息（暂不支持）
+
+如网络原因导致的发送消息失败时，可以调用重发消息的接口重试发送。
+
+**接口原型**
+
+```java
+/**
+    * 重新发送消息
+    * @param contentMessage 发送失败的消息
+    * @param observer 回调函数
+    */
+public void resendMessage(RXIMMessage contentMessage, IRXSendingObserverRXIMMessage> observer)
+```
+
+**调用示例**
+
+```java
+conversationModule.resendMessage(contentMessage, new IRXSendingObserverRXContentMessage>() {
+    @Override
+    public void onStart(RXIMMessage contentMessage) {
+
+    }
+
+    @Override
+    public void complete(int code, RXIMMessage contentMessage) {
+
+    }
+});
+```
+
+### 转发消息
+
+```java
+/**
+    * 转发消息
+    * @param receivers 接收人
+    * @param message 转发的消息
+    * @param extend 扩展字段
+    * @param option 发送消息的选项
+    * @param observer 回调
+    */
+public void forwardMessage(String receiver,RXIMMessage message,String ext,int option,IRXSendingObserverRXIMMessage> observer)
+```
+
+#### 参数说明
+
+| 字段 | 类型 | 是否必填 | 备注 |
+| --- | --- | --- | --- |
+| receiver | String | 是 | 接收人 |
+| message | RXIMMessage | 是 | 转发体 |
+| extend | String | 否 | 扩展 |
+| option | Integer | 是 | 消息选项 |
+
+**调用示例**
+
+```java
+conversationModule.forwardMessage($openID$, message, "", option,ConversationType.SINGLE, new IRXSendingObserverRXIMMessage>() {
+    @Override
+    public void onStart(RXIMMessage contentMessage) {
+
+    }
+
+    @Override
+    public void complete(int code, RXIMMessage contentMessage) {
+    }
+    });
+```
+
+### 通过消息 id 获取消息体
+
+**接口原型**
+
+```java
+public RXIMMessage getMessageByMsgID(String msgID)
+```
+
+**调用示例**
+
+```java
+HistoryModule historyModule = RXIMEngine.getInstance().catchModule(ProcessModuleInventory.HISTORY);
+historyModule.getMessageByMsgID("消息id")；
+```
+
+## 消息处理
+
+### 消息已读
+
+**接口原型**
+
+```objectivec
+/**
+ * 已读消息
+ * @param contentMessage 已读的消息体
+ * @param observer 回调函数
+ */
+public void hasReadMessage(RXIMMessage contentMessage,final IRXSendingObserverRXContentMessage> observer)
+```
+
+**调用示例**
+
+```java
+ConversationModule conversationModule = RXIMEngine.getInstance().catchModule(ProcessModuleInventory.CONVERSATION);
+conversationModule.hasReadMessage(rximMessage, new IRXProcessObserverRXIMMessage>() {
+    @Override
+    public void onStart(RXIMMessage contentMessage) {
+    LG.e("已读消息发送开始");
+    }
+
+    @Override
+    public void complete(int code, RXIMMessage contentMessage) {
+    LG.e("已读消息发送完成");
+    Toast.makeText(MainActivity.this, "已读消息已发送", Toast.LENGTH_SHORT).show();
+    }
+});
+```
+
+### 消息撤回
+
+**接口原型**
+
+```java
+/**
+    * 撤回消息
+    * @param contentMessage 撤回的消息体
+    * @param observer 回调函数
+    */
+public void revokeMessage(RXIMMessage contentMessage, IRXProcessObserverVoid> observer)
+```
+
+**调用示例**
+
+```java
+ConversationModule conversationModule = RXIMEngine.getInstance().catchModule(ProcessModuleInventory.CONVERSATION);
+conversationModule.revokeMessage(rximMessage, new IRXProcessObserverRXIMMessage>() {
+    @Override
+    public void onStart(RXIMMessage contentMessage) {
+    LG.e("撤回开始");
+    }
+
+    @Override
+    public void complete(int code, RXIMMessage contentMessage) {
+    LG.e("撤回结束");
+    mStatusTv.append(contentMessage.getInboxID() + " --- code = " + code + " msgID = " + contentMessage.getMsgId() + "\n");
+    }
+});
+```
+
+### 更新本地消息扩展字段
+
+当用户更新个人信息时，可以通过此接口通知本地数据库更新。在更新完成后，本地保存的个人信息将会得到更新。
+
+**接口原型**
+
+```java
+void updateLocalMessageExt(String messageID, String ext, String ims_ext)
+```
+
+#### 参数说明
+
+| 字段 | 类型 | 是否必填 | 备注 |
+| --- | --- | --- | --- |
+| messageID | String | 是 | 消息 id 数组（单次最多 20 条） |
+| ext | String | 否 | 扩展字段 |
+| ims_ext | String | 否 | ims 扩展字段 |
+
+**调用示例**
+
+```java
+ConversationModule conversationModule = RXIMEngine.getInstance().catchModule(ProcessModuleInventory.CONVERSATION);
+conversationModule.updateLocalMessageExt("msgid","ext","imsext");
+```
+
+</TabItem>
+
+</Tabs>
+

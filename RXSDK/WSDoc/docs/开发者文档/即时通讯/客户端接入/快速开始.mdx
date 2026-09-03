@@ -1,0 +1,318 @@
+---
+sidebar_position: 1
+title: 快速开始
+description: 望舒即时通讯 iOS / Android 快速开始文档，提供完整的接口调用说明与示例。
+---
+
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
+
+## 准备工作
+
+<Tabs groupId="platform">
+
+<TabItem value="android" label="Android">
+
+在使用 SDK 时，部分接口对设备权限有要求，因此需要使用者在调用涉及以下功能的接口时注意，动态申请权限：
+
+具备读、写本地磁盘的接口（如：发送图片、文件等）：
+
+```xml
+android.permission.READ_EXTERNAL_STORAGE
+android.permission.WRITE_EXTERNAL_STORAGE
+```
+
+具备录音的特性的接口（如：发送语音）：
+
+```xml
+android.permission.RECORD_AUDIO
+```
+
+注意：如果不使用读取磁盘和录音操作，可以不用集成这些权限。
+
+</TabItem>
+
+<TabItem value="ios" label="iOS">
+
+无需额外权限配置。
+
+</TabItem>
+
+</Tabs>
+
+## SDK 集成
+
+<Tabs groupId="platform">
+
+<TabItem value="ios" label="iOS">
+
+编辑 Podfile 文件，添加如下配置：
+
+```objectivec
+pod 'RXNetworkingKit'
+pod 'YYModel'
+pod 'AliyunOSSiOS'
+pod 'WCDB'
+pod 'RXIMSDK-iOS'
+```
+
+</TabItem>
+
+<TabItem value="android" label="Android">
+
+**手动依赖接入**
+
+配置权限（必填）：
+
+```xml
+<uses-permission android:name="android.permission.INTERNET">
+<uses-permission android:name="android.permission.ACCESS_NETWORK_STATE">
+<uses-permission android:name="android.permission.ACCESS_WIFI_STATE">
+<uses-permission android:name="android.permission.CHANGE_WIFI_STATE">
+```
+
+下载 `RXSDK_IM-${version}.aar` 到 libs 路径下，绑定 libs 的引用路径：
+
+```groovy
+android {
+    repositories {
+        flatDir {
+            dirs 'libs'
+        }
+    }
+}
+```
+
+依赖必要组件：
+
+:::tip[版本说明]
+`version` 为 SDK 版本号（替换为实际版本号），最新版本请从 [更新日志](/docs/开发者文档/入门指南/更新日志/Android) 中查看。
+:::
+
+```groovy
+implementation fileTree(dir: "libs", include: ["*.jar"])
+implementation 'com.squareup.okhttp3:okhttp:3.12.3'
+implementation 'com.aliyun.dpa:oss-android-sdk:2.9.5'
+implementation 'com.google.protobuf:protobuf-java:3.11.1'
+implementation 'com.google.code.gson:gson:2.8.6'
+implementation 'org.java-websocket:Java-WebSocket:1.5.3'
+
+implementation(name: 'RXSDK_IM-${version}', ext: 'aar')
+```
+
+**自动依赖接入（推荐）**
+
+```groovy
+implementation 'com.ruixue.im:rxsdk_im:${version}'
+```
+
+</TabItem>
+
+</Tabs>
+
+## 初始化
+
+将 SDK 集成到客户端后，需要先完成 SDK 的初始化才能使用其他功能。
+
+<Tabs groupId="platform">
+
+<TabItem value="ios" label="iOS">
+
+**接口原型**
+
+```objectivec
+/**
+ * 初始化SDK
+ * @param productId 产品id
+ * @param channelId 渠道id
+ * @param cpId 产品cpid
+ * @param clientType 客户端类型
+ * @param version sdk版本号
+ * @param baseUrl 服务器域名
+ */
+- (void)initWithProductId:(NSString * _Nonnull)productId
+ channelId:(NSString * _Nonnull)channelId
+ cpid:(NSInteger)cpId
+ clientType:(NSInteger)clientType
+ version:(NSString * _Nonnull)version
+ baseUrl:(NSString * _Nonnull)baseUrl;
+```
+
+**调用示例**
+
+```objectivec
+- (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions {
+ [[RXIMSDKManager sharedSDK] initWithProductId:@"test_product" channelId:@"test_channel" cpid:1000000 clientType:262657 version:@"v1.0.0" baseUrl:@"https://ruixue.weiletest.com"];
+ return YES;
+}
+```
+
+### 参数说明
+
+| 字段 | 类型 | 是否必填 | 备注 |
+| --- | --- | --- | --- |
+| productId | NSString | 是 | 产品 id |
+| channelId | NSString | 否 | 渠道 id |
+| cpId | NSString | 是 | cpid |
+| clientType | NSInteger | 是 | 客户端类型参照[数据约束](/docs/开发者文档/即时通讯/服务端接入/数据约束)，如 iPhone: 0x00000001 |
+| version | NSString | 否 | 版本号，仅做观察使用，不影响功能 |
+| baseUrl | NSString | 是 | 请求域名 |
+
+</TabItem>
+
+<TabItem value="android" label="Android">
+
+```java
+RXLoginNecessaryArgs args = new RXLoginNecessaryArgs();
+args.setContext(this.getApplicationContext());
+args.setChanelID("后台channelid");
+args.setProductID("后台productid");
+args.setCpID("1000000");
+args.setClientType(131585);
+args.setHostUrl("https://rapi.weiletest.com");
+args.setDeviceCode(RuiXueSdk.getDeviceCode());
+args.setUserID("用户ID");
+args.setSecret("secret");
+args.setIMToken("im_token");
+args.setRefreshToken("refresh_token");
+
+// 注册连接状态监听器
+RXIMEngine.getInstance().registerConnectObserver(new IRXConnectObserver() {
+    @Override
+    public void onLoginResult(final JXIMStatusMapper mapper, Throwable extra) {
+        // 登录结果
+    }
+
+    @Override
+    public void onConnectSuccess(String ip, int port) {
+        // 连接成功
+    }
+
+    @Override
+    public void onConnectDisconnect(String ip, int port, int code, String message) {
+        // 断开连接
+    }
+
+    @Override
+    public void onConnectFail(String ip, int port, int code, String message) {
+        // 连接失败
+    }
+});
+
+// 绑定参数到引擎并启动
+RXIMEngine.getInstance().catchModule(ProcessModuleInventory.BOOT).doAction(args, null);
+```
+
+</TabItem>
+
+</Tabs>
+
+## 连接与登录
+
+<Tabs groupId="platform">
+
+<TabItem value="ios" label="iOS">
+
+### 设置数据库基地址（非必须）
+
+```objectivec
+[[RXIMSDKManager sharedSDK] setDBBasePath:@"沙盒路径"];
+```
+
+### 连接
+
+```objectivec
+[[RXIMSocketEngine sharedSDK] onStart];
+```
+
+注册连接监听：
+
+```objectivec
+[RXIMSocketEngine sharedSDK].delegate = self;
+
+#pragma mark - 连接成功回执
+- (void)onSocketConnectSuccess {
+
+}
+
+#pragma mark - 连接断开回执
+- (void)onSocketDisconnect:(NSError *)error {
+
+}
+```
+
+### 登录
+
+```objectivec
+[[RXIMSDKManager sharedSDK] loginRXIMSDKWithUserId:@"用户ID" accessToken:@"访问令牌" refreshToken:@"刷新令牌" aesKey:@"AES密钥" complete:^(RXIMError * _Nonnull error) {
+ if (!error) {
+ NSLog(@"登录成功");
+ } else {
+ NSLog(@"登录失败");
+ }
+}];
+```
+
+### 参数说明
+
+| 字段 | 类型 | 是否必填 | 备注 |
+| --- | --- | --- | --- |
+| userId | NSString | 是 | 格式 `^[a-zA-Z\d_-]{1,32}$`，1-32 个字符 |
+| accessToken | NSString | 否 | 访问令牌 |
+| refreshToken | NSString | 是 | 刷新令牌 |
+| aesKey | NSString | 是 | AES 密钥 |
+
+</TabItem>
+
+<TabItem value="android" label="Android">
+
+### 绑定消息监听器
+
+```java
+RXIMEngine.getInstance().registerConversationObserver(new IRXConversationObserver() {
+    @Override
+    public void onReceive(ConversationType conversationType, RXIMMessage contentMessage) {
+        // 处理接收到的消息
+    }
+});
+```
+
+### 获取模块
+
+SDK 的方法设计都是按照功能进行模块化分区，可以通过下面接口获取其他模块：
+
+```java
+// ProcessModuleInventory.BOOT
+// ProcessModuleInventory.CONVERSATION
+// ProcessModuleInventory.SESSION
+// ProcessModuleInventory.HISTORY
+RXIMEngine.getInstance().catchModule(ProcessModuleInventory.枚举值);
+```
+
+</TabItem>
+
+</Tabs>
+
+## 退出
+
+客户端在下线或者切换账号等情况下需要退出 IM，用来断开 socket 连接切断通信以及清理缓存；再次上线或登录新账户时需要重新调用登录接口来完成 socket 连接进行通信。
+
+<Tabs groupId="platform">
+
+<TabItem value="ios" label="iOS">
+
+```objectivec
+[[RXIMSDKManager sharedSDK] logout];
+```
+
+</TabItem>
+
+<TabItem value="android" label="Android">
+
+```java
+RXIMEngine.logout();
+```
+
+</TabItem>
+
+</Tabs>

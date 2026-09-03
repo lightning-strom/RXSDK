@@ -1,0 +1,67 @@
+---
+sidebar_position: 39
+title: Waffo
+description: "望舒SDK 支付 Waffo Android 接入文档，提供完整的接口调用说明与示例。"
+---
+
+import PayCommon from './_pay-common.mdx';
+
+## 望舒支付配置
+
+[Waffo 支付配置](/docs/开发者文档/三方服务/waffo支付配置)
+
+重要：请先查看三方服务接入说明！[快速入口](/docs/开发者文档/三方服务/三方接入说明)
+
+### hq_type 值
+
+| hq_type 值 | 说明 |
+| --- | --- |
+| `quick` | Waffo / Quick 渠道支付 |
+
+:::info[game_role_info 上报要求]
+Quick 渠道需上传 `game_role_info` 全部字段，不能传 `null`；游戏没有的字段可传默认值（如 `default` 或 `1`）。
+
+| 字段 | 类型 | 是否必填 | 备注 |
+| --- | --- | --- | --- |
+| serverId | string | 是 | 服务器 ID，必须为数字字符串 |
+| serverName | string | 是 | 服务器名称 |
+| gameRoleName | string | 是 | 角色名称 |
+| gameRoleId | string | 是 | 角色 ID |
+| gameUserLevel | string | 是 | 等级 |
+| vipLevel | string | 是 | VIP 等级 |
+| gameBalance | string | 是 | 角色现有金额 |
+| roleCreateTime | string | 是 | UC 与 1881 渠道必传，10 位时间戳 |
+| partyName | string | 是 | 公会名字 |
+:::
+
+### 调用示例
+
+```java
+Activity activity;
+String goods_tag;
+String pay_type = "waffo";
+
+Map<String, Object> payParams = new HashMap<>();
+payParams.put("hq_type", pay_type);
+payParams.put("goods_tag", goods_tag);
+payParams.put("trade_no", "cp订单号");
+
+RXRequestCallback rxRequestCallback = new RXRequestCallback() {
+    @Override
+    public void onResponse(JSONObject jsonObject) {
+        int code = jsonObject.optInt("code", -1);
+        if (code == 0) {
+            JSONObject data = jsonObject.optJSONObject("data");
+            // 处理成功逻辑
+        } else {
+            String msg = jsonObject.optString("msg");
+            String thirdcode = String.valueOf(jsonObject.opt("thirdcode"));
+            String thirdmsg = String.valueOf(jsonObject.opt("thirdmsg"));
+            // 处理失败逻辑
+        }
+    }
+};
+HQSdkWrapper.getInstance().doPay(activity, payParams, rxRequestCallback);
+```
+
+<PayCommon />

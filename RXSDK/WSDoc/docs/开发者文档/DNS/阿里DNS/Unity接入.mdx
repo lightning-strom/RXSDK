@@ -1,0 +1,82 @@
+---
+sidebar_position: 3
+title: Unity 接入
+description: "望舒SDK DNS Unity 接入文档，提供详细的功能说明与接入指引。"
+---
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
+
+## 接入方式
+* Package Manager 导入 RuiXue.AliDns
+
+## SDK 集成
+
+<Tabs groupId="platform">
+
+<TabItem value="ios" label="iOS">
+
+iOS依赖的相关SDK已通过脚本自动引用到工程中，您无需手动引用。受网络环境等因素影响，相关SDK有可能引用失败，所以在生成iOS工程后，您需要检查工程中的Podfile文件中的SDK名称，在Podfile.lock文件中是否存在，如果Podfile中的SDK名称在Podfile.lock中未存在，说明SDK未完全下载成功，您需要进入Podfile文件所在路径，执行以下命令安装SDK：
+```objectivec
+pod install 
+```
+
+</TabItem>
+
+<TabItem value="android" label="Android">
+
+```groovy
+implementation 'com.ruixue:ruixue_aliyun_dns:${version}'
+```
+
+</TabItem>
+
+</Tabs>
+
+## 初始化
+:::warning
+DNS <code>public static void AliDNSInitAppID(string accountID, string secretKey, bool isDebug)</code> 方法调用 应放在 主库SDK初始化方法 之前
+:::
+
+**接口原型**
+
+```csharp
+/// <summary>
+/// 初始化阿里DNS
+/// </summary>
+/// <param name="accountID">accountID</param>
+/// <param name="secretKey">秘钥</param>
+/// <param name="isDebug">调试日志模式，true 开启，false 关闭，默认 false</param>
+public static void AliDNSInitAppID(string accountID, string secretKey, bool isDebug);
+```
+
+**调用示例**
+
+```csharp
+RXAliDns.AliDNSInitAppID("your accountID", "your secretKey", isDebug); 
+```
+
+## 开启
+
+在调用主库初始化设置时，将**isUseDNS**设置为true：
+```csharp
+private void OnInit()
+    {
+        string cpId = "your cpId";
+        string channelId = "your channelId";
+        string productId = "your productId";
+        List<string> list = new()
+        {
+            "your base url"
+        };
+        
+        RXSdkInitConfig rxSdkInitConfig = new RXSdkInitConfig();
+        rxSdkInitConfig.cpId = cpId;
+        rxSdkInitConfig.channelId = channelId;
+        rxSdkInitConfig.productId = productId;
+        rxSdkInitConfig.baseUrlList = list;
+        rxSdkInitConfig.isUseDNS = true;
+        
+        RXAliDns.AliDNSInitAppID("your accountID", "your secretKey", isDebug);  
+        RuiXueSdk.Initialize(rxSdkInitConfig, RequestResponseDelegate, RequestErrorDelegate);
+    }
+```

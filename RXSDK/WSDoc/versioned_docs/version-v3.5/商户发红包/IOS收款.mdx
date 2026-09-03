@@ -1,0 +1,68 @@
+---
+sidebar_position: 4
+title: "IOS收款"
+---
+
+## 商家转账
+
+**接口原型**
+
+```objectivec
+/**
+ * business
+ */
+- (void)openBusinessViewWithModel:(RXWXBusinessModel *)model
+                         complete:(void(^)(NSDictionary *response, RX_CommonRequestError *error))complete;
+```
+
+### 参数说明
+
+| **参数** | **类型** | **说明**     |
+| -------- | -------- | ------------ |
+| appid | String | 发起商家转账的微信 appid |
+| businessType | String | 【业务类型】固定配置：requestMerchantTransfer |
+| query | String | 【查询参数】使用URL的query string方式传递参数，格式为key=value&key2=value2，其中value、value2需要进行UrlEncode处理。 |
+
+> query 说明
+
+| **参数** | **类型** | **说明**     |
+| -------- | -------- | ------------ |
+| mchId | String | 【商户号】商户号，由微信支付生成并下发，和发起转账传入的mchid必须是同一个 |
+| appId | String | 【商户AppID】微信开放平台审核通过的移动应用appid，和发起转账传入的appid必须是同一个 |
+| package | String | 【package信息】对应发起转账接口应答参数中的package_info（仅当转账单据状态为WAIT_USER_CONFIRM: 待收款用户确认时才返回），用于唤起用户确认收款页面。|
+
+**调用示例**
+
+3.8.3 以上
+```objectivec
+RXWXBusinessModel *model = [[RXWXBusinessModel alloc] init];
+model.appid = @"wx8888888888888888";
+model.businessType = @"requestMerchantTransfer";
+model.query = @"mchId=1230000000&appId=wx8888888888888888&package=affffddafdfafddffda%3D%3D"; // 示例，根据实际情况填写
+[[RXWXService sharedSDK] openBusinessViewWithModel:model complete:^(NSDictionary * _Nonnull response, RX_CommonRequestError * _Nonnull error) {
+    if (!error) {
+        NSLog(@"调用成功");
+    } else {
+        NSLog(@"调用失败");
+    }
+}];
+```
+
+3.8.3 以下
+```objectivec
+// 微信初始化
+[[RXWXService sharedSDK] shareToWWithShareInfo:@{@"appid" : @"wx8888888888888888"} complete:^(BOOL success) {
+
+}];
+
+RXWXBusinessModel *model = [[RXWXBusinessModel alloc] init];
+model.businessType = @"requestMerchantTransfer";
+model.query = @"mchId=1230000000&appId=wx8888888888888888&package=affffddafdfafddffda%3D%3D"; // 示例，根据实际情况填写
+[[RXWXService sharedSDK] openBusinessViewWithModel:model complete:^(NSDictionary * _Nonnull response, RX_CommonRequestError * _Nonnull error) {
+    if (!error) {
+        NSLog(@"调用成功");
+    } else {
+        NSLog(@"调用失败");
+    }
+}];
+```

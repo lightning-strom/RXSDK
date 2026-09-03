@@ -1,0 +1,154 @@
+---
+title: "iOS"
+---
+
+## 准备工作
+
+::: tip
+接入请前先做好准备工作。
+可通过 **pod** 方式接入 **RXGoogleSDK** 组件，并使用 **RXGoogleSDK** 相关功能。
+在需要使用功能的类中引用头文件 <code>#import </code>
+
+在 [Google开发者](https://play.google.com/) 中创建项目项目，并获取相关参数。
+:::
+
+## SDK 集成
+
+- 编辑 Podfile 文件，添加如下配置：
+
+```objectivec
+pod 'RXGoogleSDK'
+```
+
+- 如需禁止 GoogleSignIn-GoogleSignIn 签名在 podfile 中添加如下代码后再 pod install ：
+
+```objectivec
+post_install do |installer|
+  installer.pods_project.targets.each do |target|
+    target.build_configurations.each do |config|
+      if target.respond_to?(:product_type) and target.product_type == "com.apple.product-type.bundle"
+        target.build_configurations.each do |config|
+            config.build_settings['CODE_SIGNING_ALLOWED'] = 'NO'
+        end
+      end
+    end
+  end
+end
+```
+
+## 工程配置
+
+- info.plist 中添加 **GIDClientID**, value 为 google 开发后台凭据中的 **客户端 ID。**
+
+![](https://guanwangyun.oss-cn-beijing.aliyuncs.com/document/%E4%B8%89%E6%96%B9/Ow7NbV1wKojoNdxFajBcE6nMngf.png)
+
+- URL Types 中添加 google 后台凭据中的 **iOS 网址架构。**
+
+![](https://guanwangyun.oss-cn-beijing.aliyuncs.com/document/%E4%B8%89%E6%96%B9/Cqqdb3lOBojoI7x2srDcnYbMnUe.png)
+
+## 注册 Google
+
+**接口原型**
+
+```objectivec
+/**
+ * 初始化
+ */
+- (void)regist;
+```
+
+**调用示例**
+
+```objectivec
+[[RXGoogleService sharedSDK] regist];
+```
+
+## 跳转 openURL
+
+- 在系统 **openURL:** 方法中添加 **Google跳转url**
+
+**接口原型**
+
+```objectivec
+/**
+ * 处理 URL Scheme 回调
+ * @param app 应用实例
+ * @param url 回调 URL
+ * @param options 附加参数
+ * @return 是否成功处理
+ * @note 需在 AppDelegate 的 application:openURL:options: 方法中调用
+ */
+- (BOOL)application:(UIApplication *)app
+            openURL:(NSURL *)url
+            options:(NSDictionary *)options;
+```
+
+**调用示例**
+
+```objectivec
+- (BOOL)application:(UIApplication *)app openURL:(NSURL *)url options:(NSDictionary *)options{
+    [[RXSDK sharedSDK] application:app openURL:url options:options];
+    return YES;
+}
+```
+
+## Google 登录
+
+登录结果通过 [登录 API]](/docs/v3.5/登录（通行证）/服务端接入/服务端 API#登录回调) 统一登录回调返回。
+
+**接口原型**
+
+```objectivec
+/**
+ * google登录
+ * @param migrate_args 任意合法的 json 类型, 比如 string, number，账号迁移用的参数, 调用 CP account-query 及 account-queryandbind 接口时透传给 CP  非必须
+ * @param sign_fields 指定对登录成功后返回的特定字段, 使用 CPKEY 计算签名. CP 服务器可重新计算签名并与登录返回的签名比对, 作为对望舒登录数据的校验. 支持的字段包括: nickname, avatar, openid, region, sex, age, 计算签名的逻辑会对指定字段进行排序, 此处传参与顺序无关。类型为字符串数组 @[@"nickname",@"avatar"]  非必须
+ */
+- (void)GLoginInWithMigrate_args:(id _Nullable)migrate_args
+                     sign_fields:(NSArray * _Nullable)sign_fields
+```
+
+**调用示例**
+
+```objectivec
+[[RXGoogleService sharedSDK] GLoginInWithMigrate_args:nil sign_fields:@[@"xxx", @"xxx"]];
+```
+
+## Google 恢复登录
+
+**接口原型**
+
+```objectivec
+/**
+ * 恢复登录
+ * @param migrate_args 任意合法的 json 类型, 比如 string, number，账号迁移用的参数, 调用 CP account-query 及 account-queryandbind 接口时透传给 CP  非必须
+ * @param sign_fields 指定对登录成功后返回的特定字段, 使用 CPKEY 计算签名. CP 服务器可重新计算签名并与登录返回的签名比对, 作为对望舒登录数据的校验. 支持的字段包括: nickname, avatar, openid, region, sex, age, 计算签名的逻辑会对指定字段进行排序, 此处传参与顺序无关  非必须
+ */
+- (void)GRestorePreviousSignInWithMigrate_args:(id _Nullable)migrate_args
+                                   sign_fields:(NSString * _Nullable)sign_fields
+```
+
+**调用示例**
+
+```objectivec
+[[RXGoogleService sharedSDK] GRestorePreviousSignInWithMigrate_args:nil sign_fields:nil];
+```
+
+## Google 退出登录
+
+Google 退出登录后会清除本地缓存，退出后将无法调用 Google 分享等功能。
+
+**接口原型**
+
+```objectivec
+/**
+ * google退出登录
+ */
+- (void)GLogout;
+```
+
+**调用示例**
+
+```objectivec
+[[RXGoogleService sharedSDK] GLogout];
+```

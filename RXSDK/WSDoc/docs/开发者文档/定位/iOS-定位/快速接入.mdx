@@ -1,0 +1,147 @@
+---
+sidebar_position: 1
+title: 快速接入
+description: "望舒SDK 快速接入 iOS 接入文档，提供完整的接口调用说明与示例。"
+---
+
+## SDK 集成
+
+编辑 Podfile 文件，添加如下配置：
+
+```objectivec
+pod 'RXLBSKit'
+```
+
+## 工程配置
+
+### 添加定位权限
+
+Info.plist 中添加如下权限， value 描述为示例，可自定义。
+
+| key | value |
+| --- | --- |
+| Privacy - Location Always Usage Description | 是否允许访问定位权限？ |
+| Privacy - Location Always and When In Use Usage Description | 是否允许访问定位权限？ |
+| Privacy - Location When In Use Usage Description | 是否允许访问定位权限？ |
+
+### 后台定位开关
+
+开启后台定位权限。
+
+![](https://guanwangyun.oss-cn-beijing.aliyuncs.com/document/position/QVfKbqdjioF7ElxQxbicwAkMnSh.png)
+
+## 注册高德
+
+需先注册高德定位服务获取 [appKey](/docs/开发者文档/入门指南/准备工作)。
+
+**接口原型**
+
+```objectivec
+/**
+ * 注册高德key
+ */
+- (void)registeAMWithAppkey:(NSString *)appkey;
+```
+
+**调用示例**
+
+```objectivec
+[[RXLBSKitService sharedSDK] registeAMWithAppkey:@"高德key"];
+```
+
+## 获取位置信息
+
+**接口原型**
+
+```objectivec
+/**
+ * 获取位置信息
+ */
+- (void)getLocationInfo:(void(^)(RXLBSModel *location, NSError *error))complete;
+```
+
+**调用示例**
+
+```objectivec
+[[RXLBSKitService sharedSDK] getLocationInfo:^(RXLBSModel * _Nonnull location, NSError * _Nonnull error) {
+ if (error) {
+ NSLog(@"location error = %@", error);
+ } else {
+ NSLog(@"location success = %@", location);
+ }
+}];
+```
+
+### 响应结构
+
+> RXLBSModel 参数说明
+
+
+| 字段 | 备注 |
+| --- | --- |
+| formattedAddress | 格式化地址 |
+| country | 国家 |
+| province | 省/直辖市 |
+| city | 市 |
+| district | 区 |
+| citycode | 城市编码 |
+| adcode | 区域编码 |
+| street | 街道名称 |
+| number | 门牌号 |
+| POIName | 兴趣点名称 |
+| AOIName | 所属兴趣点名称 |
+| longitude | 经度 |
+| latitude | 纬度 |
+
+
+## 判断定位权限
+
+**接口原型**
+
+```objectivec
+/**
+ * 判断定位权限
+ * **@param **YES有定位权限，NO没有定位权限
+ */
+- (BOOL)enableLocationAuthorizationStatus;
+```
+
+**调用示例**
+
+```objectivec
+BOOL enableLocation = [[RXLBSKitService sharedSDK] enableLocationAuthorizationStatus];
+```
+
+## 是否允许后台定位
+
+**接口原型**
+
+```objectivec
+/**
+ * 是否允许后台定位 默认为NO不开启后台定位
+ */
+- (void)setAllowsBackgroundLocationUpdates:(BOOL)allow;
+```
+
+**调用示例**
+
+```objectivec
+[[RXLBSKitService sharedSDK] setAllowsBackgroundLocationUpdates:allow];
+```
+
+## 设置定位超时时间
+
+**接口原型**
+
+```objectivec
+/**
+ * 设置定位超时时间 默认为2秒
+ */
+- (void)setLocationTimeout:(NSInteger)locationTimeout;
+```
+
+**调用示例**
+
+```objectivec
+[[RXLBSKitService sharedSDK] setLocationTimeout:locationTimeout];
+```

@@ -1,0 +1,215 @@
+---
+sidebar_position: 2
+title: 原生接入
+description: 望舒区服角色 iOS / Android 端原生接入指南，包含 SDK 集成与接口调用说明。
+---
+
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
+
+## 上报区服角色
+
+<Tabs groupId="platform">
+
+<TabItem value="ios" label="iOS">
+
+**接口原型**
+
+```objectivec
+/**
+ * 设置游戏角色 id
+ * @param roleId 游戏角色 id
+ * @param regionTag 区服信息
+ */
+- (void)setGameInfoWithRoleId:(NSString *)roleId
+ regionTag:(NSString *)regionTag
+```
+
+**调用示例**
+
+```objectivec
+[[RXSDK sharedSDK] setGameInfoWithRoleId:@"游戏角色 id" regionTag:@"游戏区服标识"];
+```
+
+</TabItem>
+
+<TabItem value="android" label="Android">
+
+**接口原型**
+
+```java
+/**
+ * 上报区服角色（简化版）
+ * @param roleId 游戏角色 ID
+ * @param regionTag 区服标识（如服务器 ID 或地区 tag）
+ */
+void setGameInfo(String roleId, String regionTag);
+
+/**
+ * 上报区服角色（完整版，可携带角色等级、操作类型、工会、VIP、战力等扩展字段）
+ * @param gameInfo 角色信息对象，详见下方 GameInfo 字段说明
+ */
+void setGameInfo(GameInfo gameInfo);
+```
+
+**参数说明**
+
+| 字段 | 类型 | 必传 | 说明 |
+| --- | --- | --- | --- |
+| roleId | String | 是 | 角色 ID |
+| roleName | String | 是 | 角色名称（构造时未传则默认等于 roleId） |
+| serverId | String | 是 | 服务器 ID（构造时为空会被设为 "default"） |
+| serverName | String | 是 | 服务器名称（构造时未传则默认等于 serverId） |
+| gameRoleLevel | String | 是 | 角色等级，默认 "1" |
+| type | int | 是 | 操作类型：不同渠道 type 类型不同，参考下方说明 |
+| roleCreateTime | long | 条件必传 | 角色创建时间（毫秒）。type=1 时必传 |
+| partyId | String | 否 | 公会 ID |
+| partyName | String | 否 | 公会名称 |
+| vipLevel | int | 否 | VIP 等级 |
+| gameRolePower | int | 否 | 角色战力 |
+| experience | String | 否 | 经验值 |
+| balance | String | 否 | 角色余额 |
+| attach | String | 否 | 业务自定义透传字段 |
+
+> type 说明
+
+| 值 | 说明 |
+| --- | --- |
+| 1 | 选服页面 / 创建角色 |
+| 2 | 创建角色 / 进入游戏 |
+| 3 | 进入游戏 / 角色升级 |
+| 4 | 等级提升 / 角色退出 |
+
+**调用示例**
+
+```java
+// 简化版
+RXSDK.getInstance().setGameInfo("游戏角色 ID", "区服标识");
+
+// 完整版
+GameInfo info = new GameInfo(2, "1001", "S001");
+info.setRoleName("剑圣");
+info.setServerName("华东1区");
+info.setGameRoleLevel("36");
+info.setVipLevel(5);
+info.setGameRolePower(98800);
+info.setPartyId("g_8801");
+info.setPartyName("无双战盟");
+info.setExperience("123456");
+info.setBalance("9999");
+info.setAttach("自定义透传字段");
+
+RXSDK.getInstance().setGameInfo(info);
+```
+
+</TabItem>
+
+</Tabs>
+
+## 查询角色信息
+
+登录后调用。
+
+<Tabs groupId="platform">
+
+<TabItem value="ios" label="iOS">
+
+**接口原型**
+
+```objectivec
+/**
+ * 查询游戏角色信息
+ */
+- (void)searchGameAccountWithComplete:(RequestComplete)complete;
+```
+
+**调用示例**
+
+```objectivec
+[[RXSDK sharedSDK] searchGameAccountWithComplete:^(NSDictionary * _Nullable response, RX_CommonRequestError * _Nullable error) {
+
+}];
+```
+
+</TabItem>
+
+<TabItem value="android" label="Android">
+
+**接口原型**
+
+```java
+void searchGameAccount(RXRequestCallback callback);
+```
+
+**调用示例**
+
+```java
+RXSDK.getInstance().searchGameAccount(new RXRequestCallback() {
+    @Override
+    public void onResponse(JSONObject jsonObject) {
+        // 处理响应
+    }
+});
+```
+
+</TabItem>
+
+</Tabs>
+
+### 响应参数（JSON）
+
+| 字段 | 类型 | 是否必填 | 说明 | 示例 |
+| --- | --- | --- | --- | --- |
+| code | Number | 是 | 响应状态码， 0 为成功，非 0 表示出错 | 0 |
+| msg | String | 否 | 响应信息，仅在 code 非 0 时返回 |  |
+| Data | 否 | 响应内容 |  |  |
+
+#### Data
+
+| 字段 | 类型 | 是否必填 | 说明 |
+| --- | --- | --- | --- |
+| list | []Item | 是 | 角色列表 |
+
+#### Item
+
+| 字段 | 类型 | 是否必填 | 说明 |
+| --- | --- | --- | --- |
+| region_tag | String | 是 | 区服标识 |
+| cp_role_id | String | 是 | 角色 id |
+| extension | json | 否 | 扩展信息符合 json 格式的数据 |
+
+**响应示例**
+
+```json
+{
+ "data": {
+ "list": [
+ {
+ "rx_openid": "xxxasxxsasax",
+ "region_tag": "default",
+ "cp_role_id": "123",
+ "extension": {
+ "aaaa": "bbb"
+ },
+ "id": 187,
+ "cpid": 114,
+ "description": "sync",
+ "created_at": "2025-04-25T15:25:16+08:00"
+ },
+ {
+ "rx_openid": "xxxasxxsasax",
+ "region_tag": "default",
+ "cp_role_id": "1234",
+ "extension": {
+ "aaaa": "bbb"
+ },
+ "id": 188,
+ "cpid": 114,
+ "description": "sync",
+ "created_at": "2025-04-25T15:25:28+08:00"
+ }
+ ]
+ },
+ "code": 0
+}
+```

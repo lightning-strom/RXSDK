@@ -1,0 +1,276 @@
+---
+title: "快速开始"
+---
+
+## 创建反馈
+
+**接口原型**
+```java
+    /**
+/**
+ * 创建意见反馈
+ * @param content 返回内容
+ * @param attachments 上传附件
+ * @param phone 电话号，非必填
+ * @param tags 标签标识， 游戏透传
+ * @param callback 回调
+ */
+public void feedbackCreate(String content, String[] attachments, String phone, String[] tags,
+                           RXRequestCallback callback)
+```
+
+**调用示例**
+
+```java
+String content = "测试测试测试";
+String[] attachments =["https://rxfile-test.ruixuecloud.com/feed_log/rxu7nr2QPwbvkDpX33tm5F_OHl2RX6-WZjeKJyL4_160"];
+String phone = "1232323232";
+String[] tags = ["tag1", "tag2", "tag3"];
+
+RuiXueSdk.getRXSdkApi().feedbackCreate(content, attachments, phone, tags, new RXRequestCallback() {
+    @Override
+    public void onResponse(JSONObject jsonObject) {
+        Log.d("feedback_test", "创建反馈： " + jsonObject.toString());
+    }
+});
+
+```
+
+### 响应结构（JSON）
+
+**HTTP 状态码：**`200 OK`
+
+| **字段** | **类型** | **是否必填** | **说明** | **示例** |
+| --- | --- | --- | --- | --- |
+| code | Number | 是   | 响应状态码，0为成功，非0表示出错 | 0   |
+| msg | String | 否   | 响应信息，仅在status为非0时不为空 |     |
+
+**响应示例**
+
+```json
+{"code": 0}
+```
+
+## 获取反馈列表
+
+**接口原型**
+```java
+/**
+ * 获取列表
+ * @param page 页数， 从1开始
+ * @param size 每页大小
+ * @param status 默认传0即可
+ * @param callback 回调
+ */
+public void getFeedbackList(int page, int size, int status, RXRequestCallback callback)
+```
+
+**调用示例**
+
+```java
+RuiXueSdk.getRXSdkApi().getFeedbackList(1, 10, 0, new RXRequestCallback() {
+    @Override
+    public void onResponse(JSONObject jsonObject) {
+        Log.d("feedback_test", "意见反馈列表：" + jsonObject);
+    }
+});
+```
+
+### 响应结构(JSON)
+
+| **参数** | **类型**                                             | **备注** |
+| -------- | ---------------------------------------------------- | -------- |
+| code     | Number                                               | 0 为成功 |
+| msg| String | 失败提示 |
+| data| Data | 返回数据 |
+
+> Data 说明
+
+| **字段**
+  | **类型**
+ |  **说明**
+                                                            |
+| ------------- | ------------ | ---------------- | 
+| page
+      | Number
+   |  
+ |
+| size
+ | Number
+   | 
+ |
+| total
+    | String
+   |  
+ |
+| list
+     | list[]
+   |  列表数据 |
+
+> list说明
+
+| **字段**
+  | **类型**
+ |  **说明**
+                                                            |
+| ------------- | ------------ | ---------------- | 
+| id
+      | Number
+   |  id
+ |
+| content
+ | String
+   | 反馈内容
+ |
+| created_at
+    | String
+   |  反馈时间
+ |
+| status
+     | Number
+   |  1未处理 2已处理|
+| recover_at
+     | String
+   |  回复时间|
+| is_prop
+     | Number
+   |  0无道具 1有道具|
+
+## 获取反馈详情
+
+**接口原型**
+
+```java
+/**
+ * 获取反馈详情
+ * @param id 反馈id
+ * @param callback 回调
+ */
+public void getFeedbackDetail(int id, RXRequestCallback callback)
+```
+
+**调用示例**
+
+```java
+RuiXueSdk.getRXSdkApi().getFeedbackDetail(71, new RXRequestCallback() {
+    @Override
+    public void onResponse(JSONObject jsonObject) {
+        Log.d("feedback_test", "反馈详情： " + jsonObject.toString());
+    }
+});
+```
+
+### 响应结构(JSON)
+
+| **参数** | **类型**                                             | **备注** |
+| -------- | ---------------------------------------------------- | -------- |
+| code     | Number                                               | 0 为成功 |
+| msg| String | 失败提示 |
+| data| Data | 返回数据 |
+
+> Data 说明
+
+| **字段**
+  | **类型**
+ |  **说明**
+                                                            |
+| ------------- | ------------ | ---------------- | 
+| id
+      | Number
+   |  id
+ |
+| content
+ | String
+   | 反馈内容
+ |
+| attachments
+ | String[]
+   | 反馈附件
+ |
+| created_at
+    | String
+   |  反馈时间
+ |
+| status
+     | Number
+   |  1未处理 2已处理|
+| recover_at
+     | String
+   |  回复时间|
+| recover_content
+     | String
+   |  回复内容|
+| recover_attachments
+     | String[]
+   |  回复道具|
+| is_prop
+     | Number
+   |  0无道具 1有道具|
+| get_prop
+     | Number
+   |  1 已领取|
+| prop
+     | Prop
+   |  道具|
+
+> Prop 说明
+
+| **字段**
+  | **类型**
+ |  **说明**
+                                                            |
+| ------------- | ------------ | ---------------- | 
+| name
+ | String
+   | 道具名
+ |
+| tag
+    | String
+   |  道具标识
+ |
+| num
+     | Number
+   |  道具数量|
+| time_limit
+     | Number
+   |  有效期（天）0永久有效|
+| icon
+     | String
+   |  图标|
+| count
+     | String
+   |  道具数量字符串|
+| describe
+     | String
+   | 描述|
+
+## 领取道具
+
+**接口原型**
+
+```java
+/**
+ * 领取道具
+ * @param id 反馈id
+ * @param callback 回调
+ */
+public void feedbackGetprop(int id, RXRequestCallback callback)
+```
+
+**调用示例**
+
+```java
+RuiXueSdk.getRXSdkApi().feedbackGetprop(71, new RXRequestCallback() {
+    @Override
+    public void onResponse(JSONObject jsonObject) {
+        Log.d("feedback_test", "领取道具： " + jsonObject.toString());
+    }
+});
+```
+
+### 响应结构(JSON)
+
+| **参数** | **类型**                                             | **备注** |
+| -------- | ---------------------------------------------------- | -------- |
+| code     | Number                                               | 0 为成功 |
+| msg| String | 失败提示 |

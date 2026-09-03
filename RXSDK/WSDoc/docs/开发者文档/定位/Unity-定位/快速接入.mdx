@@ -1,0 +1,434 @@
+---
+sidebar_position: 1
+title: 快速接入
+description: "望舒SDK 快速接入 Unity 接入文档，提供完整的接口调用说明与示例。"
+---
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
+
+### 接入方式
+* Package Manager 导入 RuiXue.LBS
+
+<Tabs groupId="platform">
+
+<TabItem value="ios" label="iOS">
+
+## SDK集成
+iOS依赖的相关SDK已通过脚本自动引用到工程中，您无需手动引用。受网络环境等因素影响，相关SDK有可能引用失败，所以在生成iOS工程后，您需要检查工程中的Podfile文件中的SDK名称，在Podfile.lock文件中是否存在，如果Podfile中的SDK名称在Podfile.lock中未存在，说明SDK未完全下载成功，您需要进入Podfile文件所在路径，执行以下命令安装SDK：
+```objectivec
+pod install 
+```
+
+## 工程配置
+
+### 添加定位权限
+
+Info.plist 中添加如下权限，value 描述为示例，可自定义。
+
+| **key**                                                     | **value**              |
+| ----------------------------------------------------------- | ---------------------- |
+| Privacy - Location Always Usage Description                 | 是否允许访问定位权限？ |
+| Privacy - Location Always and When In Use Usage Description | 是否允许访问定位权限？ |
+| Privacy - Location When In Use Usage Description            | 是否允许访问定位权限？ |
+
+### 后台定位开关
+
+开启后台定位权限。
+
+![](https://guanwangyun.oss-cn-beijing.aliyuncs.com/document/position/QVfKbqdjioF7ElxQxbicwAkMnSh.png)
+
+## 注册高德
+
+需先注册高德定位服务获取 appKey。
+
+**接口原型**
+
+```csharp
+/// <summary>
+/// 初始化，注册高德key
+/// </summary>
+/// <param name="appKey"></param>
+public static void Init(string appKey);
+```
+
+**调用示例**
+
+```csharp
+RXLBSIOS.Init("your app key");
+```
+
+## 获取位置信息
+
+**接口原型**
+
+```csharp
+/// <summary>
+/// 获取位置信息
+/// </summary>
+/// <param name="onGet"></param>
+/// <param name="onError"></param>
+public static void GetLocationInfo(RequestResponseDelegate onResponse, RequestErrorDelegate onError);
+```
+
+**调用示例**
+
+```csharp
+public void GetLocation()
+{
+    RXLBSIOS.GetLocationInfo(GetLocationResponseDelegate,GetLocationErrorDelegate);
+}
+
+private void GetLocationResponseDelegate(string data)
+{
+    LogUtil.Log("EventManager", $" GetLocationResponseDelegate: {data}");
+}
+
+private void GetLocationErrorDelegate(string error)
+{
+    LogUtil.Log("EventManager", $" GetLocationErrorDelegate: {error}");
+}
+
+```
+
+### 响应结构
+
+| **字段**         | **备注**       |
+| ---------------- | -------------- |
+| formattedAddress | 格式化地址     |
+| country          | 国家           |
+| province         | 省/直辖市      |
+| city             | 市             |
+| district         | 区             |
+| citycode         | 城市编码       |
+| adcode           | 区域编码       |
+| street           | 街道名称       |
+| number           | 门牌号         |
+| POIName          | 兴趣点名称     |
+| AOIName          | 所属兴趣点名称 |
+| longitude        | 经度           |
+| latitude         | 纬度           |
+
+## 判断定位权限
+
+**接口原型**
+
+```csharp
+/// <summary>
+/// 判断定位权限
+/// </summary>
+/// <returns></returns>
+public static bool IsEnableLocation();
+```
+
+**调用示例**
+
+```csharp
+RXLBSIOS.IsEnableLocation();
+```
+
+## 是否允许后台定位
+
+**接口原型**
+
+```csharp
+/// <summary>
+/// 设置是否允许后台定位
+/// </summary>
+/// <param name="allow"></param>
+public static void SetAllowsBackgroundLocationUpdates(bool allow);
+```
+
+**调用示例**
+
+```csharp
+RXLBSIOS.SetAllowsBackgroundLocationUpdates(true);
+```
+
+## 设置定位超时时间
+
+**接口原型**
+
+```csharp
+/// <summary>
+/// 设置定位超时时间
+/// </summary>
+/// <param name="timeout"></param>
+public static void SetLocationTimeout(int timeout)
+```
+
+**调用示例**
+
+```csharp
+RXLBSIOS.SetLocationTimeout(2);
+```
+
+</TabItem>
+
+<TabItem value="android" label="Android">
+
+## SDK 集成
+
+打开 `mainTemplate.gradle` 文件，在 `dependencies` 中加入
+
+```groovy
+    implementation " com.ruixue:rxsdk_gaode:${version}"
+```
+
+### 参数说明
+
+| **字段** | **类型** | **是否必填** | **说明**         |
+| -------- | -------- | ------------ | ---------------- |
+| apikey   | String   | 是           | 高德开放平台获取 |
+
+- 打开 `AndroidManifest.xml` 文件，在 `application` 中新增
+
+```xml
+<application>
+  <!--android:value="请输入com.amap.api.v2.apikey您的用户Key value值" />-->
+      <meta-data
+           android:name="com.amap.api.v2.apikey"
+           android:value="apikey 参数值" />
+</application>
+```
+
+- 打开 `launcherTemplate.gradle` 文件， 在 `defaultConfig` 中新增
+
+```groovy
+       manifestPlaceholders = [
+           AMAP_APIKEY     : "2642d735325ae5de2d00328104fbb8ce"
+       ] 
+```
+
+## 初始化定位
+
+**接口原型**
+
+```csharp
+    public void InitLocation();
+```
+
+**调用示例**
+
+```csharp
+    public void OnInitLocation()
+    {
+        RXLBSAndroid.InitLocation();
+    }
+```
+
+## 获取GPS状态的字符串
+
+**接口原型**
+
+```csharp
+    /// <summary>
+    /// 获取GPS状态的字符串
+    /// </summary>
+    /// <param name="statusCode">statusCode GPS状态码</param>
+    /// <returns></returns>
+    public string GetGPSStatusString(int statusCode);
+```
+**调用示例**
+
+```csharp
+    public void OnGetGPSStatusString()
+    {
+        LogUtil.Log("EventManager", $"GetGPSStatusString {RXLBSAndroid.GetGPSStatusString(0)}");
+    }
+```
+
+## 设置定位参数
+
+**接口原型**
+
+```csharp
+        /// <summary>
+        /// 设置参数
+        /// </summary>
+        /// <param name="cbAddress">设置是否需要显示地址信息</param>
+        /// <param name="cbGpsFirst">设置是否优先返回GPS定位结果，如果30秒内GPS没有返回定位结果则进行网络定位,注意：只有在高精度模式下的单次定位有效，其他方式无效</param>
+        /// <param name="cbCacheAble">设置是否开启缓存</param>
+        /// <param name="cbOnceLocation">设置是否单次定位</param>
+        /// <param name="cbOnceLastest">设置是否等待设备wifi刷新，如果设置为true,会自动变为单次定位，持续定位时不要使用</param>
+        /// <param name="cbSensorAble">设置是否使用传感器</param>
+        /// <param name="strInterval">设置发送定位请求的时间间隔,最小值为1000，如果小于1000，按照1000算</param>
+        /// <param name="strTimeout">设置网络请求超时时间</param>
+    public void ResetOption(bool cbAddress, bool cbGpsFirst, bool cbCacheAble, bool cbOnceLocation, bool cbOnceLastest,
+                bool cbSensorAble, long strInterval, long strTimeout);
+```
+
+**调用示例**
+
+```csharp
+    public void OnResetOption()
+    {
+        RXLBSAndroid.ResetOption(true, true, true, true, true, 
+            true, 10000, 10000);
+    }
+```
+
+## 开始定位
+
+**接口原型**
+
+```csharp
+        /// <summary>
+        /// 开始定位
+        /// </summary>
+        /// <param name="cbAddress">设置是否需要显示地址信息</param>
+        /// <param name="cbGpsFirst">设置是否优先返回GPS定位结果，如果30秒内GPS没有返回定位结果则进行网络定位,注意：只有在高精度模式下的单次定位有效，其他方式无效</param>
+        /// <param name="cbCacheAble">设置是否开启缓存</param>
+        /// <param name="cbOnceLocation">设置是否单次定位</param>
+        /// <param name="cbOnceLastest">设置是否等待设备wifi刷新，如果设置为true,会自动变为单次定位，持续定位时不要使用</param>
+        /// <param name="cbSensorAble"设置是否使用传感器></param>
+        /// <param name="strInterval">设置发送定位请求的时间间隔,最小值为1000，如果小于1000，按照1000算</param>
+        /// <param name="strTimeout">设置网络请求超时时间</param>
+        public void StartLocation(bool cbAddress, bool cbGpsFirst, bool cbCacheAble, bool cbOnceLocation, bool cbOnceLastest,
+            bool cbSensorAble, long strInterval, long strTimeout, RequestResponseDelegate onResponse,
+            RequestErrorDelegate onError, RequestExtDelegates channelCallback)
+```
+
+**调用示例**
+
+```csharp
+    public void OnStartLocation()
+    {
+        RXLBSAndroid.StartLocation(true, true, true, true, true, 
+            true, 10000, 10000, 
+            StartLocationResponseDelegate, StartLocationErrorDelegate);
+    }
+```
+
+## 开始定位
+
+**接口原型**
+
+```csharp
+    /// <summary>
+    /// 开始定位
+    /// </summary>
+    /// <param name="types">坐标分组，由 CP 自定义。</param>
+    /// <param name="duration">单位秒，需要传入大于30秒以上的秒数</param>
+    public void StartLocation(string[] types, int duration, RequestResponseDelegate onResponse, RequestErrorDelegate onError)
+```
+
+**调用示例**
+
+```csharp
+    public void OnStartLocation2()
+    {
+        string[] arr = { "test", "friend" };
+        RXLBSAndroid.StartLocation(arr, 5000, StartLocationResponseDelegate, StartLocationErrorDelegate);
+    }
+```
+
+## 停止定位 销毁定位
+
+**接口原型**
+
+```csharp
+    public void StopLocation()
+```
+
+**调用示例**
+
+**接口原型**
+
+```csharp
+    public void OnStopLocation()
+    {
+        RXLBSAndroid.StopLocation();
+    }
+```
+
+## 停止定位 销毁定位
+
+**接口原型**
+
+```csharp
+    /// <summary>
+    /// 输入GCJ-02经纬度 转WGS纬度
+    /// </summary>
+    /// <param name="lat">纬度</param>
+    /// <param name="lon">经度</param>
+    public double WGSLat(double lat, double lon)
+```
+
+**调用示例**
+
+```csharp
+    public void OnWGSLat()
+    {
+        LogUtil.Log("EventManager", $" OnWGSLat : {RXLBSAndroid.WGSLat(1, 3)}");
+    }
+```
+
+## 输入GCJ经纬度 转WGS经度
+
+**接口原型**
+
+```csharp
+    /// <summary>
+    /// 输入GCJ-02经纬度 转WGS纬度
+    /// </summary>
+    /// <param name="lat">纬度</param>
+    /// <param name="lon">经度</param>
+    public double WGSLon(double lat, double lon)
+```
+
+**调用示例**
+
+```csharp
+    public void OnWGSLon()
+    {
+        LogUtil.Log("EventManager", $" OnWGSLat : {RXLBSAndroid.WGSLon(1, 3)}");
+    }
+```
+
+## 坐标转换算法 转换经度所需
+
+**接口原型**
+
+```csharp
+    /// <summary>
+    /// 坐标转换算法 转换经度所需
+    /// </summary>
+    /// <param name="x">longitude</param>
+    /// <param name="y">latitude</param>
+    public double TransformLon(double x, double y)
+```
+
+**调用示例**
+
+```csharp
+    public void OnTransformLon()
+    {
+        LogUtil.Log("EventManager", $" OnWGSLat : {RXLBSAndroid.TransformLon(1, 3)}");
+    }
+```
+
+## 坐标转换算法 转换纬度所需
+
+**接口原型**
+
+```csharp
+    /// <summary>
+    /// 坐标转换算法 转换经度所需
+    /// </summary>
+    /// <param name="x">longitude</param>
+    /// <param name="y">latitude</param>
+    public double TransformLat(double x, double y)
+```
+
+**调用示例**
+
+```csharp
+    public void OnTransformLat()
+    {
+        LogUtil.Log("EventManager", $" OnWGSLat : {RXLBSAndroid.TransformLat(1, 3)}");
+    }
+```
+
+</TabItem>
+
+</Tabs>

@@ -1,0 +1,309 @@
+---
+title: "快速接入"
+---
+
+## 望舒支付配置
+[IOS支付配置](/docs/v3.5/支付/功能介绍)
+## 准备工作
+
+::: tip
+接入请前先做好准备工作。
+可通过 pod 方式接入 通行证 组件，并使用 通行证 相关功能。
+在需要使用功能的类中引用头文件<code>#import </code>
+[苹果支付账号配置](/docs/v3.5/支付/功能介绍)
+:::
+
+## SDK 集成
+
+- 编辑 Podfile 文件，添加如下配置：
+
+```objectivec
+pod 'RXSDK_Pure'
+```
+
+::: tip
+补单机制：
+由于app在上传凭证给服务器时发生了网络或各种原因，造成了凭证没有上传成功，产生了掉单，SDK 提供自动和客户端手动补单两种补偿机制。具体如下：
+
+自动补单流程：
+
+1. 客户端调用下单接口时 SDK 会优先判断上次支付是否掉单，如有掉单则先进行补单，补单成功后再次调用下单接口则恢复正常支付流程。补单失败后再次调用下单接口则继续补单。
+2. 支付失败后和登录成功后SDK会自动进行5次补单，使用斐波那契数列5秒间隔计算，减少掉单率。
+
+手动补单流程：
+
+1. 订单验证失败 SDK 会将订单号及支付凭证回调给客户端，客户端可自行上报。
+2. SDK 提供查询是否需要补单和补单功能，客户端可配合使用。
+:::
+
+## 下单支付
+
+**接口原型**
+
+```objectivec
+/**
+ * 下单
+ */
+- (void)iap:(NSDictionary *)dict complete:(RequestComplete)complete;
+```
+
+### 参数说明
+
+| **字段** | **类型**     | **是否必填** | **备注**                                         |
+| ---------------- | ------------ | ------------ | ------------------------------------------------ |
+| hq_type      | string   | 否           | 支付类型(参考 hq_type 对照表) ， 传空或不支持的类型 SDK 会默认为 map |
+| goods_tag        | NSString     | 是           | 望舒计费点标识                                         |
+| trade_no         | NSString     | 是           | CP 唯一订单号，不能重复                                           |
+| is_debug         | NSInteger    | 否           | 是否测试订单 默认 0 正式  1 为测试订单           |
+| env              | NSInteger    | 否           | 是否使用沙盒环境支付 0 正式 1 沙盒               |
+| currency         | NSString     | 是           | 币种 全大写 国内传: CNY，参考 [国家编码 币种字典](/docs/v3.5/支付/功能介绍)   |
+| ext              | NSDictionary | 否           | 支付扩展字段 三方支付额外传递参数                |
+| notify_url       | NSString     | 是           | 支付成功通知 CP 发货地址                         |
+| indulge_auth     | NSInteger    | 否           | 是否进行防沉迷验证  0 不验证，1 验证，默认不验证 |
+| game_info     | NSDictionary    | 否           | 游戏自定义数据， 上报区服和角色需要在 game_info 中传入属性，具体使用方式参考下方 game_info 字段说明  |
+| bigdata_report     | NSDictionary    | 否           | 商业化支付参数， 通过商业化触发的支付行为要传以下参数，否则数据统计会有丢失，具体使用方式参考下方 bigdata_report 字段说明  |
+| custom_ext        | NSDictionary      | 否           | 自定义透传参数 |
+
+> `custom_ext` 结构说明
+
+| **字段**                | **类型**  | **是否必填** | **备注** |
+| ----------------------- | --------- | ------------ | -------- |
+| bigdata_ext        |    NSDictionary   | 否           | 大数据预置事件透传参数 |
+
+> `bigdata_report` 字段说明
+
+| **字段**  | **类型** | **是否必填** | **备注** |
+| --------- | ------  | ----------- |---------|
+| scene_identifier| NSString| 否             | 场景标识                           |
+| scene_name     | NSString| 否            | 场景名称                          |
+| trigger_button_identifier     | NSString| 否            | 触发按钮标识                         |
+| trigger_button_name     | NSString| 否            | 触发按钮名称                         |
+| window_identifier     | NSString| 否            | 窗口标识                         |
+| window_name     | NSString| 否            | 窗口名称                         |
+| window_sequence     | NSString| 否            | 窗口展示顺序                         |
+| gift_package     | NSDictionary| 否            | 礼包	                         |
+
+>> `gift_package` 字段说明
+
+| **字段**  | **类型** | **是否必填** | **备注** |
+| --------- | ------  | ----------- |---------|
+| identifier| NSString| 否             | 礼包标识                           |
+| name     | NSString| 否            | 礼包名称                          |
+| purchase_medium     | NSString| 否            | 购买礼包介质                         |
+| price     | int| 否            | 礼包价格                         |
+| billing_point     | NSString| 否            | 礼包计费点                         |
+
+> `game_info` 字段说明
+
+| **字段**  | **类型** | **是否必填** | **备注** |
+| --------- | ------  | ----------- |---------|
+| cp_game_character_id| NSString| 否             | 角色 id                           |
+| cp_game_area_id     | NSString| 否            | 区服 id                           |
+
+> `hq_type` 字段说明
+
+| **字段**        | **备注**                                 |
+| --------------- | ---------------------------------------- |
+| iap        | 苹果支付，需要先接入苹果配置，请参考 [Apple 接入](/docs/v3.5/支付/功能介绍)                           |
+
+**调用示例**
+
+```objectivec
+NSMutableDictionary *dict = [NSMutableDictionary dictionary];
+[dict setValue:@"iap" forKey:@"hq_type"];
+[dict setValue:@"望舒计费点标识" forKey:@"goods_tag"]; // 望舒计费点标识
+[dict setValue:@"订单号" forKey:@"trade_no"]; // CP 唯一订单号，不能重复
+[dict setValue:@(1) forKey:@"is_debug"]; // 是否测试订单 默认0 正式  1为测试订单
+[dict setValue:@(1) forKey:@"env"]; // 是否使用沙盒环境支付 0 正式 1 沙盒
+[dict setValue:@"CNY" forKey:@"currency"]; // 币种 默认传: CNY
+[dict setValue:@{} forKey:@"ext"]; // 支付扩展字段 三方支付额外传递参数 详见下面具体渠道
+[dict setValue:@"" forKey:@"notify_url"]; // 支付成功通知CP发货地址
+[dict setValue:@"" forKey:@"transmit_args"]; // 客户端透传参数 非必传
+[dict setValue:@(1) forKey:@"indulge_auth"]; // 是否进行防沉迷验证  0不验证，1验证，默认不验证
+// [dict setValue:@{@"cp_game_character_id" : @"角色 id", @"cp_game_area_id" : @"区服 id"} forKey:@"game_info"]; // 非必传
+
+    // 商业化窗口支付 非必传
+//    NSMutableDictionary *businessPayDic = [NSMutableDictionary dictionary];
+//    [businessPayDic setValue:@"场景标识" forKey:@"scene_identifier"];
+//    [businessPayDic setValue:@"场景名称" forKey:@"scene_name"];
+//    [businessPayDic setValue:@"触发按钮标识" forKey:@"trigger_button_identifier"];
+//    [businessPayDic setValue:@"触发按钮名称" forKey:@"trigger_button_name"];
+//    [businessPayDic setValue:@"窗口标识" forKey:@"window_identifier"];
+//    [businessPayDic setValue:@"窗口名称" forKey:@"window_name"];
+//    [businessPayDic setValue:@"窗口展示顺序" forKey:@"window_sequence"];
+
+    // 商业化窗口礼包 非必传
+//    NSMutableDictionary *businessGiftPayDic = [NSMutableDictionary dictionary];
+//    [businessGiftPayDic setValue:@"礼包标识" forKey:@"identifier"];
+//    [businessGiftPayDic setValue:@"礼包名称" forKey:@"name"];
+//    [businessGiftPayDic setValue:@"购买礼包介质" forKey:@"purchase_medium"];
+//    [businessGiftPayDic setValue:@(礼包价格) forKey:@"price"];
+//    [businessGiftPayDic setValue:@"礼包计费点" forKey:@"billing_point"];
+//    
+//    [businessPayDic setValue:businessGiftPayDic forKey:@"gift_package"];
+//    [dict setValue:businessPayDic forKey:@"bigdata_report"];
+
+    // 大数据预置事件透传参数 非必传
+//    NSMutableDictionary *customExtDic = [NSMutableDictionary dictionary];
+//    NSMutableDictionary *bigDataExtDic = [NSMutableDictionary dictionary];
+//    [bigDataExtDic setValue:@"b" forKey:@"a"];
+//    [customExtDic setValue:bigDataExtDic forKey:@"bigdata_ext"];
+//    [dict setValue:customExtDic forKey:@"custom_ext"];
+
+[[RXIAPService sharedSDK] iap:dict complete:^(NSDictionary * _Nullable response, RX_CommonRequestError * _Nullable error) {
+    if (!error) {
+        NSLog(@"%@",response);
+    }else{
+        NSLog(@"%@",error.responesObject);
+    }
+}];
+```
+
+### 响应结构
+
+```json
+{
+    "code": 0, 
+    "msg": "success"
+}
+```
+
+## 查询商品信息
+
+**接口原型**
+
+```objectivec
+/**
+ * 查询商品信息
+ * @param productIdArr 商品id
+ */
+- (void)getProductInfoWithProductIdArr:(NSArray *)productIdArr
+                              complete:(void(^)(NSArray *productInfoList))complete;
+```
+
+### 参数说明
+
+| **字段** | **类型** | **是否必填** | **备注**    |
+| ------------ | -------- | ------------ | ----------- |
+| productIdArr | NSString | 是           | 苹果商品 id |
+
+**调用示例**
+
+```objectivec
+[[RXIAPService sharedSDK] getProductInfoWithProductIdArr:商品id数组 complete:^(NSArray *productInfoList) {
+
+}];
+```
+
+### 响应结构
+
+返回系统库 StoreKit 中的 SKProduct 对象。
+
+## 查询支付账号所属地区和币种
+:::tip
+用户**未登录** **Apple ID** 和 **App Store ID** 时或**当前账号所属地区不在商品销售地区**时无法查询，返回 **没有商品**。
+:::
+
+**接口原型**
+
+```objectivec
+/**
+ * 获取地区 货币符号
+ * @param productId 商品 id
+ */
+- (void)getLocaleIdentifierWithProductId:(NSString *)productId
+                                complete:(RequestComplete)complete;
+```
+
+### 参数说明
+
+| **字段** | **类型** | **是否必填** | **备注**    |
+| ------------ | -------- | ------------ | ----------- |
+| productId | NSString | 是           | 苹果商品 id |
+
+**调用示例**
+
+```objectivec
+[[RXIAPService sharedSDK] getLocaleIdentifierWithProductId:@"商品 id" complete:^(NSDictionary * _Nullable response, RX_CommonRequestError * _Nullable error) {
+
+}];
+```
+
+### 响应结构
+
+| **字段** | **类型** | **备注**    |
+| ------------ | ------------ | ----------- |
+| area | string | 账号所属地区和语言 |
+| currency | string | 币种 |
+
+## 补单
+
+### 查询是否需要补单
+
+**接口原型**
+
+```objectivec
+/**
+ * 查询是否需要补单
+ */
+- (BOOL)checkHasFailedOrder;
+```
+
+**调用示例**
+
+```objectivec
+BOOL needRepay = [[RXIAPService sharedSDK] checkHasFailedOrder];
+```
+
+### 补单接口
+
+::: tip
+重试间隔通过斐波那契数列计算，客户端可在合适的时机调用补单接口，如登录成功后。
+:::
+
+**接口原型**
+
+```objectivec
+/**
+ * 补单
+ * @param maxCount 最大重试数，默认5次
+ */
+- (void)repayFailOrderWithMaxCount:(NSInteger)maxCount
+                          complete:(RequestComplete)complete;
+```
+
+#### 参数说明
+
+| **字段** | **类型** | **是否必填** | **备注**              |
+| ------------ | -------- | ------------ | --------------------- |
+| maxCount     | NSString | 否           | 最大重试数，默认 5 次 |
+
+**调用示例**
+
+```objectivec
+BOOL needRepay = [[RXIAPService sharedSDK] checkHasFailedOrder];
+if (needRepay) {
+    [[RXIAPService sharedSDK] reFailOrderWithMaxCount:5 complete:^(NSDictionary * _Nullable response, RXCommonRequestError * _Nullable error) {
+                    
+    }];
+}
+```
+
+#### 响应结构
+
+```json
+{
+    "code": 0, 
+    "msg": "success"
+}
+```
+
+## 常见错误码
+21000：App Store 无法读取你提供的 JSON 数据
+21002：收据数据不符合格式
+21003：收据无法被验证
+21004：你提供的共享密钥和账户的不匹配
+21005：收据服务器当前不可用
+21006：此收据有效，但订阅已过期
+21007：此收据来自测试环境，但发送到生产环境进行验证
+21008：此收据来自生产环境，但发送到测试环境进行验证

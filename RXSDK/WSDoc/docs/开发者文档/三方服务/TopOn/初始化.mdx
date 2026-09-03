@@ -1,0 +1,331 @@
+---
+sidebar_position: 1
+title: 初始化
+description: 望舒 初始化 iOS / Android 接入文档，提供完整的接口调用说明与示例。
+---
+
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
+
+<Tabs groupId="platform">
+
+<TabItem value="ios" label="iOS">
+
+TopOn SDK 支持 iOS13 及以上版本。
+
+前往 [TopOn 登录页面](https://app.toponad.com/m/login)进行登录。
+
+前往 [TopOn 聚合变现流程](https://help.toponad.com/cn/docs/YyN9pE)查看如何创建账号、应用、广告位等相关介绍。
+
+前往[TopOn 官方文档](https://help.toponad.com/cn/docs/iOS)。
+
+## 准备工作
+
+前往 [TopOn 聚合变现流程](https://help.toponad.com/cn/docs/YyN9pE) ，按照官方步骤 1——5 依次注册账号、创建应用、广告位、添加广告位、广告平台、广告源。
+
+## SDK 集成
+
+集成第三方广告平台 SDK ：
+
+按照 [TopOn 聚合变现流程](https://help.toponad.com/cn/docs/YyN9pE)中的 6.1——6.3 步骤，前往 [TopOn SDK 下载页面](https://portal.toponad.com/m/sdk/download)，选择需要的广告平台 SDK ，生成接入代码，填入到 iOS 项目中对应的 Podfile 以及 info.plist 中。
+
+完成上一步，您的 Podfile 中已经添加了 TopOn 自动生成的 SDK 名称与版本号，为保证 SDK 版本与功能的稳定性，必须将引入的 TopOn SDK 对应以下名称进行版本号的修改：
+
+```objectivec
+pod 'TPNiOS','6.3.50'
+pod 'TraminiSDK','6.3.50'
+pod 'TPNMaioSDKAdapter','6.3.50'
+pod 'TPNStartAppSDKAdapter','6.3.50'
+pod 'TPNBaiduSDKAdapter','6.3.50.2'
+pod 'TPNNendSDKAdapter','6.3.50.2'
+pod 'TPNKuaiShouSDKAdapter','6.3.50.4'
+pod 'TPNSigmobSDKAdapter','6.3.50'
+pod 'TPNVungleSDKAdapter','6.3.50.2'
+pod 'TPNUnityAdsSDKAdapter','6.3.50.2'
+pod 'TPNIronSourceSDKAdapter','6.3.50.2'
+pod 'TPNTapjoySDKAdapter','6.3.50'
+pod 'TPNTTSDKAdapter','6.3.50.2'
+pod 'TPNBigoSDKAdapter','6.3.50.2'
+pod 'TPNAdColonySDKAdapter','6.3.50'
+pod 'TPNPubNativeSDKAdapter','6.3.50.2'
+pod 'TPNKlevinSDKAdapter','6.3.50'
+pod 'TPNPangleSDKAdapter','6.3.50.4'
+pod 'TPNKwaiSDKAdapter','6.3.50'
+pod 'TPNIMASDKAdapter','6.3.50'
+pod 'TPNKidozSDKAdapter','6.3.50'
+pod 'RXFacebookADSDK_official'
+# pod 'TPNFacebookSDKAdapter','6.3.50'
+pod 'TPNAdmobSDKAdapter','6.3.50.2'
+pod 'TPNInmobiSDKAdapter','6.3.50'
+pod 'TPNApplovinSDKAdapter','6.3.50.2'
+pod 'TPNMintegralSDKAdapter','6.3.50.2'
+pod 'TPNGDTSDKAdapter','6.3.50.4'
+pod 'TPNChartboostSDKAdapter','6.3.50'
+pod 'TPNMyTargetSDKAdapter','6.3.50'
+pod 'TPNYandexSDKAdapter','6.3.50'
+pod 'TPNFyberSDKAdapter','6.3.50'
+pod 'TPNOgurySDKAdapter','6.3.50'
+```
+
+编辑 Podfile 文件，添加如下配置：
+
+```objectivec
+pod 'RXTopOnSDK'
+```
+
+Admob 平台
+
+如果集成 Admob 广告平台 SDK ，平台要求在 xcode 项目的 Info.plist 中添加 GADApplicationIdentifier 配置你们 Admob 的 AppID ，否则会 crash。参考如下，请使用你们的 Admob 的 identifier 进行替换：
+
+```objectivec
+key>GADApplicationIdentifier/key>
+string>ca-app-pub-***********~*******/string>
+key>GADIsAdManagerApp/key>
+true/>
+```
+
+FaceBook 平台
+
+如果集成 FaceBook 广告平台 SDK ，需要在 Podfile 中增加：
+
+```objectivec
+pod 'RXFacebookADSDK_official'
+```
+
+## 初始化配置
+
+您的 App 需要制订《隐私政策》，同时在用户首次启动 App 时展示《隐私政策》并取得用户同意。App 制订的《隐私政策》，请参考 [隐私合规指南](https://help.toponad.com/cn/docs/ByIf1V)，请务必确保用户同意 App《隐私政策》之后，再初始化 TopOn SDK。
+
+调用 SDK 来获取广告之前必须先进行初始化，建议在 AppDelegate 的 application:didFinishLaunchingWithOptions 方法里面执行
+
+**接口原型**
+
+```objectivec
+/**
+ * 初始化方法
+ * @param appID - appid
+ * @param appKey appkey
+ * @param error - error
+ */
+- (BOOL)startWithAppID:(NSString *)appID
+ appKey:(NSString *)appKey
+ error:(NSError**)error;
+```
+
+**调用示例**
+
+```objectivec
+#import RXTopOnSDK/RXTopOnSDK.h>
+#import AppTrackingTransparency/AppTrackingTransparency.h>
+
+- (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions {
+
+ [RXTopOnInitManager setLogEnabled:NO];//日志开关，打包上线时需关闭
+ [RXTopOnInitManager integrationChecking];//应用完整性校验，使用时setLogEnabled设为YES
+ [[RXTopOnInitManager sharedSDK] setSystemPlatformType:ATSystemPlatformTypeIOS];
+ if (@available(iOS 14, *)) {
+ [ATTrackingManager requestTrackingAuthorizationWithCompletionHandler:^(ATTrackingManagerAuthorizationStatus status) {
+ [[RXTopOnInitManager sharedSDK] startWithAppID:"your TopOn AppId" appKey:"your TopOn AppKey" error:nil];
+ }];
+ } else {
+ [[RXTopOnInitManager sharedSDK] startWithAppID:"your TopOn AppId" appKey:"your TopOn AppKey" error:nil];
+ }
+
+ return YES;
+}
+
+```
+
+## 打开日志
+
+使用此方法可以在工作台中查看关于 RXTopOnSDK 的日志。
+
+**接口原型**
+
+```objectivec
+/**
+ * 设置是否打印日志，YES打印，NO不打印，默认为NO
+ */
++ (void)setLogEnabled:(BOOL)logEnabled;
+```
+
+**调用示例**
+
+```objectivec
+[RXTopOnInitManager setLogEnabled:YES];//打开日志开关，打包上线时需关闭
+```
+
+## SDK集成完整性检测
+
+完成准备工作中的 SDK 引入后，可调用[ATAPI integrationChecking](注：需配合[ATAPI setLogEnabled:YES]，打开 SDK 日志打印)作为集成是否正常的参考，参考代码如下:
+
+**接口原型**
+
+```objectivec
+/**
+ * 配合[RXTopOnInitManager setLogEnabled:YES]，检查应用完整性
+ */
++ (void)integrationChecking;
+```
+
+**调用示例**
+
+```objectivec
+[RXTopOnInitManager integrationChecking];
+```
+
+日志中输入如下所示：
+
+```objectivec
+2024-06-03 07:58:15.829419+0800 RXTopOnSDKDemo[63512:5234292] ATAdLogger(UA_6.3.50) Message:
+**************************** Checking Result ****************************
+(
+ {
+ NetworkName = MyTarget;
+ "Recommended Versions" = (
+ "5.21.1"
+ );
+ Status = Success;
+ "Use Versions" = "5.21.1";
+ },
+ {
+ NetworkName = Admob;
+ "Recommended Versions" = (
+ "11.3.0"
+ );
+ Status = Success;
+ "Use Versions" = "11.3.0";
+ },
+ {
+ NetworkName = Vungle;
+ "Recommended Versions" = (
+ "7.3.1"
+ );
+ Status = Success;
+ "Use Versions" = "7.3.1";
+ }
+)
+**************************** Checking Result ****************************
+```
+
+输出信息参数意义如下：
+
+| Field | Note |
+| --- | --- |
+| Status | 集成广告平台 SDK 的状态 |
+| Reason | value3 |
+| Recommended Versions | 集成存在的问题的原因 |
+| Use Versions | 用户导入的三方 SDK 版本 |
+
+
+## 设置当前平台类型
+
+初始化时需要调用此 API 设置当前属于哪个系统平台，例如 iOS、Unity 等。
+
+**接口原型**
+
+```objectivec
+/**
+ 设置平台类型
+ */
+- (void)setSystemPlatformType:(ATSystemPlatformType)type;
+```
+
+**调用示例**
+
+```objectivec
+[[RXTopOnInitManager sharedSDK] setSystemPlatformType:ATSystemPlatformTypeIOS];
+```
+
+## 广告流程集成建议
+
+建议按照以下所示流程来集成广告:
+
+1.应用启动时初始化 RXTopOnSDK
+
+2.进入对应页面后，提前调用 RXTopOnSDK 加载广告 loadADWithPlacementID
+
+3.应用需要展示广告时，判断 isReady
+
+YES ：展示广告，收到 DidCloseForPlacementID(广告关闭)回调后，再次加载广告，等待下次展示。
+
+NO ：调用 TopOn SDK 加载广告 loadADWithPlacementID(提示用户“广告加载中”)，加载完成后继续展示广告。
+
+</TabItem>
+
+<TabItem value="android" label="Android">
+
+前往 [TopOn 登录页面](https://app.toponad.com/m/login)进行登录。
+
+前往 [TopOn 聚合变现流程](https://help.toponad.com/cn/docs/YyN9pE)查看如何创建账号、应用、广告位等相关介绍。
+
+前往 [TopOn 官方文档](https://help.toponad.com/cn/docs/Android)。
+
+## SDK 集成
+
+
+:::tip[版本说明]
+`version` 为 SDK 版本号（替换为实际版本号），最新版本请从 [更新日志](/docs/开发者文档/入门指南/更新日志/Android) 中查看。
+:::
+
+```groovy
+ implementation 'com.ruixue:rxsdk_topon:${version}'
+```
+
+## AndroidManifest.xml 配置
+
+如果聚合了 Admob ，则必须在 AndroidManifest.xml 中添加以下配置（ value 值需配置 Admob 后台创建的应用的 ID ）：
+
+```xml
+</manifest>
+</application>
+
+ meta-data
+ android:name="com.google.android.gms.ads.APPLICATION_ID"
+ android:value="ca-app-pub-xxxxxxxxxxxxxxxx~yyyyyyyyyy"/>
+</application>
+</manifest>
+```
+
+## 初始化TopOn
+
+```java
+    HashMap<String, Object> map = new HashMap<>();
+    map.put("topon_app_id", "xxx");
+    map.put("topon_app_key", "xxx");
+
+    RuiXueSdk.getApi().initThirdSdk(activity, map, new RXJSONCallback() {
+    @Override
+    public void onSuccess(@Nullable JSONObject data) {
+    RXLogger.e("demo rx third init success: " + data.toString());
+    }
+
+    @Override
+    public void onFailed(@NonNull JSONObject cause) {
+    RXLogger.e("rx third init failed :" + cause);
+    }
+    });
+```
+
+## 其它方法
+
+```java
+    //SDK日志功能，集成测试阶段建议开启，上线前必须关闭
+    TopOnHelper.setNetworkLogDebug(true);
+    //SDK版本
+    Log.i("TopOnSDkWrapper", "TopOn SDK version: " + TopOnHelper.getSDKVersionName());
+    //检查广告平台的集成状态，提交审核时需注释此API
+    TopOnHelper.integrationChecking(activity);
+    //(v5.7.77新增) 打印当前设备的设备信息(IMEI、OAID、GAID、AndroidID等)
+    TopOnHelper.testModeDeviceInfo(activity, new DeviceInfoCallback() {
+    @Override
+    public void deviceInfo(String deviceInfo) {
+    Log.i("TopOnSDkWrapper", "deviceInfo: " + deviceInfo);
+    }
+    });
+```
+
+</TabItem>
+
+</Tabs>
+

@@ -1,0 +1,297 @@
+---
+sidebar_position: 1
+title: Go SDK
+description: "望舒SDK 排行榜 Go SDK服务端文档，提供接口请求参数与响应说明。"
+---
+
+## Go 项目设置依赖
+
+[接口依赖设置和初始化](/docs/开发者文档/性能分析/GPM-SDK接入/快速开始)
+
+---
+
+## 创建排行榜
+
+**接口原型**
+
+```go
+// CreateRank 创建排行榜
+func (c *Client) CreateRank(rankID string, startTime, destroyTime time.Time) error
+```
+
+### 参数说明
+
+| 字段 | 类型 | 是否必填 | 备注 |
+| --- | --- | --- | --- |
+| rankID | string | 是 | 排行榜 id。字符串本身带有类型信息，格式为： Flag_榜单容量_持续时间(单位小时)_自定义标识（ Flag 是一个 int64 位标记，用以扩展和规定绑定属性); 持续时间如果 &lt;=0 表示排行榜永久有效 |
+| startTime | time.Time | 是 | 排行榜开始时间 |
+| destroyTime | time.Time | 否 | 排行榜销毁时间，到时自动销毁。销毁时间一定要大于 开始时间+持续时间 |
+
+**调用示例**
+
+```go
+
+startTime, _ := tim.Parser(time.RFC3339, "2022-08-16T08:00:00+08:00")
+destroyTime , _ := tim.Parser(time.RFC3339, "2022-08-26T08:00:00+08:00")
+err := ruixuego.GetDefaultClient().CreateRank("123_100_168_custom", startTime, destroyTime)
+if err != nil { panic(err) }
+```
+
+### 响应结构
+
+| 字段 | 类型 | 是否必填 | 备注 |
+| --- | --- | --- | --- |
+| err | error | 是 | 成功时 nil, 其他为错误 |
+
+---
+
+## 销毁排行榜
+
+**接口原型**
+
+```go
+// CloseRank 关闭排行榜
+func (c *Client) CloseRank(rankID string) error
+```
+
+### 参数说明
+
+| 字段 | 类型 | 是否必填 | 备注 |
+| --- | --- | --- | --- |
+| rankID | string | 是 | 排行榜 id。字符串本身带有类型信息，格式为： Flag_榜单容量_持续时间(单位小时)_自定义标识（ Flag 是一个 int64 位标记，用以扩展和规定绑定属性); 持续时间如果 &lt;=0 表示排行榜永久有效 |
+
+**调用示例**
+
+```go
+err := ruixuego.GetDefaultClient().CloseRank("123_100_168_custom")
+if err != nil { panic(err) }
+```
+
+### 响应结构
+
+| 字段 | 类型 | 是否必填 | 备注 |
+| --- | --- | --- | --- |
+| err | error | 是 | 成功时 nil, 其他为错误 |
+
+---
+
+## 用户添加分数
+
+此接口为增加分数
+
+**接口原型**
+
+```go
+// RankAddScore 用户添加分数
+func (c *Client) RankAddScore(rankID string, openId string, score int64) error
+```
+
+### 参数说明
+
+| 字段 | 类型 | 是否必填 | 备注 |
+| --- | --- | --- | --- |
+| rankID | string | 是 | 排行榜 id。字符串本身带有类型信息，格式为： Flag_榜单容量_持续时间(单位小时)_自定义标识（ Flag 是一个 int64 位标记，用以扩展和规定绑定属性); 持续时间如果 &lt;=0 表示排行榜永久有效 |
+| openId | string | 是 | 望舒 openid |
+| score | int64 | 是 | 增加的分数 |
+
+**调用示例**
+
+```go
+err := ruixuego.GetDefaultClient().RankAddScore("123_100_168_custom", "ruixue_oipenid", 100)
+if err != nil { panic(err) }
+```
+
+### 响应结构
+
+| 字段 | 类型 | 是否必填 | 备注 |
+| --- | --- | --- | --- |
+| err | error | 是 | 成功时 nil, 其他为错误 |
+
+---
+
+## 用户设置分数
+
+此接口为设置成固定分数
+
+**接口原型**
+
+```go
+// RankSetScore 用户设置分数
+func (c *Client) RankSetScore(rankID string, openId string, score int64) error
+```
+
+### 参数说明
+
+| 字段 | 类型 | 是否必填 | 备注 |
+| --- | --- | --- | --- |
+| rankID | string | 是 | 排行榜 id。字符串本身带有类型信息，格式为： Flag_榜单容量_持续时间(单位小时)_自定义标识（ Flag 是一个 int64 位标记，用以扩展和规定绑定属性); 持续时间如果 &lt;=0 表示排行榜永久有效 |
+| openId | string | 是 | 望舒 openid |
+| score | int64 | 是 | 增加的分数 |
+
+**调用示例**
+
+```go
+err := ruixuego.GetDefaultClient().RankSetScore("123_100_168_custom", "ruixue_oipenid", 100)
+if err != nil { panic(err) }
+```
+
+### 响应结构
+
+| 字段 | 类型 | 是否必填 | 备注 |
+| --- | --- | --- | --- |
+| err | error | 是 | 成功时 nil, 其他为错误 |
+
+---
+
+## 查询用户排名
+
+**接口原型**
+
+```go
+// QueryUserRank 查询用户排行情况
+func (c *Client) QueryUserRank(rankID string, openId string) (*RankMember, error)
+```
+
+### 参数说明
+
+| 字段 | 类型 | 是否必填 | 备注 |
+| --- | --- | --- | --- |
+| rankID | string | 是 | 排行榜 id。字符串本身带有类型信息，格式为： Flag_榜单容量_持续时间(单位小时)_自定义标识（ Flag 是一个 int64 位标记，用以扩展和规定绑定属性); 持续时间如果 &lt;=0 表示排行榜永久有效 |
+| openId | string | 是 | 望舒 openid |
+
+**调用示例**
+
+```go
+rank, err := ruixuego.GetDefaultClient().QueryUserRank("123_100_168_custom"，"ruixue_oipenid")
+if err != nil { panic(err) }
+```
+
+### 响应结构
+
+| 字段 | 类型 | 是否必填 | 备注 |
+| --- | --- | --- | --- |
+| rank | *[RankMember](/docs/开发者文档/用户信息/获取指定用户信息) | 是 | 用户排行榜信息 |
+| err | error | 是 | 成功时 nil, 其他为错误 |
+
+#### RankMember
+
+| 字段 | 类型 | 是否必填 | 备注 |
+| --- | --- | --- | --- |
+| Score | int64 | 是 | 当前分数 |
+| Rank | int64 | 是 | 当前排名 |
+| UserInfo | *[RelationUser](/docs/开发者文档/用户信息/获取指定用户信息) | 是 | 用户信息 |
+
+##### RelationUser
+
+| 字段 | 类型 | 是否必填 | 备注 |
+| --- | --- | --- | --- |
+| OpenID | string | 是 | 望舒 openid |
+| NickName | string | 否 | 昵称 |
+| Birthday | string | 否 | 生日 |
+| Remarks | string | 否 | 备注 |
+| Avatar | string | 否 | 头像 |
+| Custom | string | 否 | 用户自定义信息 |
+| Dist | float64 | 否 | 距离 |
+| Time | int64 | 否 | 添加好友时间 |
+| CPID | uint32 | 是 | Cp ID |
+| Sex | int32 | 否 | 性别 |
+
+---
+
+## 查询排行榜信息
+
+**接口原型**
+
+```go
+// GetRankList 查询排行榜
+func (c *Client) GetRankList(rankID string) ([]*RankMember, error)
+```
+
+### 参数说明
+
+| 字段 | 类型 | 是否必填 | 备注 |
+| --- | --- | --- | --- |
+| rankID | string | 是 | 排行榜 id。字符串本身带有类型信息，格式为： Flag_榜单容量_持续时间(单位小时)_自定义标识（ Flag 是一个 int64 位标记，用以扩展和规定绑定属性); 持续时间如果 &lt;=0 表示排行榜永久有效 |
+
+**调用示例**
+
+```go
+ranks, err := ruixuego.GetDefaultClient().GetRankList("123_100_168_custom")
+if err != nil { panic(err) }
+```
+
+### 响应结构
+
+| 字段 | 类型 | 是否必填 | 备注 |
+| --- | --- | --- | --- |
+| ranks | []*[RankMember](/docs/开发者文档/用户信息/获取指定用户信息) | 是 | 用户排行榜信息 |
+| err | error | 是 | 成功时 nil, 其他为错误 |
+
+---
+
+## 查询好友排行榜
+
+此接口能查询在已存在的排行榜中， openId 用户的所有好友在排行榜中的排行情况
+
+**接口原型**
+
+```go
+// GetFriendRankList 查询好友排行榜
+func (c *Client) GetFriendRankList(rankID string, openId string) ([]*RankMember, error)
+```
+
+### 参数说明
+
+| 字段 | 类型 | 是否必填 | 备注 |
+| --- | --- | --- | --- |
+| rankID | string | 是 | 排行榜 id。字符串本身带有类型信息，格式为： Flag_榜单容量_持续时间(单位小时)_自定义标识（ Flag 是一个 int64 位标记，用以扩展和规定绑定属性); 持续时间如果 &lt;=0 表示排行榜永久有效 |
+| openId | string | 是 | 望舒 openid |
+
+**调用示例**
+
+```go
+ranks, err := ruixuego.GetDefaultClient().GetFriendRankList("123_100_168_custom", "rxopenid")
+if err != nil { panic(err) }
+```
+
+### 响应结构
+
+| 字段 | 类型 | 是否必填 | 备注 |
+| --- | --- | --- | --- |
+| ranks | []*[RankMember](/docs/开发者文档/用户信息/获取指定用户信息) | 是 | 用户排行榜信息 |
+| err | error | 是 | 成功时 nil, 其他为错误 |
+
+---
+
+## 删除排行榜用户
+
+此接口为删除排行榜中指定用户
+
+**接口原型**
+
+```go
+// RankAddScore 用户添加分数
+func (c *Client) DeleteRankUser(rankID string, openId string) error
+```
+
+### 参数说明
+
+| 字段 | 类型 | 是否必填 | 备注 |
+| --- | --- | --- | --- |
+| rankID | string | 是 | 排行榜 id。字符串本身带有类型信息，格式为： Flag_榜单容量_持续时间(单位小时)_自定义标识（ Flag 是一个 int64 位标记，用以扩展和规定绑定属性); 持续时间如果 &lt;=0 表示排行榜永久有效 |
+| openId | string | 是 | 望舒 openid |
+
+**调用示例**
+
+```go
+err := ruixuego.GetDefaultClient().DeleteRankUser("123_100_168_custom", "ruixue_oipenid")
+if err != nil { panic(err) }
+```
+
+### 响应结构
+
+| 字段 | 类型 | 是否必填 | 备注 |
+| --- | --- | --- | --- |
+| err | error | 是 | 成功时 nil, 其他为错误 |
+
+---

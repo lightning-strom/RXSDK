@@ -1,0 +1,329 @@
+---
+title: "小游戏开放接口 API"
+---
+
+> 对接小游戏接口
+
+以下是 CP 服务端请求接口，需要准备好 `cp_id` `product_id` `channel_id` `cp_key` 等参数。
+domain：为产品对外域名
+请求头：[望舒服务端请求头](/docs/v3.5/入门指南/服务端接入须知)
+
+## 上报用户数据
+> 文档链接 https://developers.weixin.qq.com/minigame/dev/api-backend/open-api/data/storage.setUserStorage.html
+
+> **POST：**  `/v1/social/serverapi/wx_data/setstorage`
+> **认证方式:** **[CPSign](/docs/v3.5/入门指南/服务端接入须知)**
+
+### CURL 示例
+
+```bash
+curl --location --request POST '{{接口域名}}/v1/social/serverapi/wx_data/setstorage' \
+--header 'ruixue-language: {{语言}}' \
+--header 'ruixue-cpid: {{CPID}}' \
+--header 'ruixue-productid: {{产品标识}}' \
+--header 'ruixue-cpts: {{时间戳}}' \
+--header 'ruixue-traceid: {{TraceID}}' \
+--header 'ruixue-cpsign: {{请求签名}}' \
+--header 'ruixue-devicecode: {{设备码}}' \
+--header 'ruixue-channelid: {{渠道标识}}' \
+--header 'ruixue-platformid: {{平台标识}}' \
+--header 'Content-Type: application/json' \
+--data-raw '{
+    "datas": [
+        {
+            "openid" : "rxuCBWvQpOlXLKH2gAdcddV-7xaLLp196YVGA89L",
+            "cp_user_id":"xxx",
+            "kv_list" : [
+                    {"key" : "k1" , "value" : "test"}
+                ]
+        }
+     ]
+}'
+```
+
+### 请求参数（JSON）
+
+| **字段**  | **类型**                                     | **是否必填** | **说明** | **示例** |
+|---------|--------------------------------------------| --- | --- | --- |
+| datas   | [][DataO](/docs/v3.5/排行榜/服务端接入/服务端 API) | 是   | 上报数据，数组格式。最多 20条数据 |  |
+
+##### DataO
+| **字段** | **类型**                                         | **是否必填** | **说明**                                      | **示例** |
+| --- |------------------------------------------------| --- |---------------------------------------------| --- |
+| openid | String                                         | 是   | **望舒侧 OpenID**  与**游戏侧用户id** 传一个就可以                                |  |
+| cp_user_id| String                                         | 是   | **游戏侧用户id**       与  **望舒侧 OpenID**   传一个就可以                       |  |
+| kv_list | [][Key-Value](/docs/v3.5/排行榜/服务端接入/服务端 API) | 是   | 上报的 key-value 数组                            |  |
+
+##### Key-Value
+| **字段** | **类型** | **是否必填** | **说明**        | **示例**          |
+| --- | --- | --- |---------------|-----------------|
+| key | String | 是   | key值          |                 |
+| value | String | 是   | value值        |  |
+
+**请求示例**
+
+```json
+{
+  "datas": [
+    {
+      "openid" : "rxuCBWvQpOlXLKH2gAdcddV-7xaLLp196YVGA89L",
+      "kv_list" : [
+        {"key" : "k1" , "value" : "test"}
+      ]
+    }
+  ]
+}
+```
+
+### 响应参数（JSON）
+
+**HTTP 状态码：**`200 OK`
+
+| **字段** | **类型** | **是否必填** | **说明** | **示例** |
+| --- | --- | --- | --- | --- |
+| code | Number | 是   | 响应状态码，0为成功，非0表示出错 | 0   |
+| msg | String | 否   | 响应信息，仅在status为非0时不为空 |     |
+
+**响应示例**
+
+```json
+{"code": 0}
+```
+
+---
+
+## 写用户关系链互动数据存储
+> 文档链接 https://developers.weixin.qq.com/minigame/dev/api-backend/open-api/data/storage.setUserInteractiveData.html
+
+> **POST：**  `/v1/social/serverapi/wx_data/setinteractivedata`
+> **认证方式:** **[CPSign](/docs/v3.5/入门指南/服务端接入须知)**
+
+### CURL 示例
+
+```bash
+curl --location --request POST '{{接口域名}}/v1/social/serverapi/wx_data/setinteractivedata' \
+--header 'ruixue-language: {{语言}}' \
+--header 'ruixue-cpid: {{CPID}}' \
+--header 'ruixue-productid: {{产品标识}}' \
+--header 'ruixue-cpts: {{时间戳}}' \
+--header 'ruixue-traceid: {{TraceID}}' \
+--header 'ruixue-cpsign: {{请求签名}}' \
+--header 'ruixue-devicecode: {{设备码}}' \
+--header 'ruixue-channelid: {{渠道标识}}' \
+--header 'ruixue-platformid: {{平台标识}}' \
+--header 'Content-Type: application/json' \
+--data-raw '{
+    "datas": [
+        {
+            "openid" : "rxuCBWvQpOlXLKH2gAdcddV-7xaLLp196YVGA89L",
+            "cp_user_id": "xxx",
+            "kv_list" : [
+                    {"key" : "1" , "value" : 100}
+                ]
+        }
+     ]
+}'
+```
+
+### 请求参数（JSON）
+
+| **字段**  | **类型**                                       | **是否必填** | **说明** | **示例** |
+|---------|----------------------------------------------| --- | --- | --- |
+| datas   | [][VDataO](/docs/v3.5/排行榜/服务端接入/服务端 API) | 是   | 上报数据，数组格式。最多 20条数据 |  |
+
+##### VDataO
+| **字段** | **类型**                                               | **是否必填** | **说明**                                      | **示例** |
+| --- |------------------------------------------------------| --- |---------------------------------------------| --- |
+| openid | String                                               | 是   | 望舒侧 OpenID 与游戏侧用户id 传一个就可以                                  |  |
+| cp_user_id | String                                               | 是   | 游戏侧用户id 与 望舒侧 OpenID 传一个就可以                                 |  |
+| kv_list | [][VKey-Value](/docs/v3.5/排行榜/服务端接入/服务端 API) | 是   | 上报的 key-value 数组                            |  |
+
+##### VKey-Value
+| **字段** | **类型** | **是否必填** | **说明**        | **示例**          |
+| --- | --- | --- |---------------|-----------------|
+| key | String | 是   | key值  "1" ~ "50" 之间          |                 |
+| value | int64 | 是   | value值        |  |
+
+**请求示例**
+
+```json
+{
+  "datas": [
+    {
+      "openid" : "rxuCBWvQpOlXLKH2gAdcddV-7xaLLp196YVGA89L",
+      "cp_user_id" : "xxx",
+      "kv_list" : [
+        {"key" : "1" , "value" : 100}
+      ]
+    }
+  ]
+}
+```
+
+### 响应参数（JSON）
+
+**HTTP 状态码：**`200 OK`
+
+| **字段** | **类型** | **是否必填** | **说明** | **示例** |
+| --- | --- | --- | --- | --- |
+| code | Number | 是   | 响应状态码，0为成功，非0表示出错 | 0   |
+| msg | String | 否   | 响应信息，仅在status为非0时不为空 |     |
+
+**响应示例**
+
+```json
+{"code": 0}
+```
+
+---
+
+## 删除已经上报到微信的key-value数据
+> 文档链接 https://developers.weixin.qq.com/minigame/dev/api-backend/open-api/data/storage.removeUserStorage.html
+
+> **POST：**  `/v1/social/serverapi/wx_data/removestorage`
+> **认证方式:** **[CPSign](/docs/v3.5/入门指南/服务端接入须知)**
+
+### CURL 示例
+
+```bash
+curl --location --request POST '{{接口域名}}/v1/social/serverapi/wx_data/removestorage' \
+--header 'ruixue-language: {{语言}}' \
+--header 'ruixue-cpid: {{CPID}}' \
+--header 'ruixue-productid: {{产品标识}}' \
+--header 'ruixue-cpts: {{时间戳}}' \
+--header 'ruixue-traceid: {{TraceID}}' \
+--header 'ruixue-cpsign: {{请求签名}}' \
+--header 'ruixue-devicecode: {{设备码}}' \
+--header 'ruixue-channelid: {{渠道标识}}' \
+--header 'ruixue-platformid: {{平台标识}}' \
+--header 'Content-Type: application/json' \
+--data-raw '{
+    "datas": [
+        {
+            "openid" : "rxuCBWvQpOlXLKH2gAdcddV-7xaLLp196YVGA89L",
+            "key" : ["k1", "k2"]
+        }
+     ]
+}'
+```
+
+### 请求参数（JSON）
+
+| **字段**  | **类型**                                       | **是否必填** | **说明** | **示例** |
+|---------|----------------------------------------------| --- | --- | --- |
+| datas   | [][RDataO](/docs/v3.5/排行榜/服务端接入/服务端 API) | 是   | 上报数据，数组格式。最多 20条数据 |  |
+
+##### RDataO
+
+| **字段**  | **类型**                                       | **是否必填** | **说明** | **示例** |
+|---------|----------------------------------------------| --- | --- | --- |
+| openid | String                                               | 是   | 望舒侧 OpenID 与游戏侧用户id 传一个就可以                                  |  |
+| cp_user_id | String                                               | 是   | 游戏侧用户id 与 望舒侧 OpenID 传一个就可以                                 |  |
+| key | []String | 是   | 上报的 key 数组                         |  |
+
+**请求示例**
+
+```json
+{
+  "datas": [
+    {
+      "openid" : "rxuCBWvQpOlXLKH2gAdcddV-7xaLLp196YVGA89L",
+      "cp_user_id":"xxx",
+      "key" : ["k1", "k2"]
+    }
+  ]
+}
+```
+
+### 响应参数（JSON）
+
+**HTTP 状态码：**`200 OK`
+
+| **字段** | **类型** | **是否必填** | **说明** | **示例** |
+| --- | --- | --- | --- | --- |
+| code | Number | 是   | 响应状态码，0为成功，非0表示出错 | 0   |
+| msg | String | 否   | 响应信息，仅在status为非0时不为空 |     |
+
+**响应示例**
+
+```json
+{"code": 0}
+```
+
+---
+
+## 微信开放数据解密
+> 文档链接 https://developers.weixin.qq.com/minigame/dev/guide/open-ability/signature.html#%E5%8A%A0%E5%AF%86%E6%95%B0%E6%8D%AE%E8%A7%A3%E5%AF%86%E7%AE%97%E6%B3%95
+
+> **POST：**  `/v1/social/serverapi/wx_data/decode`
+> **认证方式:** **[CPSign](/docs/v3.5/入门指南/服务端接入须知)**
+
+### CURL 示例
+
+```bash
+curl --location --request POST '{{接口域名}}/v1/social/serverapi/wx_data/decode' \
+--header 'ruixue-language: {{语言}}' \
+--header 'ruixue-cpid: {{CPID}}' \
+--header 'ruixue-productid: {{产品标识}}' \
+--header 'ruixue-cpts: {{时间戳}}' \
+--header 'ruixue-traceid: {{TraceID}}' \
+--header 'ruixue-cpsign: {{请求签名}}' \
+--header 'ruixue-devicecode: {{设备码}}' \
+--header 'ruixue-channelid: {{渠道标识}}' \
+--header 'ruixue-platformid: {{平台标识}}' \
+--header 'Content-Type: application/json' \
+--data-raw '{
+    "openid" : "rxuCBWvQpOlXLKH2gAdcddV-7xaLLp196YVGA89L",
+    "encrypted_data" : "加密数据",
+    "iv" : "解密算法初始向量，其中iv由数据接口返回"
+}'
+```
+
+### 请求参数（JSON）
+
+| **字段** | **类型** | **是否必填** | **说明**                | **示例** |
+|--------|--------| --- |-----------------------| --- |
+| openid | String                                               | 是   | 望舒侧 OpenID 与游戏侧用户id 传一个就可以                                  |  |
+| cp_user_id | String                                               | 是   | 游戏侧用户id 与 望舒侧 OpenID 传一个就可以                                 |  |
+| encrypted_data  | String | 是   | 加密数据                  |  |
+| iv | String | 是   | 解密算法初始向量，其中iv由数据接口返回  |  |
+
+**请求示例**
+
+```json
+{
+  "openid" : "rxuCBWvQpOlXLKH2gAdcddV-7xaLLp196YVGA89L",
+  "cp_user_id":"xxx",
+  "encrypted_data" :"CiyLU1Aw2KjvrjMdj8YKliAjtP4gsMZMQmRzooG2xrDcvSnxIMXFufNstNGTyaGS9uT5geRa0W4oTOb1WT7fJlAC+oNPdbB+==",
+  "iv" : "Db/XcxxmK01EpqOyuxINew=="
+}
+```
+
+### 响应参数（JSON）
+
+**HTTP 状态码：**`200 OK`
+
+| **字段** | **类型**                                               | **是否必填** | **说明**               | **示例** |
+|--------|------------------------------------------------------| --- |----------------------| --- |
+| code   | Number                                               | 是   | 响应状态码，0为成功，非0表示出错    | 0   |
+| msg    | String                                               | 否   | 响应信息，仅在status为非0时不为空 |     |
+| data   | [][DecodeData](/docs/v3.5/排行榜/服务端接入/服务端 API) | 是   | 解密数据                 |  |
+
+##### DecodeData
+
+| **字段**  | **类型**                                     | **是否必填** | **说明** | **示例** |
+|---------|--------------------------------------------| --- | --- | --- |
+| openid   | String | 是   | 望舒侧 OpenID  |  |
+| decode_data | String | 是   | 解密数据                            |  |
+
+**响应示例**
+
+```json
+{
+  "code": 0,
+  "data" : {
+    "openid" : "rxigfjasoidfjskf",
+    "decode_data" : "decode data string"
+  }
+}
+```

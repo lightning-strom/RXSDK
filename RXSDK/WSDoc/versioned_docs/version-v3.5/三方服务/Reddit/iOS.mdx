@@ -1,0 +1,51 @@
+---
+title: "iOS"
+---
+
+## 准备工作
+
+::: tip
+接入请前先做好准备工作。
+可通过 **pod** 方式接入 **RXRedditSDK** 组件，并使用 **RXRedditSDK** 相关功能。
+在需要使用功能的类中引用头文件 <code>#import </code>
+在 [Reddit开发者](https://www.reddit.com/prefs/apps) 中创建项目项目，并获取相关参数。
+:::
+
+## SDK 集成
+
+- 编辑 Podfile 文件，添加如下配置：
+
+```objectivec
+pod 'RXRedditKit'
+```
+
+## 注册 Reddit
+
+**接口原型**
+
+```objectivec
+/**
+ * 注册 Reddit
+ * @param clientID 应用ID
+ * @param redirectURI 应用重定向网址
+ * 您在使用Reddit登录前需要在https://www.reddit.com/prefs/apps注册应用
+ * 注册应用时自动生成应用ID，并设置重定向网址redirectURI
+ */
+- (void)initWithClientID:(NSString *)clientID redirectURI:(NSString *)redirectURI;
+```
+
+**调用示例**
+
+```objectivec
+- (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions {
+    
+    // Reddit
+    [[RXRedditService sharedSDK] initWithClientID:@"clientid" redirectURI:@"redirectURI"];
+    
+    return YES;
+}
+```
+
+## Reddit 登录
+
+登录结果通过 [登录 API](/docs/v3.5/三方服务/Reddit/iOS) 统一登录回调返回。

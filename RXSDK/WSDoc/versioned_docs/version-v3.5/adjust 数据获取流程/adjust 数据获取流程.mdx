@@ -1,0 +1,63 @@
+---
+sidebar_position: 1
+title: "adjust 数据获取流程"
+---
+
+### adjust 归因和国内媒体归因逻辑的区别
+    国内是由望舒归因，  adjust 是自归因后通知望舒
+
+### 接入准备
+   #### 客户端接入adjust的sdk
+      参考sdk接入文档： /docs/v3.5/adjust 数据获取流程/adjust 数据获取流程
+   ####  adjust 配置
+   ##### 创建应用
+   ![image.png](https://haiqi-ruixue-test.oss-cn-beijing.aliyuncs.com/docOnline/image-1740450004113.png)
+   
+   红框处为应用id， 需要填写到望舒后台
+
+  ##### 配置服务器回传
+   ![image.png](https://haiqi-ruixue-test.oss-cn-beijing.aliyuncs.com/docOnline/image-1740450068290.png)
+
+   回传事件为客户端触发， 上报给adjust，  adjust再通过服务端回传给望舒，  目前支持（安装、 再归因、归因更新），  由于adjust自判断的数据与望舒统计有差异， 望舒又上报了  rx_activation 作为补充，   回传url的域名为望舒api域名， 参数为望舒需要的变量
+
+ ##### 配置回传事件
+
+![image.png](https://haiqi-ruixue-test.oss-cn-beijing.aliyuncs.com/docOnline/image-1740452767716.png)
+
+应用下需要配置回传事件，事件名需要添加前缀， 用于区分
+
+  
+####  望舒后台配置应用
+![image.png](https://haiqi-ruixue-test.oss-cn-beijing.aliyuncs.com/docOnline/image-1740453030752.png)
+其中，注册事件和激活事件需要单独指定， 配置好应用后， 望舒会主动拉取adjust的事件
+##### 映射
+![image.png](https://haiqi-ruixue-test.oss-cn-beijing.aliyuncs.com/docOnline/image-1740453278739.png)
+映射功能为望舒提供的事件上报规则引擎，  用来将望舒事件映射到adjust事件，  当望舒事件发生事， 望舒会将事件通知给**adjust**用于分析
+##### 回流
+![image.png](https://haiqi-ruixue-test.oss-cn-beijing.aliyuncs.com/docOnline/image-1740453124657.png)
+开启回流后， adjust回传的再归因中超过窗口期的为新注册
+##### 上报媒体消耗
+![image.png](https://haiqi-ruixue-test.oss-cn-beijing.aliyuncs.com/docOnline/image-1740453433607.png)
+由于adjust无法主动获取到媒体的消耗， 所以需要将adjust中的消耗手动填到望舒后台， 用于**望舒大数据**测计算
+
+#### 附录
+安装
+`
+望舒api域名/v1/attribution/user/bind_bigdata?gps_adid={gps_adid}&idfa={idfa}&idfv={idfv}&activity_kind=install&adid={adid}&campaign_name={campaign_name}&adgroup_name={adgroup_name}&creative_name={creative_name}&network_name={network_name}&ip_address={ip_address}&os_name={os_name}&country={country}&fb_install_referrer={fb_install_referrer}&meta_install_referrer={meta_install_referrer}&event={event}&event_name={event_name}&is_s2s={is_s2s}&created_at={created_at}&installed_at={installed_at}&installed_at_hour={installed_at_hour}&google_ads_ad_type={google_ads_ad_type}&google_ads_keyword={google_ads_keyword}&google_ads_video_id={google_ads_video_id}&google_ads_matchtype={google_ads_matchtype}&google_ads_placement={google_ads_placement}&google_ads_adgroup_id={google_ads_adgroup_id}&google_ads_campaign_id={google_ads_campaign_id}&google_ads_creative_id={google_ads_creative_id}&google_ads_adgroup_name={google_ads_adgroup_name}&google_ads_network_type={google_ads_network_type}&google_ads_campaign_name={google_ads_campaign_name}&google_ads_network_subtype={google_ads_network_subtype}&label={label}
+`
+再归因
+`
+望舒api域名/v1/attribution/user/bind_bigdata?gps_adid={gps_adid}&idfa={idfa}&idfv={idfv}&activity_kind=reattribution&adid={adid}&campaign_name={campaign_name}&adgroup_name={adgroup_name}&creative_name={creative_name}&network_name={network_name}&ip_address={ip_address}&os_name={os_name}&country={country}&fb_install_referrer={fb_install_referrer}&meta_install_referrer={meta_install_referrer}&event={event}&event_name={event_name}&is_s2s={is_s2s}&created_at={created_at}&installed_at={installed_at}&installed_at_hour={installed_at_hour}&google_ads_ad_type={google_ads_ad_type}&google_ads_keyword={google_ads_keyword}&google_ads_video_id={google_ads_video_id}&google_ads_matchtype={google_ads_matchtype}&google_ads_placement={google_ads_placement}&google_ads_adgroup_id={google_ads_adgroup_id}&google_ads_campaign_id={google_ads_campaign_id}&google_ads_creative_id={google_ads_creative_id}&google_ads_adgroup_name={google_ads_adgroup_name}&google_ads_network_type={google_ads_network_type}&google_ads_campaign_name={google_ads_campaign_name}&google_ads_network_subtype={google_ads_network_subtype}&installed_at={installed_at}&reattribution_attribution_window={reattribution_attribution_window}&reattributed_at={reattributed_at}
+`
+更新
+`
+望舒api域名/v1/attribution/user/bind_bigdata?gps_adid={gps_adid}&idfa={idfa}&idfv={idfv}&activity_kind=update&adid={adid}&campaign_name={campaign_name}&adgroup_name={adgroup_name}&creative_name={creative_name}&network_name={network_name}&ip_address={ip_address}&os_name={os_name}&country={country}&fb_install_referrer={fb_install_referrer}&meta_install_referrer={meta_install_referrer}&event={event}&event_name={event_name}&is_s2s={is_s2s}&created_at={created_at}&installed_at={installed_at}&installed_at_hour={installed_at_hour}&google_ads_ad_type={google_ads_ad_type}&google_ads_keyword={google_ads_keyword}&google_ads_video_id={google_ads_video_id}&google_ads_matchtype={google_ads_matchtype}&google_ads_placement={google_ads_placement}&google_ads_adgroup_id={google_ads_adgroup_id}&google_ads_campaign_id={google_ads_campaign_id}&google_ads_creative_id={google_ads_creative_id}&google_ads_adgroup_name={google_ads_adgroup_name}&google_ads_network_type={google_ads_network_type}&google_ads_campaign_name={google_ads_campaign_name}&google_ads_network_subtype={google_ads_network_subtype}
+`
+自定义激活
+`
+望舒api域名/v1/attribution/user/bind_bigdata?gps_adid={gps_adid}&idfa={idfa}&idfv={idfv}&activity_kind=activation&adid={adid}&campaign_name={campaign_name}&adgroup_name={adgroup_name}&creative_name={creative_name}&network_name={network_name}&ip_address={ip_address}&os_name={os_name}&country={country}&fb_install_referrer={fb_install_referrer}&meta_install_referrer={meta_install_referrer}&event={event}&event_name={event_name}&is_s2s={is_s2s}&created_at={created_at}&installed_at={installed_at}&installed_at_hour={installed_at_hour}&google_ads_ad_type={google_ads_ad_type}&google_ads_keyword={google_ads_keyword}&google_ads_video_id={google_ads_video_id}&google_ads_matchtype={google_ads_matchtype}&google_ads_placement={google_ads_placement}&google_ads_adgroup_id={google_ads_adgroup_id}&google_ads_campaign_id={google_ads_campaign_id}&google_ads_creative_id={google_ads_creative_id}&google_ads_adgroup_name={google_ads_adgroup_name}&google_ads_network_type={google_ads_network_type}&google_ads_campaign_name={google_ads_campaign_name}&google_ads_network_subtype={google_ads_network_subtype}&label={label}
+`
+自定义注册
+`
+望舒api域名/v1/attribution/user/bind_bigdata?gps_adid={gps_adid}&idfa={idfa}&idfv={idfv}&activity_kind=register&adid={adid}&campaign_name={campaign_name}&adgroup_name={adgroup_name}&creative_name={creative_name}&network_name={network_name}&ip_address={ip_address}&os_name={os_name}&country={country}&fb_install_referrer={fb_install_referrer}&meta_install_referrer={meta_install_referrer}&event={event}&event_name={event_name}&is_s2s={is_s2s}&created_at={created_at}&installed_at={installed_at}&installed_at_hour={installed_at_hour}&google_ads_ad_type={google_ads_ad_type}&google_ads_keyword={google_ads_keyword}&google_ads_video_id={google_ads_video_id}&google_ads_matchtype={google_ads_matchtype}&google_ads_placement={google_ads_placement}&google_ads_adgroup_id={google_ads_adgroup_id}&google_ads_campaign_id={google_ads_campaign_id}&google_ads_creative_id={google_ads_creative_id}&google_ads_adgroup_name={google_ads_adgroup_name}&google_ads_network_type={google_ads_network_type}&google_ads_campaign_name={google_ads_campaign_name}&google_ads_network_subtype={google_ads_network_subtype}`
+`

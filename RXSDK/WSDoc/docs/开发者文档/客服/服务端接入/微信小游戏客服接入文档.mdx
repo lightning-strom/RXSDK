@@ -1,0 +1,64 @@
+---
+sidebar_position: 2
+title: 微信小游戏客服接入文档
+description: "望舒SDK 客服 微信小游戏客服接入文档服务端文档，提供接口请求参数与响应说明。"
+---
+
+> 如何接入小游戏客服？
+>
+> 答：CP 游戏通过小游戏的客服会话按钮，在 sessionfrom 中用 JSON 格式拼接参数，通过微信官方服务器或 CP 服务器转发的形式 推送 JSON 格式通知到望舒服务器
+
+## 接口信息
+
+### 跳转小游戏客服
+
+**SessionFrom** 腾讯要求最长不得超过 1000 个字节（不是字符串长度），超过将被截断。尽量在传递时控制好字节数。望舒会默认把 **access_token ** 拼接到 ** SessionFrom** 中。所以不要额外传递无用字段。最好控制在 700 字节以内。
+
+跳转按钮 **：客服会话**
+
+跳转方式 **： SessionFrom**
+
+传参方式 **： JSON**
+
+### 参数
+
+> 以下参数值均为字符串类型
+
+| 参数 | 名称 | 含义 | 必填 | 注意 |
+| --- | --- | --- | --- | --- |
+| ruixue_openid | 望舒 openid | 用户在望舒系统的 openid | 是 | param_ui |
+| 自定义 ui | 穿透给客服面板的参数 | 使用 json 形式 例如 `{"对局 id": "1001"}` | 否 | |
+| 否 |  |  |  |  |
+| nickname | 昵称 | 客服对话中用户的昵称 | 否 |  |
+| head_img_url | 头像 | 客服对话中用户的头像 | 否 |  |
+| game_user_id | 游戏 id | 用户的游戏 id | 否 |  |
+| card_event | 卡片的事件名称 | 进入会话后用户主动发送卡片所属的事件名称 | 否 | 1. traking 埋点 |
+| card_traking_name | 卡片埋点名称 | 进入会话后用户主动发送卡片 当 card_event=traking 时 传递的埋点名称 | 否 |  |
+| platform | 平台 | 安卓 传 1 ios 传 2 | 否 |  |
+| ui | 关键字 | 卡片类型消息关键字 自动推送使用 | 否 |  |
+
+
+
+## FAQ
+
+### 小游戏消息推送地址绑定
+
+登录[微信公众平台](https://mp.weixin.qq.com/)，位置：**管理 > 开发管理 > 消息推送**。
+
+**配置消息推送** `URL`、`TOKEN` 等参数
+
+![](https://haiqi-ruixue-test.oss-cn-beijing.aliyuncs.com/docOnline/image-1750407342177.png)
+
+![](https://haiqi-ruixue-test.oss-cn-beijing.aliyuncs.com/docOnline/image-1750406238925.png)
+
+URL(服务器地址):望舒首页域名/v1/servicewechat/notify/产品 id/渠道 id
+
+TOKEN:为**ruixue** 或者 **通过望舒游戏发行平台首页选择微信小游戏渠道包-客服参数-进行参数复制进行获取**。如下图所示。
+
+EncodingAESKey(消息加密密钥)：非明文模式必填。
+
+消息加密方式:自行选择
+
+数据格式： JSON
+
+![](https://haiqi-ruixue-test.oss-cn-beijing.aliyuncs.com/docOnline/image-1750405808407.png)

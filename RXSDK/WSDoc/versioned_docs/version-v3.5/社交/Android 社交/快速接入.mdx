@@ -1,0 +1,626 @@
+---
+title: "快速接入"
+---
+
+## SDK 集成
+```groovy
+implementation 'com.ruixue:rxsdk_base:${version}'
+```
+
+## 定位
+
+### 获取附近的人
+
+**接口原型**
+
+```java
+void lbsRadius(Map hashMap, RXRequestCallback callback)
+```
+
+#### 参数说明
+
+| **字段**  | **类型** | **是否必填** | **备注**                   | **其他信息**               |
+| --------- | -------- | ------------ | -------------------------- | -------------------------- |
+| lon       | number   | 是           | WGS84 经度                 | mock: 125.36970905364038   |
+| lat       | number   | 是           | WGS84 纬度                 | mock: 43.814125235156496   |
+| radius    | integer  | 是           | 限定半径距离，单位：米     | mock: @integer(100, 10000) |
+| count     | integer  | 否           | 获取数量，0 表示获取全部   | mock: @integer(1, 100)     |
+| page      | integer  | 是           | 获取第几页的数据 从 1 开始 | mock: 1                    |
+| page_size | integer  | 是           | 每页数量                   | mock: 10                   |
+| type      | string   | 是           | 坐标分组，由 CP 自定义     |                            |
+
+**调用示例**
+
+```java
+HashMap lbsRadius = new HashMap<>();
+lbsRadius.put("lon", 118.19646377354036);
+lbsRadius.put("lat", 24.483710802285128);
+lbsRadius.put("radius", 20000);
+lbsRadius.put("count", 0);
+lbsRadius.put("page", 1);
+lbsRadius.put("page_size", 10);
+lbsRadius.put("type", "friend");
+RuiXueSdk.getRXSdkApi().lbsRadius(lbsRadius, callback);
+```
+
+#### 响应参数（JSON)
+
+**HTTP 状态码：**`200 OK`
+
+| **字段** | **类型**                                  | **是否必填** | **说明** | **示例** |
+| --- |-----------------------------------------| --- | --- | --- |
+| code | Number                                  | 是   | 响应状态码，0为成功，非0表示出错 | 0   |
+| msg | String                                  | 否   | 响应信息，仅在status为非0时不为空 |     |
+| data | [DataNode](/docs/v3.5/社交/Android 社交/快速接入) | 否   | 结果数据集 |     |
+
+##### DataNode
+
+| **字段** | **类型** | **是否必填** | **说明** | **示例** |
+| --- | --- | --- | --- | --- |
+| openid | String | 是   | 用户望舒 OpenID |     |
+| nickname | String | 否   | 用户昵称 |     |
+| birthday | String | 否   | 用户生日日期 |     |
+| remarks | String | 否   | 当前用户对其的备注 |     |
+| avatar | String | 否   | 用户头像 |     |
+| custom | String | 否   | CP 自定义信息 |     |
+| dist | Float64 | 是   | 距离当前用户的距离（米） |     |
+| sex | Number | 否   | 用户性别，1:男；0:女 |     |
+| cp_userid | Number | 否   | CP侧 用户id |     |
+
+**响应示例**
+
+```json
+{    
+    "data": [       
+        {            
+            "openid": "rxuSl4QZoNk0G1HY2-Za6GlO7wO-p_ej",            
+            "nickname": "xdh"        
+        }    
+     ],    
+     "code": 0
+}
+```
+
+### 获取位置信息
+请参考 [定位功能](/docs/v3.5/定位/Android 定位/快速接入) 。
+
+### 设置用户自定义信息
+
+**接口原型**
+
+```java
+void userSetcustom(Map hashMap, RXRequestCallback callback)
+```
+
+#### 参数说明
+
+| **字段** | **类型** | **是否必填** | **备注**            |
+| -------- | -------- | ------------ | ------------------- |
+| custom   | string   | 是           | 最大长度为 512 字节 |
+
+**调用示例**
+
+```java
+Map hashMap = new HashMap<>();
+hashMap.put("custom","custom info 最大长度为 512 字节");
+RuiXueSdk.getRXSdkApi().userSetcustom(hashMap, callback);
+```
+
+#### 响应参数结构（JSON)
+**HTTP 状态码：**`200 OK`
+
+| **字段** | **类型** | **是否必填** | **说明** | **示例** |
+| --- | --- | --- | --- | --- |
+| code | Number | 是   | 响应状态码，0为成功，非0表示出错 | 0   |
+| msg | String | 否   | 响应信息，仅在status为非0时不为空 |     |
+
+**响应示例**
+
+```json
+{       
+     "code": 0
+}
+```
+
+### 上报/更新经纬度坐标
+
+**接口原型**
+
+```java
+void lbsUpdate(Map hashMap, RXRequestCallback callback)
+```
+
+#### 参数说明
+
+| **字段** | **类型**  | **是否必填** | **备注**                 | **其他信息**              |
+| -------- | --------- | ------------ | ------------------------ | ------------------------- |
+| lon      | number    | 是           | WGS84 经度               | mock: @float(0,180,14,14) |
+| lat      | number    | 是           | WGS84 纬度               | mock: @float(0,90,14,14)  |
+| types    | string [] | 是           | 坐标分组，由 CP 自定义。 | item 类型: string         |
+
+**调用示例**
+
+```java
+HashMap maps = new HashMap<>();
+maps.put("types",types);
+maps.put("lon",location.getLongitude());
+maps.put("lat",location.getLatitude());
+
+RuiXueSdk.getRXSdkApi().lbsUpdate(maps, callback);
+```
+
+#### 响应参数（JSON）
+
+**HTTP 状态码：**`200 OK`
+
+| **字段** | **类型** | **是否必填** | **说明** | **示例** |
+| --- | --- | --- | --- | --- |
+| code | Number | 是   | 响应状态码，0为成功，非0表示出错 | 0   |
+| msg | String | 否   | 响应信息，仅在status为非0时不为空 |     |
+
+**响应示例**
+
+```json
+{
+    "code": 0
+}
+```
+
+### 删除经纬度坐标
+
+**接口原型**
+
+```java
+void lbsDelete(Map hashMap, RXRequestCallback callback)
+```
+
+#### 参数说明
+
+| **字段** | **类型**  | **是否必填** | **备注**                 | **其他信息**      |
+| -------- | --------- | ------------ | ------------------------ | ----------------- |
+| types    | string [] | 是           | 坐标分组，由 CP 自定义。 | item 类型: string |
+|          |           | 否           |                          | mock: friend      |
+
+**调用示例**
+
+```java
+HashMap dgps =  new HashMap<>();
+dgps.put("type",new String[]{""});
+RuiXueSdk.getRXSdkApi().lbsDelete(dgps, callback);
+```
+#### 响应参数（JSON）
+
+**HTTP 状态码：**`200 OK`
+
+| **字段** | **类型** | **是否必填** | **说明** | **示例** |
+| --- | --- | --- | --- | --- |
+| code | Number | 是   | 响应状态码，0为成功，非0表示出错 | 0   |
+| msg | String | 否   | 响应信息，仅在status为非0时不为空 |     |
+
+**响应示例**
+
+```json
+{
+    "code": 0
+}
+```
+
+## 设置自定义关系
+
+### 添加自定义关系
+
+**接口原型**
+
+```java
+void relationAdd(Map hashMap, RXRequestCallback callback)
+```
+
+#### 参数说明
+
+| **字段**       | **类型** | **是否必填** | **备注**                                                                                          | **其他信息**                      |
+| -------------- | -------- | ------------ | ------------------------------------------------------------------------------------------------- | --------------------------------- |
+| target         | string   | 是           | 对方 OpenID                                                                                       | test                              |
+| types          | object   | 是           | CP 自定义关系类型列表，其值是一个 map 简直对列表，value 必须为 bool |  |
+| target_remarks | string   | 否           | 用户给 Target 设置的备注信息（最长 512 字符）                                                     | aaaa                              |
+| user_remarks   | string   | 否           | Target 给用户设置的备注信息（最长 512 字符）                                                      | bbbb                              |
+
+**调用示例**
+
+```java
+Map hashMap = new HashMap<>();
+RuiXueSdk.getRXSdkApi().relationAdd(hashMap,callback);
+```
+
+#### 响应参数（JSON)
+
+**HTTP 状态码：**`200 OK`
+
+| **字段** | **类型** | **是否必填** | **说明** | **示例** |
+| --- | --- | --- | --- | --- |
+| code | Number | 是   | 响应状态码，0为成功，非0表示出错 | 0   |
+| msg | String | 否   | 响应信息，仅在status为非0时不为空 |     |
+
+**响应示例**
+
+```json
+{
+    "code": 0
+}
+```
+
+### 删除自定义关系
+
+**接口原型**
+
+```java
+void relationDelete(Map hashMap, RXRequestCallback callback)
+```
+
+#### 参数说明
+
+| **字段** | **类型** | **是否必填** | **备注**                                                                                          | **其他信息**                      |
+| -------- | -------- | ------------ | ------------------------------------------------------------------------------------------------- | --------------------------------- |
+| target   | string   | 是           | 对方 OpenID                                                                                       | test                              |
+| types    | object   | 是           | CP 自定义关系类型列表，其值是一个 map 简直对列表，value 必须为 bool |  |
+
+**调用示例**
+
+```java
+Map hashMap = new HashMap<>();
+RuiXueSdk.getRXSdkApi().relationDelete(hashMap, callback);
+```
+
+#### 响应参数（JSON）
+
+**HTTP 状态码：**`200 OK`
+
+| **字段** | **类型** | **是否必填** | **说明** | **示例** |
+| --- | --- | --- | --- | --- |
+| code | Number | 是   | 响应状态码，0为成功，非0表示出错 | 0   |
+| msg | String | 否   | 响应信息，仅在status为非0时不为空 |     |
+
+**响应示例**
+
+```json
+{
+    "code": 0
+}
+```
+
+### 更新用户自定义关系备注
+
+**接口原型**
+
+```java
+void updateRemarks(Map hashMap, RXRequestCallback callback)
+```
+
+#### 参数说明
+
+| **字段**       | **类型** | **是否必填** | **备注**                                      | **其他信息** |
+| -------------- | -------- | ------------ | --------------------------------------------- | ------------ |
+| target         | string   | 是           | 对方 OpenID                                   | test         |
+| type           | string   | 是           | CP 自定义关系类型                             | test         |
+| target_remarks | string   | 否           | 用户给 Target 设置的备注信息（最长 512 字符） | xxxxx        |
+
+**调用示例**
+
+```java
+Map hashMap = new HashMap<>();
+RuiXueSdk.getRXSdkApi().updateRemarks(hashMap, callback);
+```
+
+#### 响应参数（JSON）
+
+**HTTP 状态码：**`200 OK`
+
+| **字段** | **类型** | **是否必填** | **说明** | **示例** |
+| --- | --- | --- | --- | --- |
+| code | Number | 是   | 响应状态码，0为成功，非0表示出错 | 0   |
+| msg | String | 否   | 响应信息，仅在status为非0时不为空 |     |
+
+**响应示例**
+
+```json
+{
+    "code": 0
+}
+```
+
+### 获取自定关系列表
+
+**接口原型**
+
+```java
+void relationList(Map hashMap, RXRequestCallback callback)
+```
+
+#### 参数说明
+
+| **字段** | **类型** | **是否必填** | **备注** | **其他信息**      |
+| -------- | -------- | ------------ | -------- | ----------------- |
+| type     | string   | 是           |          | CP 自定义关系类型 |
+
+**调用示例**
+
+```java
+Map hashMap = new HashMap<>();
+RuiXueSdk.getRXSdkApi().relationList(hashMap, callback);
+```
+
+#### 响应参数（JSON）
+
+**HTTP 状态码：**`200 OK`
+
+| **字段** | **类型**                         | **是否必填** | **说明** | **示例** |
+| --- |--------------------------------| --- | --- | --- |
+| code | Number                         | 是   | 响应状态码，0为成功，非0表示出错 | 0   |
+| msg | String                         | 否   | 响应信息，仅在status为非0时不为空 |     |
+| data | [Node](/docs/v3.5/社交/Android 社交/快速接入) | 否   | 结果数据集 |     |
+
+##### Node
+
+| **字段** | **类型** | **是否必填** | **说明** | **示例** |
+| --- | --- | --- | --- | --- |
+| openid | String | 是   | 用户望舒 OpenID |     |
+| nickname | String | 否   | 用户昵称 |     |
+| birthday | String | 否   | 用户生日日期 |     |
+| remarks | String | 否   | 当前用户对其的备注 |     |
+| avatar | String | 否   | 用户头像 |     |
+| custom | String | 否   | CP 自定义信息 |     |
+| time | Number | 否   | 关系形成时间戳（单位：秒） |     |
+| sex | Number | 否   | 用户性别，1:男；0:女 |     |
+| cp_userid | Number | 否   | CP侧 用户id |     |
+
+**响应示例**
+
+```json
+{    
+    "data": [        
+        {            
+            "openid": "rxuSl4QZoNk0G1HY2-Za6GlO7wO-p_ej",            
+            "nickname": "xdh"        
+        }   
+    ],   
+    "code": 0
+}
+```
+
+### 判断两用户是否存在某自定关系
+
+**接口原型**
+
+```java
+void hasRelation(Map hashMap, RXRequestCallback callback)
+```
+
+#### 参数说明
+
+| **字段** | **类型** | **是否必填** | **备注**          | **其他信息** |
+| -------- | -------- | ------------ | ----------------- | ------------ |
+| target   | string   | 是           | 对方 OpenID       | test         |
+| type     | string   | 是           | CP 自定义关系类型 | test         |
+
+**调用示例**
+
+```java
+Map hashMap = new HashMap<>();
+RuiXueSdk.getRXSdkApi().relationList(hashMap, callback);
+```
+
+#### 响应参数（JSON）
+
+**HTTP 状态码：**`200 OK`
+
+| **字段** | **类型** | **是否必填** | **说明** | **示例** |
+| --- | --- | --- | --- | --- |
+| code | Number | 是   | 响应状态码，0为成功，非0表示出错 | 0   |
+| msg | String | 否   | 响应信息，仅在status为非0时不为空 |     |
+| data | Bool | 是   | 存在关系时为 true；否则为 false |     |
+
+**响应示例**
+
+```json
+{ 
+    "code": 0,
+    "data": true
+}
+```
+
+## 设置好友关系
+
+### 添加好友
+
+**接口原型**
+
+```java
+void addFriends(Map hashMap, RXRequestCallback callback)
+```
+
+#### 参数说明
+
+| **字段**       | **类型** | **是否必填** | **备注**                                      | **其他信息** |
+| -------------- | -------- | ------------ | --------------------------------------------- | ------------ |
+| target         | string   | 是           | 对方 OpenID                                   | test         |
+| target_remarks | string   | 否           | 用户给 Target 设置的备注信息（最长 512 字符） | aaaa         |
+| user_remarks   | string   | 否           | Target 给用户设置的备注信息（最长 512 字符）  | bbbb         |
+
+**调用示例**
+
+```java
+Map hashMap = new HashMap<>();
+RuiXueSdk.getRXSdkApi().addFriends(hashMap, callback);
+```
+
+#### 响应参数（JSON）
+
+**HTTP 状态码：**`200 OK`
+
+| **字段** | **类型** | **是否必填** | **说明** | **示例** |
+| --- | --- | --- | --- | --- |
+| code | Number | 是   | 响应状态码，0为成功，非0表示出错 | 0   |
+| msg | String | 否   | 响应信息，仅在status为非0时不为空 |     |
+
+**响应示例**
+
+```json
+{
+    "code": 0
+}
+```
+
+### 删除好友
+
+**接口原型**
+
+```java
+void removeFriends(Map hashMap, final RXRequestCallback callback)
+```
+
+#### 参数说明
+
+| **字段** | **类型** | **是否必填** | **备注**    | **其他信息** |
+| -------- | -------- | ------------ | ----------- | ------------ |
+| target   | string   | 是           | 对方 OpenID |              |
+
+**调用示例**
+
+```java
+Map hashMap = new HashMap<>();
+RuiXueSdk.getRXSdkApi().removeFriends(hashMap, callback);
+```
+
+#### 响应参数（JSON）
+
+**HTTP 状态码：**`200 OK`
+
+| **字段** | **类型** | **是否必填** | **说明** | **示例** |
+| --- | --- | --- | --- | --- |
+| code | Number | 是   | 响应状态码，0为成功，非0表示出错 | 0   |
+| msg | String | 否   | 响应信息，仅在status为非0时不为空 |     |
+
+**响应示例**
+
+```json
+{
+    "code": 0
+}
+```
+
+### 更新好友备注
+
+**接口原型**
+
+```java
+void updateFriendRemarks(Map hashMap, final RXRequestCallback callback)
+```
+
+#### 参数说明
+
+| **字段**       | **类型** | **是否必填** | **备注**                                      | **其他信息** |
+| -------------- | -------- | ------------ | --------------------------------------------- | ------------ |
+| target         | string   | 是           | 对方 OpenID                                   | test         |
+| target_remarks | string   | 否           | 用户给 Target 设置的备注信息（最长 512 字符） | xxxxx        |
+
+**调用示例**
+
+```java
+Map hashMap = new HashMap<>();
+RuiXueSdk.getRXSdkApi().updateFriendRemarks(hashMap, callback);
+```
+
+#### 响应参数（JSON）
+
+**HTTP 状态码：**`200 OK`
+
+| **字段** | **类型** | **是否必填** | **说明** | **示例** |
+| --- | --- | --- | --- | --- |
+| code | Number | 是   | 响应状态码，0为成功，非0表示出错 | 0   |
+| msg | String | 否   | 响应信息，仅在status为非0时不为空 |     |
+
+**响应示例**
+
+```json
+{
+    "code": 0
+}
+```
+
+### 获取好友列表
+
+**接口原型**
+
+```java
+void relationFriends(Map hashMap, final RXRequestCallback callback)
+```
+
+**调用示例**
+
+```java
+Map hashMap = new HashMap<>();
+RuiXueSdk.getRXSdkApi().relationFriends(hashMap, callback);
+```
+
+#### 响应参数（JSON）
+
+**HTTP 状态码：**`200 OK`
+
+| **字段** | **类型**                         | **是否必填** | **说明** | **示例** |
+| --- |--------------------------------| --- | --- | --- |
+| code | Number                         | 是   | 响应状态码，0为成功，非0表示出错 | 0   |
+| msg | String                         | 否   | 响应信息，仅在status为非0时不为空 |     |
+| data | [Node](/docs/v3.5/社交/Android 社交/快速接入) | 否   | 结果数据集 |     |
+
+**响应示例**
+
+```json
+{    
+    "data": [       
+        {            
+            "openid": "rxuSl4QZoNk0G1HY2-Za6GlO7wO-p_ej",            
+            "nickname": "xdh"       
+        }   
+    ],    
+    "code": 0
+}
+```
+
+### 判断两用户是否为好友
+
+**接口原型**
+
+```java
+void isFriend(Map hashMap, final RXRequestCallback callback)
+```
+
+#### 参数说明
+
+| **字段** | **类型** | **是否必填** | **备注**    | **其他信息** |
+| -------- | -------- | ------------ | ----------- | ------------ |
+| target   | string   | 是           | 对方 OpenID | test         |
+
+**调用示例**
+
+```java
+Map hashMap = new HashMap<>();
+RuiXueSdk.getRXSdkApi().isFriend(hashMap, callback);
+```
+
+#### 响应参数（JSON）
+
+**HTTP 状态码：**`200 OK`
+
+| **字段** | **类型** | **是否必填** | **说明** | **示例** |
+| --- | --- | --- | --- | --- |
+| code | Number | 是   | 响应状态码，0为成功，非0表示出错 | 0   |
+| msg | String | 否   | 响应信息，仅在status为非0时不为空 |     |
+| data | Bool | 是   | 存在关系时为 true；否则为 false |     |
+
+**响应示例**
+
+```json
+{
+    "code": 0,    
+    "data": true
+}
+```

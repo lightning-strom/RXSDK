@@ -1,0 +1,240 @@
+---
+title: "合规（实名）"
+---
+
+## 合规
+
+### 实名认证
+
+> **POST：** `/v1/passport/user/realauth`
+> **认证方式：** [Accesstoken](/docs/v3.5/入门指南/服务端接入须知)
+
+#### CURL示例
+
+```bash
+curl --location --request POST '{{接口域名}}/v1/passport/user/realauth' \
+--header 'ruixue-language: {{语言}}' \
+--header 'ruixue-cpid: {{CPID}}' \
+--header 'ruixue-productid: {{产品标识}}' \
+--header 'ruixue-cpts: {{时间戳}}' \
+--header 'ruixue-traceid: {{TraceID}}' \
+--header 'ruixue-cpsign: {{请求签名}}' \
+--header 'ruixue-devicecode: {{设备码}}' \
+--header 'ruixue-channelid: {{渠道标识}}' \
+--header 'ruixue-platformid: {{平台标识}}' \
+--data-raw '{
+    "idcard":"220122199010233211",
+    "realname":"xiaoming"
+}'
+```
+
+**请求示例**
+
+```json
+{
+    "idcard":"220122199010233211",
+    "realname":"xiaoming"
+}
+```
+
+#### 请求参数（JSON）
+
+| **字段** | **类型** | **是否必填** | **说明** | **示例** |
+| --- | --- | ---- | --- | --- |
+| idcard | String | 是 | 身份证号码。 |  |
+| realname | String | 是 | 真实姓名。 |  |
+
+#### 响应结构（JSON）
+
+| **字段** | **类型** | **说明** |
+| --- | --- | --- |
+| age | Number | 从实名信息中提取的年龄信息 |
+| limit | bool | 防沉迷开关 :true 开启 false 未开启 |
+| aas | Number | 剩余时间 |
+
+**响应示例**
+
+```json
+{
+    "code": 0,
+    "data": {
+        "age": 18
+    }
+}
+```
+
+### 查询实名信息（越南）
+
+> **POST：** `/v1/risk/api/auth/vn/info`
+> **认证方式：** [CPSign](/docs/v3.5/入门指南/服务端接入须知)
+
+#### CURL示例
+
+```bash
+curl --location --request GET '{{接口域名}}/v1/risk/api/auth/vn/info?rx_open_id={望舒OpenID}' \
+--header 'ruixue-cpid: {{CPID}}' \
+--header 'ruixue-productid: {{产品标识}}' \
+--header 'ruixue-cpts: {{时间戳}}' \
+--header 'ruixue-traceid: {{TraceID}}' \
+--header 'ruixue-cpsign: {{请求签名}}' \
+--header 'ruixue-channelid: {{渠道标识}}'  
+```
+
+#### 响应结构（JSON）
+
+| **字段** | **类型** | **说明** |
+| --- | --- | --- |
+| code | Number | 响应状态码 0为正常 |
+| data | Data | 响应信息 |
+
+#### Data
+
+| **字段** | **类型** | **说明** |
+| --- | --- | --- |
+| rx\_open\_id | String | 望舒 OpenID |
+| real\_name | String | 真实信息 |
+| birthday | String | 生日 |
+| phone | String | 手机号 |
+| email | String | 邮箱 |
+
+**响应示例**
+
+```json
+{
+    "data": {
+        "rx_open_id": "xxx,
+        "real_name": "name",
+        "birthday": "2001/01/01",
+        "phone": "0912311231",
+        "email": "111@123.com"
+    },
+    "code": 0
+}
+```
+
+### 修改实名信息（越南）
+
+> **POST：** `/v1/risk/api/auth/vn`
+> **认证方式：** [CPSign](/docs/v3.5/入门指南/服务端接入须知)
+> **使用场景：** 适用于自建网站由于官方要求需要提供修改实名的场景。
+
+#### CURL示例
+
+```bash
+curl --location --request POST '{{接口域名}}/v1/risk/api/auth/vn' \
+--header 'ruixue-cpid: {{CPID}}' \
+--header 'ruixue-productid: {{产品标识}}' \
+--header 'ruixue-cpts: {{时间戳}}' \
+--header 'ruixue-traceid: {{TraceID}}' \
+--header 'ruixue-cpsign: {{请求签名}}' \
+--header 'ruixue-channelid: {{渠道标识}}' \
+--data-raw '{
+    "rx_open_id": "xxx",
+    "real_name": "xxx",
+    "birthday": "2001/01/01",
+    "phone": "0912311231",
+    "email": "111@123.com"
+}'  
+```
+
+#### 请求参数（JSON）
+
+| **字段** | **类型** | **说明** |
+| --- | --- | --- |
+| rx\_open\_id | String | 望舒 OpenID |
+| real\_name | String | 真实信息 |
+| birthday | String | 生日 格式:2006/01/02 |
+| phone | String | 手机号 10位数字、开头为 0 |
+| email | String | 邮箱 |
+
+#### 响应结构（JSON）
+
+| **字段** | **类型** | **说明** |
+| --- | --- | --- |
+| code | Number | 响应状态码 0为正常 |
+| msg | String | 响应描述 |
+
+**响应示例**
+
+```json
+{
+    "code": 0
+}
+```
+
+### 实名认证（日本）
+
+#### CURL示例（服务端）
+
+> **POST：** `/v1/risk/api/auth/jp`
+> **认证方式：** [CPSign](/docs/v3.5/入门指南/服务端接入须知)
+> **应用场景：** 服务端调用
+
+```bash
+curl --location --request POST '{{接口域名}}/v1/risk/api/auth/jp' \
+--header 'ruixue-language: {{语言}}' \
+--header 'ruixue-cpid: {{CPID}}' \
+--header 'ruixue-productid: {{产品标识}}' \
+--header 'ruixue-cpts: {{时间戳}}' \
+--header 'ruixue-traceid: {{TraceID}}' \
+--header 'ruixue-cpsign: {{请求签名}}' \
+--header 'ruixue-devicecode: {{设备码}}' \
+--header 'ruixue-channelid: {{渠道标识}}' \
+--header 'ruixue-platformid: {{平台标识}}' \
+--data-raw '{
+    "cp_user_id":"游戏 ID",
+    "openid":"望舒 openid",
+    "birthday":"2002/08/01"
+}'
+```
+
+##### 请求参数（JSON）
+
+| **字段** | **类型** | **是否必填** | **说明** | **示例** |
+| --- | --- | ---- | --- | --- |
+| birthday | String | 是 | 生日 格式:xxxx/xx/xx | 2002/08/01 |
+| openid | String | 否 | 望舒 openid （服务端请求场景与 cp\_user\_id 二选一） |  |
+| cp\_user\_id | String | 否 | 游戏 ID （服务端请求场景与 openid 二选一） |  |
+
+***
+
+#### CURL示例（SDK）
+
+> **POST：** `/v1/risk/sdk/auth/jp`
+> **认证方式：** [Accesstoken](/docs/v3.5/入门指南/服务端接入须知)
+> **应用场景：** 客户端调用
+
+```bash
+curl --location --request POST '{{接口域名}}/v1/risk/sdk/auth/jp' \
+--header 'ruixue-language: {{语言}}' \
+--header 'ruixue-cpid: {{CPID}}' \
+--header 'ruixue-productid: {{产品标识}}' \
+--header 'ruixue-traceid: {{TraceID}}' \
+--header 'ruixue-accesstoken: {{accesstoken}}' \
+--header 'ruixue-devicecode: {{设备码}}' \
+--header 'ruixue-channelid: {{渠道标识}}' \
+--header 'ruixue-platformid: {{平台标识}}' \
+--data-raw '{
+    "birthday":"2002/08/01"
+}'
+```
+
+##### 请求参数（JSON）
+
+| **字段** | **类型** | **是否必填** | **说明** | **示例** |
+| --- | --- | ---- | --- | --- |
+| birthday | String | 是 | 生日 格式:xxxx/xx/xx | 2002/08/01 |
+
+#### 响应结构（JSON）
+
+| **字段** | **类型** | **说明** |
+| --- | --- | --- |
+| code | Number | 响应状态码 0为正常 |
+
+**响应示例**
+
+```json
+{
+    "code": 0
+}
+```

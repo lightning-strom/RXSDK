@@ -1,0 +1,170 @@
+---
+sidebar_position: 1
+title: 三方接入说明
+description: Android 与 Unity Android 三方渠道接入通用说明，包含渠道列表、初始化接口和参数配置。
+---
+
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
+
+:::tip[接入流程]
+**选择三方 SDK** → **初始化 SDK** → **配置三方参数** → **登录 / 支付接入**
+
+每个应用包内必须有且只能集成**一个**渠道库。
+:::
+
+## 初始化三方 SDK
+
+`initThirdSdk` 应尽量提前调用，不要与登录接口同步调用。部分渠道（如 vivo）同步调用会出现登录无回调的问题。初始化可能存在无回调，不建议将回调作为代码关键路径。
+
+<Tabs groupId="platform">
+<TabItem value="android" label="Android">
+
+**接口原型**
+
+```java
+// 初始化三方渠道
+initThirdSdk(@NonNull Activity activity, Map<String, Object> map, RXRequestCallback callback)
+
+// 退出 app
+void exitApp(Activity activity, OnAppExitCallback callback)
+
+// 登出账号
+void logout(OnLogoutCallback callback)
+```
+
+**调用示例**
+
+`setPrivacyAgree` [相关说明请参考](/docs/开发者文档/入门指南/快速开始/Android初始化/快速接入)
+
+```java
+RXSDK.setPrivacyAgree();
+Map<String, Object> thirdSdkParams = new HashMap<>();
+thirdSdkParams.put("参数说明中的key", "三方开放平台获取对应的参数");
+
+RXSDK.getInstance().initThirdSdk(activity, thirdSdkParams, new RXRequestCallback() {
+    @Override
+    public void onResponse(JSONObject jsonObject) {
+    }
+});
+
+// 处理三方退出拦截
+@Override
+public void onBackPressed() {
+    RuiXueSdk.exitApp(this, new OnAppExitCallback() {
+        @Override
+        public void onExitConfirm(@Nullable String res) {
+            MainActivity.super.onBackPressed();
+            System.exit(0);
+        }
+
+        @Override
+        public void onExitCancel() {
+            super.onExitCancel();
+        }
+    });
+}
+```
+
+</TabItem>
+<TabItem value="unity" label="Unity">
+
+:::note[Unity 注意事项]
+- 部分渠道有隐私限制，须用户同意《服务协议和隐私政策》后才能调用渠道初始化
+- 部分渠道要求使用三方退出提示，需实现 `exitApp`、`logout` 接口
+- 冷启动时不建议使用 `login_openid` 进行二次登录，避免跳过三方授权审核被拒
+:::
+
+**接口原型**
+
+```csharp
+/// <summary>初始化三方渠道</summary>
+public static void InitThirdSdk(Dictionary<string, object> map,
+    RequestResponseDelegate onResponse, RequestErrorDelegate onError);
+
+/// <summary>退出 app 时调用</summary>
+public static void ExitApp(ExitConfirmDelegate onExitConfirm, ExitCancelDelegate onExitCancel);
+
+/// <summary>退出登录</summary>
+public static void Logout(RequestResponseDelegate onResponse, RequestErrorDelegate onError);
+```
+
+**调用示例**
+
+```csharp
+// 通知 SDK 已同意隐私协议
+private void OnSetPrivacyAgree()
+{
+    RuiXueSdk.SetPrivacyAgree(OnPrivacyAgree);
+}
+
+public void OnPrivacyAgree(bool userClick) { }
+
+// 退出 app 时
+public void ExitApp()
+{
+    RuiXueSdk.ExitApp(ExitConfirm, ExitCancel);
+}
+
+private void ExitConfirm(string res) { }
+private void ExitCancel() { }
+```
+
+</TabItem>
+</Tabs>
+
+---
+
+## 三方参数配置
+
+从对应三方开放平台获取参数，参照三方服务中渠道文档，将参数传入SDK `initThirdSdk` 的 `map` 中。
+
+**自运营渠道库**
+
+
+:::tip[版本说明]
+`version` 为 SDK 版本号（替换为实际版本号），最新版本请从 [更新日志](/docs/开发者文档/入门指南/更新日志/Android) 中查看。
+:::
+
+```groovy
+implementation 'com.ruixue:rxsdk_weile:${version}'
+```
+
+**三方联运渠道库**
+
+参考三方服务对应渠道文档。因三方参数均使用各渠道标准，**大小写规范不统一，请注意文档中参数大小写**。
+
+---
+
+## 渠道防沉迷回调监听
+
+:::info[仅适用于 Android]
+目前支持的渠道：**快手、应用宝、华为**。须在 `initThirdSdk` 调用**前**调用。
+:::
+
+```java
+RXSDK.getInstance().setupAddictDelegate(new AntiAddictDelegate() {
+    @Override
+    public boolean isGaming() { return false; }
+
+    @Override
+    public void didAddictInfoUpdate(String info) {
+        RXLogger.i("【防沉迷】" + info);
+    }
+
+    @Override
+    public boolean enableCustomUI() { return false; }
+});
+```
+
+## 渠道 so 防优化处理
+
+:::info[仅适用于 Android]
+如三方渠道包含 so 库，请在 build.gradle 文件 `android` 块中添加：
+:::
+
+```groovy
+packagingOptions {
+    doNotStrip '**/*.so'
+}
+```

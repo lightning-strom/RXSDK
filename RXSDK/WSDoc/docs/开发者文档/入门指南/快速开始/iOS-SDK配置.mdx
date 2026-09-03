@@ -1,0 +1,229 @@
+---
+sidebar_position: 11
+title: iOS SDK 配置
+description: 望舒 iOS SDK 高级配置，包括语言、地区、子渠道、自定义错误消息、全局回调及自定义请求等。
+---
+
+## 设置语言
+
+客户端可设置 SDK 语言。
+
+海外项目需要根据发行地区或 App 的语言进行设置，避免出现 SDK 的文案和 App 内语言不一致的情况。
+
+**接口原型**
+
+```objectivec
+/**
+ * 设置当前语言
+ * @param language 语言需符合标准格式
+ */
+- (void)setLanguage:(NSString *)language;
+```
+
+**调用示例**
+
+```objectivec
+[[RXSDK sharedSDK] setLanguage:@"zh"];
+```
+
+### 支持语言列表
+
+| 字段 | 备注 |
+| --- | --- |
+| zh | 简体中文 |
+| tc | 繁体中文 |
+| ja | 日文 |
+| en | 英文 |
+| th | 泰文 |
+| vi | 越南语 |
+| tl | 菲律宾语 |
+| id | 印尼语 |
+| ar | 阿拉伯语 |
+
+## 设置地区
+
+客户端可设置 SDK 地区，设置后自动在请求头添加 ruixue-area 传给服务器。
+
+海外项目需要根据发行地区进行设置，查看 [地区码](/docs/开发者文档/支付/服务端接入/国家编码-币种字典)，默认获取系统设置地区。
+
+**接口原型**
+
+```objectivec
+/**
+    * 设置当前地区
+    * @param area 地区码
+    */
+- (void)setArea:(NSString *)area;
+```
+
+**调用示例**
+
+```objectivec
+[[RXSDK sharedSDK] setArea:@"CN"];
+```
+
+## 设置子渠道
+
+通行证记录来源（分包）、子渠道参数。必须在 登录、注册 前调用。
+
+**接口原型**
+
+```objectivec
+/**
+ * 设置子渠道id
+ */
+- (void)setSubChannelId:(NSString *)subChannelId;
+```
+
+**调用示例**
+
+```objectivec
+[[RXSDK sharedSDK] setSubChannelId:@"your sub_channel_id"];
+```
+
+## 设置自定义错误消息提示
+
+规则 1 ：根据设置的错误码直接读取对应提示替换 msg ；
+
+规则 2 ：如果设置中有 default 的 key ，将未配置的错误码 msg 统一替换为 default 的 value ；
+
+规则 3 ：$code$ $msg$ $thirdcode$ $thirdmsg$ 为模板占位符，使用后将分别被替换为 sdk 接口默认返回 code msg thirdcode thirdmsg
+
+以上规则仅适用于调用了 ***- (void)configErrorMsg:(NSDictionary )msgDic*** 方法，未调用此方法，则返回 sdk 默认提示信息，映射键值对中 key 对应 value 不能为空字符串，否则该对映射不生效
+
+**接口原型**
+
+```objectivec
+/**
+ * 设置自定义错误码信息
+ * @param msgDic 设置自定义错误码的字典
+ */
+- (void)configErrorMsg:(NSDictionary *)msgDic;
+```
+
+**数据结构**
+
+错误码设置的参数形式，应按照语言进行分类设置，无需将提示的语言类型配置齐全，为方便未来扩展语言结构，设置的数据结构例如：
+
+```plaintext
+{
+ en:{
+ "3001":"error1",
+ "3002":"error2"
+ }
+ zh:{
+ "3001":"错误1",
+ "3002":"错误2"
+ }
+}
+```
+
+**调用示例**
+
+```objectivec
+NSMutableDictionary *zhDic = [mDic objectForKey:@"zh"];
+[enDic setObject:@"错误码信息1" forKey:@"3001"];
+[enDic setObject:@"错误码信息2" forKey:@"3002"];
+[enDic setObject:@"错误码信息3" forKey:@"3100"];
+[enDic setObject:@"错误码信息4" forKey:@"3101"];
+[enDic setObject:@"错误码信息5" forKey:@"3102"];
+[enDic setObject:@"默认错误 $code$ $thirdcode$ $thirdmsg$" forKey:@"default"];
+
+NSMutableDictionary *enDic = [mDic objectForKey:@"en"];
+[enDic setObject:@"error1" forKey:@"3001"];
+[enDic setObject:@"error2" forKey:@"3002"];
+[enDic setObject:@"error3" forKey:@"3100"];
+[enDic setObject:@"error4" forKey:@"3101"];
+[enDic setObject:@"error5" forKey:@"3102"];
+[enDic setObject:@"error $code$ $thirdcode$ $thirdmsg$" forKey:@"default"];
+
+NSMutableDictionary *mDic = [NSMutableDictionary dictionary];
+[mDic setObject:zhDic forKey:@"zh"]
+[mDic setObject:enDic forKey:@"en"]
+
+[[RXSDK sharedSDK] configErrorMsg:mDic];
+```
+
+## 自定义接口请求
+
+项目组实现该接口，可以处理一些紧急的线上事故（不依赖发版）。
+
+**接口原型**
+
+```objectivec
+/**
+ * 自定义请求
+ * @param url 接口名
+ * @param header 请求头
+ * @param body 请求参数
+ * @param method 请求类型 1 Post请求，2 Get请求，默认Post
+ * @param needLogin 接口是否需要登录，不需要登录则请求头中的ruixue-accesstoken会被清空
+ */
+- (void)createRequestWithUrl:(NSString *)url
+ header:(NSMutableDictionary * _Nullable)header
+ body:(NSMutableDictionary * _Nullable)body
+ method:(NSInteger)method
+ needLogin:(BOOL)needLogin
+ complete:(void(^)(NSDictionary *response, RX_CommonRequestError *error))complete;
+```
+
+### 参数说明
+
+| 字段 | 类型 | 是否必填 | 备注 |
+| --- | --- | --- | --- |
+| url | NSString | 是 | api 请求地址 |
+| header | NSString | 否 | 请求头，不传默认传入望舒请求头 |
+| body | NSString | 否 | 请求参数 |
+| method | NSString | 否 | 请求类型 1 Post 请求， 2 Get 请求，默认 Post |
+| needLogin | NSArray | 否 | 接口是否需要登录，不需要登录则请求头中的 ruixue-accesstoken 会被清空 |
+
+**调用示例**
+
+```objectivec
+NSMutableDictionary *header = [NSMutableDictionary dictionary];
+ NSMutableDictionary *body = [NSMutableDictionary dictionary];
+ [[RXSDK sharedSDK] createRequestWithUrl:url header:header body:body method:2 needLogin:NO complete:^(NSDictionary * _Nonnull response, RX_CommonRequestError * _Nonnull error) {
+
+ }];
+```
+
+## 全局通用回调
+
+一些需要特定条件触发的事件会通过全局通用回调将事件通知给客户端，通过回调的 type 区分事件类型，并处理相应的业务逻辑。
+
+在需要接收回调的类中添加 `RXPublicDelegate` ，并指定代理接收对象 `[RXService sharedSDK].publicDelegate = self;` ，实现代理方法。
+
+**接口原型**
+
+```objectivec
+/**
+ * 全局通用回调
+ * @param type 回调类型
+ * @param response 回调数据
+ */
+- (void)rxPublicCallback:(NSInteger)type response:(NSDictionary *)response;
+```
+
+**调用示例**
+
+```objectivec
+- (void)rxPublicCallback:(NSInteger)type response:(NSDictionary *)response
+{
+ // 上报反馈日志
+ if (type == feedbakc_report) {
+ [[RXFeedbackService sharedSDK] reportFeedbackLogWithData:data complete:^(NSDictionary * _Nullable response, RX_CommonRequestError * _Nullable error) {
+
+ }];
+ }
+}
+```
+
+### type 说明
+
+| type | 备注 |
+| --- | --- |
+| 10001 | 上报用户反馈日志 |
+
+### 我们如何使用 Cookie 和同类技术
+
+登录前使用客服功能会随机生成了一个字符串用于标识匿名用户，以便该匿名用户下次再使用客服时获取之前的聊天记录。

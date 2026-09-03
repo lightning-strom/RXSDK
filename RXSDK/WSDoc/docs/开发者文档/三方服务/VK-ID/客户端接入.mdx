@@ -1,0 +1,70 @@
+---
+sidebar_position: 1
+title: 客户端接入
+description: "望舒SDK 三方服务 客户端接入文档，提供详细的功能说明与接入指引。"
+---
+:::info[文档说明]
+本渠道当前仅提供配置说明，暂无独立的客户端 SDK 接入文档。
+如需了解各渠道覆盖能力，请查看 [渠道矩阵](/docs/开发者文档/三方服务/渠道矩阵)。
+:::
+
+
+
+## 功能简介
+
+提供 VK 账号登录， 接入方式。
+
+## SDK集成
+
+本模块 Java/Kotlin 17 （编译环境需 JDK 17+）
+
+
+:::tip[版本说明]
+`version` 为 SDK 版本号（替换为实际版本号），最新版本请从 [更新日志](/docs/开发者文档/入门指南/更新日志/Android) 中查看。
+:::
+
+```groovy
+implementation 'com.ruixue:rxsdk_vk:${version}'
+```
+
+## 参数说明
+
+宿主 `build.gradle` 配置：
+
+```groovy
+android {
+ defaultConfig {
+ manifestPlaceholders += [
+ VKIDClientID: "",
+ VKIDClientSecret: "",
+ VKIDRedirectHost: "vk.ru",
+ VKIDRedirectScheme: "vk"
+ ]
+ }
+}
+```
+
+## 登录
+
+**参考代码**
+
+```java
+String username = null;
+String loginType = "vk";
+String captchaCode = null;
+String loginOpenId = null;
+Map<String, Object> ext = null;
+String[] signFields = null;
+Object migrateArgs = null;
+RuiXueSdk.getApi().login(DemoActivity.this, loginType, username, password, captchaCode, loginOpenId, ext, signFields, migrateArgs, new RXJSONCallback() {
+    @Override
+    public void onSuccess(@Nullable JSONObject data) {
+    Toast.makeText(DemoActivity.this, "登录成功", Toast.LENGTH_SHORT).show();
+    }
+
+    @Override
+    public void onFailed(@NonNull JSONObject cause) {
+    Toast.makeText(DemoActivity.this, "登录失败", Toast.LENGTH_SHORT).show();
+    }
+});
+```

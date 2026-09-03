@@ -1,0 +1,643 @@
+---
+sidebar_position: 1
+title: 快速接入
+description: "望舒SDK 登录通行证 快速接入 Unity 接入文档，提供完整的接口调用说明与示例。"
+---
+
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
+
+### 接入方式
+
+Package Manager 导入 RuiXue.UI
+
+## SDK 集成
+
+<Tabs groupId="platform">
+  <TabItem value="ios-sdk" label="iOS" default>
+
+iOS依赖的相关SDK已通过脚本自动引用到工程中，您无需手动引用。受网络环境等因素影响，相关SDK有可能引用失败，所以在生成iOS工程后，您需要检查工程中的Podfile文件中的SDK名称，在Podfile.lock文件中是否存在，如果Podfile中的SDK名称在Podfile.lock中未存在，说明SDK未完全下载成功，您需要进入Podfile文件所在路径，执行以下命令安装SDK：
+```objectivec
+pod install 
+```
+
+</TabItem>
+  <TabItem value="android-sdk" label="Android">
+
+具体集成方法参照快速开始 [Android](https://doc.ruixueyun.com/main/#/view?viewPath=8052f663-e991-4491-ad49-43f4e0118009)  SDK 集成
+
+```groovy
+  //[可选] 使用 SDK UI 时候接入此库
+  implementation 'com.ruixue:rxsdk_base_ui:${version}'
+```
+
+第三方登录:
+
+- 微信登录，请参照 [微信配置](https://doc.ruixueyun.com/main/#/view?viewPath=da5037f3-2827-47f4-bd3a-c25fbe50be64)
+
+- 一键登录引入 SDK:
+
+```groovy
+  implementation 'com.ruixue:rxsdk_alimobile:${version}'
+```
+
+</TabItem>
+</Tabs>
+
+
+## 登录
+
+"非法注册（限制代码 1 ）" code : 312232 为 注册 ip 限制，默认开启，同一 ip 默认 1 小时注册账号不能超过 2 个，如有需求请联系商务添加 ip 白名单或调整限制条件。"非法注册（限制代码 2 ）" code : 312232 为 注册设备限制，默认关闭，同一设备 x 小时注册账号不能超过 x 个，如有需求请联系商务开启。
+
+### 登录流程图
+
+**非三方授权登录（游客、验证码、账号密码等）**
+
+![](https://guanwangyun.oss-cn-beijing.aliyuncs.com/document/tripartite/LoginFunctionIntroduction1.png)
+
+**三方授权登录（微信、一键登录等）**
+
+![](https://guanwangyun.oss-cn-beijing.aliyuncs.com/document/tripartite/LoginFunctionIntroduction2.png)
+
+### 登录弹窗
+
+登录弹窗分为两种样式：
+
+（建议）登录配置： `loginUIConfig.isHistoryViewEnable = true` ， SDK 会记录已登录的账号记录，下次调用会展示登录历史弹窗；
+
+不使用快捷方式： `loginUIConfig.isHistoryViewEnable = false` ，不显示快捷登录界面；
+
+设置为登录后强制实名认证时登录成功的数据将在实名认证后返回，并且不会返回实名认证的结果，只会在 UI 上体现实名认证成功。如需要获取实名认证回调数据，请关闭登录后强制实名认证设置，并单独调用实名认证 UI。
+
+**UI 示例**
+
+![](https://guanwangyun.oss-cn-beijing.aliyuncs.com/document/passportUI/K3aqbTbNNobF0yxK5jBc4V7Zncb.png)
+
+![](https://guanwangyun.oss-cn-beijing.aliyuncs.com/document/passportUI/HmEYb44Uro2LZAxrlNHcQ6MunId.png)
+
+**接口原型**
+
+```csharp
+void LoginUI(LoginUIConfig config, RequestResponseDelegate responseDelegate,
+ RequestError DelegateerrorDelegate);
+```
+
+**调用示例**
+
+使用后台配置: 登录方式，以及对应平台登录密钥，等其它参数可在后台配置。
+
+```csharp
+
+ public void LoginResponseDelegate(string data)
+ {
+ LogUtil.Log("EventManager", $"RequestResponseDelegate: {data}");
+ }
+ public void LoginErrorDelegate(string data)
+ {
+ LogUtil.Log("EventManager", $"RequestErrorDelegate: {data}");
+ }
+
+ public void OnLoginUI()
+ {
+ RXLoginUI.LoginUI(null, LoginResponseDelegate, LoginErrorDelegate);
+ }
+
+```
+
+自定义配置：方法调用时配置相关参数，会覆盖后台配置。
+
+```csharp
+
+ public void LoginResponseDelegate(string data)
+ {
+ LogUtil.Log("EventManager", $"RequestResponseDelegate: {data}");
+ }
+ public void LoginErrorDelegate(string data)
+ {
+ LogUtil.Log("EventManager", $"RequestErrorDelegate: {data}");
+ }
+
+ public LoginUIConfig GetLoginUIConfig(bool isCaptcha, bool isPhone, bool isQuick, bool withOther)
+ {
+ LoginUIConfig loginUIConfig = new LoginUIConfig();
+ loginUIConfig.needRealAuth = false;
+ loginUIConfig.isHistoryViewEnable = isQuick;
+ loginUIConfig.forgotUrl = "https://rxapi.tongitstara.com/static/passport/#/user/forgetpassword";
+ loginUIConfig.isCaptchaLogin = isCaptcha;
+ loginUIConfig.logoImage = LoadImage();
+ loginUIConfig.keyboardType = isPhone ? 2 : 1;
+
+ List<string> privacieTitles = new List<string>();
+ privacieTitles.Add("用户协议");
+ privacieTitles.Add("隐私协议");
+ privacieTitles.Add("儿童隐私");
+ loginUIConfig.privacieTitles = privacieTitles;
+
+ List<string> privacies = new List<string>();
+ privacies.Add("http://rxapi.jilinhaiqi.com/static/landing/#/v1/legal/terms/100/00001");
+ privacies.Add("https://rxapi.jilinhaiqi.com/static/landing/#/v1/legal/terms/ccc/jkldajfljalsdfj/00001?lang=zh");
+ privacies.Add("http://rxapi.jilinhaiqi.com/static/landing/#/v1/legal/terms/100/00001");
+ loginUIConfig.privacies = privacies;
+ if (withOther)
+ {
+ List<string> loginTypes = new List<string>();
+ loginTypes.Add(LoginMethod.Wechat);
+ loginTypes.Add(LoginMethod.Guest);
+ loginTypes.Add(LoginMethod.Username);
+ loginTypes.Add(LoginMethod.CaptchaCode);
+ loginTypes.Add(LoginMethod.QuickPhone);
+ loginUIConfig.loginTypes = loginTypes;
+ }
+ return loginUIConfig;
+ }
+
+ public void OnLoginUI()
+ {
+ RXLoginUI.LoginUI(GetLoginUIConfig(true, true, true, true), LoginResponseDelegate, LoginErrorDelegate);
+ }
+
+```
+
+无论使用后台配置，或者自定义配置，需要在望舒后台配置对应登录方式和相应平台要求的密钥。
+
+LoginUIConfig 各个字段配置解释，请看 SDK 中 LoginUIConfig.cs 类代码注释。
+
+#### 响应结构
+
+请参考 [服务端登录 API](/docs/开发者文档/用户信息/获取指定用户信息)响应结构
+
+### 关闭登陆弹窗
+
+客户端可通过业务逻辑将登录弹窗关闭。
+
+**接口原型**
+
+```csharp
+void CloseLoginUI();
+```
+
+**调用示例**
+
+```csharp
+RXLoginUI.CloseLoginUI();
+```
+
+### 同步账号记录
+
+用于同步非望舒的账号密码登录记录，需要在调用登录 UI 前调用同步。
+
+**接口原型**
+
+```csharp
+public void SyncAccounts(ListDictionarystring, string>> accounts);
+```
+
+**调用示例**
+
+```csharp
+ public void OnSyncAccounts()
+ {
+ ListDictionarystring, string>> list = new ListDictionarystring, string>>();
+ Dictionarystring, string> map = new Dictionarystring, string>();
+ map.Add("username", "username1");
+ map.Add("password", "pwd111111!");
+ list.Add(map);
+ RXLoginUI.SyncAccounts(list);
+ }
+```
+
+### 撤销账号注销
+
+因翻译问题海外版暂不支持自定义按钮文案。使用自定义文案方式点击 撤销注销 将返回文案 "撤销注销"，点击非撤销注销返回定义的文案。
+
+**UI 示例**
+
+![](https://guanwangyun.oss-cn-beijing.aliyuncs.com/document/passportUI/TZtrbxGwNo9cR3x9Z05cZshdnvk.png)
+
+**接口原型**
+
+```csharp
+ void DestroyAccountStatusView(bool isLoginContinue, RequestResponseDelegate responseDelegate,
+ RequestErrorDelegate errorDelegate, RequestExtDelegates extDelegates);
+
+ void DestroyAccountStatusView(string okButtonText, RequestResponseDelegate responseDelegate,
+ RequestErrorDelegate errorDelegate, RequestExtDelegates extDelegates);
+```
+
+#### 参数说明
+
+| 字段 | 备注 |
+| --- | --- |
+| isLoginContinue | 右侧按钮文本 true 继续登录 |
+| okButtonText | 设置右侧按钮自定义文本，默认继续登录 |
+
+**调用示例**
+
+```csharp
+
+ public void OnDestroyAccount1()
+ {
+ RequestExtDelegates extDelegates = new RequestExtDelegates
+ {
+ IOSDestroyAccountDeregisterTypeDelegate = IOSDestroyAccountDeregisterType
+ };
+
+ RXLoginUI.DestroyAccountStatusView(true, DestroyAccountResponseDelegate, DestroyAccountErrorDelegate, extDelegates);
+ }
+
+ public void OnDestroyAccount2()
+ {
+ RequestExtDelegates extDelegates = new RequestExtDelegates
+ {
+ IOSDestroyAccountDeregisterBtnTitleDelegate = IOSDestroyAccountDeregisterBtnTitlee
+ };
+
+ RXLoginUI.DestroyAccountStatusView("知道了", DestroyAccountResponseDelegate, DestroyAccountErrorDelegate, extDelegates);
+ }
+
+ public void DestroyAccountResponseDelegate(string data)
+ {
+ LogUtil.Log("EventManager", $"DestroyAccount RequestResponseDelegate: {data}");
+ }
+ public void DestroyAccountErrorDelegate(string data)
+ {
+ LogUtil.Log("EventManager", $"DestroyAccount RequestErrorDelegate: {data}");
+ }
+ public void IOSDestroyAccountDeregisterType(int param)
+ {
+ LogUtil.Log("EventManager", $"IOSDestroyAccountDeregisterTypeDelegate: {param}");
+ }
+
+ public void IOSDestroyAccountDeregisterBtnTitlee(string param)
+ {
+ LogUtil.Log("EventManager", $"IOSDestroyAccountDeregisterBtnTitlee: {param}");
+ }
+
+```
+
+#### 响应结构
+
+<Tabs groupId="platform">
+  <TabItem value="ios-response" label="iOS" default>
+
+回调方法：OSDestroyAccountDeregisterTypeDelegate
+
+| **字段**  | **备注**             |
+| --------- | -------------------- |
+| btn_type  | 按钮类型  0 撤销注销 |
+
+回调方法：IOSDestroyAccountDeregisterBtnTitleDelegate
+
+| **字段**  | **备注**             |
+| --------- | -------------------- |
+| btn_title | 按钮标题             |
+
+</TabItem>
+  <TabItem value="android-response" label="Android">
+
+回调方法：RequestResponseDelegate
+
+> JSONObject 结构说明
+
+| **字段**  | **备注**             |
+| --------- | -------------------- |
+| btn_title | 按钮标题             |
+| btn_type  | 按钮类型  0 撤销注销 |
+
+</TabItem>
+</Tabs>
+
+
+## 合规
+
+### 协议声明
+
+**UI 示例**
+
+![](https://guanwangyun.oss-cn-beijing.aliyuncs.com/document/login/feishu-protocol.jpeg)
+
+**接口原型**
+
+```csharp
+void ProtocolView(string key, List<string> keyList);
+```
+
+#### 参数说明
+
+> key 说明
+
+| key | 备注 |
+| --- | --- |
+| 00001 | 用户服务协议 |
+| 00002 | 隐私保护指引 |
+| 00003 | 第三方 SDK 目录 |
+| 00004 | 健康游戏公告 |
+| 00005 | 适龄提示 |
+| 00006 | 绿色游戏公告 |
+| 00007 | 版号信息 |
+| 00008 | 游戏账号注销条件 |
+| 00009 | 游戏账号注销协议 |
+| 00010 | 其他 |
+
+**调用示例**
+
+```csharp
+ public void OnProtocolView()
+ {
+ List<string> list = new List<string>();
+ list.Add("00001");
+ list.Add("00002");
+ RXLoginUI.ProtocolView("00001", list);
+ }
+```
+
+### 实名认证
+
+**UI 示例**
+
+![](https://guanwangyun.oss-cn-beijing.aliyuncs.com/document/passportUI/EqUpbAcX4oLppCxVjmucUDhXnbf.png)
+
+![](https://guanwangyun.oss-cn-beijing.aliyuncs.com/document/passportUI/DQnIbSsRboq8Cmx67JLcSK4vnCd.png)
+
+**接口原型**
+
+```csharp
+void RealAuthUI(bool cancelAble, RequestResponseDelegate responseDelegate, RequestErrorDelegate errorDelegate);
+```
+
+#### 参数说明
+
+| 字段 | 类型 | 备注 |
+| --- | --- | --- |
+| canClose | BOOL | 是否展示关闭按钮 |
+
+**调用示例**
+
+```csharp
+ public void OnRealAuthUI()
+ {
+ RXLoginUI.RealAuthUI(true, RealAuthUIResponseDelegate, RealAuthUIErrorDelegate);
+ }
+
+ public void RealAuthUIResponseDelegate(string data)
+ {
+ LogUtil.Log("EventManager", $"RealAuth RequestResponseDelegate: {data}");
+ }
+ public void RealAuthUIErrorDelegate(string data)
+ {
+ LogUtil.Log("EventManager", $"RealAuth RequestErrorDelegate: {data}");
+ }
+```
+
+#### 响应结构
+
+| 字段 | 类型 | 说明 |
+| --- | --- | --- |
+| age | Number | 从实名信息中提取的年龄信息 |
+| limit | bool | 防沉迷开关 :true 开启 false 未开启 |
+| aas | Number | 剩余时间 |
+
+**响应示例**
+
+```json
+{
+ "code": 0,
+ "data": {
+ "age": 18
+ }
+}
+```
+
+### 防沉迷
+
+**UI 示例**
+
+![](https://guanwangyun.oss-cn-beijing.aliyuncs.com/document/passportUI/ME2WbRltPolLxnx0bSMcsZpcnlb.png)
+
+**接口原型**
+
+```csharp
+void LimitUI(string titleStr, string contextStr, string buttonTxt, RequestResponseDelegate responseDelegate,
+ RequestErrorDelegate errorDelegate);
+```
+
+#### 参数说明
+
+| 字段 | 类型 | 备注 |
+| --- | --- | --- |
+| titleStr | String | 标题 |
+| contextStr | String | 内容 |
+| buttonTxt | String | 按钮标题，点击后 block 回调 |
+
+**调用示例**
+
+```csharp
+ public void LimitUI()
+ {
+ RXLoginUI.LimitUI("未成年人防沉迷提示","防沉迷内容说明", "按钮", LimitUIUIResponseDelegate, LimitUIUIErrorDelegate);
+ }
+
+ public void LimitUIUIResponseDelegate(string data)
+ {
+ LogUtil.Log("EventManager", $"LimitUI RequestResponseDelegate: {data}");
+ }
+ public void LimitUIUIErrorDelegate(string data)
+ {
+ LogUtil.Log("EventManager", $"LimitUI RequestErrorDelegate: {data}");
+ }
+```
+
+## 用户中心
+
+在操作的结果页产生事件时会通过回调不同的 type ，具体说明请参考响应结构。
+
+### 展示用户信息
+
+**UI 示例**
+
+![](https://guanwangyun.oss-cn-beijing.aliyuncs.com/document/passportUI/JRY5bZ3JColj63xe5Y5cUaGBnsf.png)
+
+**接口原型**
+
+```csharp
+void UserCenterUI(UserCenterUIConfig config, RequestResponseDelegate responseDelegate, RequestErrorDelegate errorDelegate);
+```
+
+#### 参数说明
+
+> Map 结构说明
+
+| 字段 | 备注 |
+| --- | --- |
+| transmit_args | 透传数据，使用 jsonString 形式 |
+| game_user_id | 用户的游戏 id |
+| nickname | 用户昵称 |
+| head_img_url | 用户头像 |
+| queue_name | 在望舒客服系统设置的接入点名称 不填写默认为 default |
+
+> 配置用户中心模块 UserCenterView 类 setConfigParams 参数说明
+
+| 字段 | 类型 | 备注 |
+| --- | --- | --- |
+| bnts | Array | 配置用户中心入口 |
+
+> bnts 说明
+
+| 字段 | 备注 |
+| --- | --- |
+| real_name | 实名认证 |
+| privacy_policy | 撤销注销 |
+| binding_phone | 隐私政策 |
+| acount_cancel | 账号注销 |
+| phone_management | 手机号管理 |
+| change_pwd | 修改密码 |
+
+> 配置用户中心模块 UserCenterView 类 setJsDisable 函数说明
+
+| 字段 | 类型 | 备注 |
+| --- | --- | --- |
+| JsDisable | boolean | 是否禁用 js 交互方式 |
+
+**调用示例**
+
+```csharp
+ public void OnUserCenterUI()
+ {
+ UserCenterUIConfig userCenterUIConfig = new()
+ {
+ transmit_args = "透传参数",
+ game_user_id = 1000,
+ nickname = "用户昵称",
+ head_img_url = "用户头像",
+ queue_name = "default"
+ };
+ Dictionarystring, string[]> map = new()
+ {
+ { "btns", new string[] { "change_pwd", "acount_cancel", "privacy_policy", "real_name", "phone_management" } }
+ };
+ userCenterUIConfig.btns = map;
+ userCenterUIConfig.webViewOnCloseDeletage = OnWebViewClosed;
+
+ RXLoginUI.UserCenterUI(userCenterUIConfig, UserCenterUIResponseDelegate, UserCenterUIErrorDelegate);
+ }
+
+ public void OnWebViewClosed()
+ {
+ LogUtil.Log("EventManager", "WebViewOnCloseListener 关闭");
+ }
+
+ public void UserCenterUIResponseDelegate(string data)
+ {
+ LogUtil.Log("EventManager", $"UserCenterUI RequestResponseDelegate: {data}");
+ }
+ public void UserCenterUIErrorDelegate(string data)
+ {
+ LogUtil.Log("EventManager", $"UserCenterUI RequestErrorDelegate: {data}");
+ }
+
+```
+
+**响应示例**
+
+```json
+{
+ "type" : "switch_user"
+}
+```
+
+#### 响应结构
+
+> type 回调说明
+
+| 字段 | 备注 |
+| --- | --- |
+| switch_user | 切换账号 |
+| underegister | 撤销注销 |
+| binding_phone | 绑定手机 |
+| change_phone | 换绑手机 |
+| real_auth | 实名认证 |
+| resetpwd | 修改密码 |
+| logBackIn | 重新登陆 |
+
+### 申请账号注销
+
+显示注销申请 webview 窗口，如已处于注销中显示撤销注销。
+
+**UI 示例**
+
+![](https://guanwangyun.oss-cn-beijing.aliyuncs.com/document/passportUI/NRyTbGtGHopzrFxn0jEcXbDinAc.png)
+
+**接口原型**
+
+```csharp
+void ApplyForDeregisterUI(UserCenterUIConfig config, RequestResponseDelegate responseDelegate, RequestErrorDelegate errorDelegate);
+```
+
+#### 参数说明
+
+> Map 结构说明
+
+| 字段 | 备注 |
+| --- | --- |
+| transmit_args | 透传数据，使用 jsonString 形式 |
+| game_user_id | 用户的游戏 id 必传 |
+| nickname | 用户昵称 |
+| head_img_url | 用户头像 |
+| queue_name | 在望舒客服系统设置的接入点名称 不填写默认为 default |
+
+**调用示例**
+
+```csharp
+ public void OnApplyForDeregisterUI()
+ {
+ UserCenterUIConfig applyForDeregisterUIConfig = new()
+ {
+ transmit_args = "透传参数",
+ game_user_id = 1000,
+ nickname = "用户昵称",
+ head_img_url = "用户头像",
+ queue_name = "default"
+ };
+
+ RXLoginUI.ApplyForDeregisterUI(applyForDeregisterUIConfig, ApplyForDeregisterUIResponseDelegate,
+ ApplyForDeregisterUIErrorDelegate);
+ }
+
+ public void ApplyForDeregisterUIResponseDelegate(string data)
+ {
+ LogUtil.Log("EventManager", $"ApplyForDeregisterUI RequestResponseDelegate: {data}");
+ }
+ public void ApplyForDeregisterUIErrorDelegate(string data)
+ {
+ LogUtil.Log("EventManager", $"ApplyForDeregisterUI RequestErrorDelegate: {data}");
+ }
+
+```
+
+### 绑定手机/换绑手机
+
+当前登录用户未绑定手机时，跳转到绑定页面，正常展示绑定手机页面，如当前用户已绑定过手机，则自动进入换绑手机页面
+
+**UI 示例**
+
+![](https://guanwangyun.oss-cn-beijing.aliyuncs.com/document/tripartite/bindOrChangeBindPhone.png)
+
+**接口原型**
+
+```csharp
+/// summary>
+/// 绑定/换绑手机
+/// summary>
+/// param name="responseDelegate">param>
+/// param name="errorDelegate">param>
+public static void bindPhone(RequestResponseDelegate responseDelegate, RequestErrorDelegate errorDelegate);
+```
+
+**调用示例**
+
+```csharp
+public void bindClick()
+{
+ RXLoginUI.bindPhone(bindResponseDelegate, bindErrorDelegate);
+}
+```

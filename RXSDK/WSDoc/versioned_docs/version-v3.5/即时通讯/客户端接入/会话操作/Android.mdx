@@ -1,0 +1,293 @@
+---
+title: "Android"
+---
+
+## 基本功能
+
+### 获取会话模块
+
+```
+SessionModule sessionModule = RXIMEngine.getInstance().catchModule(ProcessModuleInventory.SESSION);
+```
+
+### 创建会话
+
+通过此接口您可以创建一对一/一对多的会话，并在其中发送消息。
+
+**接口原型**
+
+```java
+/**
+ * 创建会话
+ * @param receiverID 接收人的id
+ * @param entity 创建会话配置模型
+ * @param conversationType 会话类型
+ * @param members 成员
+ * @param callback 回调
+ */
+public void createConversation(String receiverID, ConversationExtraEntity entity, ConversationType conversationType, List members, final ResponseCallback.OnCallback callback)
+```
+
+**调用示例**
+
+```java
+sessionModule.createConversation(ONEPLUS, null, ConversationType.SINGLE, null, new ResponseCallback.OnCallback() {
+    @Override
+    public void onSuccess(int code, SimpleResponseEntity simpleResponseEntity) {
+
+    }
+
+    @Override
+    public void onFailure(int code, String error, Throwable exception) {
+        Toast.makeText(SecondActivity.this, error, Toast.LENGTHSHORT).show();
+    }
+});
+```
+
+### 删除/解散会话
+
+**接口原型**
+
+```java
+/**
+ * 解散会话
+ * @param conversationID 会话id
+ * @param callback 回调函数
+ */
+public void disbandConversation(String conversationID, final ResponseCallback.OnCallback callback)
+```
+
+**调用示例**
+
+```java
+sessionModule.disbandConversation(sessionID, new ResponseCallback.OnCallback() {
+    @Override
+    public void onSuccess(int code, SimpleResponseEntity simpleResponseEntity) {
+        Toast.makeText(SecondActivity.this, "解散会话成功", Toast.LENGTHSHORT).show();
+    }
+
+    @Override
+    public void onFailure(int code, String error, Throwable exception) {
+        Toast.makeText(SecondActivity.this, error, Toast.LENGTHSHORT).show();
+    }
+});
+```
+
+### 获取会话信息
+
+**接口原型**
+
+```java
+/**
+ * 获取会话信息
+ * @param conversationID 会话id
+ * @param callback 回调
+ */
+public void fetchConversationInfo(String conversationID, final ResponseCallback.OnCallback callback)
+```
+
+**调用示例**
+
+```java
+sessionModule.fetchConversationInfo(sessionID, new ResponseCallback.OnCallback() {
+    @Override
+    public void onSuccess(int code, ConversationInfoResponseEntity conversationInfoResponseEntity) {
+
+    }
+
+    @Override
+    public void onFailure(int code, String error, Throwable exception) {
+
+    }
+});
+```
+
+### 更新会话数据
+
+**接口原型**
+
+```java
+/**
+ * 更新会话信息
+ *
+ * @param conversationID 会话id
+ * @param entity         会话配置模型
+ * @param callback       回调
+ */
+public void updateConversationInfo(String conversationID, ConversationSetting entity, final ResponseCallback.OnCallback callback)
+```
+
+**调用示例**
+
+```java
+sessionModule.getExtendFunction().updateConversationInfo(sessionID, null, new ResponseCallback.OnCallback() {
+    @Override
+    public void onSuccess(int code, SimpleResponseEntity simpleResponseEntity) {
+
+    }
+
+    @Override
+    public void onFailure(int code, String error, Throwable exception) {
+
+    }
+});
+```
+
+### 加入会话
+
+**接口原型**
+
+```java
+/**
+ * 加入会话
+ *
+ * @param entity   加入会话配置
+ * @param callback 回调
+ */
+public void joinConversation(final ConversationMemberInfoSetting entity, final ResponseCallback.OnCallback callback)
+```
+
+**调用示例**
+
+```java
+ConversationMemberInfoSetting entity = new ConversationMemberInfoSetting();
+final String sessionID = "$1$" + HW + ":testuserabc";
+entity.setConversationid(sessionID);
+sessionModule.joinConversation(entity, new ResponseCallback.OnCallback() {
+    @Override
+    public void onSuccess(int code, SimpleResponseEntity simpleResponseEntity) {
+        Toast.makeText(SecondActivity.this, "加入成功", Toast.LENGTHSHORT).show();
+    }
+
+    @Override
+    public void onFailure(int code, String error, Throwable exception) {
+        Toast.makeText(SecondActivity.this, error, Toast.LENGTHSHORT).show();
+    }
+});
+```
+
+### 离开会话
+
+**接口原型**
+
+```java
+/**
+ * 离开会话
+ * @param conversationIDs 会话id列表（支持批量离开）
+ * @param callback 回调
+ */
+public void leaveConversation(List conversationIDs, TipMessageEntity entity, final ResponseCallback.OnCallback callback)
+```
+
+**调用示例**
+
+```java
+sessionModule.leaveConversation(Collections.singletonList(sessionID), new TipMessageEntity(), new ResponseCallback.OnCallback() {
+    @Override
+    public void onSuccess(int code, SimpleResponseEntity simpleResponseEntity) {
+        Toast.makeText(SecondActivity.this, "离开会话成功", Toast.LENGTHSHORT).show();
+    }
+
+    @Override
+    public void onFailure(int code, String error, Throwable exception) {
+        Toast.makeText(SecondActivity.this, error, Toast.LENGTHSHORT).show();
+    }
+});
+```
+
+### 更新用户在会话中的信息
+
+**接口原型**
+
+```java
+/**
+ * 更新用户在会话中的信息
+ * @param entity 配置模型
+ * @param callback 回调
+ */
+public void public void updateUserInfoInConversation(ConversationMemberInfoSetting entity, final ResponseCallback.OnCallback callback)
+```
+
+**调用示例**
+
+```java
+ConversationMemberInfoSetting setting = new ConversationMemberInfoSetting();
+                sessionModule.getExtendFunction().updateUserInfoInConversation(setting, new ResponseCallback.OnCallback() {
+                    @Override
+                    public void onSuccess(int code, SimpleResponseEntity simpleResponseEntity) {
+                        Toast.makeText(MainActivity.this, "更新会话中用户信息成功", Toast.LENGTH_SHORT).show();
+                    }
+
+                    @Override
+                    public void onFailure(int code, String error, Throwable exception) {
+                        Toast.makeText(MainActivity.this, error, Toast.LENGTH_SHORT).show();
+                    }
+                });
+```
+
+## 获取会话列表
+
+### 获取服务器会话列表
+
+只有在调用了创建会话接口后，服务器才会记录该数据。并可以通过获取会话列表接口查询。
+
+**接口原型**
+
+```java
+/**
+ * 获取服务器会话列表
+ * @param callback 回调函数
+ */
+public void fetchConversationList(final ResponseCallback.OnCallback> callback)
+```
+
+**调用示例**
+
+```java
+sessionModule.fetchConversationList(new ResponseCallback.OnCallback>() {
+    @Override
+    public void onSuccess(int code, List conversationInfoResponseEntities) {
+        if(conversationInfoResponseEntities == null){
+            return;
+        }
+        for(RXSessionEntity entity : conversationInfoResponseEntities){
+            LG.e("conversationid = "+entity.getConversationid());
+        }
+    }
+
+    @Override
+    public void onFailure(int code, String error, Throwable exception) {
+        Toast.makeText(SecondActivity.this, error, Toast.LENGTH_SHORT).show();
+    }
+});
+```
+
+### 获取本地会话列表
+
+结果可能会比从服务器获取会话数量要多，只要产生会话行为，就会产生记录
+
+**接口原型**
+
+```java
+public List getConversationList()
+```
+
+**调用示例**
+
+```java
+sessionModule.getConversationList();
+```
+
+### 根据会话 id 获取会话
+
+**接口原型**
+
+```java
+public RXSessionEntity getConversationInfo(String sessionID);
+```
+
+**调用示例**
+
+```java
+sessionModule.getConversationInfo(sessionID);
+```

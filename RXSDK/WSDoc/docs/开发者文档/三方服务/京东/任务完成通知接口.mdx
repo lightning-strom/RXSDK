@@ -1,0 +1,103 @@
+---
+sidebar_position: 1
+title: 任务完成通知接口
+description: "望舒SDK 三方服务 任务完成通知接口文档，提供详细的功能说明与接入指引。"
+---
+
+## 任务完成通知接口
+
+> **POST: ** `/v1/thirdparty/api/jd_notify`
+>
+> **认证方式:** [CPSign](/docs/开发者文档/入门指南/服务端接入须知)
+
+### CURL 示例
+
+```bash
+curl --location --request POST '{{接口域名}}/v1/thirdparty/api/jd_notify' \
+--header 'ruixue-language: {{语言}}' \
+--header 'ruixue-cpid: {{CPID}}' \
+--header 'ruixue-productid: {{产品标识}}' \
+--header 'ruixue-cpts: {{时间戳}}' \
+--header 'ruixue-traceid: {{TraceID}}' \
+--header 'ruixue-cpsign: {{请求签名}}' \
+--header 'ruixue-devicecode: {{设备码}}' \
+--header 'ruixue-channelid: {{渠道标识}}' \
+--header 'ruixue-platformid: {{平台标识}}' \
+--header 'Content-Type: application/json' \
+--data-raw '{
+
+}'
+```
+
+**请求头 Header 参数**
+
+| 参数 | 类型 | 备注 |
+| --- | --- | --- |
+| ruixue-language | String | zh-CN |
+| Content-Type | String | application/json |
+| ruixue-cpid | String | 内容提供商 CPID |
+| ruixue-productid | String | 产品 ID |
+| ruixue-channelid | String | 渠道 ID |
+| ruixue-platformid | String | 平台 platformid |
+| ruixue-devicecode | String | 设备码 |
+| ruixue-cpsign | String | CP 签名 |
+| ruixue-cpts | String | CP 签名时间戳 |
+| ruixue-traceid | String | TraceID |
+
+**请求示例**
+
+```groovy
+{
+
+}
+```
+
+### 请求参数（JSON）
+
+| 参数 | 类型 | 是否必填 | 备注 |
+| --- | --- | --- | --- |
+| cp_userid | String | 是 | cp 侧 userid |
+| action_type | String | 是 | 行为类型，**注意传字符串**， |
+
+100000:代表进入活动页面
+
+100011:去小游戏通关,
+
+100012:去小游戏得分
+| 字段 | 类型 | 是否必填 | 说明 |
+| --- | --- | --- | --- |
+| score | Int | 否 | 累计分数和累计值需要传，默认传 1 |
+| request_id | String | 是 | 幂等 id ，保证请求的唯一性 |
+| assignment_token | String | 是 | 加密任务信息（包含任务 id 和 pin ，时间戳等信息等信息），由前端链接携带，移动任务完成的时候回调，可从前端获取 |
+| encrypt_assignment_id | String | 是 | 加密任务 id |
+
+
+**响应示例**
+
+```json
+{
+ "data": {
+ "jd_raw_resp": "京东接口返回的原始内容",
+ },
+ "msg": "success",
+ "code": 0
+}
+```
+
+### 响应结构(JSON)
+
+| 参数 | 类型 | 备注 |
+| --- | --- | --- |
+| code | Number | 0 为成功 |
+| msg | String | 失败信息 |
+| data | String | 京东接口原始的返回内容 |
+
+#### 异常返回时，错误码
+
+| code | 描述 |
+| --- | --- |
+| 303412 | 京东任务完成 API 接口错误 |
+| 303414 | 京东 app_key 等账号未配置或配置内容错误 |
+| 303415 | 未获取到用户京东账号信息 |
+| 303416 | 获取望舒 openid 失败 |
+| 剩余大于 0 的错误码 | 均为系统异常情况，按照 msg 展示或其它自定义展示 |

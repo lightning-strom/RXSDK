@@ -1,0 +1,71 @@
+:::info[H5 支付专用接口]
+SDK v3.6.x 及以上版本，H5 支付需使用 `HQSdkWrapper.getInstance().doPay` 接口，不使用通用 `pay` 接口。
+:::
+
+#### 接口原型
+
+```java
+/**
+ * H5 支付
+ * @param activity 应用上下文对象
+ * @param hashMap  支付参数，参照参数说明
+ * @param callback 回调函数
+ */
+void doPay(Activity activity, @NonNull Map<String, Object> hashMap, RXJSONCallback callback)
+```
+
+#### 参数说明
+
+> Map 结构说明
+
+| 字段 | 类型 | 是否必填 | 说明 |
+| --- | --- | --- | --- |
+| hq_type | string | 否 | 支付类型，各渠道见上方 hq_type 值 |
+| goods_tag | string | 是 | 望舒计费点标识 |
+| trade_no | string | 是 | 商户订单号 |
+| transmit_args | string | 否 | 透传参数 |
+| notify_url | string | 否 | 支付成功通知 CP 发货地址 |
+| currency | string | 是 | 币种，全大写，国内传 CNY，参考 [国家编码 币种字典](/docs/开发者文档/支付/服务端接入/国家编码-币种字典) |
+| ext | object | 否 | 支付下单扩展信息，不同渠道具体对接 |
+| indulge_auth | int | 否 | 是否进行防沉迷验证，0 不验证、1 验证（自运营默认 1，三方默认 0）|
+| age | int | 否 | 默认取登录返回的 age 字段 |
+| game_info | object | 否 | 游戏自定义数据，上报区服和角色需要在此传入属性 |
+| bigdata_report | HashMap | 否 | 商业化支付参数，商业化触发的支付行为需传此参数 |
+| custom_ext | Map | 否 | 自定义透传参数 |
+
+#### 调用示例
+
+```java
+Activity activity;
+String hqType;     // 各渠道 hq_type 值
+String goods_tag;  // 望舒后台计费点名称
+
+Map<String, Object> hashMap = new HashMap<>();
+hashMap.put("hq_type", hqType);
+hashMap.put("goods_tag", goods_tag);
+hashMap.put("trade_no", "cp订单号");
+hashMap.put("transmit_args", "cp透传参数，非必传");
+
+RXJSONCallback rxJSONCallback = new RXJSONCallback() {
+    @Override
+    public void onResponse(JSONObject jsonObject) {
+        int code = jsonObject.optInt("code", -1);
+        if (code == 0) {
+            // 处理成功逻辑
+        } else {
+            String msg = jsonObject.optString("msg");
+            String thirdcode = String.valueOf(jsonObject.opt("thirdcode"));
+            // 根据错误码处理失败逻辑
+        }
+    }
+};
+HQSdkWrapper.getInstance().doPay(activity, hashMap, rxJSONCallback);
+```
+
+#### 响应结构
+
+```java
+{
+  "code": 0
+}
+```

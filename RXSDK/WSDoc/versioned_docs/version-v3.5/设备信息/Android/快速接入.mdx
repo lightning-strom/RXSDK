@@ -1,0 +1,28 @@
+---
+title: "快速接入"
+---
+
+在首次安装应用时 SDK 会根据规则生成设备码并保存，为保证设备码的唯一性首次生成后将一直读取缓存中的设备码；
+
+**生成策略：**
+**Android**：根据 imei、AndroidID 等设备信息 hash 生成，正常情况设备码不会重复，卸载重装设备码不变手机厂商特殊型号同批次机型串码一致会有概率导致生成的设备码重复，个别支持刷串码的手机型号会导致设备码改变；
+
+## 获取设备码
+
+**接口原型**
+
+```java
+public static String getDeviceCode();
+```
+
+**调用示例**
+
+```java
+String deviceCode = RuiXueSdk.getDeviceCode();
+```
+
+## 上报网络类型和设备类型
+引入仓库即可
+
+```json
+  implementation 'com.ruixue:rxsdk_deviceinfo:${version}'

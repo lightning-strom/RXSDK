@@ -1,0 +1,721 @@
+---
+title: "快速接入"
+---
+
+## SDK 集成
+```
+implementation 'com.ruixue:rxsdk_weile:${version}'
+
+implementation 'com.ruixue:rxsdk_base_ui:${version}'
+
+```
+## 登录
+
+:::tip
+"非法注册（限制代码1）" code : 312232 为 注册ip限制，默认开启，同一ip默认1小时注册账号不能超过2个，如有需求请联系商务添加ip白名单或调整限制条件。
+"非法注册（限制代码2）" code : 312232 为 注册设备限制，默认关闭，同一设备x小时注册账号不能超过x个，如有需求请联系商务开启。
+:::
+
+### 登录弹窗
+
+::: tip
+设置为登录后强制实名认证时登录成功的数据将在实名认证后返回，并且不会返回实名认证的结果，只会在 UI 上体现实名认证成功。
+如需要获取实名认证回调数据，请关闭登录后强制实名认证设置，并单独调用实名认证 UI。
+:::
+
+**Logo参考设计稿：**
+[微乐通行证ai](http://guanwangyun.oss-cn-beijing.aliyuncs.com/document/passport/%E5%BE%AE%E4%B9%90%E9%80%9A%E8%A1%8C%E8%AF%81logo1.ai)
+[微乐通行证psd](http://guanwangyun.oss-cn-beijing.aliyuncs.com/document/passport/%E5%BE%AE%E4%B9%90%E9%80%9A%E8%A1%8C%E8%AF%81logo1.psd)
+
+**UI示例**
+
+![Screenshot_20241106_181139.png](https://haiqi-ruixue-test.oss-cn-beijing.aliyuncs.com/docOnline/Screenshot_20241106_181139-1730888102169.png)
+**接口原型**
+
+```java
+
+/**
+ * 调用登录弹窗
+ * @param activity 应用Activity
+ * @param config 登录页基础配置，默认读取后台配置，优先读取代码配置
+ * @param loginCallback 登录结果
+ */
+public void showLoginUI(Activity activity, RXLoginUIModel config, RXRequestCallback loginCallback)
+```
+
+#### 参数说明
+
+> RXLoginUIModel 结构说明
+
+| **字段**                | **类型**  | **是否必填** | **备注**                                                                                                     |
+| ----------------------- | --------- | ------------ | ------------------------------------------------------------------------------------------------------------ |
+| loginMethods            | Array   | 否           | 登录方式，默认读取望舒后台配置，没配置则需要手动传入                                                                                                   |
+| logoImage               | Drawable   | 否           | 登录显示的 logo，不配置显示默认logo。**注意 logo 资源如果是高倍图，应该放在 res/drawable-xxhdpi（三倍图）目录下，不要将高倍图放在  res/drawable 中，避免显示异常**  **Logo参考设计稿：**[微乐通行证ai](http://guanwangyun.oss-cn-beijing.aliyuncs.com/document/passport/%E5%BE%AE%E4%B9%90%E9%80%9A%E8%A1%8C%E8%AF%81logo1.ai)[微乐通行证psd](http://guanwangyun.oss-cn-beijing.aliyuncs.com/document/passport/%E5%BE%AE%E4%B9%90%E9%80%9A%E8%A1%8C%E8%AF%81logo1.psd)                                                                                                   |
+| isShowClose             | bool      | 否           | 登录页是否显示关闭按钮，默认显示。                                                                           |
+| setFirstNeedSetPassword | bool      | 否           | 验证码登录的新用户是否弹出设置密码，默认不弹出。注：弹出设置密码后登录数据将在设置成功或关闭设置页面后返回。 |
+| needRealAuth            | bool      | 否           | 未实名用户登录成功后是否需要强制实名认证，默认读取望舒后台配置。 注：强制实名后登录数据将在实名认证成功后返回。          |
+| canCloseRealAuth        | bool      | 否           | 实名认证是否可关闭，默认读取望舒后台配置   |
+| setQuickButtonBarVisible | bool      | 否           | 是否显示底部快速登录按钮，默认显示。                                                                         |
+| setDeregisterShow        | bool      | 否           | 处于注销中的用户登录后是否显示注销窗口，默认不显示                                                           |
+| setLoginContinue        | bool      | 否           | 如果账号在注销中是继续登录还是退出登录, YES 继续登录，NO 退出登录，默认 NO |
+| setCustomParams        |  Map      | 否           | 自定义参数 |
+| googleClientid        | String      | 否           | google登录客户端秘钥，默认读取望舒后台配置，没配置则需要手动传入 |
+| wxAppid        | String      | 否           | 微信appid，默认读取望舒后台配置，没配置则需要手动传入 |
+| quickphoneKey        | String      | 否           | 一键登录客户端秘钥，默认读取望舒后台配置，没配置则需要手动传入 |
+| googleClientid        | String      | 否           | google登录客户端秘钥，默认读取望舒后台配置，没配置则需要手动传入 |
+| setMethod        | String      | 否           | 上次使用的登录方法  |
+| setLoginOpenid        | String      | 否           | 上次登录返回的login_openid  |
+| setGuestTitle        | String      | 否           | 快速开始登录方式显示名称，默认显示 快速开始 ，v3.6.17新增  |
+| setCustomExt        | Map      | Map           | 设置登录携带custom_ext 透传参数 ，v3.6.17新增  |
+
+> setCustomExt 结构说明
+
+| **字段**                | **类型**  | **是否必填** | **备注** |
+| ----------------------- | --------- | ------------ | -------- |
+| bigdata_ext        |    Map   | 否           | 大数据预置事件透传参数 |
+
+> loginMethods 结构说明
+
+| **字段**            | **备注**      |
+| ------------------ | ------------- |
+| wechat              | 微信         |
+| guest             | 游客登录      |
+| username             | 账号登录      |
+| captchacode             | 验证码登录      |
+
+**调用示例**
+
+```java
+RXLoginUIModel rxLoginUIModel = new RXLoginUIModel();
+
+//【可选】如果优先使用login_openid进行二次无感登录，调用下面俩函数，不使用无需添加
+// 注意当 loginOpenid 和 method 有效时会直接调用快速登录，不会拉起登录 UI，想要拉起登录 UI 时不要赋值
+rxLoginUIModel.setMethod(RuiXueSdk.getLoginMethod());
+rxLoginUIModel.setLoginOpenid(RuiXueSdk.getLoginOpenid());
+
+//更换登录标题logo
+rxLoginUIModel.setTitleResId(R.drawable.logo);
+//修改游客登录显示名
+rxLoginUIModel.setGuestTitle("xx游客");
+
+//设置要显示的登录方法
+List loginMethod = Arrays.asList(LoginMethod.USERNAME, LoginMethod.CAPTCHACODE, LoginMethod.WECHAT, "quickphone");
+rxLoginUIModel.setLoginMethods(loginMethod);
+
+rxLoginUIModel.setPrivacyOne("用户协议", "url https://anhvcpo.weilekuiming.com/static/landing/#/v1/legal/terms/100/00001");
+rxLoginUIModel.setPrivacyTwo("隐私协议", "url https://anhvcpo.weilekuiming.com/static/landing/#/v1/legal/terms/100/00002?lang=zh");
+
+Map cmap = new HashMap<>();
+cmap.put("sign_fields", new String[]{"openid", "age"});
+rxLoginUIModel.setCustomParams(cmap);
+
+ // 构造大数据透传参数 可选
+Map bigdataExt = new HashMap<>();
+bigdataExt.put("event_name", "user_login");  // 示例大数据事件
+bigdataExt.put("event_value", "success");   // 示例事件值
+
+// 构造自定义透传参数 可选
+Map customExt = new HashMap<>();
+customExt.put("bigdata_ext", bigdataExt);  // 将大数据透传参数添加到自定义透传参数中
+customExt.put("user_agent", "Android 10"); // 自定义参数（如用户设备信息）
+customExt.put("location", "New York");     // 自定义参数（如用户地理位置）
+
+rxLoginUIModel.setCustomExt(customExt);//可选
+
+RXSdkUI.getInstance().showLoginUI(activity, rxLoginUIModel, new RXRequestCallback() {
+    @Override
+    public void onResponse(JSONObject jsonObject) {
+        int code = jsonObject.optInt("code", -1);
+        if (code == 0) {
+            //todo 处理成功逻辑
+        } else {
+            String msg = jsonObject.optString("msg");
+            //todo 根据错误码处理失败逻辑
+        }
+    }
+});
+```
+
+#### 响应结构
+请参考 [服务端登录API](/docs/v3.5/登录（通行证）/服务端接入/服务端 API)响应结构
+
+### 同步账号记录
+
+::: tip
+用于同步非望舒的账号密码登录记录，需要在调用登录 UI 前调用同步。
+:::
+
+**接口原型**
+
+```java
+/**
+ * 同步账号登录记录
+ * @param accounts 账号数组
+ * ！accounts结构说明:
+ * @[@{@"username" : @"", @"password" : @""}]
+ */
+static void syncAccounts(List> accounts)
+```
+
+**调用示例**
+
+```java
+// value 仅为示例
+Map acc = new HashMap<>();
+acc.put("username", "password 密码" );
+RuiXueSdk.syncAccounts(mapList);
+```
+
+#### 参数说明
+
+> accounts 结构说明
+
+| **字段** | **备注** |
+| -------- | -------- |
+| username | 账号     |
+| password | 密码     |
+
+### 忘记密码
+
+**UI示例**
+
+![](https://guanwangyun.oss-cn-beijing.aliyuncs.com/document/passportUI/CVzcb8xSJoaLLexU7xjcttPpnGK.png)
+
+**接口原型**
+
+==使用扩展方式请注意，requestParams  为 retrun block，params 会将手机号或邮箱，密码等参数返回，由客户端处理业务逻辑，SDK会根据 return 的 needBreak 参数决定是否继续执行。
+详情请参考调用示例。==
+
+```java
+
+/**
+ * 忘记密码
+ */
+IRXView findPassWordUI(Activity activity, RXUICallback callback) 
+
+/**
+ * 忘记密码 
+ * @param map 页面配置信息
+ * ！username 默认填充的账号    #String类型
+ * ！account_type  账号类型提示 （1-通用提示 ，2-手机号提示，3-邮箱提示 [可选 默认 2]）    #int类型
+ * ！password_hint 输入密码提示文本    #String类型
+ */
+IRXView findPassWordUI(Activity activity, Map map, RXUICallback callback)
+```
+
+#### 参数说明
+
+> params 结构说明
+
+| **字段**      | **类型** | **是否必填** | **备注**                                                          |
+| ------------- | -------- | ------------ | ----------------------------------------------------------------- |
+| username      | String | 否           | 默认填充的账号。                                                  |
+| account_type  | int      | 否           | 账号类型提示 （1-通用提示 ，2-手机号提示，3-邮箱提示 [默认 2]）。 |
+| password_hint | String | 否           | 输入密码提示文本。                                                |
+
+**调用示例**
+
+```java
+Map map = new HashMap<>();
+map.put("username", "18143088888");
+map.put("account_type", CaptchaPurpose.ACCOUNT_TYPE_PHONE);// 账号类型提示 （1-通用提示 ，2-手机号提示，3-邮箱提示 [可选 默认 2]）    #int类型
+map.put("password_hint", "请输入密码");// 输入密码提示文本    #String类型
+RXSdkUI.getInstance().findPassWordUI(activity, map, new RXRequestCallback() {
+    @Override
+    public void onResponse(JSONObject jsonObject) {
+        int code = jsonObject.optInt("code", -1);
+        if (code == 0) {
+            //todo 处理成功逻辑
+        } else {
+            String msg = jsonObject.optString("msg");
+            //todo 根据错误码处理失败逻辑
+        }
+    }
+}).show();
+```
+
+**响应示例**
+
+```json
+{
+    "code": 0
+}
+```
+
+### 撤销账号注销
+
+::: tip
+因翻译问题海外版暂不支持自定义按钮文案。
+使用自定义文案方式点击 撤销注销 将返回文案 "撤销注销"，点击非撤销注销返回定义的文案。
+:::
+
+**UI示例**
+
+![](https://guanwangyun.oss-cn-beijing.aliyuncs.com/document/passportUI/TZtrbxGwNo9cR3x9Z05cZshdnvk.png)
+
+**接口原型**
+
+```java
+/**
+ * 撤销注销
+ * @param activity        activity
+ * @param isLoginContinue true继续登录，false退出登录
+ * @param callback        callback
+ */
+public IRXView destroyAccountStatusView(Activity activity, boolean isLoginContinue, RXRequestCallback callback) 
+                                        
+/**
+ * 撤销注销
+ * @param activity     activity
+ * @param okButtonText 设置右侧按钮文本，默认继续登录
+ * @param callback     callback
+ */
+@Override
+public IRXView destroyAccountStatusView(Activity activity, String okButtonText, RXRequestCallback callback)
+```
+
+**调用示例**
+
+```java
+RXSdkUI.getInstance().destroyAccountStatusView(activity, true, new RXRequestCallback() {
+    @Override
+    public void onResponse(JSONObject jsonObject) {
+        int code = jsonObject.optInt("code", -1);
+        if (code == 0) {
+            //todo 处理成功逻辑
+        } else {
+            String msg = jsonObject.optString("msg");
+            //todo 根据错误码处理失败逻辑
+        }
+    }
+});
+//自定义按钮文本
+RXSdkUI.getInstance().destroyAccountStatusView(activity, "ok button", new RXRequestCallback() {
+    @Override
+    public void onResponse(JSONObject jsonObject) {
+        int btn_type = jsonObject.optInt("btn_type", -1);
+       // todo 业务逻辑
+    }
+});
+```
+
+#### 响应结构
+
+> 结构说明
+
+| **字段**                | **备注**   |
+| ----------------------- | ---------- |
+| btn_type  | 点击按钮类型 0 继续登录 ，1 撤销注销 |
+| btn_title | 点击按钮标题 |
+| login_continue | 点击按钮标题 |
+
+## 合规
+
+### 协议声明
+
+**UI示例**
+
+![](http://guanwangyun.oss-cn-beijing.aliyuncs.com/document/login/feishu-protocol.jpeg)
+
+**接口原型**
+
+```java
+
+/**
+ * 用户协议和隐私界面
+ * @param activity 应用上下文
+ * @param key      默认需要展示的协议条款key
+ * @param keyList  需要展示的协议条款key列表
+ */
+@Override
+public IRXView protocolView(Activity activity, String key, List keyList)
+
+```
+
+#### 参数说明
+
+> keyList 说明
+
+| **key** | **备注**         |
+| ------- | ---------------- |
+| 00001   | 用户服务协议     |
+| 00002   | 隐私保护指引     |
+| 00003   | 第三方 SDK 目录  |
+| 00004   | 健康游戏公告     |
+| 00005   | 适龄提示         |
+| 00006   | 绿色游戏公告     |
+| 00007   | 版号信息         |
+| 00008   | 游戏账号注销条件 |
+| 00009   | 游戏账号注销协议 |
+| 00010   | 其他             |
+
+**调用示例**
+
+```java
+
+RXSdkUI.getInstance().protocolView(this, "00001", Arrays.asList("00001", "00002")).show();
+
+```
+
+### 实名认证
+
+**UI示例**
+
+![](https://guanwangyun.oss-cn-beijing.aliyuncs.com/document/passportUI/EqUpbAcX4oLppCxVjmucUDhXnbf.png)
+
+![](https://guanwangyun.oss-cn-beijing.aliyuncs.com/document/passportUI/DQnIbSsRboq8Cmx67JLcSK4vnCd.png)
+
+**接口原型**
+
+```java
+/**
+ * 实名认证
+ * @param activity   activity
+ * @param cancelable 是否可取消关闭
+ * @param callback   回调函数
+ */
+@Override
+public IRXView realAuthUI(Activity activity, boolean cancelable, RXRequestCallback callback)
+```
+
+#### 参数说明
+
+| **字段** | **类型** | **备注**         |
+| -------- | -------- | ---------------- |
+| cancelable | bool     | 是否展示关闭按钮 |
+
+**调用示例**
+
+```java
+RXSdkUI.getInstance().realAuthUI(MainActivity.this, true, jsonCallback).show();
+```
+
+#### 响应结构（JSON）
+
+| **字段** | **类型** | **说明**                   |
+| -------- | -------- | -------------------------- |
+| age      | int   | 从实名信息中提取的年龄信息 |
+| limit    | bool     | 防沉迷开关 :true 开启 false 未开启|
+| aas      | int   | 剩余时间（秒）|
+
+**响应示例**
+
+```json
+{
+    "code": 0,
+    "data": {
+        "age": 18,
+        "limit" : true,
+        "aas" : 3600
+    }
+}
+```
+
+### 防沉迷
+
+**UI示例**
+
+![](https://guanwangyun.oss-cn-beijing.aliyuncs.com/document/passportUI/ME2WbRltPolLxnx0bSMcsZpcnlb.png)
+
+**接口原型**
+
+```java
+/**
+ * 防沉迷
+ * @param activity   activity
+ * @param titleStr   标题
+ * @param contextStr 内容
+ * @param buttonTxt  按钮文本
+ * @param callback   回调函数
+ */
+public IRXView antiAdditionView(Activity activity, String titleStr, String contextStr, String buttonTxt, RXRequestCallback callback) 
+```
+
+#### 参数说明
+
+| **字段** | **类型** | **备注**                    |
+| -------- | -------- | --------------------------- |
+| titleStr    | String | 标题                        |
+| contextStr      | String | 内容                        |
+| buttonTxt | String | 按钮标题，点击后 block 回调 |
+
+**调用示例**
+
+```java
+String text="根据国家最新法规规定，未进行实名认证的用户不能体验任何游戏内容，请尽快完成实名。当前账号未进行实名认证，游戏累计时间超过1小时将强制下线休息，且无法进行充值操作。请合理安排游戏时间，做适当的身体活动。" ;
+    RXSdkUI.getInstance().antiAdditionView(activity, "提示", text, "退出游戏", new RXRequestCallback() {
+        @Override
+        public void onResponse(JSONObject jsonObject) {
+            
+        }
+    });
+```
+
+## 用户中心
+
+::: tip
+在操作的结果页产生事件时会通过回调不同的 type，具体说明请参考响应结构。
+:::
+
+### 展示用户信息
+
+**UI示例**
+
+![](https://guanwangyun.oss-cn-beijing.aliyuncs.com/document/passportUI/JRY5bZ3JColj63xe5Y5cUaGBnsf.png)
+
+**接口原型**
+
+```java
+/**
+ * 用户中心
+ * @param activity activity
+ * @param rxUserCenterConfig {@link  RXUserCenterConfig} 基础配置
+ * @param callback callback
+ */
+public IRXView userCenterUI(Activity activity, RXUserCenterConfig rxUserCenterConfig, RXUICallback callback)
+```
+
+#### 参数说明
+
+> RXUserCenterConfig 结构说明
+
+| **字段**      | **类型** | **备注**                                   |
+| ------------- | ------ | ----------------------------------------- |
+| logoImage | Drawable |显示的logo，没配置则读取调用登录 UI 时的 logoImage                     |
+| transmit_args | String |透传数据，使用 jsonString 形式                      |
+| game_user_id  | String |用户的游戏 id，不传在望舒后台不会账号注销页面不显示游戏侧的用户id                                      |
+| nickname      | String |用户昵称                                            |
+| head_img_url  | String |用户头像                                            |
+| queue_name    | String |在望舒客服系统设置的接入点名称 不填写默认为 default |
+| setConfigParams |  Map |用户中心配置，默认读取望舒后台配置                                |
+| setSyncInfoEnable | bool |用户中心是否展示同步信息按钮，YES 为展示，NO 为不展示，默认不展示，用于同步三方信息 |
+
+> setConfigParams 说明
+
+| **字段**      | **类型** | **备注** |
+| ------------ | ------- | -------- |
+| btns   | Array |配置用户中心入口 |
+
+> btns 说明
+
+| **字段**      | **备注** |
+| ------------- | -------- |
+| real_name   | 实名认证 |
+| privacy_policy  | 隐私政策 |
+| acount_cancel  | 账号注销 |
+| phone_management | 手机号管理 |
+| change_pwd     | 修改密码 |
+
+**调用示例**
+
+```java
+Map ucMap = new HashMap<>();
+ucMap.put("btns", new String[]{"real_name","privacy_policy","acount_cancel","phone_management","change_pwd"});
+
+RXUserCenterConfig rxUserCenterConfig = new RXUserCenterConfig();
+rxUserCenterConfig.setTransmit_args("透传参数");
+rxUserCenterConfig.setGame_user_id(1000);
+rxUserCenterConfig.setNickname("用户昵称");
+rxUserCenterConfig.setHead_img_url("用户头像");
+rxUserCenterConfig.setQueue_name("default");
+rxUserCenterConfig.setConfigParams(ucMap);
+RXSdkUI.getInstance().userCenterUI(activity, rxUserCenterConfig, new RXRequestCallback() {
+    @Override
+    public void onResponse(JSONObject jsonObject) {
+        int code = jsonObject.optInt("code", -1);
+        if (code == 0) {
+            //todo 处理成功逻辑
+            JSONObject data = jsonObject.optJSONObject("data");
+            if (data != null) {
+                String type = data.optString("type");
+                //todo
+            }
+
+        } else {
+            String msg = jsonObject.optString("msg");
+            //todo 根据错误码处理失败逻辑
+        }
+    }
+}).show();
+```
+
+#### 响应结构
+
+> type 回调说明
+
+| **字段**      | **备注** |
+| ------------- | -------- |
+| switch_user   | 切换账号 |
+| underegister  | 撤销注销 |
+| binding_phone | 绑定手机 |
+| change_phone  | 换绑手机 |
+| real_auth     | 实名认证 |
+| resetpwd      | 修改密码 |
+| logBackIn     | 重新登陆 |
+
+**响应示例**
+
+```json
+{
+    "code" : 0,
+    "data" : {
+        "type" : "switch_user"
+    }
+}
+```
+
+### 申请账号注销
+
+显示注销申请 webview 窗口，如已处于注销中显示撤销注销。
+
+**UI示例**
+
+![image.png](https://haiqi-ruixue-test.oss-cn-beijing.aliyuncs.com/docOnline/image-1724032060422.png)
+
+**接口原型**
+
+```java
+/**
+ * 申请注销
+ * @param activity activity
+ * @param rxUserCenterConfig {@link  RXUserCenterConfig} 自定义参数
+ * @param callback callback
+ */
+IRXView applyForDeregisterUI(Activity activity, RXUserCenterConfig rxUserCenterConfig, RXUICallback callback)
+```
+
+#### 参数说明
+
+> RXUserCenterConfig 结构说明
+
+| **字段**      | **备注**                                            |
+| ------------- | --------------------------------------------------- |
+| transmit_args | 透传数据，使用 jsonString 形式                      |
+| game_user_id  | 用户的游戏 id，不传在望舒后台不会账号注销页面不显示游戏侧的用户id                                      |
+| nickname      | 用户昵称                                            |
+| head_img_url  | 用户头像                                            |
+| queue_name    | 在望舒客服系统设置的接入点名称 不填写默认为 default |
+
+**调用示例**
+
+```java
+RXUserCenterConfig dereg_config = new RXUserCenterConfig();
+    dereg_config.setTransmit_args("透传参数");
+    dereg_config.setGame_user_id(1000);
+    dereg_config.setNickname("用户昵称");
+    dereg_config.setHead_img_url("用户头像");
+    dereg_config.setQueue_name("default");
+    RXSdkUI.getInstance().applyForDeregisterUI(activity, dereg_config, new RXRequestCallback() {
+        @Override
+        public void onResponse(JSONObject jsonObject) {
+
+        }
+    }).show();
+```
+
+### 绑定手机/换绑手机
+:::tip
+当前登录用户未绑定手机时，跳转到绑定页面，正常展示绑定手机页面，如当前用户已绑定过手机，则自动进入换绑手机页面
+:::
+**UI示例**
+![image.png](https://haiqi-ruixue-test.oss-cn-beijing.aliyuncs.com/docOnline/image-1724034746779.png)
+
+**接口原型**
+```java
+/**
+ * 绑定手机，如果已绑定手机会跳转到换绑页面
+ */
+IRXView bindPhoneUI(Activity activity, RXUICallback callback)
+```
+
+**调用示例**
+```
+RXSdkUI.getInstance().bindPhoneUI(activity,  new RXRequestCallback() {
+    @Override
+    public void onResponse(JSONObject jsonObject) {
+ 
+       // todo 业务逻辑
+    }
+}).show();
+ ```
+
+## 图形验证码
+可单独展示图形验证码 UI，验证成功后将凭据回调，客户端可自行处理后续逻辑。
+
+**UI示例**
+![](http://guanwangyun.oss-cn-beijing.aliyuncs.com/document/login/20241029-103501.png)
+
+**接口原型**
+```objectivec
+/**
+ * 图形验证 UI
+ * @param appid 图形验证码 appid
+ */
+IRXView captchaVerifyUI(Activity activity, int appid, RXUICallback callback)
+```
+
+**调用示例**
+```
+RXSdkUI.getInstance().captchaVerifyUI(activity, 193923813, new RXRequestCallback() {
+    @Override
+    public void onResponse(JSONObject jsonObject) {
+        // todo logic 
+        
+    }
+});
+ ```
+
+#### 响应结构
+
+| **字段**      | **备注** |
+| ------------- | -------- |
+| randstr | 随机串 |
+| ticket  | 凭据 |
+
+## 身份证键盘
+
+**UI示例**
+![](https://guanwangyun.oss-cn-beijing.aliyuncs.com/sdk/help-image/img_v3_02ml_887e5df6-3de5-4db2-841d-4af26c85747g.png)
+
+**接口原型**
+```java
+/**
+ * 显示自定义身份证键盘
+ *
+ * @param context 上下文
+ * @param defaultValue 默认值，输入框中的当前的值
+ * @param style 0:默认主题 1:浅色主题（望舒 UI 当前使用）
+ * @param callback 回调
+ */
+void showIdCardKeyboard(Context context, String defaultValue, int style, KeyboardCallback callback)
+```
+**调用示例**
+```java
+IdCardNumberKeyboardManager.getInstance().showIdCardKeyboard(context, "默认值", 0, new KeyboardCallback() {
+
+    @Override
+    public void onShow(float keyboardHeight) {
+        // 键盘显示时触发，keyboardHeight 为键盘的高度
+    }
+    
+    @Override
+    public void onHideAnimStart() {
+        // 键盘执行隐藏动画开始时触发，如果业务需要调整自己 UI 的显示，可根据实际情况做处理，没有则忽略
+    }
+    
+    @Override
+    public void onHide() {
+        // 键盘隐藏后触发
+    }
+    
+    @Override
+    public void onFinish(String content) {
+        // 键盘点击完成后回调，content 为输入的内容，业务可以根据自己的需求做回显
+    }
+    
+    @Override
+    public void onCancel() {
+        // 点击键盘上方透明区域消失时会触发，没有特殊需要可以不处理
+    }
+});
+```

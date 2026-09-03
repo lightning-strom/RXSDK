@@ -1,0 +1,65 @@
+---
+sidebar_position: 4
+title: 直购模式支付配置说明
+description: "望舒SDK 三方服务 直购模式支付配置说明 小游戏 接入文档，提供完整的接口调用说明与示例。"
+---
+
+## 准备工作
+
+微信公众平台：[https://mp.weixin.qq.com/](https://mp.weixin.qq.com/)望舒系统地址：[企业管理后台中获取望舒地址](/docs/开发者文档/入门指南/准备工作)。
+
+## 微信小游戏支付 (直购模式)
+
+### 微信小游戏关键信息获取
+
+**微信小游戏获取**`AppID` 、`OfferID` 、` 现网 AppKey` 、` 沙箱 AppKey`
+
+登录[微信公众平台](https://mp.weixin.qq.com/)，位置：**虚拟支付 2.0 > 基本配置**。
+
+获取关键配置： `AppID` 、`OfferID` 、` 现网 AppKey` 、` 沙箱 AppKey`
+
+![](https://guanwangyun.oss-cn-beijing.aliyuncs.com/document/tripartite/IVJmbcuxTofuqsxhAoOcSfUtnzM.png)
+
+**微信小游戏配置商品信息**
+
+登录[微信公众平台](https://mp.weixin.qq.com/)，位置：**虚拟支付 2.0 > 基本配置 > 道具配置**。
+
+配置道具信息
+
+![](https://guanwangyun.oss-cn-beijing.aliyuncs.com/document/tripartite/wechat/pay/zhigou/pay_product.png)
+
+**将商品信息关联到望舒三方计费点配置**
+
+![](https://haiqi-ruixue-test.oss-cn-beijing.aliyuncs.com/docOnline/image-1744012351262.png)
+
+### 直购模式回调地址配置
+
+1.登录[微信公众平台](https://mp.weixin.qq.com/)位置：**功能>虚拟支付 2.0>基本配置>基础配置**下的 **发货推送配置**
+
+2.配置 `URL(服务器地址)`,`Token`,` 消息加密方式 ` 等信息。
+
+URL ： api 域名/v1/ke/callback/f_channel/产品 ID/渠道 ID/midas_game_item
+
+Token ：和望舒后台支付账号配置保持一致。
+
+消息加密方式：**明文**。
+
+**测试状态以通过说明已开启推送。**
+
+![](https://haiqi-ruixue-test.oss-cn-beijing.aliyuncs.com/docOnline/image-1739256654911.png)
+
+### 开启道具发货推送
+
+登录[微信公众平台](https://mp.weixin.qq.com/)位置：**功能>虚拟支付>基本配置>直购配置**下的 **道具发货推送**进行开启推送。
+
+![](https://haiqi-ruixue-test.oss-cn-beijing.aliyuncs.com/docOnline/image-1744081311327.png)
+
+### 望舒系统中配置支付信息
+
+**添加支付方式**
+
+从微信小游戏平台获取 `AppID` 、`OfferID` 、` 现网 AppKey` 、` 沙箱 AppKey`。并配置发货推送令牌与微信后台保持一致。
+
+复制到望舒系统，位置：**三方账号管理 > 微信小游戏支付直购模式 > 新建**。
+
+![](https://guanwangyun.oss-cn-beijing.aliyuncs.com/document/tripartite/wechat/pay/zhigou/pay_ruixue.png)

@@ -1,0 +1,155 @@
+---
+sidebar_position: 1
+title: "商户发红包（废弃）"
+---
+
+:::warning[已废弃]
+
+此功能已废弃，新项目请勿接入。请使用 [商户发红包](/docs/v3.5/商户发红包/Android收款) 替代。
+
+:::
+
+## 商户发零钱
+
+> **POST: **  `/v1/operationtoolsapi/wechat/sendredpack`
+> **认证方式:** [CPSign](/docs/v3.5/入门指南/服务端接入须知)
+
+### CURL 示例
+
+```bash
+curl --location --request POST '{{接口域名}}/v1/operationtoolsapi/wechat/sendredpack' \
+--header 'ruixue-language: {{语言}}' \
+--header 'ruixue-cpid: {{CPID}}' \
+--header 'ruixue-productid: {{产品标识}}' \
+--header 'ruixue-cpts: {{时间戳}}' \
+--header 'ruixue-traceid: {{TraceID}}' \
+--header 'ruixue-cpsign: {{签名}}' \
+--header 'ruixue-devicecode: {{设备码}}' \
+--header 'ruixue-channelid: {{渠道标识}}' \
+--header 'ruixue-platformid: {{平台标识}}' \
+--data-raw '{
+    "amount": 0,
+    "open_id": ""
+}'
+```
+
+**请求头 Header 参数**
+
+| **参数**          | **类型** | **备注**         |
+| ----------------- | -------- | ---------------- |
+| ruixue-language   | String   | zh-CN            |
+| Content-Type      | String   | application/json |
+| ruixue-cpid       | String   | 内容提供商 CPID  |
+| ruixue-productid  | String   | 产品 ID          |
+| ruixue-channelid  | String   | 渠道 ID          |
+| ruixue-platformid | String   | 平台 platformid  |
+| ruixue-devicecode | String   | 设备码           |
+| ruixue-cpsign     | String   | 签名          |
+| ruixue-cpts       | String   | CP 签名时间戳    |
+| ruixue-traceid    | String   | TraceID          |
+
+### 请求参数（JSON）
+
+| **参数** | **类型** | **是否必填** | **备注**   |
+| -------- | -------- | ------------ | ---------- |
+| amount  | Number   | 是           | 金额分 |
+| open_id  | String   | 否           | 望舒openid |
+| cp_user_id  | String   | 否           | 游戏id， 与望舒openid二选一 |
+| remark  | String   | 否           | 转账备注， 不传默认为“活动红包” |
+
+**响应示例**
+
+```json
+{
+    "msg": "success",
+    "code": 0
+}
+```
+
+### 响应结构(JSON)
+
+| **参数** | **类型**                                             | **备注** |
+| -------- | ---------------------------------------------------- | -------- |
+| code     | Number                                               | 0 为成功 |
+| msg      | String                                               | 失败信息 |
+| data      | Object                                               | 对象信息 |
+
+#### data
+| **参数** | **类型**                                             | **备注** |
+| -------- | ---------------------------------------------------- | -------- |
+| out_batch_no     | String                                               | 单号， 用于和微信后台核对 |
+
+## 微信用户风险等级
+:::tip
+[微信相关文档](https://developers.weixin.qq.com/minigame/dev/api-backend/safety-control-capability/api_getuserriskrank.html)
+:::
+
+> **POST: **  `/v1/risk/wxa/getuserriskrank`
+> **认证方式:** [CPSign](/docs/v3.5/入门指南/服务端接入须知)
+
+### CURL 示例
+
+```bash
+curl --location --request POST '{{接口域名}}/v1/risk/wxa/getuserriskrank' \
+--header 'ruixue-language: {{语言}}' \
+--header 'ruixue-cpid: {{CPID}}' \
+--header 'ruixue-productid: {{产品标识}}' \
+--header 'ruixue-cpts: {{时间戳}}' \
+--header 'ruixue-traceid: {{TraceID}}' \
+--header 'ruixue-cpsign: {{签名}}' \
+--header 'ruixue-devicecode: {{设备码}}' \
+--header 'ruixue-channelid: {{渠道标识}}' \
+--header 'ruixue-platformid: {{平台标识}}' \
+--data-raw '{
+    "client_ip": "客户端ip",
+    "open_id": ""
+}'
+```
+
+**请求头 Header 参数**
+
+| **参数**          | **类型** | **备注**         |
+| ----------------- | -------- | ---------------- |
+| ruixue-language   | String   | zh-CN            |
+| Content-Type      | String   | application/json |
+| ruixue-cpid       | String   | 内容提供商 CPID  |
+| ruixue-productid  | String   | 产品 ID          |
+| ruixue-channelid  | String   | 渠道 ID          |
+| ruixue-platformid | String   | 平台 platformid  |
+| ruixue-devicecode | String   | 设备码           |
+| ruixue-cpsign     | String   | 签名          |
+| ruixue-cpts       | String   | CP 签名时间戳    |
+| ruixue-traceid    | String   | TraceID          |
+
+### 请求参数（JSON）
+
+| **参数** | **类型** | **是否必填** | **备注**   |
+| -------- | -------- | ------------ | ---------- |
+| client_ip  | String   | 是           | 客户端ip |
+| open_id  | String   | 否           | 望舒openid |
+| cp_user_id  | String   | 否           | 游戏id， 与望舒openid二选一 |
+
+**响应示例**
+
+```json
+{
+    "msg": "success",
+    "code": 0,
+    "data":{
+        "risk_rank": 1
+    }
+}
+```
+
+### 响应结构(JSON)
+
+| **参数** | **类型**                                             | **备注** |
+| -------- | ---------------------------------------------------- | -------- |
+| code     | Number                                               | 0 为成功 |
+| msg      | String                                               | 失败信息 |
+| data      | Object                                               | 对象信息 |
+
+#### data
+| **参数** | **类型**                                             | **备注** |
+| -------- | ---------------------------------------------------- | -------- |
+| risk_rank     | Number                                               | 风险等级，枚举0,1,2,3,4 |

@@ -1,0 +1,379 @@
+---
+title: "iOS"
+---
+
+## 产品包版本检查（已废弃）
+:::warning
+已废弃，请使用 检查产品包（通用）接口。
+:::
+
+**接口原型**
+
+```objectivec
+/**
+ * 大厅更新检查（GET版本，不返回下载地址）
+ * @param region 地区码  非必须
+ * @param client_version 客户端大厅当前版本  非必须
+ * @param type 脚本类型，默认lua，可选json，u3d等  非必须
+ * @param json 输出文件后缀，默认lua，可选json  非必须
+ */
+- (void)checkUpdate_AppWithRegion:(NSString * _Nullable)region
+                   client_version:(NSString * _Nullable)client_version
+                             type:(NSString * _Nullable)type
+                             json:(NSString * _Nullable)json
+                         complete:(RequestComplete)complete;
+```
+
+### **参数说明**
+
+| **字段**       | **类型** | **是否必填** | **说明**                              |
+| -------------- | -------- | ------------ | ------------------------------------- |
+| region         | NSString | 否           | 地区码                                |
+| client_version | NSString | 否           | 客户端大厅当前版本                    |
+| type           | NSString | 否           | 脚本类型，默认 lua，可选 json，u3d 等 |
+| json           | NSString | 否           | 输出文件后缀，默认 lua，可选 json     |
+
+**调用示例**
+
+```objectivec
+[[RXUpdateCheckService sharedSDK] checkUpdate_AppWithRegion:@"" client_version:@"" type:@"" json:@"" complete:^(NSDictionary * _Nullable response, RX_CommonRequestError * _Nullable error) {
+            
+}];
+```
+
+### 响应结构（JSON）
+
+| **参数**   | **类型**                                              | **约束**                                |
+| ---------- | ----------------------------------------------------- | --------------------------------------- |
+| login_host | String                                                | 登录地址                                |
+| upgrade    | Number                                                | 更新状态 0 无更新 1 有更新 2 维护公告   |
+| latest     | String                                                | 升级后的版本号                          |
+| up_type    | Number                                                | 1 小版本热更 2 大版本整包更             |
+| games      | Map[int][Data](/docs/v3.5/入门指南/快速开始/Android初始化/快速接入)    | [游戏 id]版本                           |
+| activities | Map[string][Data](/docs/v3.5/入门指南/快速开始/Android初始化/快速接入) | [活动别名]版本                          |
+| hall       | [Halldata](/docs/v3.5/入门指南/快速开始/Android初始化/快速接入)     | 大厅组件                                |
+| maintain   | String                                                | 维护公告                                |
+| user_ip    | String                                                | 客户端 ip                               |
+| force      | Number                                                | 1 为强制更新                            |
+| ext        | Map[string]interface{'{'}{'}'}                                | 自定义扩展信息， 值为望舒后台配置的类型 |
+| uri        | Stirng                                                | 包路径                                  |
+|login_config|[][LoginConfig]](/docs/v3.5/版本检查/功能介绍)|登录配置|
+
+##### 检查产品包通用Data
+
+| **参数** | **类型** | **约束**             |
+| -------- | -------- | -------------------- |
+| latest   | Number   | 升级到的大厅组件版本 |
+| uri      | String   | 热更包路径           |
+
+##### 检查产品包通用Halldata
+
+| **参数** | **类型** | **约束**             |
+| -------- | -------- | -------------------- |
+| latest   | Number   | 升级到的大厅组件版本 |
+| uri      | String   | 大厅组件路径         |
+| hall_id  | Number   | 大厅组件 id          |
+
+##### LoginConfig
+::: tip
+数据会根据后台配置决定  
+如果登录配置类型为“默认配置”，则由服务端进行匹配，优先级如下
+- 商店账户归属地区优先：（指定地区>商店账户归属地区>IP归属地区>用户设备系统地区>默认地区），仅限 iOS，安卓无法使用
+- IP归属地区优先：（指定地区>IP归属地区>商店账户归属地区>用户设备系统地区>默认地区）
+
+如果登录配置类型为“多付首选”，则将配置直接下发
+:::
+
+| **参数** | **类型** | **说明**             |
+| -------- | -------- | -------------------- |
+| login_host | String                                                | 登录地址                                |
+| login_name|String                                                |登录名|
+| ext_param|String                                                  |扩展参数|
+| region_tag | String                                                | 地区标签                                |
+| region_list | []String                                               | 地区列表 （“多服首选”由游戏测选择） |
+| user_region | String                                              | 用户匹配到的地区（“默认配置”由服务端根据请求参数判断） |
+
+**响应示例**
+
+```json
+{
+  "uri": "http://rxfile.weilekuiming.com/release/dir/2208311VcYLmwX1HWFpLBhHmTFSyunp0IWOmC/",
+  "latest": "1.0.1",
+  "games": {
+    "5157686": {
+      "latest": 1,
+      "uri": "http://rxfile.weilekuiming.com/test/dir/22090873urwkzpsTSXKz0LKL7WXjCiK5fUg0o/"
+    }
+  },
+  "hall": {
+    "hall_id": 222,
+    "uri": "http://rxfile.weilekuiming.com/test/dir/2209082kx8VFIzdGfbmQSLVKsGFGWqWzDZRmi/",
+    "latest": 1
+  },
+  "maintain": "",
+  "user_ip": "10.245.0.1",
+  "upgrade": 1,
+  "login_host": "",
+  "up_type": 1,
+  "force": 0,
+  "ext": {
+    "tag": true
+  },
+  "activities": {
+    "cc": {
+      "latest": 1,
+      "uri": "http://rxfile.weilekuiming.com/test/dir/22090834mx3Tw82eBGJFHV47uQ8BBrWJpnSeq/"
+    }
+  }
+}
+```
+
+## 产品包版本检查（通用）
+:::tip
+海外项目在使用望舒分区功能时需要先调用 **setIAPProductId** 用于获取支付账号所在地区，**productId** 必须是全球商品。
+
+注意：**setIAPProductId** 要在版本检查前调用。
+
+国内项目或不使用望舒分区的海外项目可忽略。
+:::
+:::tip
+用户选择分区后要调用 [设置游戏登录配置](/docs/v3.5/入门指南/快速开始/Android初始化/快速接入) 接口，将所选的登录配置对象传入，该接口不调用会导致区服相关数据统计丢失。
+:::
+
+**接口原型**
+
+```objectivec
+/**
+ * 大厅更新检查（POST版本，返回下载地址）
+ * @param region 地区码  非必须
+ * @param client_version 客户端大厅当前版本  非必须
+ * @param games key客户端游戏id value版本  非必须
+ * @param activities key客户端活动别名 value版本  非必须
+ * @param type 脚本类型，默认lua，可选json，u3d等  非必须
+ * @param json 输出文件后缀，默认lua，可选json  非必须
+ */
+- (void)checkUpdate_AppWithRegion:(NSString * _Nullable)region
+                   client_version:(NSString * _Nullable)client_version
+                            games:(NSDictionary * _Nullable)games
+                       activities:(NSDictionary * _Nullable)activities
+                             type:(NSString * _Nullable)type
+                             json:(NSString * _Nullable)json
+                         complete:(RequestComplete)complete;
+                         
+/**
+ * 设置商品 id 和 超时时间
+ * @param productId 商品 id
+ * @param timeout 超时时间，默认 2 秒
+ */
+- (void)setIAPProductId:(NSString *)productId timeout:(NSInteger)timeout;
+```
+
+### **参数说明**
+
+| **字段**       | **类型**     | **是否必填** | **说明**                              |
+| -------------- | ------------ | ------------ | ------------------------------------- |
+| region         | NSString     | 否           | 地区码                                |
+| client_version | NSString     | 否           | 客户端大厅当前版本                    |
+| type           | NSString     | 否           | 脚本类型，默认 lua，可选 json，u3d 等 |
+| json           | NSString     | 否           | 输出文件后缀，默认 lua，可选 json     |
+| activities     | NSDictionary | 否           | key 客户端活动别名 value 版本         |
+| games          | NSDictionary | 否           | key 客户端游戏 id value 版本          |
+
+**调用示例**
+
+```objectivec
+[[RXUpdateCheckService sharedSDK] checkUpdate_AppWithRegion:@"" client_version:@"" games:nil activities:nil type:@"" json:@"" complete:^(NSDictionary * _Nullable response, RX_CommonRequestError * _Nullable error) {
+            
+}];
+
+[[RXService sharedSDK] setIAPProductId:@"iap productid" timeout:2];
+```
+
+### 响应结构（JSON）
+
+| **参数**   | **类型**                                            | **约束**                                                                                                                                                                            |
+| ---------- | --------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| loginhost  | String                                              | 登录地址                                                                                                                                                                            |
+| uri        | String                                              | 版本类型为 app 时返回更新地址目录，如无更新，返回客户端版本地址目录，如果客户端版本过低， 不返回。非 app 时为客户端指定版本的地址目录，如找不到版本或版本过低，返回最新版本地址目录 |
+| upgrade    | Number                                              | 更新状态 0 无更新 1 有更新                                                                                                                                                          |
+| latest     | String                                              | 升级后的版本号                                                                                                                                                                      |
+| uptype     | Number                                              | 1 小版本热更 2 大版本整包更                                                                                                                                                         |
+| games      | Map[string]int                                      | 产品包关联的游戏 id=>最新版本号                                                                                                                                                     |
+| activities | Map[string]int                                      | 产品包关联的活动别名=>最新版本号                                                                                                                                                    |
+| hall       | [Halldata](/docs/v3.5/入门指南/快速开始/Android初始化/快速接入) | 热更信息（js 小游戏不下发）                                                                                                                                                         |
+| uip        | Number                                              | 客户端 ip                                                                                                                                                                           |
+| ts         | Number                                              | 服务端时间戳                                                                                                                                                                        |
+| ext        | Map[string]interface{'{'}{'}'}                              | 自定义扩展信息， 值为望舒后台配置的类型                                                                                                                                             |
+| update     | [Update](/docs/v3.5/入门指南/快速开始/Android初始化/快速接入)     | 客户端指定的版本下发详细                                                                                                                                                            |
+| maintain   | String                                                | 维护公告                                |
+|login_config|[]LoginConfig|登录配置|
+| attr        | Number                                                | [状态标记 使用位运算 ](/docs/v3.5/版本检查/客户端接入/iOS)                                 |
+
+##### 检查产品包自定义Update
+
+| **参数**   | **类型**            | **约束**                   |
+| ---------- | ------------------- | -------------------------- |
+| games      | Map[gameid]热更信息 | 需要升级游戏 id=>热更信息  |
+| activities | Map[code]热更信息   | 需要升级活动别名=>热更信息 |
+
+##### 检查产品包自定义Halldata
+
+| **参数** | **类型** | **约束**     |
+| -------- | -------- | ------------ |
+| uri      | string   | 热更包路径   |
+| fname    | string   | 热更文件     |
+| size     | int      | 热更文件大小 |
+| latest   | int      | 最后版本号   |
+
+**有维护公告时返回**
+
+| **参数** | **类型** | **约束**        |
+| -------- | -------- | --------------- |
+| upgrade  | Number   | 值为 2 维护公告 |
+| maintain | String   | 维护公告        |
+| ts       | Number   | 服务器时间      |
+
+**错误时返回**
+
+| **参数** | **类型** | **约束** |
+| -------- | -------- | -------- |
+| code     | int      | 错误码   |
+| msg      | string   | 错误信息 |
+
+##### LoginConfig
+::: tip
+数据会根据后台配置决定  
+如果登录配置类型为“默认配置”，则由服务端进行匹配，优先级如下
+- 商店账户归属地区优先：（指定地区>商店账户归属地区>IP归属地区>用户设备系统地区>默认地区），仅限 iOS，安卓无法使用
+- IP归属地区优先：（指定地区>IP归属地区>商店账户归属地区>用户设备系统地区>默认地区）
+
+如果登录配置类型为“多付首选”，则将配置直接下发
+:::
+
+| **参数** | **类型** | **说明**             |
+| -------- | -------- | -------------------- |
+| login_host | String                                                | 登录地址                                |
+| login_name|String                                                |登录名|
+| ext_param|String                                                  |扩展参数|
+| region_tag | String                                                | 地区标签                                |
+| user_region | String                                              | 用户匹配到的地区（“默认配置”由服务端根据请求参数判断） |
+
+##### attr 标记说明
+| **位（0 表示最低位）**  | **说明**             |
+| -------- | -------------------- |
+| 0 | 审核模式  |
+
+示例：
+
+```json
+{
+  "msg": "the version number is invalid",
+  "code": 305201
+}
+```
+
+## 游戏更新检查
+
+**接口原型**
+
+```objectivec
+/**
+ * 游戏更新检查
+ * @param game_id 游戏ID  必须
+ * @param game_version 当前游戏版本  必须
+ * @param game_check_version 指定游戏版本  非必须
+ * @param type 脚本类型，默认lua，可选json，u3d等  非必须
+ * @param json 输出文件后缀，默认lua，可选json  非必须
+ */
++ (RX_CommonRequest *)checkUpdate_GameWithGame_id:(NSInteger)game_id
+                                     game_version:(NSInteger)game_version
+                               game_check_version:(NSString *)game_check_version
+                                             type:(NSString *)type
+                                             json:(NSString *)json;
+```
+
+### **参数说明**
+
+| **字段**           | **类型**     | **是否必填** | **说明**                              |
+| ------------------ | ------------ | ------------ | ------------------------------------- |
+| game_id            | NSString     | 是           | 游戏 ID                               |
+| game_version       | NSString     | 是           | 当前游戏版本                          |
+| game_check_version | NSString     | 否           | 指定游戏版本                          |
+| json               | NSString     | 否           | 输出文件后缀，默认 lua，可选 json     |
+| type               | NSDictionary | 否           | 脚本类型，默认 lua，可选 json，u3d 等 |
+
+**调用示例**
+
+```objectivec
+[[RXUpdateCheckService sharedSDK] checkUpdate_GameWithGame_id:1 game_version:1 game_check_version:@"1.0.0" type:@"" json:@"" complete:^(NSDictionary * _Nullable response, RX_CommonRequestError * _Nullable error) {
+            
+}];
+```
+
+### 响应结构（JSON）
+
+| **参数** | **类型** | **约束**         |
+| -------- | -------- | ---------------- |
+| uri      | String   | 游戏热更地址路径 |
+| version  | String   | 最新版本         |
+| game_id  | Number   | 游戏 id          |
+
+返回参数有也会有“url”字段，是为兼容 js 而返回的， 全部升级后会废弃掉
+
+## 活动更新检查
+
+**接口原型**
+
+```objectivec
+/**
+ * 活动更新检查
+ * @param game_version 当前游戏版本  必须
+ * @param game_check_version 指定游戏版本  非必须
+ * @param short_name 活动短名  必须
+ * @param type 脚本类型，默认lua，可选json，u3d等  非必须
+ * @param json 输出文件后缀，默认lua，可选json  非必须
+ */
+- (void)checkUpdate_ActivityWithGame_version:(NSInteger)game_version
+                          game_check_version:(NSString * _Nullable)game_check_version
+                                  short_name:(NSString *)short_name
+                                        type:(NSString * _Nullable)type
+                                        json:(NSString * _Nullable)json
+                                    complete:(RequestComplete)complete;
+```
+
+### **参数说明**
+
+| **字段**           | **类型**     | **是否必填** | **说明**                              |
+| ------------------ | ------------ | ------------ | ------------------------------------- |
+| game_check_version | NSString     | 是           | 指定游戏版本                          |
+| game_version       | NSString     | 是           | 当前游戏版本                          |
+| short_name         | NSString     | 否           | 活动短名                              |
+| json               | NSString     | 否           | 输出文件后缀，默认 lua，可选 json     |
+| type               | NSDictionary | 否           | 脚本类型，默认 lua，可选 json，u3d 等 |
+
+**调用示例**
+
+```objectivec
+[[RXUpdateCheckService sharedSDK] checkUpdate_ActivityWithGame_version:1 game_check_version:@"" short_name:@"" type:@"" json:@"" complete:^(NSDictionary * _Nullable response, RX_CommonRequestError * _Nullable error) {
+            
+}];
+```
+
+### 响应结构（JSON）
+
+| **参数**           | **类型** | **约束**       |
+| ------------------ | -------- | -------------- |
+| uri                | String   | 热更地址的路径 |
+| version            | String   | 最新版本       |
+| activity_shortname | String   | 活动标识       |
+
+返回参数有也会有“url”字段，是为兼容 js 而返回的， 全部升级后会废弃掉
+**响应示例**
+
+```json
+{
+  "uri": "http://rxfile.weilekuiming.com/test/dir/22090873urwkzpsTSXKz0LKL7WXjCiK5fUg0o/",
+  "version": "1",
+  "activity_shortname": "huodong"
+}
+```

@@ -1,0 +1,99 @@
+---
+title: "iOS"
+---
+
+## 准备工作
+
+::: tip
+接入请前先做好准备工作。
+可通过 **pod** 方式接入 **RXSnapChatSDK** 组件，并使用 **RXSnapChatSDK** 相关功能。
+在需要使用功能的类中引用头文件 <code>#import  </code>
+在 [SnapChat开发者](https://docs.snap.com/snap-kit/home) 中创建项目项目，并获取相关参数。
+:::
+
+## SDK 集成
+- **RXSnapChatSDK 版本 3.0.1**
+- **RXSDK_Pure 版本 3.4.32**
+- **RXOSUIKit 版本 3.4.18**
+
+**依赖SnapChatSDK版本 2.5.0** 
+
+- 编辑 Podfile 文件，添加如下配置：
+
+```objectivec
+pod 'RXSnapChatSDK'
+```
+
+## 工程配置
+
+- 在 **info.plist->Queried URL Schemes** 中添加 <code>**snapchat**</code>、<code>**bitmoji-sdk**</code>、<code>**itms-apps**</code> 配置。
+
+![](http://guanwangyun.oss-cn-beijing.aliyuncs.com/document/tripartite/snap1.jpeg)
+
+- 在 **info.plist** 中创建 **SCSDKScopes** 设置为 **Array** 类型并添加如下配置： 
+<code>**https://auth.snapchat.com/oauth2/api/user.bitmoji.avatar**</code>
+<code>**https://auth.snapchat.com/oauth2/api/user.display_name**</code>
+<code>**https://auth.snapchat.com/oauth2/api/user.external_id**</code>
+
+![](http://guanwangyun.oss-cn-beijing.aliyuncs.com/document/tripartite/snap2.png)
+
+- 在 **info.plist** 中添加 **SCSDKClientId** 配置并填入 **SnapChat** 后台中对应的 **ClientId**；
+
+![](http://guanwangyun.oss-cn-beijing.aliyuncs.com/document/tripartite/snap4.png)
+
+- 在 **info.plist** 中添加 **SCSDKRedirectUrl** 配置并填入 **SnapChat** 后台中对应的 **RedirectUrl**；
+
+![](http://guanwangyun.oss-cn-beijing.aliyuncs.com/document/tripartite/snap5.png)
+
+- 在 **Xcode > Info > URL Types** 中添加 **SCSDKRedirectUrl** 对应的 **scheme** 配置，例如你的 **SCSDKRedirectUrl** 为 <code>**ruixue://com.ruixue.sdkdemo/oauth2**</code>，那么 **URL Types** 中的 **URL Schemes** 中应该填 <code>**ruixue**</code>。
+
+![](http://guanwangyun.oss-cn-beijing.aliyuncs.com/document/tripartite/snap6.png)
+
+## 初始化
+:::warning
+在 [SDK 初始化方法](/docs/v3.5/入门指南/快速开始/iOS初始化/快速开始) 之前调用。
+:::
+
+**接口原型**
+
+```objectivec
+/**
+ * 初始化
+ */
+- (void)regist;
+```
+
+**调用示例**
+
+```objectivec
+[[RXSnapChatService sharedSDK] regist];
+```
+
+## 跳转 openURL
+
+::: tip
+<code>- (BOOL)application:(UIApplication *)app openURL:(NSURL *)url options:(NSDictionary *)options; </code>
+此系统方法用于处理app之间跳转的参数传递，在此添加SnapChat跳转url用于接收SnapChat跳转回客户端所携带的参数。必须实现此方法，否则无法正常使用SnapChat登录或分享功能。
+:::
+
+**接口原型**
+
+```objectivec
+/**
+ * openUrl 处理跳转信息
+ */
+- (BOOL)application:(UIApplication *)application
+            openURL:(NSURL *)url
+            options:(NSDictionary *)options;
+```
+
+**调用示例**
+
+```objectivec
+- (BOOL)application:(UIApplication *)app openURL:(NSURL *)url options:(NSDictionary *)options{
+    if ([[RXSnapChatService sharedSDK] application:app openURL:url options:options]) {
+        return YES;
+    }
+    return YES;
+}
+```

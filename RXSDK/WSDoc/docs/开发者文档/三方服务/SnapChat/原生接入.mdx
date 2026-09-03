@@ -1,0 +1,110 @@
+---
+sidebar_position: 1
+title: 客户端接入
+description: SnapChat iOS / Android 端原生接入指南，包含 SDK 集成、配置说明及接口调用示例。
+---
+
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
+
+在 [SnapChat 开发者](https://docs.snap.com/snap-kit/home) 中创建项目，并获取相关参数。
+
+## SDK 集成
+
+<Tabs groupId="platform">
+
+<TabItem value="ios" label="iOS">
+
+**RXSnapChatSDK 版本 3.0.1** / **RXSDK_Pure 版本 3.4.32** / **依赖 SnapChatSDK 版本 2.5.0**
+
+```objectivec
+pod 'RXSnapChatSDK'
+```
+
+### 工程配置
+
+在 **info.plist->Queried URL Schemes** 中添加 `snapchat`、`bitmoji-sdk`、`itms-apps` 配置。
+
+![](https://guanwangyun.oss-cn-beijing.aliyuncs.com/document/tripartite/snap1.jpeg)
+
+在 **info.plist** 中创建 **SCSDKScopes** 设置为 **Array** 类型并添加：
+
+- `https://auth.snapchat.com/oauth2/api/user.bitmoji.avatar`
+- `https://auth.snapchat.com/oauth2/api/user.display_name`
+- `https://auth.snapchat.com/oauth2/api/user.external_id`
+
+![](https://guanwangyun.oss-cn-beijing.aliyuncs.com/document/tripartite/snap2.png)
+
+在 **info.plist** 中添加 **SCSDKClientId** 和 **SCSDKRedirectUrl** 配置。
+
+![](https://guanwangyun.oss-cn-beijing.aliyuncs.com/document/tripartite/snap4.png)
+
+在 **Xcode > Info > URL Types** 中添加 SCSDKRedirectUrl 对应的 scheme 配置。
+
+![](https://guanwangyun.oss-cn-beijing.aliyuncs.com/document/tripartite/snap6.png)
+
+</TabItem>
+
+<TabItem value="android" label="Android">
+
+:::tip[版本说明]
+`version` 为 SDK 版本号（替换为实际版本号），最新版本请从 [更新日志](/docs/开发者文档/入门指南/更新日志/Android) 中查看。
+:::
+
+```groovy
+implementation 'com.ruixue:rxsdk_snapchat:${version}'
+```
+
+### 参数说明
+
+| 参数 | 类型 | 说明 |
+| --- | --- | --- |
+| clientId | String | 在开发者后台查看，配置到 meta-data com.snap.kit.clientId |
+| redirectUrl | String | 在开发者后台查看，配置到 com.snap.kit.redirectUrl |
+
+### 三方版本信息
+
+使用 `3.0.0` 版本
+
+</TabItem>
+
+</Tabs>
+
+## 初始化
+
+<Tabs groupId="platform">
+
+<TabItem value="ios" label="iOS">
+
+在SDK 初始化方法之前调用。
+
+```objectivec
+[[RXSnapChatService sharedSDK] regist];
+```
+
+### 跳转 openURL
+
+必须实现此方法，否则无法正常使用 SnapChat 登录或分享功能。
+
+```objectivec
+- (BOOL)application:(UIApplication *)app openURL:(NSURL *)url options:(NSDictionary<NSString *, id> *)options {
+ if ([[RXSnapChatService sharedSDK] application:app openURL:url options:options]) {
+ return YES;
+ }
+ return YES;
+}
+```
+
+</TabItem>
+
+<TabItem value="android" label="Android">
+
+集成 SDK 并配置参数后自动完成初始化。
+
+</TabItem>
+
+</Tabs>
+
+## 分享
+
+[分享 API](/docs/开发者文档/分享/服务端接入/服务端-API)

@@ -1,0 +1,100 @@
+---
+title: "iOS"
+---
+
+## 获取服务器历史消息
+
+历史消息会通过 RXIMMessageDelegate 协议中回调函数 `historyMessage` 通知客户端。
+获取服务端的历史消息列表，因为服务端数据量很大，所以效率不会很高，建议在情况允许的情况下优先考虑获取本地历史消息方法
+**接口原型**
+
+```objectivec
+/**
+ * 获取服务端历史消息
+ * @param msgId 消息锚点
+ * @param target 会话id
+ * @param limit 查询数量，最多一次拉取50条
+ */
+- (void)fetchHistoryMessages:(NSString * _Nullable)msgId
+                            target:(NSString * _Nonnull)target
+                             limit:(NSInteger)limit;
+                             
+#pragma mark -- RXIMMessageDelegate
+/**
+ * 服务端历史消息回执
+ */
+- (void)historyMessage:(RXIMHistoryMsgResp *)msgObj;
+```
+
+### 参数说明
+
+| **字段** | **类型**  | **是否必填** | **备注**                     |
+| -------- | --------- | ------------ | ---------------------------- |
+| msgId    | NSString  | 否           | 消息锚点                     |
+| target   | NSString  | 是           | 会话 id                      |
+| limit    | NSInteger | 是           | 查询数量，最多一次拉取 50 条 |
+
+**调用示例**
+
+```objectivec
+[[RXIMChatService sharedSDK] fetchHistoryMessages:nil target:target limit:100];//回执通过代理historyMessage返回
+
+#pragma mark - 历史消息回执
+- (void)historyMessage:(RXIMHistoryMsgResp *)msgObj
+{
+    NSLog(@"历史消息回执 count = %ld",msgObj.count);
+    if (!msgObj.isDone) {
+        RXIMMessage *msg = msgObj.messages.firstObject;
+        [[RXIMChatService sharedSDK] fetchHistoryMessages:msg.msgId target:self.conversationId limit:30];
+    }
+}
+```
+
+### 响应结构
+
+> RXIMHistoryMsgResp 结构说明
+
+| **字段** | **类型**  | **备注**                                     |
+| -------- | --------- | -------------------------------------------- |
+| messages | NSArray   | 消息列表                                     |
+| count    | NSInteger | 本批消息记录数量                             |
+| isDone   | BOOL      | 是否到底,YES:拉取完成 NO:拉取未完成,还有消息 |
+
+## 获取本地历史消息
+
+**接口原型**
+
+```objectivec
+/**
+ * 获取本地历史消息
+ * @param msgId 消息锚点
+ * @param target 会话id
+ * @param sessionType 会话类型
+ * @param limit 查询数量
+ * @param completionHandler 返回的消息数组。
+ */
+- (void)getHistoryMessages:(NSString * _Nullable)msgId
+                                 target:(NSString * _Nonnull)target
+                            sessionType:(RXIMSessionType)sessionType
+                                  limit:(NSInteger)limit
+                      completionHandler:(void (^)(NSArray *messages,RXIMError *error))completionHandler;
+```
+
+### 参数说明
+
+| **字段**    | **类型**        | **是否必填** | **备注** |
+| ----------- | --------------- | ------------ | -------- |
+| msgId       | NSString        | 否           | 消息锚点 |
+| target      | NSString        | 是           | 会话 id  |
+| sessionType | RXIMSessionType | 是           | 会话类型 |
+| limit       | NSInteger       | 是           | 查询数量 |
+
+**调用示例**
+
+```objectivec
+[[RXIMChatService sharedSDK] getHistoryMessages:nil target:target sessionType:RXIMSessionType_single limit:100 completionHandler:^(NSArray * _Nonnull messages,RXIMError *error) {
+    if (!error) {
+        NSLog(@"历史消息回执 %@",messages);
+    }
+}];
+```

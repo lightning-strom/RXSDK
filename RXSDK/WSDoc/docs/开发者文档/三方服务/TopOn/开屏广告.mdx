@@ -1,0 +1,439 @@
+---
+sidebar_position: 4
+title: 开屏广告
+description: 望舒 开屏广告 iOS / Android 接入文档，提供完整的接口调用说明与示例。
+---
+
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
+
+<Tabs groupId="platform">
+
+<TabItem value="ios" label="iOS">
+
+## 集成建议
+
+一、使用场景：
+
+冷启动（应用进程不存在时，应用的初次启动）
+
+1.启动应用或者游戏后调用 loadADWithPlacementID 进行开屏广告加载
+
+2.将其他广告形式的预加载逻辑以及其他消耗网络资源的请求放到开屏广告展示之后，以减少开屏加载超时的情况
+
+3.建议使用下方 首次安装开屏加载效率提升方案，提高首次安装后开屏广告加载效率
+
+4.加载成功会触发 didFinishLoadingSplashADWithPlacementID:isTimeout: 回调时，由于加载广告位成功都会来到这个方法，所以要判断 isTimeout 的状态决定是否要展示开屏广告。
+
+YES ：广告加载成功，但是此次加载已经超时，所以放弃展示，直接进入主界面。
+
+NO ：调用 showSplashWithPlacementID 展示广告。
+
+5.如果加载超时会回调到 didTimeoutLoadingSplashADWithPlacementID ，那么直接进入主界面，保证用户的体验，不要等待太久。
+
+热启动（应用通过 home 键暂时退到后台，在该应用进程还存在时，重新回到应用）
+
+1.开屏广告展示后，可在展示回调 splashDidShowForPlacementID 或关闭回调 splashDidCloseForPlacementID 回调中调用 loadADWithPlacementID 进行预加载
+
+2.建议在应用退到后台时，调用 splashReadyForPlacementID 判断有无开屏广告缓存，若无则发起 loadADWithPlacementID 进行预加载
+
+3.可参考自动请求广告，开启自动请求广告，若已实现上方展示后预加载逻辑，则自动请求不用开启，反之亦然
+
+4.在预加载的前提下，应用回到前台时，调用 splashReadyForPlacementID 判断当前是否有广告缓存
+
+YES ：则调用 showSplashWithPlacementID 展示广告
+
+NO ：则调用 loadADWithPlacementID 进行广告的预加载
+
+二、展示广告：
+
+1.建议进入可展示广告场景后，调用 entrySplashScenarioWithPlacementID 统计到达当前广告展示场景的用户数据，便于区分当前入口是否有开发者进入，具体的统计说明可查看广告场景区分不同业务场景的数据
+
+## 注意事项
+
+1.开屏广告的展示区域至少是屏幕高度的 75% 以上且跳过秒数超过 3 秒以上，否则可能会出现广告展示无效
+
+2.禁止在 didFailToLoadADWithPlacementID 回调中执行广告加载的方法，否则会引起很多无用请求且可能会导致应用卡顿
+
+3.若广告加载超时 didTimeoutLoadingSplashADWithPlacementID 回调，则不需继续等待广告填充，直接进入主界面，本次开屏广告仍在加载。
+
+4.开屏不支持横屏的应用。（穿山甲广告平台支持横屏，需联系穿山甲相关进行申请，其他平台需联系广告平台进行询问）
+
+5.确保展示时传入的是项目的 keyWindow ，否则可能会出现广告展示无效
+
+6.不推荐 App 处于后台的情况下加载广告，避免系统回收资源引起的不必要的异常
+
+7.开屏广告展示后，建议不要在关闭回调，销毁或者切换当前用来展示广告的 Window 和 ViewController （ 6.2.92+支持）, 否则会造成点击详情页展示异常
+
+## 加载广告
+
+**接口原型**
+
+```objectivec
+/**
+ Splash的加载方法
+ placementId：TopOn的开屏广告位id
+ extra：本地配置参数
+ containerView：底部视图
+ 注意：广告加载超时时间默认为5s
+ */
+- (void)loadADWithPlacementID:(NSString *)placementID
+ extra:(NSDictionary *)extra
+ containerView:(UIView * _Nullable)containerView;
+```
+
+**调用示例**
+
+```objectivec
+// 加载广告
+- (void)loadSplashAd {
+ UIInterfaceOrientation deviceOrientaion = [self currentInterfaceOrientation];
+ BOOL landscape = UIInterfaceOrientationIsLandscape(deviceOrientaion);
+
+ // 开屏广告底部自定义的containerView
+ UILabel *label = nil;
+ label = [[UILabel alloc] initWithFrame:CGRectMake(.0f, .0f, landscape ? 120 : UIScreen.mainScreen.bounds.size.width, landscape ? UIScreen.mainScreen.bounds.size.height : 100.0f)];
+ label.text = @"Container";
+ label.textColor = [UIColor redColor];
+ label.backgroundColor = [UIColor whiteColor];
+ label.textAlignment = NSTextAlignmentCenter;
+
+ NSMutableDictionary *mutableDict = [NSMutableDictionary dictionary];
+ // 设置开屏广告中支持广告源设置加载超时时间，并不是整个广告位请求的时间
+ [mutableDict setValue:@5.5 forKey:kATSplashExtraTolerateTimeoutKey];
+
+ [[RXTopOnATAdManager sharedSDK] loadADWithPlacementID:self.placementID
+ extra:mutableDict
+ containerView:label];
+ [RXTopOnATAdManager sharedSDK].loadingDelegate = self;
+ [RXTopOnATAdManager sharedSDK].splashDelegate = self;
+
+}
+
+- (UIInterfaceOrientation)currentInterfaceOrientation {
+ if (@available(iOS 13.0, *)) {
+ UIWindow *firstWindow = [[[UIApplication sharedApplication] windows] firstObject];
+ if (firstWindow == nil) { return UIInterfaceOrientationUnknown; }
+
+ UIWindowScene *windowScene = firstWindow.windowScene;
+ if (windowScene == nil){ return UIInterfaceOrientationUnknown; }
+
+ return windowScene.interfaceOrientation;
+ } else {
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
+ return UIApplication.sharedApplication.statusBarOrientation;
+#pragma clang diagnostic pop
+ }
+}
+```
+
+## 检查广告是否准备完成
+
+**接口原型**
+
+```objectivec
+/**
+ 判断当前是否存在可展示的广告
+ placementId：TopOn的开屏广告位id
+ */
+- (BOOL)splashReadyForPlacementID:(NSString *)placementID;
+```
+
+**调用示例**
+
+```objectivec
+- (void)checkAd {
+ BOOL ready = [[RXTopOnATAdManager sharedSDK] splashReadyForPlacementID:self.placementID];
+ if (ready) {
+ NSLog(@"广告准备好了");
+ }else{
+ NSLog(@"广告未准备好");
+ }
+}
+```
+
+## 到达场景统计
+
+关于统计用户到达场景的相关信息，可前往[广告场景](https://help.toponad.com/cn/docs/ctWq9Q)进行了解。
+
+统计用户到达该场景的几率，呈现在后台的数据 [数据报表 -> 漏斗分析报表 -> 到达广告场景](https://portal.toponad.com/m/report/funnel)
+
+一般在广告场景展示前调用此 API。
+
+**接口原型**
+
+```objectivec
+/**
+ 进入业务场景当前广告位缓存状态统计。其中scene是指广告展示场景（非必传，可以直接传null），可从后台创建场景参数和使用请参考 业务场景缓存状态统计
+ */
+- (void)entrySplashScenarioWithPlacementID:(NSString *)placementID
+ scene:(NSString *)scene;
+```
+
+**调用示例**
+
+```objectivec
+- (void)entryAdScenario {
+ [[RXTopOnATAdManager sharedSDK] entrySplashScenarioWithPlacementID:self.placementID scene:"your scene id"];
+}
+```
+
+## 展示广告
+
+**接口原型**
+
+```objectivec
+/**
+ 展示Splash广告
+ placementId：TopOn的开屏广告位id
+ scene:展示广告的场景ID
+ window:展示广告的window
+ extra：本地配置参数
+ */
+- (void)showSplashWithPlacementID:(NSString *)placementID scene:(NSString *)scene
+ window:(UIWindow *)window
+ inViewController:(UIViewController*)viewController
+ extra:(NSDictionary *)extra;
+```
+
+**调用示例**
+
+```objectivec
+- (void)showSplashAd {
+ // 到达场景
+ [self entryAdScenario];
+
+ if ([[RXTopOnATAdManager sharedSDK] splashReadyForPlacementID:self.placementID]) {
+ // 根据实际情况选择获取到的keyWindow的方法 getKeyWindowMethodOne 和 getKeyWindowMethodTwo
+ UIWindow *mainWindow = [self getKeyWindowMethodOne];
+ // 自定义跳过按钮，注意需要在广告倒计时 splashCountdownTime: 回调中实现按钮文本的变化处理
+ // self.skipButton = [UIButton buttonWithType:UIButtonTypeCustom];
+ // self.skipButton.backgroundColor = [[UIColor whiteColor] colorWithAlphaComponent:0.3];
+ // self.skipButton.frame = CGRectMake([UIScreen mainScreen].bounds.size.width - 80 - 20, 50, 80, 21);
+ // self.skipButton.layer.cornerRadius = 10.5;
+ // self.skipButton.titleLabel.font = [UIFont systemFontOfSize:14];
+
+ NSMutableDictionary *mutableDict = [NSMutableDictionary dictionary];
+
+ /* 多数平台已经不支持自定义跳过按钮，目前支持更改自定义跳过按钮有穿山甲(TT)，直投、ADX、原生作开屏和游可盈，具体需要运行看实际效果
+ // 自定义跳过按钮倒计时时长，毫秒单位
+ [mutableDict setValue:@50000 forKey:kATSplashExtraCountdownKey];
+ // 自定义跳过按钮
+ [mutableDict setValue:self.skipButton forKey:kATSplashExtraCustomSkipButtonKey];
+ // 自定义跳过按钮倒计时回调间隔
+ [mutableDict setValue:@500 forKey:kATSplashExtraCountdownIntervalKey];
+ */
+ [[RXTopOnATAdManager sharedSDK] showSplashWithPlacementID:self.placementID scene:"your scene id" window:mainWindow inViewController:self extra:mutableDict];
+ }else{
+ [self loadSplashAd];
+ }
+}
+
+// 由于系统的变动，提供两个获取 keyWindow的方法，选择一个适合来
+- (UIWindow *)getKeyWindowMethodOne {
+ if (@available(iOS 13.0, *)) {
+ for (UIWindowScene* windowScene in [UIApplication sharedApplication].connectedScenes) {
+ if (windowScene.activationState == UISceneActivationStateForegroundActive)
+ {
+ for (UIWindow *window in windowScene.windows)
+ {
+ if (window.isKeyWindow)
+ {
+ return window;
+ }
+ }
+ }
+ }
+ } else {
+ // 添加到当前window上，并置顶到最上层
+ UIWindow * window = [UIApplication sharedApplication].delegate.window;
+ if (window) {
+ return window;
+ }
+ return [UIApplication sharedApplication].keyWindow;
+ }
+ return nil;
+}
+
+- (UIWindow *)getKeyWindowMethodTwo {
+ if ( @available(iOS 13.0, *) ) {
+ UIWindow *mainWindow = [UIApplication sharedApplication].windows.firstObject;
+ [mainWindow makeKeyWindow];
+ return mainWindow;
+ } else {
+ UIWindow *mainWindow = [UIApplication sharedApplication].keyWindow;
+ return mainWindow;
+ }
+}
+```
+
+## 加载与展示广告的代理方法
+
+**遵循协议**
+
+```objectivec
+@interface RewardViewController ()RXTopOnATAdLoadingrDelegate,RXTopOnATSplashDelegate>
+
+@end
+```
+
+**实现代理方法**
+
+```objectivec
+#pragma mark - delegate
+- (void)didFailBiddingADSourceWithPlacementID:(NSString *)placementID extra:(NSDictionary *)extra error:(NSError *)error {
+
+}
+
+- (void)didFailToLoadADSourceWithPlacementID:(NSString *)placementID extra:(NSDictionary *)extra error:(NSError *)error {
+
+}
+
+- (void)didFailToLoadADWithPlacementID:(NSString *)placementID error:(NSError *)error {
+
+}
+
+- (void)didFinishBiddingADSourceWithPlacementID:(NSString *)placementID extra:(NSDictionary *)extra {
+
+}
+
+- (void)didFinishLoadingADSourceWithPlacementID:(NSString *)placementID extra:(NSDictionary *)extra {
+
+}
+
+- (void)didFinishLoadingADWithPlacementID:(NSString *)placementID {
+
+}
+
+- (void)didStartBiddingADSourceWithPlacementID:(NSString *)placementID extra:(NSDictionary *)extra {
+
+}
+
+- (void)didStartLoadingADSourceWithPlacementID:(NSString *)placementID extra:(NSDictionary *)extra {
+
+}
+
+- (void)didFinishLoadingSplashADWithPlacementID:(NSString *)placementID isTimeout:(BOOL)isTimeout {
+
+}
+
+- (void)didTimeoutLoadingSplashADWithPlacementID:(NSString *)placementID {
+
+}
+
+- (void)splashCountdownTime:(NSInteger)countdown forPlacementID:(NSString *)placementID extra:(NSDictionary *)extra {
+
+}
+
+- (void)splashDeepLinkOrJumpForPlacementID:(NSString *)placementID extra:(NSDictionary *)extra result:(BOOL)success {
+
+}
+
+- (void)splashDetailDidClosedForPlacementID:(NSString *)placementID extra:(NSDictionary *)extra {
+
+}
+
+- (void)splashDidClickForPlacementID:(NSString *)placementID extra:(NSDictionary *)extra {
+
+}
+
+- (void)splashDidCloseForPlacementID:(NSString *)placementID extra:(NSDictionary *)extra {
+
+}
+
+- (void)splashDidShowFailedForPlacementID:(NSString *)placementID error:(NSError *)error extra:(NSDictionary *)extra {
+
+}
+
+- (void)splashDidShowForPlacementID:(NSString *)placementID extra:(NSDictionary *)extra {
+
+}
+
+- (void)splashZoomOutViewDidClickForPlacementID:(NSString *)placementID extra:(NSDictionary *)extra {
+
+}
+
+- (void)splashZoomOutViewDidCloseForPlacementID:(NSString *)placementID extra:(NSDictionary *)extra {
+
+}
+
+```
+
+</TabItem>
+
+<TabItem value="android" label="Android">
+
+## 展示广告
+
+**接口原型**
+
+```java
+    // 初始化开屏广告
+    RxATSplashAd(Context context, String placementId, RxATSplashAdListener listener, int fetchAdTimeout, String defaultAdSourceConfig);
+    // 判断当前ATSplashAd是否存在可展示的广告
+    public boolean isAdReady();
+    // 展示Splash广告
+    public void rxShow(Activity activity, ViewGroup container);
+    // 发起广告加载
+    public void loadAd();
+```
+
+**调用示例**
+
+```java
+    public void show() {
+    FrameLayout container = findViewById(R.id.splash_ad_container);
+    RxATSplashAdListener listener = new RxATSplashAdListener() {
+    @Override
+    public void onAdLoaded(boolean isTimeout) {
+    Log.d(TAG, "onAdLoaded");
+    }
+
+    @Override
+    public void onAdLoadTimeout() {
+    Log.d(TAG, "onAdLoadTimeout");
+    }
+
+    @Override
+    public void onNoAdError(AdError var1) {
+    Log.d(TAG, "onNoAdError");
+    }
+
+    @Override
+    public void onAdShow(ATAdInfo var1) {
+    Log.d(TAG, "onAdShow");
+    }
+
+    @Override
+    public void onAdClick(ATAdInfo var1) {
+    Log.d(TAG, "onAdClick");
+    }
+
+    @Override
+    public void onAdDismiss(ATAdInfo var1, RxATSplashAdExtraInfo rxATSplashAdExtraInfo) {
+    Log.d(TAG, "onAdDismiss");
+    }
+    };
+
+    //设置首次开屏广告广告源，请从TopOn后台兜底开屏广告源导出配置
+    String defaultConfig = "{\"unit_id\":1333176,\"nw_firm_id\":8,\"adapter_class\":\"com.anythink.network.gdt.GDTATSplashAdapter\",\"content\":\"{\\\"unit_id\\\":\\\"8863364436303842593\\\",\\\"zoomoutad_sw\\\":\\\"1\\\",\\\"app_id\\\":\\\"1101152570\\\"}\"}";
+
+    RxATSplashAd splashAd = new RxATSplashAd(this, "b62b41521d52d1", listener,
+    5000, defaultConfig);
+
+    if (splashAd.isAdReady()) {
+    //container大小至少占屏幕75%
+    splashAd.rxShow(this, container);
+    }else{
+    Log.d(TAG, "没有 ready");
+    splashAd.loadAd();
+    }
+
+    }
+```
+
+</TabItem>
+
+</Tabs>
+

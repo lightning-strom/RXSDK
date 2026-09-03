@@ -1,0 +1,198 @@
+---
+sidebar_position: 1
+title: 快速接入
+description: "望舒SDK 消息推送 快速接入 Android 接入文档，提供完整的接口调用说明与示例。"
+---
+
+> SDK 下载链接，点击 [更新日志](/docs/开发者文档/入门指南/更新日志/Android) 查看。
+
+#### SDK 集成
+
+```groovy
+implementation "com.ruixue.push:rxsdk_push_oppo:${version}"
+```
+
+#### 接入配置
+
+配置 SDK 依赖及应用参数：在 `app/build.gradle` 文件的 `android.defaultConfig` 下添加 `manifestPlaceholders` ，配置 PUSH 相关的应用参数：
+
+```groovy
+manifestPlaceholders = [
+ //oppo 厂商参数，接入oppo推送时配置
+ OPPO_APP_SECRET : "your appsecret ",
+ OPPO_APP_KEY : "your appkey "
+]
+```
+
+**配置相应依赖**
+
+```groovy
+allprojects {
+ repositories {
+ ......
+ //oppo push
+ maven {
+ url 'https://maven.columbus.heytapmobi.com/repository/releases/'
+ credentials {
+ username 'YOUR_MAVEN_USERNAME'
+ password 'YOUR_MAVEN_PASSWORD'
+ }
+ }
+ }
+}
+```
+
+## 混淆配置
+
+在应用级根目录下打开混淆配置文件 `proguard-rules.pro` ，加入排除 SDK 的混淆配置
+
+```groovy
+#ruixue PUSH sdk混淆
+-dontwarn com.ruixue.push.**
+-keep class com.ruixue.push.** { *; }
+
+#OPPO混淆(可选 接入OPPO推送时配置)
+-keep public class * extends android.app.Service -keep class com.heytap.msp.** { *;}
+
+```
+
+**三方依赖**
+
+```groovy
+//oppo
+implementation 'com.heytap.msp:push:3.1.0'
+implementation 'commons-codec:commons-codec:1.6'
+```
+
+**厂商参考链接**：
+
+> oppo 隐私政策地址：[https://open.oppomobile.com/wiki/doc#id=10288](https://open.oppomobile.com/wiki/doc#id=10288)
+
+## 推送接口说明
+
+`RxPushManager` 是望舒推送在 Android 平台的接口类。该类提供了一系列静态方法（ static ）接口，无需实例化直接调用。
+
+**接口原型**
+
+```java
+/**
+    * @param context Android平台上app的上下文
+    * @return 是否初始化成功，true 初始化成功当前平台支持推送， false 不支持
+    */
+public static boolean init(@NonNull Context context) ;
+
+/**
+    * 处理打开app回调，用于统计通知点击
+    * 在带有 action android:name="android.intent.action.MAIN" /> 标记的，
+    * 启动 Activity 中 onCreate 和 onNewIntent 函数中调用此函数,否则可能影响统计。
+    * @param intent 传入getIntent()
+    */
+public static void openAppCallback(Intent intent) ;
+```
+
+```java
+/**
+    * 注册望舒推送服务（建议望舒登录成功后调用一次，不切换账号不用重复调用）
+    由于registerToken和望舒账号关联绑定，所以请不要在登录前调用
+    */
+public static void registerToken() ;
+
+/**
+    * 反注册望舒推送服务（建议在登出账号时调用）
+    */
+public static void unRegisterToken(;
+/**
+    * @return 服务器生成的推送 token/regId
+    */
+public static String getDeviceToken();
+
+/**
+    * @return 当前设备是否支持推送 init（）后调用
+    */
+public static boolean isSupport();
+
+/**
+    * @return 当前推送的厂商平台 BRAND
+    */
+public static String getBrandName();
+
+/**
+    * 开发者可以为指定用户设置别名，然后给这个别名推送消息，效果等同于给RegId推送消息。
+    * @param alias 要绑定的别名
+    */
+public static void bindAlias(@NonNull String alias) ;
+
+/**
+    * 开发者可以取消指定用户的某个别名，服务器就不会给这个别名推送消息了。
+    * @param alias 要取消的别名 ，空取消所有别名
+    */
+public static void unBindAlias(String alias);
+```
+
+**调用示例**
+
+```java
+    /**
+    * 使用望舒 **推送自定义透传参数（deeplink）** 的解析示例
+    * @param intent 在 LAUNCHER Activity 的 onCreate 或 onNewIntent 中获取 deeplink ，并调用 openAppCallback 传 intent 统计点击
+    */
+    private void parseDeeplink(Intent intent) {
+    try {
+    String ob = intent.getStringExtra("payload");
+    JSONObject jsonObject = new JSONObject(ob);
+    Log.i("deeplink",jsonObject.toString());
+    String deeplink=jsonObject.optString("deeplink");
+    //todo 解析 deeplink 值,执行相应业务逻辑
+    AlertTipView.create(MainPushActivity.this, "deeplink",deeplink , null).setContentGravity(Gravity.START).show();
+    } catch (JSONException e) {
+    e.printStackTrace();
+    }
+    }
+
+    protected void onCreate(Bundle savedInstanceState) {
+    super.onCreate(savedInstanceState);
+
+    RxPushManager.init(this);
+    RxPushManager.openAppCallback(getIntent());
+    parseDeeplink(getIntent);
+    ......
+    }
+
+    @Override
+    public void onNewIntent(Intent intent) {
+    super.onNewIntent(intent);
+    setIntent(intent);
+    RxPushManager.openAppCallback(intent);
+    parseDeeplink(intent);
+
+    ......
+    }
+
+    //望舒登录成功后注册 token
+    public void onRuiXueLoginScuccess() {
+    RxPushManager.registerToken();
+    ......
+    }
+```
+
+**推送设备注册结果自查方法**
+
+在 SDK `RuiXueSdk.setDebugEnabled(true);` 开启 debug 时，在 logcat 控制台日志搜索 registerToken ，会有类似如下日志输出。
+
+![](https://guanwangyun.oss-cn-beijing.aliyuncs.com/document/push/XyKabFO1soh2AzxGulwc21cdn7d.png)
+
+设备注册成功时的 logcat 输出示例
+
+```plaintext
+registerToken token:IQAAAACy0omCAACJk15CXKuzBZu6oE4LeUsl3hdcCepcaD8UeJVIWen4NBZhPgJOjL6Y_zvcfDgKThaixLFiaLbzS5_0UMF7y8fZFvuXb3Euzbz4mw
+```
+
+` 或 `
+
+手动获取 registerToken 检查是否注册成功
+
+```plaintext
+// token 不为空时，说明已注册成功。
+String token =RxPushManager.getDeviceToken();
+
+```

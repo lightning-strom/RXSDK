@@ -1,0 +1,303 @@
+---
+sidebar_position: 1
+title: 快速接入
+description: "望舒SDK 邮件管理 快速接入文档，提供详细的功能说明与接入指引。"
+---
+
+## 获取邮件列表
+
+### 参数说明
+
+| 字段 | 类型 | 是否必填 | 备注 |
+| --- | --- | --- | --- |
+| params | IParms | 是 | 参数 |
+| callback | IMethodParams | 是 | 回调函数集合 |
+
+> IParms说明
+
+| 字段 | 类型 | 是否必填 | 备注 |
+| --- | --- | --- | --- |
+| cp_user_id | string | 是 | 游戏用户 ID |
+
+> IMethodParams 说明
+
+| 字段 | 备注 |
+| --- | --- |
+| complete | (data) => void |
+
+complete ：为函数且必传， data 为结果数据
+
+**调用示例**
+
+```javascript
+sdk.getEmailList({
+ cp_user_id: '0'
+ }, {
+ complete(res) {
+ console.log(res)
+ }
+})
+```
+
+**响应示例**
+
+```json
+{
+    "code": 0,
+    "msg": "",
+    "data": {
+        "list": [{
+            "rx_mail_id": 2,
+            "title": "邮件标题",
+            "send_at": "2024-01-01 08:00:00",
+            "status": 1,
+            "has_reward": 0
+        }, {
+            "rx_mail_id": 1,
+            "title": "邮件标题",
+            "send_at": "2024-01-01 08:00:00",
+            "status": 2,
+            "has_reward": 1
+        }],
+        "all_count": 2,
+        "not_received_count": 1,
+        "not_read_count": 1
+    }
+}
+```
+
+### 响应结构（JSON）
+
+| 参数 | 类型 | 约束 |
+| --- | --- | --- |
+| list | Array | 邮件列表 |
+| all_count | Number | 列表邮件总数 |
+| not_received_count | Number | 列表中未领取附件的邮件数量 |
+| not_read_count | Number | 列表中未读的邮件数量 |
+
+**list**
+
+| 参数 | 类型 | 约束 |
+| --- | --- | --- |
+| rx_mail_id | Number | 邮件 ID |
+| title | String | 邮件标题 |
+| send_at | String | 邮件发送时间，格式为 yyyy-MM-dd HH:mm:ss |
+| status | Number | 邮件状态： 1-已读 2-已领 3-未读 |
+| has_reward | Number | 有无附件： 0-无 1-有 |
+
+## 获取邮件详情
+
+### 参数说明
+
+| 字段 | 类型 | 是否必填 | 备注 |
+| --- | --- | --- | --- |
+| params | IParms | 是 | 参数 |
+| callback | IMethodParams | 是 | 回调函数集合 |
+
+> IParms说明
+
+| 字段 | 类型 | 是否必填 | 备注 |
+| --- | --- | --- | --- |
+| rx_mail_id | Number | 是 | 望舒邮件 ID |
+| cp_user_id | String | 是 | 游戏用户 ID |
+
+> IMethodParams 说明
+
+| 字段 | 备注 |
+| --- | --- |
+| complete | (data) => void |
+
+complete ：为函数且必传， data 为结果数据
+
+**调用示例**
+
+```javascript
+sdk.getEmailDetail({
+ cp_user_id: '0',
+ rx_mail_id: 651
+ }, {
+ complete(res) {
+ console.log(res)
+ }
+})
+```
+
+**响应示例**
+
+```json
+{
+    "code": 0,
+    "data": {
+        "title": "邮件标题",
+        "content": "邮件内容",
+        "sign": "邮件落款",
+        "props": [{
+            "name": "道具名称",
+            "describe": "道具描述",
+            "icon": "道具图标url",
+            "tag": "道具唯一标识",
+            "count": 50000,
+            "count_format": "5万",
+            "is_permanent": 0,
+            "time_limit": 1
+        }],
+        "status": 2
+    }
+}
+```
+
+错误示例
+
+```json
+{
+    "msg": "数据不存在",
+ "code": 305404
+}
+```
+
+### 响应结构（JSON）
+
+| 参数 | 类型 | 约束 |
+| --- | --- | --- |
+| title | String | 邮件标题 |
+| content | String | 邮件内容 |
+| sign | String | 邮件落款 |
+| props | Array | 邮件附件列表 |
+| status | Number | 邮件状态： 1-已读 2-已领 3-已发送 |
+
+**props**
+
+| 参数 | 类型 | 约束 |
+| --- | --- | --- |
+| name | String | 道具名称 |
+| describe | String | 道具描述 |
+| icon | String | 道具图标 url |
+| tag | String | 道具唯一标识 |
+| count | Number | 道具数量 |
+| count_format | String | 道具数量单位换算，支持简繁体中文、英文和越南文的单位换算，其他语言默认使用英文单位换算 |
+| is_permanent | Number | 道具是否永久有效， 0 ：永久有效 1 ：非永久有效 |
+| time_limit | Number | 道具有效期，以天为单位 |
+
+## 邮件领取
+
+### 参数说明
+
+| 字段 | 类型 | 是否必填 | 备注 |
+| --- | --- | --- | --- |
+| params | IParms | 是 | 参数 |
+| callback | IMethodParams | 是 | 回调函数集合 |
+
+> IParms说明
+
+| 字段 | 类型 | 是否必填 | 备注 |
+| --- | --- | --- | --- |
+| rx_mail_id | Number | 否 | 望舒邮件 ID （ type 字段等于 1 时为必填项） |
+| cp_user_id | String | 是 | 游戏用户 ID |
+| type | Number | 是 | 操作类型： 1-领取单封邮件 2-一键领取 |
+
+> IMethodParams 说明
+
+| 字段 | 备注 |
+| --- | --- |
+| complete | (data) => void |
+
+complete ：为函数且必传， data 为结果数据
+
+**调用示例**
+
+```javascript
+sdk.receiveEmail({
+ cp_user_id: '0',
+ rx_mail_id: 651,
+ type: 2
+ }, {
+ complete(res) {
+ console.log(res)
+ }
+})
+```
+
+**响应示例**
+
+```json
+{
+ "code": 0,
+ "msg": "",
+ "data": {
+ "cp_user_id": "442099939",
+ "rx_mail_ids": [
+ 1,
+ 2
+ ]
+ }
+}
+```
+
+### 响应结构（JSON）
+
+| 参数 | 类型 | 约束 |
+| --- | --- | --- |
+| cp_user_id | String | 游戏用户 ID |
+| rx_mail_ids | Array | 领取附件的邮件 ID 集合，仅在一键领取时有值 |
+
+## 邮件删除
+
+### 参数说明
+
+| 字段 | 类型 | 是否必填 | 备注 |
+| --- | --- | --- | --- |
+| params | IParms | 是 | 参数 |
+| callback | IMethodParams | 是 | 回调函数集合 |
+
+> IParms说明
+
+| 字段 | 类型 | 是否必填 | 备注 |
+| --- | --- | --- | --- |
+| rx_mail_id | Number | 否 | 望舒邮件 ID （ type 字段等于 1 时为必填项） |
+| cp_user_id | String | 是 | 游戏用户 ID |
+| type | Number | 是 | 操作类型： 1-删除单封邮件， 2-一键删除 |
+
+> IMethodParams 说明
+
+| 字段 | 备注 |
+| --- | --- |
+| complete | (data) => void |
+
+complete ：为函数且必传， data 为结果数据
+
+**调用示例**
+
+```javascript
+sdk.delEmail({
+ cp_user_id: '0',
+ rx_mail_id: 651,
+ type: 2
+ }, {
+ complete(res) {
+ console.log(res)
+ }
+})
+```
+
+**响应示例**
+
+```json
+{
+ "code": 0,
+ "msg": "",
+ "data": {
+ "cp_user_id": "442099939",
+ "rx_mail_ids": [
+ 1,
+ 2
+ ]
+ }
+}
+```
+
+### 响应结构（JSON）
+
+| 参数 | 类型 | 约束 |
+| --- | --- | --- |
+| cp_user_id | String | 游戏用户 ID |
+| rx_mail_ids | Array | 删除的邮件 ID 集合，仅在一键删除时有值 |

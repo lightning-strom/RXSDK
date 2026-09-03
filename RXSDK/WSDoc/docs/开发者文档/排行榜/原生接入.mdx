@@ -1,0 +1,400 @@
+---
+sidebar_position: 3
+title: 原生接入
+description: 望舒排行榜 iOS / Android 端原生接入指南，包含 SDK 集成与接口调用说明。
+---
+
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
+
+<Tabs groupId="platform">
+
+<TabItem value="android" label="Android">
+
+## SDK 集成
+
+排行榜默认在 base 中已经集成，无需额外引入。
+
+</TabItem>
+
+<TabItem value="ios" label="iOS">
+
+无需额外集成。
+
+</TabItem>
+
+</Tabs>
+
+## 增加用户分数
+
+<Tabs groupId="platform">
+
+<TabItem value="ios" label="iOS">
+
+**接口原型**
+
+```objectivec
+/**
+ * 增加用户分数
+ * @param rank_id 字符串本身带有类型信息，格式为：Flag_榜单容量_重置周期_自定义标识 必须
+ * @param score 增加的分数值 必须
+ */
+- (void)addscoreWithRank_id:(NSString *)rank_id
+ score:(NSInteger)source
+ complete:(RequestComplete)complete;
+```
+
+**调用示例**
+
+```objectivec
+[[RXSDK sharedSDK] addscoreWithRank_id:@"" score:0 complete:^(NSDictionary * _Nullable response, RX_CommonRequestError * _Nullable error) {
+
+}];
+```
+
+</TabItem>
+
+<TabItem value="android" label="Android">
+
+**接口原型**
+
+```java
+void addScore(String rank_id, int score, RXRequestCallback callback);
+```
+
+**调用示例**
+
+```java
+RXSDK.getInstance().addScore(rank_id, score, jsonCallback);
+```
+
+</TabItem>
+
+</Tabs>
+
+### 参数说明
+
+| 字段 | 类型 | 是否必填 | 备注 |
+| --- | --- | --- | --- |
+| rank_id | String | 是 | 排行榜 ID，格式为：Flag_榜单容量_重置周期_自定义标识 |
+| score | int | 是 | 增加的分数值 |
+
+### 响应参数（JSON）
+
+| 字段 | 类型 | 是否必填 | 说明 | 示例 |
+| --- | --- | --- | --- | --- |
+| code | Number | 是 | 响应状态码， 0 为成功，非 0 表示出错 | 0 |
+| msg | String | 否 | 响应信息，仅在 code 非 0 时返回 |  |
+
+## 设置用户分数
+
+<Tabs groupId="platform">
+
+<TabItem value="ios" label="iOS">
+
+**接口原型**
+
+```objectivec
+/**
+ * 设置用户分数
+ * @param rank_id 字符串本身带有类型信息，格式为：Flag_榜单容量_重置周期_自定义标识 必须
+ * @param score 增加的分数值 必须
+ */
+- (void)setScoreWithRank_id:(NSString *)rank_id
+ score:(NSInteger)source
+ complete:(RequestComplete)complete;
+```
+
+**调用示例**
+
+```objectivec
+[[RXSDK sharedSDK] setScoreWithRank_id:@"" score:0 complete:^(NSDictionary * _Nullable response, RX_CommonRequestError * _Nullable error) {
+
+}];
+```
+
+</TabItem>
+
+<TabItem value="android" label="Android">
+
+**接口原型**
+
+```java
+void setScore(String rank_id, int score, RXRequestCallback callback);
+```
+
+**调用示例**
+
+```java
+RXSDK.getInstance().setScore(rank_id, score, jsonCallback);
+```
+
+</TabItem>
+
+</Tabs>
+
+### 参数说明
+
+| 字段 | 类型 | 是否必填 | 备注 |
+| --- | --- | --- | --- |
+| rank_id | String | 是 | 排行榜 ID |
+| score | int | 是 | 增加的分数值 |
+
+### 响应参数（JSON）
+
+| 字段 | 类型 | 是否必填 | 说明 | 示例 |
+| --- | --- | --- | --- | --- |
+| code | Number | 是 | 响应状态码， 0 为成功，非 0 表示出错 | 0 |
+| msg | String | 否 | 响应信息，仅在 code 非 0 时返回 |  |
+
+## 查询用户分数
+
+<Tabs groupId="platform">
+
+<TabItem value="ios" label="iOS">
+
+**接口原型**
+
+```objectivec
+/**
+ * 查询用户分数
+ * @param target 目标openId 必须
+ * @param rank_id 字符串本身带有类型信息 必须
+ */
+- (void)queryUserRankWithRank_id:(NSString *)rank_id
+ target:(NSString *)target
+ complete:(RequestComplete)complete;
+```
+
+**调用示例**
+
+```objectivec
+[[RXSDK sharedSDK] queryUserRankWithRank_id:@"" target:@"" complete:^(NSDictionary * _Nullable response, RX_CommonRequestError * _Nullable error) {
+
+}];
+```
+
+</TabItem>
+
+<TabItem value="android" label="Android">
+
+**接口原型**
+
+```java
+void queryUserRank(String rank_id, String open_id, RXRequestCallback callback);
+```
+
+**调用示例**
+
+```java
+RXSDK.getInstance().queryUserRank(rank_id, open_id, jsonCallback);
+```
+
+</TabItem>
+
+</Tabs>
+
+### 参数说明
+
+| 字段 | 类型 | 是否必填 | 备注 |
+| --- | --- | --- | --- |
+| rank_id | String | 是 | 排行榜 ID |
+| target / open_id | String | 是 | 目标用户 OpenID |
+
+### 响应参数（JSON）
+
+| 字段 | 类型 | 是否必填 | 说明 | 示例 |
+| --- | --- | --- | --- | --- |
+| code | Number | 是 | 响应状态码， 0 为成功，非 0 表示出错 | 0 |
+| msg | String | 否 | 响应信息，仅在 code 非 0 时返回 |  |
+| [DataO](/docs/开发者文档/用户信息/获取指定用户信息) | 否 | 结果数据集 |  |  |
+
+#### DataO
+
+| 字段 | 类型 | 是否必填 | 说明 |
+| --- | --- | --- | --- |
+| score | Number | 是 | 排行榜分数 |
+| rank | Number | 是 | 排行榜排名 |
+| user | [UserO](/docs/开发者文档/用户信息/获取指定用户信息) | 是 | 用户信息数据集 |
+
+**响应示例**
+
+```json
+{
+ "data": {
+ "score": 100,
+ "rank": 1,
+ "user": {
+ "OpenID": "rxuSl4QZoNk0G1HY2-Za6GlO7wO-p_ej",
+ "NickName": "user"
+ }
+ },
+ "code": 0
+}
+```
+
+## 获取排行榜列表
+
+<Tabs groupId="platform">
+
+<TabItem value="ios" label="iOS">
+
+**接口原型**
+
+```objectivec
+/**
+ * 获取排行榜列表
+ * @param rank_id 字符串本身带有类型信息 必须
+ * @param start_rank 获取排行榜开始排名。取值[1,榜单容量)。可以用于分页加载 必须
+ * @param end_rank 获取排行榜结束排名。取值[1,榜单容量]。可以用于分页加载 必须
+ */
+- (void)getRankListWithRank_id:(NSString *)rank_id
+ start_rank:(NSInteger)start_rank
+ end_rank:(NSInteger)end_rank
+ complete:(RequestComplete)complete;
+```
+
+**调用示例**
+
+```objectivec
+[[RXSDK sharedSDK] getRankListWithRank_id:@"" start_rank:1 end_rank:1 complete:^(NSDictionary * _Nullable response, RX_CommonRequestError * _Nullable error) {
+
+}];
+```
+
+</TabItem>
+
+<TabItem value="android" label="Android">
+
+**接口原型**
+
+```java
+void getRankList(String rank_id, int start_rank, int end_rank, RXRequestCallback callback);
+```
+
+**调用示例**
+
+```java
+RXSDK.getInstance().getRankList(rank_id, start_rank, end_rank, jsonCallback);
+```
+
+</TabItem>
+
+</Tabs>
+
+### 参数说明
+
+| 字段 | 类型 | 是否必填 | 备注 |
+| --- | --- | --- | --- |
+| rank_id | String | 是 | 排行榜 ID |
+| start_rank | int | 是 | 获取排行榜开始排名，取值 [1, 榜单容量)，可用于分页加载 |
+| end_rank | int | 是 | 获取排行榜结束排名，取值 [1, 榜单容量]，可用于分页加载 |
+
+### 响应参数（JSON）
+
+| 字段 | 类型 | 是否必填 | 说明 | 示例 |
+| --- | --- | --- | --- | --- |
+| code | Number | 是 | 响应状态码， 0 为成功，非 0 表示出错 | 0 |
+| msg | String | 否 | 响应信息，仅在 code 非 0 时返回 |  |
+| [][Node](/docs/开发者文档/用户信息/获取指定用户信息) | 否 | 结果数组 |  |  |
+
+#### Node
+
+| 字段 | 类型 | 是否必填 | 说明 |
+| --- | --- | --- | --- |
+| score | Number | 是 | 排行榜分数 |
+| rank | Number | 是 | 排行榜排名 |
+| user | [UserO](/docs/开发者文档/用户信息/获取指定用户信息) | 是 | 用户信息数据集 |
+
+**响应示例**
+
+```json
+{
+ "data": [
+ {
+ "score": 100,
+ "rank": 1,
+ "user": {
+ "OpenID": "rxuSl4QZoNk0G1HY2-Za6GlO7wO-p_ej",
+ "NickName": "user1"
+ }
+ },
+ {
+ "score": 90,
+ "rank": 2,
+ "user": {
+ "OpenID": "rxuSl4QZoNk0G1HY2-Za6GlO7wO-p_ej",
+ "NickName": "user2"
+ }
+ }
+ ],
+ "code": 0
+}
+```
+
+## 获取好友排行榜列表
+
+<Tabs groupId="platform">
+
+<TabItem value="ios" label="iOS">
+
+**接口原型**
+
+```objectivec
+/**
+ * 获取好友排行榜列表
+ * @param rank_id 字符串本身带有类型信息 必须
+ */
+- (void)getFriendRankListWithRank_id:(NSString *)rank_id
+ complete:(RequestComplete)complete;
+```
+
+**调用示例**
+
+```objectivec
+[[RXSDK sharedSDK] getFriendRankListWithRank_id:@"" complete:^(NSDictionary * _Nullable response, RX_CommonRequestError * _Nullable error) {
+
+}];
+```
+
+</TabItem>
+
+<TabItem value="android" label="Android">
+
+**接口原型**
+
+```java
+void friendsRank(String rank_id, RXRequestCallback callback);
+```
+
+**调用示例**
+
+```java
+RXSDK.getInstance().friendsRank(rank_id, jsonCallback);
+```
+
+</TabItem>
+
+</Tabs>
+
+### 参数说明
+
+| 字段 | 类型 | 是否必填 | 备注 |
+| --- | --- | --- | --- |
+| rank_id | String | 是 | 排行榜 ID |
+
+### 响应参数（JSON）
+
+| 字段 | 类型 | 是否必填 | 说明 | 示例 |
+| --- | --- | --- | --- | --- |
+| code | Number | 是 | 响应状态码， 0 为成功，非 0 表示出错 | 0 |
+| msg | String | 否 | 响应信息，仅在 code 非 0 时返回 |  |
+| [][ListNode](/docs/开发者文档/用户信息/获取指定用户信息) | 否 | 结果数组 |  |  |
+
+#### ListNode
+
+| 字段 | 类型 | 是否必填 | 说明 |
+| --- | --- | --- | --- |
+| score | Number | 是 | 排行榜分数 |
+| rank | Number | 是 | 排行榜排名 |
+| user | [UserO](/docs/开发者文档/用户信息/获取指定用户信息) | 是 | 用户信息数据集 |

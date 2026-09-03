@@ -1,0 +1,435 @@
+---
+sidebar_position: 2
+title: 预置事件和预置属性
+description: "望舒SDK 数据分析 预置事件和预置属性文档，提供详细的功能说明与接入指引。"
+---
+
+# 预置事件和预置属性
+
+本节将会介绍望舒大数据平台中所有的的预置事件、预置事件属性内容。自定义事件、事件属性和用户属性按照游戏方数据分析场景自行上报，具体预置事件的数据上报指南可以参考:iOS SDK 、Android SDK、H5 & 小程序 SDK、服务端 SDK、RESTful API 如果您是第一次使用大数据平台，我们衷心建议您在数据接入前先阅读指南 快速使用指南 接入前的准备工作 ，通过阅读指南可以帮助您快速了解大数据平台功能和数据接入流程中的注意事项以及实用建议。
+
+## 一、预置事件和预置属性说明
+
+游戏方通过接入**SDK （通行证、支付、分享等）** 相关接口上报预置事件数据，接入预置事件后大数据平台为用户提供预置的日报、月报、分享等数据分析报表入口供游戏方使用。所有的预置事件和属性以"#"开头，且都为事件属性，且这些属性的中文名以及意义都已经确定。
+
+除以下罗列的预置事件外，任何以"#"开头的事件和属性都被视为非法字段，将无法入库，因此不建议您将自定义事件和属性设置成以"#"开头。
+
+### 预置事件列表
+
+| **事件名称** | **事件描述** | **平台类型** | **上报方式** |
+| --- | --- | --- | --- |
+#register
+| 通行证手动注册账号 | 安卓、iOS | 望舒服务端上报，需要游戏端接入SDK |
+| --- | --- | --- |
+#login
+| 通行证登录 | 安卓、iOS、小程序 | 望舒服务端上报，需要游戏端接入SDK |
+| --- | --- | --- |
+#order
+| 充值下单 | 安卓、iOS、小程序 | 望舒服务端上报，需要游戏端接入SDK |
+| --- | --- | --- |
+#paid
+| 充值订单已付款 | 安卓、iOS、小程序 | 望舒服务端上报，需要游戏端接入SDK |
+| --- | --- | --- |
+#share_get_data
+
+| 获取分享内容 | 安卓、iOS、小程序 | 望舒服务端上报，需要游戏端接入SDK |
+| --- | --- | --- |
+| share_page | 分享落地页上报 | 安卓、iOS |
+| 望舒服务端上报，需要游戏端接入SDK |  |  |
+
+#adclick
+| 点击事件 | 安卓、iOS、小程序 | 接入广告投放后，望舒服务端自动上报 |
+| --- | --- | --- |
+#activate
+| 激活事件 | 安卓、iOS、小程序 | 望舒服务端上报，需要游戏端接入SDK |
+| --- | --- | --- |
+#share
+| 分享上报 | 安卓、iOS、小程序 | 游戏客户端上报 |
+| --- | --- | --- |
+#play
+| 游戏事件 | 安卓、iOS、小程序 | 游戏客户端上报 |
+| --- | --- | --- |
+#role_create
+| 创角事件 | 安卓、iOS、小程序 | 游戏客户端上报 |
+| --- | --- | --- |
+
+### 所有事件带有的预置属性
+
+以下预置属性是所有事件都会带有的预置属性
+
+| 字段名 | 请求字段位置 | 字段类型 | 字段类型 | 显示名 | 字段说明 | 是否必传 |
+| --- | --- | --- | --- | --- | --- | --- |
+| distinct_id | header | string | 文本 | 用户标识 | 用户唯一标识，一般为 OpenID (由 CP 调用时传入) | 是 |
+| devicecode | header | string | 文本 | 设备码 | 设备码 (由 CP 调用时传入) | 是 |
+| type | header | string | 文本 | 事件类型 | 事件类型（ track、user ） | 是 |
+| time | header | datetime | 时间 | 事件发生时间 | 事件发生时间 | 是 |
+| event | header | string | 文本 | 埋点标识 | 埋点标识 (由 CP 调用时传入) | 是 |
+| uuid | header | string | 文本 | 事件 UUID | 事件 UUID (由 CP 调用时传入) | 是 |
+| cpid | header | int | 数值 | 项目 ID | 项目 ID | 是 |
+| app_id | header | string | 文本 | 应用 ID | 应用 ID | 否 |
+| product_id | header | string | 文本 | 产品 ID | 产品 ID | 是 |
+| platform_id | header | int | 数值 | 平台 ID | 平台 ID 1:安卓, 2 ： ios, 3:H5, 4:微信小程序 | 是 |
+| channel_id | header | string | 文本 | 渠道 ID | 渠道 ID | 是 |
+| sub_channel_id | header | string | 文本 | 子渠道 ID | 子渠道 ID | 否 |
+| ip | header | string | 文本 | IP 地址 | IP 地址 | 是 |
+
+## 二、预置事件
+
+### 1. 通行证相关
+
+> 通行证相关事件数据支撑注册，登录相关报表指标。
+
+#### 1.1 #register : 通行证手动注册账号
+
+| 字段名 | 字段类型 | 字段类型 | 显示名 | 属性类型 | 请求字段位置 | 字段说明 | 是否必传 |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| distinct_id | string | 文本 | 用户标识 | 预置属性 | header | 用户唯一标识，一般为 OpenID (由 CP 调用时传入) | 是 |
+| devicecode | string | 文本 | 设备码 | 预置属性 | header | 设备码 (由 CP 调用时传入) | 是 |
+| type | string | 文本 | 事件类型 | 预置属性 | header | 事件类型（ track、user ） | 是 |
+| time | datetime | 时间 | 事件发生时间 | 预置属性 | header | 事件发生时间 | 是 |
+| event | string | 文本 | 埋点标识 | 预置属性 | header | 埋点标识 (由 CP 调用时传入) | 是 |
+| uuid | string | 文本 | 事件 UUID | 预置属性 | header | 事件 UUID (由 CP 调用时传入) | 是 |
+| cpid | int | 数值 | 项目 ID | 预置属性 | header | 项目 ID | 是 |
+| app_id | string | 文本 | 应用 ID | 预置属性 | header | 应用 ID | 否 |
+| product_id | string | 文本 | 产品 ID | 预置属性 | header | 产品 ID | 是 |
+| platform_id | int | 数值 | 平台 ID | 预置属性 | header | 平台 ID 1:安卓, 2 ： ios, 3:H5, 4:微信小程序 | 是 |
+| channel_id | string | 文本 | 渠道 ID | 预置属性 | header | 渠道 ID | 是 |
+| sub_channel_id | string | 文本 | 子渠道 ID | 预置属性 | header | 子渠道 ID | 否 |
+| ip | string | 文本 | IP 地址 | 预置属性 | header | IP 地址 | 是 |
+| material_id | int | 数值 | 素材 ID1 | 自定义属性 | properties | 素材 ID | 否 |
+| landing_id | int | 数值 | 落地页 ID | 自定义属性 | properties | 落地页 ID | 否 |
+| strategy_id | int | 数值 | 分享策略 ID | 自定义属性 | properties | 分享策略 ID | 否 |
+| content_type | int | 数值 | 分享内容类型 | 自定义属性 | properties | 分享内容类型 图片 1 ，落地页 2 ，卡片 3 | 否 |
+| strategy_type | int | 数值 | 策略类型 | 自定义属性 | properties | 策略类型 1, 诱导; 2:组队; 3:成就 | 否 |
+| share_time | datetime | 时间 | 分享时间 | 自定义属性 | properties | 分享时间 格式为： 2006-01-02 15:04:05 | 否 |
+| source | string | 文本 | 用户来源 | 自定义属性 | properties | 用户来源 | 否 |
+| channelid | string | 文本 | channelid | 自定义属性 | properties | channelid | 否 |
+| openid | string | 文本 | 用户望舒 openid | 自定义属性 | properties | 用户望舒 openid | 否 |
+| traceid | string | 文本 | traceid | 自定义属性 | properties | traceid | 否 |
+| platformid | int | 数值 | 设备 id | 自定义属性 | properties | 设备 id | 否 |
+| method | string | 文本 | 登录方式 | 自定义属性 | properties | 登录方式 | 否 |
+| username | string | 文本 | 登录账号 | 自定义属性 | properties | 登录账号 | 否 |
+| sex | int | 数值 | 性别 | 自定义属性 | properties | 性别: 0-女 1-男 | 否 |
+| birthday | string | 文本 | 生日 | 自定义属性 | properties | 生日： 2006-03-04 | 否 |
+| reg_appid | string | 文本 | 登录 appid | 自定义属性 | properties | 登录 appid | 否 |
+| reg_channelid | string | 文本 | 注册渠道 id | 自定义属性 | properties | 注册渠道 id | 否 |
+| appuser_attr | int | 数值 | appuser_attr | 自定义属性 | properties | appuser_attr | 否 |
+| regtime | datetime | 时间 | 注册时间 | 自定义属性 | properties | 注册时间 | 否 |
+| subchannelid | string | 文本 | subchannelid | 自定义属性 | properties | subchannelid | 否 |
+| regip | string | 文本 | regip | 自定义属性 | properties | regip | 否 |
+| custom | string | 文本 | 充值用户来源 | 自定义属性 | properties | custom = share 代表分享的用户充值 | 否 |
+| ad_action | string | 文本 | ad_action | 自定义属性 | properties | ad_action | 否 |
+| ad_channelid | string | 文本 | ad_channelid | 自定义属性 | properties | ad_channelid | 否 |
+| ad_method | int | 数值 | ad_method | 自定义属性 | properties | ad_method | 否 |
+| ad_result | string | 文本 | ad_result | 自定义属性 | properties | ad_result | 否 |
+| ad_func | string | 文本 | 埋点标记 | 自定义属性 | properties | 埋点标记 | 否 |
+| ad_materialid | int | 数值 | 素材 ID | 自定义属性 | properties | 素材 ID | 否 |
+| inviter_appid | string | 文本 | inviter_appid | 自定义属性 | properties | inviter_appid | 否 |
+| inviter_channelid | string | 文本 | inviter_channelid | 自定义属性 | properties | inviter_channelid | 否 |
+| inviter_subchannelid | string | 文本 | inviter_subchannelid | 自定义属性 | properties | inviter_subchannelid | 否 |
+| reg_type | string | 文本 | 注册类型 | 自定义属性 | properties | 注册类型 | 否 |
+| client_distinct_id | string | 文本 | client_distinct_id | 自定义属性 | properties | client_distinct_id | 否 |
+| user_source_type | string | 文本 | 用户来源类型 | 自定义属性 | properties | 用户来源类型 | 否 |
+| ad_plan | string | 文本 | ad_plan | 自定义属性 | properties | ad_plan | 否 |
+| trigger_id | int | 数值 | 埋点 ID(新) | 自定义属性 | properties | 埋点 ID | 否 |
+| trigger_type | int | 数值 | 埋点类型(新) | 自定义属性 | properties | 埋点类型 | 否 |
+| trigger_tag | string | 文本 | 埋点标记(新) | 自定义属性 | properties | 埋点标记(新) | 否 |
+| material_type | string | 文本 | 素材类型（新） | 自定义属性 | properties | 素材类型 | 否 |
+| share_type | string | 文本 | 分享类型 | 自定义属性 | properties | 分享类型 | 否 |
+| inviter_region | string | 文本 | inviter_region | 自定义属性 | properties | inviter_region | 否 |
+| guide_platform | string | 文本 | guide_platform | 自定义属性 | properties | guide_platform | 否 |
+| guide_app | string | 文本 | guide_app | 自定义属性 | properties | guide_app | 否 |
+
+#### 1.2 #login : 通行证登录
+
+| 字段名 | 字段类型 | 字段类型 | 显示名 | 属性类型 | 请求字段位置 | 字段说明 | 是否必传 |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| distinct_id | string | 文本 | 用户标识 | 预置属性 | header | 用户唯一标识，一般为 OpenID (由 CP 调用时传入) | 是 |
+| devicecode | string | 文本 | 设备码 | 预置属性 | header | 设备码 (由 CP 调用时传入) | 是 |
+| type | string | 文本 | 事件类型 | 预置属性 | header | 事件类型（ track、user ） | 是 |
+| time | datetime | 时间 | 事件发生时间 | 预置属性 | header | 事件发生时间 | 是 |
+| event | string | 文本 | 埋点标识 | 预置属性 | header | 埋点标识 (由 CP 调用时传入) | 是 |
+| uuid | string | 文本 | 事件 UUID | 预置属性 | header | 事件 UUID (由 CP 调用时传入) | 是 |
+| cpid | int | 数值 | 项目 ID | 预置属性 | header | 项目 ID | 是 |
+| app_id | string | 文本 | 应用 ID | 预置属性 | header | 应用 ID | 否 |
+| product_id | string | 文本 | 产品 ID | 预置属性 | header | 产品 ID | 是 |
+| platform_id | int | 数值 | 平台 ID | 预置属性 | header | 平台 ID 1:安卓, 2 ： ios, 3:H5, 4:微信小程序 | 是 |
+| channel_id | string | 文本 | 渠道 ID | 预置属性 | header | 渠道 ID | 是 |
+| sub_channel_id | string | 文本 | 子渠道 ID | 预置属性 | header | 子渠道 ID | 否 |
+| ip | string | 文本 | IP 地址 | 预置属性 | header | IP 地址 | 是 |
+| material_id | int | 数值 | 素材 ID1 | 自定义属性 | properties | 素材 ID | 否 |
+| landing_id | int | 数值 | 落地页 ID | 自定义属性 | properties | 落地页 ID | 否 |
+| strategy_id | int | 数值 | 分享策略 ID | 自定义属性 | properties | 分享策略 ID | 否 |
+| content_type | int | 数值 | 分享内容类型 | 自定义属性 | properties | 分享内容类型 图片 1 ，落地页 2 ，卡片 3 | 否 |
+| strategy_type | int | 数值 | 策略类型 | 自定义属性 | properties | 策略类型 1, 诱导; 2:组队; 3:成就 | 否 |
+| region | string | 文本 | 地区码 | 自定义属性 | properties | 地区码 | 否 |
+| share_time | datetime | 时间 | 分享时间 | 自定义属性 | properties | 分享时间 格式为： 2006-01-02 15:04:05 | 否 |
+| source | string | 文本 | 用户来源 | 自定义属性 | properties | 用户来源 | 否 |
+| channelid | string | 文本 | channelid | 自定义属性 | properties | channelid | 否 |
+| openid | string | 文本 | 用户望舒 openid | 自定义属性 | properties | 用户望舒 openid | 否 |
+| traceid | string | 文本 | traceid | 自定义属性 | properties | traceid | 否 |
+| logintime | int | 数值 | logintime | 自定义属性 | properties | logintime | 否 |
+| platformid | int | 数值 | 设备 id | 自定义属性 | properties | 设备 id | 否 |
+| method | string | 文本 | 登录方式 | 自定义属性 | properties | 登录方式 | 否 |
+| username | string | 文本 | 登录账号 | 自定义属性 | properties | 登录账号 | 否 |
+| isnew | int | 数值 | 是否为新用户 | 自定义属性 | properties | 0:老用户登录 1:新用户注册并登录 | 否 |
+| type | int | 数值 | type | 自定义属性 | properties | type | 否 |
+| attr | int | 数值 | attr | 自定义属性 | properties | attr | 否 |
+| realauthid | int | 数值 | 认证信息 id | 自定义属性 | properties | 认证信息 id | 否 |
+| sex | int | 数值 | 性别 | 自定义属性 | properties | 性别: 0-女 1-男 | 否 |
+| birthday | string | 文本 | 生日 | 自定义属性 | properties | 生日： 2006-03-04 | 否 |
+| reg_appid | string | 文本 | 登录 appid | 自定义属性 | properties | 登录 appid | 否 |
+| reg_channelid | string | 文本 | 注册渠道 id | 自定义属性 | properties | 注册渠道 id | 否 |
+| appuser_attr | int | 数值 | appuser_attr | 自定义属性 | properties | appuser_attr | 否 |
+| regtime | datetime | 时间 | 注册时间 | 自定义属性 | properties | 注册时间 | 否 |
+| subchannelid | string | 文本 | subchannelid | 自定义属性 | properties | subchannelid | 否 |
+| regip | string | 文本 | regip | 自定义属性 | properties | regip | 否 |
+| logindays | int | 数值 | 活跃天数 | 自定义属性 | properties | 活跃天数 | 否 |
+| total_money | int | 数值 | 累计充值金额(分) | 自定义属性 | properties | 累计充值金额(分) | 否 |
+| total_paycount | int | 数值 | 累计付费次数 | 自定义属性 | properties | 累计付费次数 | 否 |
+| first_payduration | int | 数值 | 付费时长 | 自定义属性 | properties | 付费时长,注册至首次充值的间隔(秒) | 否 |
+| custom | string | 文本 | 充值用户来源 | 自定义属性 | properties | custom = share 代表分享的用户充值 | 否 |
+| ad_action | string | 文本 | ad_action | 自定义属性 | properties | ad_action | 否 |
+| ad_channelid | string | 文本 | ad_channelid | 自定义属性 | properties | ad_channelid | 否 |
+| ad_method | int | 数值 | ad_method | 自定义属性 | properties | ad_method | 否 |
+| ad_result | string | 文本 | ad_result | 自定义属性 | properties | ad_result | 否 |
+| ad_func | string | 文本 | 埋点标记 | 自定义属性 | properties | 埋点标记 | 否 |
+| ad_materialid | int | 数值 | 素材 ID | 自定义属性 | properties | 素材 ID | 否 |
+| is_today_register | int | 数值 | 是否为今日注册 | 自定义属性 | properties | 0:非本日注册用户 1:本日注册新用户 | 否 |
+| inviter_appid | string | 文本 | inviter_appid | 自定义属性 | properties | inviter_appid | 否 |
+| inviter_channelid | string | 文本 | inviter_channelid | 自定义属性 | properties | inviter_channelid | 否 |
+| inviter_subchannelid | string | 文本 | inviter_subchannelid | 自定义属性 | properties | inviter_subchannelid | 否 |
+| inviter_openid | string | 文本 | inviter_openid | 自定义属性 | properties | inviter_openid | 否 |
+| inviter | int | 数值 | inviter | 自定义属性 | properties | inviter | 否 |
+| inviter_platformid | int | 数值 | inviter_platformid | 自定义属性 | properties | inviter_platformid | 否 |
+| is_today_first_login | int | 数值 | is_today_first_login | 自定义属性 | properties | is_today_first_login | 否 |
+| ismigration | int | 数值 | ismigration | 自定义属性 | properties | ismigration | 否 |
+| cp_userid | int | 数值 | cp_userid | 自定义属性 | properties | cp_userid | 否 |
+| external_openid | string | 文本 | external_openid | 自定义属性 | properties | external_openid | 否 |
+| external_unionid | string | 文本 | external_unionid | 自定义属性 | properties | external_unionid | 否 |
+| ad_func_type | string | 文本 | 埋点类型 | 自定义属性 | properties | 埋点类型 | 否 |
+| client_distinct_id | string | 文本 | client_distinct_id | 自定义属性 | properties | client_distinct_id | 否 |
+| user_source_type | string | 文本 | 用户来源类型 | 自定义属性 | properties | 用户来源类型 | 否 |
+| ad_plan | string | 文本 | ad_plan | 自定义属性 | properties | ad_plan | 否 |
+| trigger_id | int | 数值 | 埋点 ID(新) | 自定义属性 | properties | 埋点 ID | 否 |
+| trigger_type | int | 数值 | 埋点类型(新) | 自定义属性 | properties | 埋点类型 | 否 |
+| trigger_tag | string | 文本 | 埋点标记(新) | 自定义属性 | properties | 埋点标记(新) | 否 |
+| material_type | string | 文本 | 素材类型（新） | 自定义属性 | properties | 素材类型 | 否 |
+| share_type | string | 文本 | 分享类型 | 自定义属性 | properties | 分享类型 | 否 |
+| inviter_region | string | 文本 | inviter_region | 自定义属性 | properties | inviter_region | 否 |
+| guide_platform | string | 文本 | guide_platform | 自定义属性 | properties | guide_platform | 否 |
+| guide_app | string | 文本 | guide_app | 自定义属性 | properties | guide_app | 否 |
+
+### 2. 支付相关
+
+> 支付相关的事件数据支撑付费类相关报表指标。
+
+#### 2.1 #order : 充值下单
+
+
+| 字段名 | 字段类型 | 字段类型 | 显示名 | 属性类型 | 请求字段位置 | 字段说明 | 是否必传 |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| distinct_id | string | 文本 | 用户标识 | 预置属性 | header | 用户唯一标识，一般为 OpenID (由 CP 调用时传入) | 是 |
+| devicecode | string | 文本 | 设备码 | 预置属性 | header | 设备码 (由 CP 调用时传入) | 是 |
+| type | string | 文本 | 事件类型 | 预置属性 | header | 事件类型（ track、user ） | 是 |
+| time | datetime | 时间 | 事件发生时间 | 预置属性 | header | 事件发生时间 | 是 |
+| event | string | 文本 | 埋点标识 | 预置属性 | header | 埋点标识 (由 CP 调用时传入) | 是 |
+| uuid | string | 文本 | 事件 UUID | 预置属性 | header | 事件 UUID (由 CP 调用时传入) | 是 |
+| cpid | int | 数值 | 项目 ID | 预置属性 | header | 项目 ID | 是 |
+| app_id | string | 文本 | 应用 ID | 预置属性 | header | 应用 ID | 否 |
+| product_id | string | 文本 | 产品 ID | 预置属性 | header | 产品 ID | 是 |
+| platform_id | int | 数值 | 平台 ID | 预置属性 | header | 平台 ID 1:安卓, 2 ： ios, 3:H5, 4:微信小程序 | 是 |
+| channel_id | string | 文本 | 渠道 ID | 预置属性 | header | 渠道 ID | 是 |
+| sub_channel_id | string | 文本 | 子渠道 ID | 预置属性 | header | 子渠道 ID | 否 |
+| ip | string | 文本 | IP 地址 | 预置属性 | header | IP 地址 | 是 |
+| source | string | 文本 | 用户来源 | 自定义属性 | properties | 用户来源 | 否 |
+| userid | string | 文本 | 用户 id | 自定义属性 | properties | 否 | appid |
+| string | 文本 | appid | 自定义属性 | properties | appid | 否 | channelid |
+| string | 文本 | channelid | 自定义属性 | properties | channelid | 否 | order_no |
+| string | 文本 | 订单号 | 自定义属性 | properties | 订单号 | 否 | trade_no |
+| string | 文本 | CP 订单号 | 自定义属性 | properties | CP 订单号 | 否 | transaction_id |
+| string | 文本 | 三方订单号 | 自定义属性 | properties | 三方订单号 | 否 | goods_tag |
+| string | 文本 | 计费点标识 | 自定义属性 | properties | 计费点标识 | 否 | goods_name |
+| string | 文本 | 商品名称 | 自定义属性 | properties | 商品名称 | 否 | goods_price |
+| int | 数值 | 商品价格 | 自定义属性 | properties | 商品价格 | 否 | openid |
+| string | 文本 | 用户望舒 openid | 自定义属性 | properties | 用户望舒 openid | 否 | pay_type |
+| string | 文本 | 支付方式 | 自定义属性 | properties | 支付方式 | 否 | pay_status |
+| int | 数值 | 订单状态 | 自定义属性 | properties | 订单状态 | 否 | create_time |
+| datetime | 时间 | 订单创建时间 | 自定义属性 | properties | 订单创建时间 | 否 | pay_time |
+| datetime | 时间 | 订单支付时间 | 自定义属性 | properties | 订单支付时间 | 否 | is_debug |
+| int | 数值 | 是否测试订单 | 自定义属性 | properties | 是否测试订单 | 否 | transmit_args |
+| string | 文本 | 透传参数 | 自定义属性 | properties | 透传参数 | 否 | fee_type |
+| string | 文本 | 货币类型 | 自定义属性 | properties | 货币类型 | 否 | pay_money |
+| int | 数值 | 实付金额 | 自定义属性 | properties | 实付金额 | 否 | sand_box |
+| string | 文本 | sand_box | 自定义属性 | properties | sand_box | 否 | from_channel |
+| string | 文本 | 子渠道 | 自定义属性 | properties | 子渠道 | 否 | id |
+| int | 数值 | ID | 自定义属性 | properties | ID | 否 |  |
+
+
+#### 2.2 #paid : 充值订单已付款
+
+
+| 字段名 | 字段类型 | 字段类型 | 显示名 | 属性类型 | 请求字段位置 | 字段说明 | 是否必传 |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| distinct_id | string | 文本 | 用户标识 | 预置属性 | header | 用户唯一标识，一般为 OpenID (由 CP 调用时传入) | 是 |
+| devicecode | string | 文本 | 设备码 | 预置属性 | header | 设备码 (由 CP 调用时传入) | 是 |
+| type | string | 文本 | 事件类型 | 预置属性 | header | 事件类型（ track、user ） | 是 |
+| time | datetime | 时间 | 事件发生时间 | 预置属性 | header | 事件发生时间 | 是 |
+| event | string | 文本 | 埋点标识 | 预置属性 | header | 埋点标识 (由 CP 调用时传入) | 是 |
+| uuid | string | 文本 | 事件 UUID | 预置属性 | header | 事件 UUID (由 CP 调用时传入) | 是 |
+| cpid | int | 数值 | 项目 ID | 预置属性 | header | 项目 ID | 是 |
+| app_id | string | 文本 | 应用 ID | 预置属性 | header | 应用 ID | 否 |
+| product_id | string | 文本 | 产品 ID | 预置属性 | header | 产品 ID | 是 |
+| platform_id | int | 数值 | 平台 ID | 预置属性 | header | 平台 ID 1:安卓, 2 ： ios, 3:H5, 4:微信小程序 | 是 |
+| channel_id | string | 文本 | 渠道 ID | 预置属性 | header | 渠道 ID | 是 |
+| sub_channel_id | string | 文本 | 子渠道 ID | 预置属性 | header | 子渠道 ID | 否 |
+| ip | string | 文本 | IP 地址 | 预置属性 | header | IP 地址 | 是 |
+| source | string | 文本 | 用户来源 | 自定义属性 | properties | 用户来源 | 否 |
+| userid | string | 文本 | 用户 id | 自定义属性 | properties | 否 | appid |
+| string | 文本 | appid | 自定义属性 | properties | appid | 否 | channelid |
+| string | 文本 | channelid | 自定义属性 | properties | channelid | 否 | order_no |
+| string | 文本 | 订单号 | 自定义属性 | properties | 订单号 | 否 | trade_no |
+| string | 文本 | CP 订单号 | 自定义属性 | properties | CP 订单号 | 否 | transaction_id |
+| string | 文本 | 三方订单号 | 自定义属性 | properties | 三方订单号 | 否 | goods_tag |
+| string | 文本 | 计费点标识 | 自定义属性 | properties | 计费点标识 | 否 | goods_name |
+| string | 文本 | 商品名称 | 自定义属性 | properties | 商品名称 | 否 | goods_price |
+| int | 数值 | 商品价格 | 自定义属性 | properties | 商品价格 | 否 | openid |
+| string | 文本 | 用户望舒 openid | 自定义属性 | properties | 用户望舒 openid | 否 | pay_type |
+| string | 文本 | 支付方式 | 自定义属性 | properties | 支付方式 | 否 | pay_status |
+| int | 数值 | 订单状态 | 自定义属性 | properties | 订单状态 | 否 | create_time |
+| datetime | 时间 | 订单创建时间 | 自定义属性 | properties | 订单创建时间 | 否 | pay_time |
+| datetime | 时间 | 订单支付时间 | 自定义属性 | properties | 订单支付时间 | 否 | is_debug |
+| int | 数值 | 是否测试订单 | 自定义属性 | properties | 是否测试订单 | 否 | transmit_args |
+| string | 文本 | 透传参数 | 自定义属性 | properties | 透传参数 | 否 | fee_type |
+| string | 文本 | 货币类型 | 自定义属性 | properties | 货币类型 | 否 | pay_money |
+| int | 数值 | 实付金额 | 自定义属性 | properties | 实付金额 | 否 | sand_box |
+| string | 文本 | sand_box | 自定义属性 | properties | sand_box | 否 | from_channel |
+| string | 文本 | 子渠道 | 自定义属性 | properties | 子渠道 | 否 | id |
+| int | 数值 | ID | 自定义属性 | properties | ID | 否 | custom |
+| string | 文本 | 充值用户来源 | 自定义属性 | properties | custom = share 代表分享的用户充值 | 否 |  |
+
+
+### 3. 分享相关
+
+> 分享相关的事件数据支撑分享类相关报表指标。
+
+#### 3.1 #share_get_data : 获取分享内容
+
+| 字段名 | 字段类型 | 字段类型 | 显示名 | 属性类型 | 请求字段位置 | 字段说明 | 是否必传 |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| distinct_id | string | 文本 | 用户标识 | 预置属性 | header | 用户唯一标识，一般为 OpenID (由 CP 调用时传入) | 是 |
+| devicecode | string | 文本 | 设备码 | 预置属性 | header | 设备码 (由 CP 调用时传入) | 是 |
+| type | string | 文本 | 事件类型 | 预置属性 | header | 事件类型（ track、user ） | 是 |
+| time | datetime | 时间 | 事件发生时间 | 预置属性 | header | 事件发生时间 | 是 |
+| event | string | 文本 | 埋点标识 | 预置属性 | header | 埋点标识 (由 CP 调用时传入) | 是 |
+| uuid | string | 文本 | 事件 UUID | 预置属性 | header | 事件 UUID (由 CP 调用时传入) | 是 |
+| cpid | int | 数值 | 项目 ID | 预置属性 | header | 项目 ID | 是 |
+| app_id | string | 文本 | 应用 ID | 预置属性 | header | 应用 ID | 否 |
+| product_id | string | 文本 | 产品 ID | 预置属性 | header | 产品 ID | 是 |
+| platform_id | int | 数值 | 平台 ID | 预置属性 | header | 平台 ID 1:安卓, 2 ： ios, 3:H5, 4:微信小程序 | 是 |
+| channel_id | string | 文本 | 渠道 ID | 预置属性 | header | 渠道 ID | 是 |
+| sub_channel_id | string | 文本 | 子渠道 ID | 预置属性 | header | 子渠道 ID | 否 |
+| ip | string | 文本 | IP 地址 | 预置属性 | header | IP 地址 | 是 |
+| user_id | int | 数值 | 用户 ID | 自定义属性 | properties | 用户 ID 用户 ID | 否 |
+| func | string | 文本 | 埋点标记 | 自定义属性 | properties | 埋点标记 | 否 |
+| func_type | int | 数值 | 埋点类型 | 自定义属性 | properties | 埋点类型： 1-诱导 2-活动 3-成就 | 否 |
+| material | string | 文本 | 素材类型 1 | 自定义属性 | properties | 素材类型 card:卡片 / image:图片 / url:链接, | 否 |
+| material_id | int | 数值 | 素材 ID1 | 自定义属性 | properties | 素材 ID | 否 |
+| landing_id | int | 数值 | 落地页 ID | 自定义属性 | properties | 落地页 ID | 否 |
+| download_link_id | int | 数值 | 下载链接 ID | 自定义属性 | properties | 下载链接 ID | 否 |
+| strategy_id | int | 数值 | 分享策略 ID | 自定义属性 | properties | 分享策略 ID | 否 |
+| content_type | int | 数值 | 分享内容类型 | 自定义属性 | properties | 分享内容类型 图片 1 ，落地页 2 ，卡片 3 | 否 |
+| strategy_type | int | 数值 | 策略类型 | 自定义属性 | properties | 策略类型 1, 诱导; 2:组队; 3:成就 | 否 |
+| region | string | 文本 | 地区码 | 自定义属性 | properties | 地区码 | 否 |
+| share_time | datetime | 时间 | 分享时间 | 自定义属性 | properties | 分享时间 格式为： 2006-01-02 15:04:05 | 否 |
+| time | datetime | 时间 | 分享拉取时间 | 自定义属性 | properties | 分享拉取时间 | 否 |
+| bought | int | 数值 | 是否为买量用户 | 自定义属性 | properties | 是否为买量用户 1:是 0:否 | 否 |
+| is_new | int | 数值 | 是否为新用户 | 自定义属性 | properties | 是否为新用户 1:是 0:否 | 否 |
+| source | string | 文本 | 用户来源 | 自定义属性 | properties | 用户来源 | 否 |
+| platform | string | 文本 | 平台 客户端传入 | 自定义属性 | properties | 平台 客户端传入 | 否 |
+| trigger_id | int | 数值 | 埋点 ID(新) | 自定义属性 | properties | 埋点 ID | 否 |
+| trigger_type | int | 数值 | 埋点类型(新) | 自定义属性 | properties | 埋点类型 | 否 |
+| trigger_tag | string | 文本 | 埋点标记(新) | 自定义属性 | properties | 埋点标记(新) | 否 |
+| material_type | string | 文本 | 素材类型（新） | 自定义属性 | properties | 素材类型 | 否 |
+
+#### 3.2 share_page：分享落地页上报
+
+| 字段名 | 字段类型 | 字段类型 | 显示名 | 属性类型 | 请求字段位置 | 说明 | 是否必传 |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| distinct_id | string | 文本 | 用户标识 | 预置属性 | header | 用户唯一标识，一般为 OpenID (由 CP 调用时传入) | 是 |
+| devicecode | string | 文本 | 设备码 | 预置属性 | header | 设备码 (由 CP 调用时传入) | 是 |
+| type | string | 文本 | 事件类型 | 预置属性 | header | 事件类型（ track、user ） | 是 |
+| time | datetime | 时间 | 事件发生时间 | 预置属性 | header | 事件发生时间 | 是 |
+| event | string | 文本 | 埋点标识 | 预置属性 | header | 埋点标识 (由 CP 调用时传入) | 是 |
+| uuid | string | 文本 | 事件 UUID | 预置属性 | header | 事件 UUID (由 CP 调用时传入) | 是 |
+| cpid | int | 数值 | 项目 ID | 预置属性 | header | 项目 ID | 是 |
+| app_id | string | 文本 | 应用 ID | 预置属性 | header | 应用 ID | 否 |
+| product_id | string | 文本 | 产品 ID | 预置属性 | header | 产品 ID | 是 |
+| platform_id | int | 数值 | 平台 ID | 预置属性 | header | 平台 ID 1:安卓, 2 ： ios, 3:H5, 4:微信小程序 | 是 |
+| channel_id | string | 文本 | 渠道 ID | 预置属性 | header | 渠道 ID | 是 |
+| sub_channel_id | string | 文本 | 子渠道 ID | 预置属性 | header | 子渠道 ID | 否 |
+| ip | string | 文本 | IP 地址 | 预置属性 | header | IP 地址 | 是 |
+| func | string | 文本 | 埋点标记 | 自定义属性 | properties | 埋点标记 | 否 |
+| func_type | int | 数值 | 埋点类型 | 自定义属性 | properties | 埋点类型： 1-诱导 2-活动 3-成就 | 否 |
+| material_id | int | 数值 | 素材 ID1 | 自定义属性 | properties | 素材 ID | 否 |
+| landing_id | int | 数值 | 落地页 ID | 自定义属性 | properties | 落地页 ID | 否 |
+| download_link_id | int | 数值 | 下载链接 ID | 自定义属性 | properties | 下载链接 ID | 否 |
+| strategy_id | int | 数值 | 分享策略 ID | 自定义属性 | properties | 分享策略 ID | 否 |
+| content_type | int | 数值 | 分享内容类型 | 自定义属性 | properties | 分享内容类型 图片 1 ，落地页 2 ，卡片 3 | 否 |
+| strategy_type | int | 数值 | 策略类型 | 自定义属性 | properties | 策略类型 1, 诱导; 2:组队; 3:成就 | 否 |
+| region | string | 文本 | 地区码 | 自定义属性 | properties | 地区码 | 否 |
+| share_time | datetime | 时间 | 分享时间 | 自定义属性 | properties | 分享时间 格式为： 2006-01-02 15:04:05 | 否 |
+| time | datetime | 时间 | 分享拉取时间 | 自定义属性 | properties | 分享拉取时间 | 否 |
+| type | int | 数值 | type | 自定义属性 | properties | type | 否 |
+| ad_materialid | int | 数值 | 素材 ID | 自定义属性 | properties | 素材 ID | 否 |
+| result | string | 文本 | 分享结果 | 自定义属性 | properties | 分享结果 | 否 |
+| source_channel | string | 文本 | 分享者渠道 | 自定义属性 | properties | 分享者渠道 | 否 |
+| open_id | string | 文本 | 分享者 OpenID | 自定义属性 | properties | 分享者 OpenID | 否 |
+| action | string | 文本 | 打开 / 下载 | 自定义属性 | properties | open 打开 / download 下载 | 否 |
+| bool_test | boolean | 布尔 | bool_test | 自定义属性 | properties | bool_test | 否 |
+| trigger_id | int | 数值 | 埋点 ID(新) | 自定义属性 | properties | 埋点 ID | 否 |
+| trigger_type | int | 数值 | 埋点类型(新) | 自定义属性 | properties | 埋点类型 1:诱导 2:活动 3:成就 4:好友房 | 否 |
+| trigger_tag | string | 文本 | 埋点标记(新) | 自定义属性 | properties | 埋点标记(新) | 否 |
+| material_type | string | 文本 | 素材类型（新） | 自定义属性 | properties | 素材类型 link:链接 image:图片 landing:落地页 card:卡片 | 否 |
+
+#### 3.3 #share：分享上报
+
+> 提示：需先调用 sdk.getShareData 接口获取分享上报事件中的必传字段值，再调用 sdk.track 接口上报 #share 分享上报事件数据即可。
+>
+> 事件名称（eventName）：#share。
+>
+> 属性类型：包含预置属性（header）和自定义属性 （properties）。
+>
+> 数据上报：需要按照下方表格上报自定义属性中的必传字段数据；非必传字段按需上报。
+
+| 字段名 | 字段类型 | 字段类型 | 显示名 | 属性类型 | 请求字段位置 | 字段说明 | 是否必传 |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| distinct_id | string | 文本 | 用户标识 | 预置属性 | header | 用户唯一标识，一般为 OpenID (由 CP 调用时传入) | 是 |
+| devicecode | string | 文本 | 设备码 | 预置属性 | header | 设备码 (由 CP 调用时传入) | 是 |
+| type | string | 文本 | 事件类型 | 预置属性 | header | 事件类型（ track、user ） | 是 |
+| time | datetime | 时间 | 事件发生时间 | 预置属性 | header | 事件发生时间 | 是 |
+| event | string | 文本 | 埋点标识 | 预置属性 | header | 埋点标识 (由 CP 调用时传入) | 是 |
+| uuid | string | 文本 | 事件 UUID | 预置属性 | header | 事件 UUID (由 CP 调用时传入) | 是 |
+| cpid | int | 数值 | 项目 ID | 预置属性 | header | 项目 ID | 是 |
+| app_id | string | 文本 | 应用 ID | 预置属性 | header | 应用 ID | 否 |
+| product_id | string | 文本 | 产品 ID | 预置属性 | header | 产品 ID | 是 |
+| platform_id | int | 数值 | 平台 ID | 预置属性 | header | 平台 ID 1:安卓, 2 ： ios, 3:H5, 4:微信小程序 | 是 |
+| channel_id | string | 文本 | 渠道 ID | 预置属性 | header | 渠道 ID | 是 |
+| sub_channel_id | string | 文本 | 子渠道 ID | 预置属性 | header | 子渠道 ID | 否 |
+| ip | string | 文本 | IP 地址 | 预置属性 | header | IP 地址 | 是 |
+| user_id | int | 数值 | 用户 ID | 自定义属性 | properties | 用户 ID 用户 ID | 否 |
+| func | string | 文本 | 埋点标记 | 自定义属性 | properties | 埋点标记 | 否 |
+| func_type | int | 数值 | 埋点类型 | 自定义属性 | properties | 埋点类型： 1-诱导 2-活动 3-成就 | 否 |
+| material_id | int | 数值 | 素材 ID1 | 自定义属性 | properties | 素材 ID | 是 |
+| landing_id | int | 数值 | 落地页 ID | 自定义属性 | properties | 落地页 ID | 是默认： 0 |
+| download_link_id | int | 数值 | 下载链接 ID | 自定义属性 | properties | 下载链接 ID | 否 |
+| strategy_id | int | 数值 | 分享策略 ID | 自定义属性 | properties | 分享策略 ID | 是 |
+| content_type | int | 数值 | 分享内容类型 | 自定义属性 | properties | 分享内容类型 图片 1 ，落地页 2 ，卡片 3 | 否 |
+| strategy_type | int | 数值 | 策略类型 | 自定义属性 | properties | 策略类型 1, 诱导; 2:组队; 3:成就 | 是 |
+| region | string | 文本 | 地区码 | 自定义属性 | properties | 地区码 | 是默认： 0 |
+| share_time | datetime | 时间 | 分享时间 | 自定义属性 | properties | 分享时间 格式为： 2006-01-02 15:04:05 | 是 |
+| time | datetime | 时间 | 分享拉取时间 | 自定义属性 | properties | 分享拉取时间 | 否 |
+| bought | int | 数值 | 是否为买量用户 | 自定义属性 | properties | 是否为买量用户 1:是 0:否 | 否 |
+| is_new | int | 数值 | 是否为新用户 | 自定义属性 | properties | 是否为新用户 1:是 0:否 | 否 |
+| source | string | 文本 | 用户来源 | 自定义属性 | properties | 用户来源 | 否 |
+| method | string | 文本 | 登录方式 | 自定义属性 | properties | 登录方式 |  |

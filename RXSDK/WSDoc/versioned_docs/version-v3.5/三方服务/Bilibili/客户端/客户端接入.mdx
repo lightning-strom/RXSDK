@@ -1,0 +1,351 @@
+---
+title: "客户端接入"
+---
+
+## 后台接入配置
+- [登录配置说明](/docs/v3.5/三方服务/Bilibili/客户端/客户端接入)
+- [支付配置说明](/docs/v3.5/三方服务/Bilibili/客户端/客户端接入)
+
+## 望舒快速接入（必接）
+- [快速接入文档](/docs/v3.5/登录（通行证）/Android 登录API/快速接入)
+
+## 三方渠道接入说明（必读）
+- [三方渠道接入说明](/docs/v3.5/入门指南/快速开始/Android初始化/快速接入)
+
+## SDK集成
+
+```json
+  implementation 'com.ruixue:rxsdk_bilibili:${version}'
+```
+
+## 参数说明
+
+| **参数**  | **类型** | **说明**              |
+| --------- | -------- | --------------------- |
+| server_id | String   | initThirdSdk 接口传入 |
+| server_name | String   | initThirdSdk 接口传入 |
+| merchant_id | String   | initThirdSdk 接口传入 |
+| appid | String   | initThirdSdk 接口传入 |
+| appkey | String   | initThirdSdk 接口传入 |
+
+## 配置说明
+
+- 请将以下内容全部复制到AndroidManifest.xml的application标签下
+
+```xml
+<!--是否为付费下载游戏,如果是付费下载游戏value值为true,否则value值为false --> 
+<!--游戏付费下载指的是⽤户需要先购买才能下载游戏，与⽤户可以免费下载但是游戏内有内购是不同的 --> 
+
+```
+
+- 在 application 中添加 activity
+由于加入微信支付功能，接入时需要在你的应用包名相应目录下新建一个wxapi目录，并在该wxapi目录下新增一个WXEntryActivity类，该类继承com.ruixue.sdk.BiliBiliWXEntryActivity
+
+```xml
+<!--  android:taskAffinity  activity归属默认使用自己应用的包名   -->
+
+```
+
+或 采用别名方式在manifest添加如下配置
+例如：
+
+```
+<!--    微信回调activity 可继承重写    -->
+
+<!--    微信回调activity别名类，因为微信需要回调到指定包名指定类名，所以设置别名     -->
+
+    
+<!--    微信回调activity别名类，因为微信需要回调到指定包名指定类名，所以设置别名     -->
+
+```
+## 混淆配置
+```grovvy
+-keep class XI.**{*;}
+-keep class com.bun.** {*;}
+-keep class com.asus.** {*;}
+-keep class com.heytap.** {*;}
+-keep class com.huawei.** {*;}
+-keep class com.meizu.** {*;}
+-keep class com.samsung.** {*;}
+-keep class com.zui.** {*;}
+-keep class com.netease.** {*;}
+-keep interface com.huawei.** {*;}
+-keepattributes *Annotation*
+-keep @android.support.annotation.Keep class **{
+@android.support.annotation.Keep ;
+@android.support.annotation.Keep ;
+}
+-keep class org.json.**{*;}
+#微信混淆文件
+-keep class com.tencent.mm.opensdk.** {*;}
+-keep class com.tencent.wxop.** {*;}
+-keep class com.tencent.mm.sdk.** {*;}
+```
+
+## 三方 SDK 版本信息
+
+ 使用 `bilibili sdk  v5.6.2 (2023-01-31)` 版本
+
+## 依赖信息
+
+使用 `aar` 接入方式的的请添加下面依赖配置，否则无需添加
+
+```groovy
+api 'com.gsc.pub:gsc_android_library:5.9.0'
+api 'com.base.oaid:game-oaid:1.1.0'
+api 'com.bun.miitmdid:oaid_sdk:1.0.25'
+implementation 'com.alipay.sdk:alipaysdk:15.8.11'
+```
+
+**常见问题**
+
+- 出现 Duplicate class okhttp3.Address found in modules jetified-gsc_android_library-5.9.0-runtime (com.gsc.pub:gsc_android_library:5.6.2) and jetified-okhttp-3.12.1 (com.squareup.okhttp3:okhttp:3.12.1) 问题的处理办法。
+
+在项目 app 模块中 bulid.gradle 文件中添加下面配置
+
+ ```grovvy
+configurations {
+    all*.exclude group: 'com.squareup.okhttp3', module: 'okhttp'
+}
+
+ ```
+:::tip
+初接入B站授权登录时错误码提示【-906】是正常的，授权登录需要使用过审后的二签包才能拉起，目前可以更换为账密登录，点粉色bilibili按钮切换。
+:::
+
+## 生命周期(必接)
+[参考这里](/docs/v3.5/登录（通行证）/Android 登录API/快速接入)
+
+## 初始化(必接)
+```java
+ Map params = new HashMap<>();
+
+// 这里使用方填写自己的 appid 和 appkey 再测试
+params.put("appid", "122323232");
+params.put("appkey", "fdfdafdfasdfdfdfdfdf");
+params.put("service_id", "2121212");
+params.put("server_name", "test");
+params.put("merchant_id", "11221");
+RuiXueSdk.getApi().initThirdSdk(this, params, new RXJSONCallback() {
+    @Override
+    public void onSuccess(@Nullable JSONObject jsonObject) {
+        Log.d(TAG, "init third sdk success");
+    }
+
+    @Override
+    public void onFailed(@NonNull JSONObject jsonObject) {
+        Log.d(TAG, "init third sdk failed " + jsonObject);
+    }
+});
+```
+
+## 登录(必接)
+[参考 Android 登录 API](/docs/v3.5/登录（通行证）/Android 登录API/快速接入)
+参考代码
+```java
+```java
+String username = null;
+String loginType = LoginMethod.BILIBILI;
+String captchaCode = null;
+String loginOpenId = null;
+Map ext = null;
+String[] signFields = null;
+Object migrateArgs = null;
+RuiXueSdk.getApi().login(QuickDemoActivity.this, loginType, username, password, captchaCode, loginOpenId, ext, signFields, migrateArgs, new RXJSONCallback() {'{'}
+    @OverrideQuickDemoActivity
+    public void onSuccess(@Nullable JSONObject data) {'{'}
+        Toast.makeText(QuickDemoActivity.this, "登录成功", Toast.LENGTH_SHORT).show();
+    {'}'}QuickDemoActivity
+
+    @Override
+    public void onFailed(@NonNull JSONObject cause) {'{'}
+        Toast.makeText(QuickDemoActivity.this, "登录失败", Toast.LENGTH_SHORT).show();
+    {'}'}QuickDemoActivity
+{'}'});
+```
+
+## 支付(必接)
+[参考 Android 支付 API](/docs/v3.5/三方服务/Bilibili/客户端/客户端接入)
+
+## 账号注销接口(必接)
+  请传入平台账号下所有角色信息，包含哔哩哔哩 iOS、哔哩哔哩 Android平台，如果传入空数据或空数组，则SDK会展示默认的提示文案.
+
+``` java
+/**
+*@param map      user_info
+*                示例 游戏⻆⾊信息json格式的字符串
+*                [{'{'}
+*                "role_name": "⻆⾊名1",
+*                "server_name": "区服1",
+*                "level": "1",
+*                "time": "2021.01.01"
+*                {'}'}, {'{'}
+*                "role_name": "⻆⾊名2",
+*                "server_name": "区服2",
+*                "level": "2",
+*                "time": "2021.01.01"
+*                {'}'}]
+*@param callback 回调函数
+*/
+void deregister(Map hashMap, RXJSONCallback callback);
+
+//示例:
+RuiXueSdk.getRXSdkApi().deregister(new HashMap<>(), callback);
+```
+
+## 登出
+- 在游戏需要登出的地方调用如下代码
+```java
+ RuiXueSdk.getApi().logout(new OnLogoutCallback() {'{'}
+    @Override
+    public void onSuccess(@Nullable String data) {'{'}
+        Toast.makeText(QuickDemoActivity.this, "登出成功", Toast.LENGTH_SHORT).show();
+    {'}'}
+
+    @Override
+    public void onFailed(int code, String msg) {'{'}
+        RXLogger.d("logout failed code = " + code + " msg = " + msg);
+        Toast.makeText(QuickDemoActivity.this, "登出失败", Toast.LENGTH_SHORT).show();
+    {'}'}
+{'}'});
+```
+
+## 退出
+参考代码
+```java
+ RuiXueSdk.exitApp(this, new OnAppExitCallback() {'{'}
+    @Override
+    public void onExitConfirm(@Nullable String res) {'{'}
+        Toast.makeText(QuickDemoActivity.this, "退出游戏成功", Toast.LENGTH_SHORT).show();
+    {'}'}
+
+    @Override
+    public void onExitCancel() {'{'}
+        Toast.makeText(QuickDemoActivity.this, "退出游戏取消", Toast.LENGTH_SHORT).show();
+    {'}'}
+{'}'});
+```
+## 游戏账号切换 和 logout 全局监听
+参考代码 
+```java 
+RuiXueSdk.setRuiXueSdkCallback(new RuiXueSdkCallback() {'{'}
+    
+    // ... 省略了一些无关代码
+
+    /**
+     * 切换账号全局回调,如果有游戏内切换账号可关注此回调
+     * @param code 0
+     * @param data 三方数据
+     */
+    @Override
+    public boolean onSwitchAccount(int code, String data) {'{'}
+        // 调用方如果有要处理的逻辑放在此处
+        // 返回 true，望舒sdk，会执行 logout 操作
+        // 返回 false，望舒sdk 不执行任何操作
+        return true;
+    {'}'}
+    
+    @Override
+    public void onLogout(int code, String msg) {'{'}
+        // code 0: 登出成功 
+        RXLogger.d(TAG, "onLogout code = " + code + " msg = " + msg);
+    {'}'}
+{'}'});
+```
+
+## 通知用户区服角色信息接口
+```java
+// 参数名称	参数说明
+// server_id	分配给研发的区服id，务必不要传""和null
+// server_name	分配给研发的区服名称，务必不要传""和null
+// role_id	用户在游戏内角色ID(游戏自己的)，务必不要传""和null
+// role_name	用户游戏内角色名，长度不超过64(游戏自己的)，务必不要传""和null
+BiliBiliSdkHelper.notifyZone(String server_id, String server_name, String role_id, String role_name);
+```
+
+## 用户创建角色接口
+```java
+// roleName 角色名
+// roleId   角色id
+BiliBiliSdkHelper.createRole(String roleName, String roleId) 
+```
+
+## 开始心跳
+```java
+BiliBiliSdkHelper.startHeart() 
+```
+
+## 停止心跳
+```java
+BiliBiliSdkHelper.stopHeart() 
+```
+
+## 获取渠道id
+```java
+BiliBiliSdkHelper.getChannelId(activity) 
+```
+
+## 获取设备指纹
+```java
+BiliBiliSdkHelper.getFingerprint() 
+```
+
+## 判断SDK是否处于登录状态
+
+```java
+ BiliBiliSdkHelper.checkLogin(new RXJSONCallback() {'{'}
+    @Override
+    public void onSuccess(@Nullable JSONObject data) {'{'}
+        if(data!=null) {'{'}
+            boolean logined = data.optBoolean("logined");
+        {'}'}
+    {'}'}
+
+    @Override
+    public void onFailed(@NonNull JSONObject cause) {'{'}
+
+    {'}'}
+{'}'});
+```
+## 判断是否实名
+
+```java
+ BiliBiliSdkHelper.isRealNameAuth(new RXJSONCallback() {'{'}
+    @Override
+    public void onSuccess(@Nullable JSONObject data) {'{'}
+        if(data!=null) {'{'}
+            boolean isRealNameAuth = data.optBoolean("isRealNameAuth");
+        {'}'}
+    {'}'}
+
+    @Override
+    public void onFailed(@NonNull JSONObject cause) {'{'}
+
+    {'}'}
+{'}'});
+```
+
+## 获取用户信息
+
+```java
+ BiliBiliSdkHelper.getUserInfo(new RXJSONCallback() {'{'}
+    @Override
+    public void onSuccess(@Nullable JSONObject data) {'{'}
+        if(data!=null) {'{'}
+            String uid = data.optString("uid");
+            String username = data.optString("username");
+            String access_token = data.optString("access_token");
+            String expire_times = data.optString("expire_times");
+            String refresh_token = data.optString("refresh_token");
+            String lastLoginTime = data.optString("lastLoginTime");
+            String avatar = data.optString("avatar");
+            String s_avatar = data.optString("s_avatar");
+        {'}'}
+    {'}'}
+
+    @Override
+    public void onFailed(@NonNull JSONObject cause) {'{'}
+
+    {'}'}
+{'}'});
+```

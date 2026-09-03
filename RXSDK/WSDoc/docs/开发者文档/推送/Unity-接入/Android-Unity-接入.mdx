@@ -1,0 +1,341 @@
+---
+sidebar_position: 1
+title: Android Unity 接入
+description: "望舒SDK 消息推送 Android Unity 接入 Unity 接入文档，提供完整的接口调用说明与示例。"
+---
+
+### 接入方式
+
+Package Manager 导入 RuiXue.Push
+
+> [SDK 更新日志](/docs/开发者文档/入门指南/更新日志/Android)。
+
+## 支持推送厂商列表
+
+| 名称 | 描述 |
+| --- | --- |
+| 小米 | 小米、红米手机上的厂商推送通道 |
+| 魅族 | 魅族手机上的厂商推送通道 |
+| OPPO | OPPO、realme、一加等子品牌手机上的厂商推送通道 |
+| VIVO | VIVO、IQOO 等子品牌手机上的厂商推送通道 |
+| 华为 | 华为、荣耀等子品牌手机上的厂商推送通道 |
+
+## 配置依赖
+
+配置 SDK 依赖及应用参数：在 `mainTemplate.gradle` 文件的 `dependencies` 块中引用 PUSH SDK
+
+依赖 `implementation "com.ruixue.push:rxsdk_push_xxx:${version}"`
+
+此处的 `version` 为对应的 SDK 版本号
+
+
+:::tip[版本说明]
+`version` 为 SDK 版本号（替换为实际版本号），最新版本请从 [更新日志](/docs/开发者文档/入门指南/更新日志/Unity) 中查看。
+:::
+
+```groovy
+dependencies {
+ ......
+ def version="版本号" //最新版本去更新日志中查看
+ //[可选] 望舒PUSH魅族库
+ implementation "com.ruixue:rxsdk_push_meizu:${version}"
+ //[可选] 望舒PUSH小米库
+ implementation "com.ruixue:rxsdk_push_mi:${version}"
+ //[可选] 望舒PUSH OPPO
+ implementation "com.ruixue:rxsdk_push_oppo:${version}"
+ //[可选] 望舒PUSH VIVO
+ implementation "com.ruixue:rxsdk_push_vivo:${version}"
+ //[可选] 望舒PUSH华为库
+ implementation "com.ruixue:rxsdk_push_huawei:${version}"
+}
+```
+
+并在 `launcherTemplate.gradle` 文件中 `android.defaultConfig` 下添加 `manifestPlaceholders` ，配置 PUSH 相关的应用参数：
+
+```groovy
+manifestPlaceholders = [
+ ......
+ //rx push params (对应参数请从各厂商后台自信申请获取)
+ //[可选]vivo 厂商参数，接入vivo推送时配置
+ VIVO_APP_ID : "your appid ",
+ VIVO_API_KEY : "your appkey ",
+ //[可选]oppo 厂商参数，接入oppo推送时配置
+ OPPO_APP_SECRET : "your appsecret ",
+ OPPO_APP_KEY : "your appkey ",
+ //[可选]魅族 厂商参数，接入魅族推送时配置
+ MZ_APP_ID : "your appid ",
+ MZ_APP_KEY : "your appkey ",
+ //[可选]小米厂 商参数，接入小米推送时配置
+ MI_APP_ID : "your appid ",
+ MI_APP_KEY : "your appkey "
+]
+
+```
+
+## 混淆配置
+
+在应用级根目录下打开混淆配置文件 `proguard-rules.pro` ，加入排除 SDK 的混淆配置
+
+```groovy
+#ruixue PUSH sdk混淆
+-dontwarn com.ruixue.push.**
+-keep class com.ruixue.push.** { *; }
+
+#小米sdk混淆(可选 接入小米推送时配置)
+-dontwarn com.xiaomi.push.**
+-keep class com.xiaomi.push.** { *; }
+
+#魅族混淆(可选 接入魅族推送时配置)
+-dontwarn com.meizu.cloud.**
+-keep class com.meizu.cloud.** { *; }
+
+#华为混淆(可选 接入华为推送配置)
+-ignorewarnings
+-keepattributes *Annotation*
+-keepattributes Exceptions
+-keepattributes InnerClasses
+-keepattributes Signature
+-keepattributes SourceFile,LineNumberTable
+-keep class com.huawei.hianalytics.**{*;}
+-keep class com.huawei.updatesdk.**{*;}
+-keep class com.huawei.hms.**{*;}
+
+#OPPO混淆(可选 接入OPPO推送时配置)
+-keep public class * extends android.app.Service -keep class com.heytap.msp.** { *;}
+
+#VIVO混淆(可选 接入VIVO推送时配置)
+-dontwarn com.vivo.push.**
+-keep class com.vivo.push.**{*; }
+-keep class com.vivo.vms.**{*; }
+
+#Google FCM 混淆(可选 接入FCM推送时配置)
+-keep public class com.google.firebase.* {*;}
+-keep public class com.google.android.* {*;}
+```
+
+## 参数说明（推送厂商）
+
+**厂商参考链接**：
+
+> 华为隐私政策地址：[https://developer.huawei.com/consumer/cn/doc/development/HMSCore-Guides/sdk-data-security-0000001050042177](https://developer.huawei.com/consumer/cn/doc/development/HMSCore-Guides/sdk-data-security-0000001050042177)
+>
+> 小米隐私政策地址：[https://dev.mi.com/console/doc/detail?pId=1822](https://dev.mi.com/console/doc/detail?pId=1822)
+>
+> 魅族隐私政策地址：[https://i.flyme.cn/privacy](https://i.flyme.cn/privacy)
+>
+> oppo 隐私政策地址：[https://open.oppomobile.com/wiki/doc#id=10288](https://open.oppomobile.com/wiki/doc#id=10288)
+>
+> vivo 隐私政策地址：[https://www.vivo.com.cn/about-vivo/privacy-policy](https://www.vivo.com.cn/about-vivo/privacy-policy)
+
+### 小米参数说明
+
+进入 [小米开放平台](https://admin.xmpush.xiaomi.com/zh_CN)，[请查看配置说明文档](/docs/开发者文档/推送/服务端接入/推送常见错误及解决方法)。
+
+开通小米推送服务,如上添加相关小米 appId、appkey 即可
+
+| 字段 | 备注 |
+| --- | --- |
+| MI_APP_ID | manifestPlaceholders 配置 |
+| MI_APP_KEY | manifestPlaceholders 配置 |
+
+配置相应依赖
+
+```groovy
+manifestPlaceholders = [
+ ......
+ //[可选]小米厂 商参数，接入小米推送时配置
+ MI_APP_ID : "your appid ",
+ MI_APP_KEY : "your appkey "
+]
+
+dependencies {
+ ......
+ def version="版本号" //最新版本去更新日志中查看
+ //[可选] 望舒PUSH小米库
+ implementation "com.ruixue:rxsdk_push_mi:${version}"
+}
+```
+
+### OPPO 参数说明
+
+在 `settingsTemplate.gradle` 文件中 `dependencyResolutionManagement` 的 `repositories` 块新增
+
+```groovy
+ maven {
+ url 'https://maven.columbus.heytapmobi.com/repository/releases/'
+ credentials {
+ username 'YOUR_MAVEN_USERNAME'
+ password 'YOUR_MAVEN_PASSWORD'
+ }
+ }
+
+```
+
+### 华为参数说明
+
+请参数三方服务 华为渠道接入
+
+**注意 app 签名要与华为推送后台配置保持一致**
+
+### 推送初始化
+
+打开 `UnityPlayerActivity.java` 文件，在 onCreate ， onNewIntent 放下下新增
+
+```java
+
+    @Override protected void onCreate(Bundle savedInstanceState)
+    {
+    RxPushManager.init(this);
+    RxPushManager.openAppCallback(getIntent());
+
+    }
+
+    @Override protected void onNewIntent(Intent intent)
+    {
+    RxPushManager.openAppCallback(intent);
+    }
+
+```
+
+`UnityPlayerActivity.java` 文件最顶部引包
+
+```java
+    import com.ruixue.push.RxPushManager;
+```
+
+## 注册望舒推送服务
+
+**接口原型**
+
+```csharp
+ /// summary>
+ /// 注册望舒推送服务（建议望舒登录成功后调用一次，不切换账号不用重复调用）
+ /// 由于registerToken和望舒账号关联绑定，所以请不要在登录前调用
+ /// summary>
+ public void RegisterToken();
+```
+
+**调用示例**
+
+```csharp
+
+ public void OnRegisterToken()
+ {
+ RXPush.RegisterToken();
+ }
+
+```
+
+## 反注册望舒推送服务
+
+**接口原型**
+
+```csharp
+ /// summary>
+ /// 反注册望舒推送服务（建议在登出账号时调用）
+ /// summary>
+ public void UnRegisterToken();
+```
+
+**调用示例**
+
+```csharp
+
+ public void OnUnRegisterToken()
+ {
+ RXPush.UnRegisterToken();
+ }
+
+```
+
+## 其它方法
+
+**接口原型**
+
+```csharp
+
+ /// summary>
+ /// 服务器生成的推送 token/regId
+ /// summary>
+ public string GetDeviceToken();
+
+ /// summary>
+ /// 当前设备是否支持推送 init（）后调用
+ /// summary>
+ public bool IsSupport();
+
+ /// summary>
+ /// 当前推送的厂商平台 BRAND
+ /// summary>
+ public string GetBrandName();
+
+ /// summary>
+ /// 开发者可以为指定用户设置别名，然后给这个别名推送消息，效果等同于给RegId推送消息
+ /// summary>
+ /// param name="alias">param>
+ public void BindAlias(string alias);
+
+ /// summary>
+ /// 开发者可以取消指定用户的某个别名，服务器就不会给这个别名推送消息了
+ /// summary>
+ /// param name="alias">param>
+ public void UnBindAlias(string alias);
+
+```
+
+**调用示例**
+
+```csharp
+
+ public void OnGetDeviceToken()
+ {
+ LogUtil.Log("EventManager", "GetDeviceToken " + RXPush.GetDeviceToken());
+ }
+
+ public void OnIsSupport()
+ {
+ LogUtil.Log("EventManager", "IsSupport " + RXPush.IsSupport());
+ }
+
+ public void OnGetBrandName()
+ {
+ LogUtil.Log("EventManager", "GetBrandName " + RXPush.GetBrandName());
+ }
+
+ public void OnBindAlias()
+ {
+ RXPush.BindAlias("unity-test");
+ }
+
+ public void OnUnBindAlias()
+ {
+ RXPush.UnBindAlias("unity-test");
+ }
+
+```
+
+注册推送前，请先登录
+
+各个渠道的推送接入，也请参考第三方服务接入。
+
+**推送设备注册结果自查方法**
+
+在 SDK `RuiXueSdk.setDebugEnabled(true);` 开启 debug 时，在 logcat 控制台日志搜索 registerToken ，会有类似如下日志输出。
+
+![](https://guanwangyun.oss-cn-beijing.aliyuncs.com/document/push/XyKabFO1soh2AzxGulwc21cdn7d.png)
+
+设备注册成功时的 logcat 输出示例
+
+```plaintext
+registerToken token:IQAAAACy0omCAACJk15CXKuzBZu6oE4LeUsl3hdcCepcaD8UeJVIWen4NBZhPgJOjL6Y_zvcfDgKThaixLFiaLbzS5_0UMF7y8fZFvuXb3Euzbz4mw
+```
+
+` 或 `
+
+手动获取 registerToken 检查是否注册成功
+
+```plaintext
+// token 不为空时，说明已注册成功。
+String token =RxPushManager.getDeviceToken();
+
+```

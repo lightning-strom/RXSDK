@@ -1,0 +1,115 @@
+---
+sidebar_position: 35
+title: 海外H5
+description: "望舒SDK 登录通行证 海外H5 小游戏 接入文档，提供完整的接口调用说明与示例。"
+---
+
+## 苹果 H5
+
+## 准备工作
+
+App Store Connect ：[https://appstoreconnect.apple.com/apps](https://appstoreconnect.apple.com/apps)
+
+官方配置文档:[为网页配置“通过 Apple 登录](https://developer.apple.com/cn/help/account/capabilities/configure-sign-in-with-apple-for-the-web)
+
+## 登录配置
+
+### 苹果开发者后台配置
+
+在“证书、标识符和描述文件” 中，点按边栏中的“Identifiers”(标识符)，然后点按左上方的添加按钮 (+)。
+
+选择“Services ID”(服务 ID)，然后点按“Continue”(继续)。
+
+![](https://haiqi-ruixue-test.oss-cn-beijing.aliyuncs.com/docOnline/img_v3_02l1_c050640f-216f-42d9-841a-a01c6939257g-1743749967883.png)
+
+输入服务 ID 说明并提供唯一标识符。
+
+注册服务 ID ，并从列表中选择它以开始配置。
+
+选择“Sign in with Apple”(通过 Apple 登录)，然后点按“Configure”(配置)。
+
+![](https://haiqi-ruixue-test.oss-cn-beijing.aliyuncs.com/docOnline/img_v3_02l1_fb001afb-e4c8-490b-bff1-79ca07325f3g-1743749983706.png)
+
+在出现的模式中，从主要 App ID 列表中选择与你网站相关的 App。
+
+在“Website URLs”(网站 URL) 下，以逗号分隔的列表形式提供你的域名、子域名或返回 URL。你必须提供至少一个域或子域。
+
+Domains and Subdomains 不需要添加 **https://**
+
+图中配置为示例，请填写实际配置
+
+![](https://haiqi-ruixue-test.oss-cn-beijing.aliyuncs.com/docOnline/image-1743851661468.png)
+
+### 望舒系统中配置信息
+
+在望舒后台 H5 渠道的渠道包中添加苹果登录。位置：**渠道&产品 > 渠道包管理 > 添加登录方式**。
+
+![](https://haiqi-ruixue-test.oss-cn-beijing.aliyuncs.com/docOnline/image-1743750475844.png)
+
+---
+
+## Facebook H5
+
+## 准备工作
+
+FaceBook 开发者平台地址：[https://developers.facebook.com/](https://developers.facebook.com/)
+
+## 登录配置
+
+### FaceBook开发者平台获取配置
+
+登录[FaceBook 开发者平台](https://developers.facebook.com/)，位置：**首页>我的应用>应用设置>基本**。
+
+获取关键配置： ` 应用密钥 `。
+
+![](https://haiqi-ruixue-test.oss-cn-beijing.aliyuncs.com/docOnline/image-1732260309713.png)
+
+### H5登录开启JS登录并配置域名
+
+登录[FaceBook 开发者平台](https://developers.facebook.com/)，位置：**首页>我的应用>产品>FaceBook 登录>设置**
+
+开启 JS 登录。并且配置网站的实际相关域名。
+
+![](https://haiqi-ruixue-test.oss-cn-beijing.aliyuncs.com/docOnline/image-1743751316084.png)
+
+### 数据删除回调配置说明（非必要根据实际情况）
+
+登录[FaceBook 开发者平台](https://developers.facebook.com/)，位置：**首页>我的应用>应用设置>基本**。
+
+选择数据删除回调网址，配置格式为：**API 域名/v1/passport/tpcallbacks/facebook/产品/渠道/user_deregistered**
+
+![](https://haiqi-ruixue-test.oss-cn-beijing.aliyuncs.com/docOnline/image-1732511434079.png)
+
+### 望舒系统中配置登录信息
+
+在 H5 渠道的渠道包中添加 FaceBook 登录并把获取的 ` 应用密钥 ` 复制到望舒系统，位置：**渠道&产品 > 渠道包管理 > 添加登录方式**。
+
+![](https://haiqi-ruixue-test.oss-cn-beijing.aliyuncs.com/docOnline/image-1743751989327.png)
+
+---
+
+## Google H5
+
+## 准备工作
+
+Google 云平台地址：[https://console.cloud.google.com/](https://console.cloud.google.com/apis/credentials?project=fishing-game-zone&hl=fi&supportedpurview=project)
+
+## 获取配置
+
+登录 [Google 云平台](https://console.cloud.google.com/apis/credentials?project=fishing-game-zone&hl=fi&supportedpurview=project)，位置：**凭据 > OAuth2.0 客户端 ID > 客户端 ID**，复制信息。
+
+新建凭据时需要注意：
+
+Web 应用创建 OAuth2.0 客户端 ID 应用类型需要选择 Web 应用。
+
+并把网页登录域名配置到授权 URI 中。
+
+![](https://haiqi-ruixue-test.oss-cn-beijing.aliyuncs.com/docOnline/image-1733705467063.png)
+
+![](https://haiqi-ruixue-test.oss-cn-beijing.aliyuncs.com/docOnline/image-1743852304925.png)
+
+## 望舒系统中配置信息
+
+在 H5 渠道的渠道包中添加 google 登录并把获取到的 ` 客户端 ID` 复制到望舒系统,填写到 google appid 中。位置：**渠道&产品 > 渠道包管理 > 添加登录方式**。
+
+![](https://haiqi-ruixue-test.oss-cn-beijing.aliyuncs.com/docOnline/image-1743750604634.png)

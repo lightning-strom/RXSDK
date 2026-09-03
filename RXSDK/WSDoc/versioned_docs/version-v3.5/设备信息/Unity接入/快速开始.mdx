@@ -1,0 +1,42 @@
+---
+title: "快速开始"
+---
+
+### 接入方式
+* Package Manager 导入 RuiXue.Base
+
+## SDK 集成
+* ( ) iOS::devicecodeIOS
+* ( ) Android::devicecodeAndroid
+
+## 获取设备码
+
+**接口原型**
+
+```csharp
+/// <summary>
+/// 获取设备码（设备唯一标识）
+/// </summary>
+/// 
+public void GetDeviceCode(RequestResponseDelegate onResponse);
+```
+
+**调用示例**
+
+```csharp
+public void getPromo()
+{
+   RuiXueSdk.GetDeviceCode(DeviceCodeResponseDelegate);
+}
+
+private void DeviceCodeResponseDelegate(string data)
+{
+   LogUtil.Log("EventManager", $"GetDeviceCode: {data}");
+}
+```
+
+### 响应结构(JSON)
+
+| **参数** | **类型**                                             | **备注** |
+| -------- | ---------------------------------------------------- | -------- |
+| data     | string                                               | 设备标识字符串 |

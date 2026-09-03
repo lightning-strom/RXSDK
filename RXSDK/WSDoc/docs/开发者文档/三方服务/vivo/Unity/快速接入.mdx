@@ -1,0 +1,76 @@
+---
+sidebar_position: 1
+title: 快速接入
+description: "望舒SDK 三方服务 快速接入 Unity 接入文档，提供完整的接口调用说明与示例。"
+---
+
+## SDK集成
+
+打开 mainTemplate.gradle 文件， 在 dependencies 中添加：
+
+
+:::tip[版本说明]
+`version` 为 SDK 版本号（替换为实际版本号），最新版本请从 [更新日志](/docs/开发者文档/入门指南/更新日志/Unity) 中查看。
+:::
+
+```groovy
+ //vivo渠道库
+ implementation 'com.ruixue:rxsdk_vivo:${version}'
+```
+
+## 配置信息
+
+打开 AndroidManifest.xml ， 在 `application` 中新增：
+
+```xml
+</application>
+ meta-data
+ android:name="vivoUnionAppId"
+ android:value="替换为vivo的appid"/>
+
+ meta-data
+ android:name="vivoUnionAppType"
+ android:value="1为网游(网游可以不声明此meta-data，接入账号登录的游戏请务必填1)，0为单机"/>
+</application>
+```
+
+打开 Assets/Plugins/Android 目录，将 `supplierconfig.json` 放在当中
+
+```json
+{
+ "supplier":{
+ "vivo":{
+ "appid":"替换为vivo的appid"
+ },
+ "xiaomi":{
+ },
+ "huawei":{
+ },
+ "oppo":{
+ }
+ }
+}
+```
+
+## 混淆配置
+
+[参考链接](https://dev.vivo.com.cn/documentCenter/doc/450)
+
+在应用级根目录下打开混淆配置文件 `proguard-rules.pro` ，加入排除 SDK 的混淆配置
+
+```proguard
+-keep class com.bun.miitmdid.core.** {*;}
+-keep class XI.CA.XI.**{*;}
+-keep class XI.K0.XI.**{*;}
+-keep class XI.XI.K0.**{*;}
+-keep class XI.xo.XI.XI.**{*;}
+-keep class com.asus.msa.SupplementaryDID.**{*;}
+-keep class com.asus.msa.sdid.**{*;}
+-keep class com.bun.lib.**{*;}
+-keep class com.bun.miitmdid.**{*;}
+-keep class com.huawei.hms.ads.identifier.**{*;}
+-keep class com.samsung.android.deviceidservice.**{*;}
+-keep class com.zui.opendeviceidlibrary.**{*;}
+-keep class org.json.**{*;}
+-keep public class com.netease.nis.sdkwrapper.Utils {public ;}
+```

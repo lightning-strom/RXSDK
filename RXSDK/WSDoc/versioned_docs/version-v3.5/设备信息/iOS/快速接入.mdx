@@ -1,0 +1,30 @@
+---
+title: "快速接入"
+---
+
+## 获取设备码
+
+在首次安装应用时 SDK 会根据规则生成设备码并保存，为保证设备码的唯一性首次生成后将一直读取缓存中的设备码；
+
+**生成策略：**
+**iOS**：随机生成 uuid 存入 keychain 中，卸载重装设备码不会变，App 主体转让、越狱等导致 keychain 存储区域变的更行为会重新生成设备码；
+
+**接口原型**
+
+```objectivec
+/**
+ * 获取设备码
+ */
+- (NSString *)getDeviceCode;
+```
+
+**调用示例**
+
+```objectivec
+NSString *deviceCode = [[RXApiService sharedSDK] getDeviceCode];
+```
+
+## 上报网络类型和设备类型
+:::tip
+iOS将 **RXSDK_Pure** 升级到**3.5.17**及以上版本即可。
+:::

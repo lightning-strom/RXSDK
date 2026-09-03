@@ -1,0 +1,122 @@
+---
+sidebar_position: 3
+title: Unity 接入
+description: "望舒SDK 三方服务 Unity 接入文档，提供详细的功能说明与接入指引。"
+---
+
+## SDK集成
+
+打开 mainTemplate.gradle 文件，在 dependencies 中新增：
+
+
+:::tip[版本说明]
+`version` 为 SDK 版本号（替换为实际版本号），最新版本请从 [更新日志](/docs/开发者文档/入门指南/更新日志/Unity) 中查看。
+:::
+
+```groovy
+ //快手渠道库
+ implementation 'com.ruixue:rxsdk_kwaiallin:${version}'
+```
+
+## 配置说明
+
+打开 launcherTemplate.gradle 文件， 在 defaultConfig 中新增：
+
+```groovy
+ manifestPlaceholders = [
+ KWAI_APP_ID : "xxxxxxx"
+ KWAI_APP_NAME : "xxxxxxx"
+ ]
+```
+
+meta-data 要配置在 application 标签内，否则不生效。
+
+使用快手 sdk 隐私时，需要同步打开快手后台 sdk 隐私权限配置开关。
+
+必须配置望舒 RXApplication (在 AndroidManifest.xml 文件 application 中配置 android:name="com.ruixue.openapi.RXApplication)。
+
+打开 AndroidManifest.xml 文件
+
+```xml
+</application>
+
+ meta-data
+ android:name="kwai_allow_tourist"
+ android:value="false" />
+
+ meta-data
+ android:name="kwai_disable_float_switch"
+ android:value="false" />
+
+ meta-data
+ android:name="kwai_custom_privacy"
+ android:value="false" />
+
+ activity
+ android:name=".xxxActivity"
+ android:configChanges="orientation|keyboardHidden|screenSize"
+ android:screenOrientation="landscape">
+
+</intent-filter>
+ <action android:name="android.intent.action.VIEW">
+
+ <category android:name="android.intent.category.BROWSABLE">
+ <category android:name="android.intent.category.DEFAULT">
+
+ data
+ android:host="home"
+ android:scheme="ks+游戏缩写" />
+</intent-filter>
+</activity>
+</application>
+```
+
+## 快手常用词汇术语
+
+Appid
+
+游戏 app 在快手游戏的唯一身份标识，例如： ks685673047210945076
+
+App_secret
+
+快手游戏中台分配给游戏的秘钥，用于加密数据及校验权限
+
+UserId
+
+游戏用户在快手游戏的唯一身份标识（经加密处理），客户端登录返回的 AccountMode 里面 SdkUserId
+
+Token
+
+用户的登录凭证，客户端登录返回的 AccountMode 里面的 sdkToken
+
+Schema
+
+从快手 app 或网页中启动游戏 app 时，需要配置的协议
+
+## 常见问题
+
+如遇冲突 Duplicate class com.google.common.util.concurrent.ListenableFuture found in modules jetified-guava-24.0-android (com.google.guava:guava:24.0-android) and jetified-listenablefuture-1.0 (com.google.guava:listenablefuture:1.0)
+
+在 app build.gradle 中添加下面配置
+
+```groovy
+ configurations {
+ all*.exclude group: 'com.google.guava', module: 'listenablefuture'
+ }
+```
+
+如微信组件出现冲突，请使用下面方式可以排除冲突。
+
+```groovy
+ api ("com.ruixue:rxsdk_weixin:+" ){
+ exclude group: 'com.tencent.mm.opensdk', module: 'wechat-sdk-android'
+ }
+```
+
+如遇错误 java.lang.NoClassDefFoundError: Failed resolution of: Lcom/google/common/base/Optional; Caused by: java.lang.ClassNotFoundException: Didn't find class "com.google.common.base.Optional"
+
+请添加 ('com.google.guava:guava:24.0-android') 库
+
+如遇 编译报错， compileSdkVersion 版本低
+
+打开 launcherTemplate.gradle ， 在 defaultConfig 新增 compileSdkVersion 33

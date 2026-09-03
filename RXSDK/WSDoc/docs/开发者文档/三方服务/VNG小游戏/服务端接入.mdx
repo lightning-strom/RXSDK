@@ -1,0 +1,308 @@
+---
+sidebar_position: 2
+title: 服务端接入
+description: "望舒SDK 三方服务 服务端接入 小游戏 接入文档，提供完整的接口调用说明与示例。"
+---
+:::info[文档说明]
+本渠道当前仅提供配置说明，暂无独立的客户端 SDK 接入文档。
+如需了解各渠道覆盖能力，请查看 [渠道矩阵](/docs/开发者文档/三方服务/渠道矩阵)。
+:::
+
+
+
+## 获取商品包列表 API(望舒回调CP)
+
+获取用户可购买的商品包信息，返回结果为商品包列表（包含 productID ）。商品包需通过该 API 返回且在 Webshop 内完成配置，方可在 Webshop 中展示。
+
+> 类型：同步
+>
+> Action: channel-notify
+>
+> **认证方式：** [CPSign](/docs/开发者文档/入门指南/服务端接入须知)
+
+### 请求参数
+
+| 字段 | 类型 | 是否必填 | 说明 |
+| --- | --- | --- | --- |
+| product_id | String | 是 | 望舒产品标识 |
+| channel_id | String | 是 | 望舒渠道表示 |
+| method | String | 是 | 默认 minigame_vng |
+| channel_notify_type | String | 是 | 默认 getproducts |
+| query | String | 否 | url 参数 |
+| body | String | 是 | body 请求体 |
+
+#### body(JSON)字段参数说明
+
+| 字段 | 类型 | 是否必填 | 说明 |
+| --- | --- | --- | --- |
+| clientIP | String | 否 | 用户浏览器的 IP 地址 |
+| loginChannel | String | 否 | VNG 侧登录渠道 |
+| userID | String | 是 | VNG 用户 ID |
+| serverID | String | 是 | 服务器 ID |
+| roleID | String | 是 | 角色 ID |
+| country | String | 否 | 国家，采用 ISO 3166-1 alpha-2 代码，例如： VN （越南）、TH （泰国）、IN （印度）等，参考 ISO 3166-1 alpha-2 标准 |
+| currency | String | 否 | 货币，采用 ISO 4217 代码，例如： VND （越南盾）、THB （泰铢）、USD （美元）等，参考 ISO 4217 标准 |
+| rx_openid | String | 是 | 望舒 openid |
+
+#### 请求示例
+
+```json
+{
+  "product_id": "1002",
+  "channel_id": "100",
+  "method": "minigame_vng",
+  "channel_notify_type": "getproducts",
+  "query": "",
+  "body": "{\"country\":\"\",\"loginChannel\":\"\",\"roleID\":\"200000028\",\"clientIP\":\"\",\"currency\":\"\",\"serverID\":\"1\",\"userID\":\"1758113059365817146097117\"}"
+}
+```
+
+#### 返回示例
+
+```json
+{
+  "code": 0,
+  "data":{
+  "returnCode": 1,
+  "returnMessage": "success",
+  "data": {
+  "1": {
+  "productID": "1",
+  "enable": true,
+  "productName": "500 Vàng",
+  "info": {}
+},
+  "2": {
+  "productID": "2",
+  "enable": true,
+  "productName": "1000 Vàng",
+  "info": {}
+}
+}
+}
+}
+```
+
+### 响应要求
+
+| 字段 | 类型 | 说明 |
+| --- | --- | --- |
+| code | Number | 0 成功 |
+| msg | String | 错误信息 |
+| data | Data | 响应渠道方数据 |
+
+#### 响应data要求
+
+| 字段 | 类型 | 说明 |
+| --- | --- | --- |
+| returnCode | Number | 错误码，成功 = 1 ，失败≠1 |
+| returnMessage | String | 错误描述 |
+| data | Map &lt;String, ProductEntity> | 商品列表，键为 productID |
+
+#### ProductEntity
+
+| 字段 | 类型 | 说明 |
+| --- | --- | --- |
+| productID | String | 商品 ID |
+| productName | String | 商品名称 |
+| enable | Boolean | 商品状态，启用 = 1 ，禁用≠1 |
+| productDescription | String | 向角色展示的商品描述 |
+| productBonus | String | 向角色展示的额外奖励说明 |
+| info | Object(json) | 需在 Webshop 展示的商品详细信息 |
+
+## 通过 roleID 获取角色信息 API(望舒回调CP)
+
+通过 roleID 获取用户的角色信息，支持用户使用游戏内 roleID 快速登录（快捷登录）。游戏内 roleID 在所有服务器中唯一，且易于记忆和复制
+
+> 类型：同步
+>
+> Action: channel-notify
+>
+> **认证方式：** [CPSign](/docs/开发者文档/入门指南/服务端接入须知)
+
+### 请求参数
+
+| 字段 | 类型 | 是否必填 | 说明 |
+| --- | --- | --- | --- |
+| product_id | String | 是 | 望舒产品标识 |
+| channel_id | String | 是 | 望舒渠道表示 |
+| method | String | 是 | 默认 minigame_vng |
+| channel_notify_type | String | 是 | 默认 getrolesbyroleid |
+| query | String | 否 | url 参数 |
+| body | String | 是 | body 请求体 |
+
+#### body(JSON)字段参数说明
+
+| 字段 | 类型 | 是否必填 | 说明 |
+| --- | --- | --- | --- |
+| clientIP | String | 否 | 用户浏览器的 IP 地址 |
+| roleID | String | 是 | 角色 ID |
+
+#### 请求示例
+
+```json
+{
+  "product_id": "1002",
+  "channel_id": "100",
+  "method": "minigame_vng",
+  "channel_notify_type": "getrolesbyroleid",
+  "query": "",
+  "body": "{\"roleID\":\"200000028\",\"clientIP\":\"\""}"
+}
+```
+
+#### 返回示例
+
+```json
+{
+  "code": 0,
+  "data":{
+  "returnCode": 1,
+  "returnMessage": "success",
+  "data": {
+  "70590000002052": {
+  "rx_openid": "xxxxx",
+  "roleID": "70590000002052",
+  "roleName": "YuiSakura",
+  "userID": "vng_11331",
+  "serverID": "1",
+  "serverName": "Server 1",
+  "info": {
+  "level": 93,
+  "power": 695020
+}
+}
+}
+}
+}
+}
+```
+
+### 响应要求
+
+| 字段 | 类型 | 说明 |
+| --- | --- | --- |
+| code | Number | 0 成功 |
+| msg | String | 错误信息 |
+| data | Data | 响应渠道方数据 |
+
+#### 响应data要求
+
+| 字段 | 类型 | 说明 |
+| --- | --- | --- |
+| returnCode | Number | 错误码，成功 = 1 ，失败≠1 |
+| returnMessage | String | 错误描述 |
+| data | Map &lt;String, RoleEntity> | 角色列表，键为 roleID |
+
+#### RoleEntity
+
+| 字段 | 类型 | 说明 |
+| --- | --- | --- |
+| roleID | String | 角色 ID |
+| roleName | String | 角色名称 |
+| userID | String | 用户 ID |
+| rx_openid | String | 望舒 openid 和 userID 选填 1 个即可 |
+| serverID | String | 服务器 ID |
+| serverName | String | 服务器名称 |
+| info | Object (json) | 需在 Webshop 展示的角色详细信息，例如：等级、排名、金币等 |
+
+## 通过 userID 获取角色信息 API(望舒回调CP)
+
+通过 userID 获取用户的角色信息，支持用户选择角色登录。
+
+> 类型：同步
+>
+> Action: channel-notify
+>
+> **认证方式：** [CPSign](/docs/开发者文档/入门指南/服务端接入须知)
+
+### 请求参数
+
+| 字段 | 类型 | 是否必填 | 说明 |
+| --- | --- | --- | --- |
+| product_id | String | 是 | 望舒产品标识 |
+| channel_id | String | 是 | 望舒渠道表示 |
+| method | String | 是 | 默认 minigame_vng |
+| channel_notify_type | String | 是 | 默认 getrolesbyuserid |
+| query | String | 是 | url 参数 |
+| body | String | 是 | body 请求体 |
+
+#### query(URL)字段参数说明
+
+| 字段 | 类型 | 是否必填 | 说明 |
+| --- | --- | --- | --- |
+| rx_openid | String | 是 | 望舒 openid |
+
+#### body(JSON)字段参数说明
+
+| 字段 | 类型 | 是否必填 | 说明 |
+| --- | --- | --- | --- |
+| clientIP | String | 否 | 用户浏览器的 IP 地址 |
+| userID | String | 是 | 用户 ID |
+| rx_openid | String | 是 | 望舒 openid |
+
+#### 请求示例
+
+```json
+{
+  "product_id": "1002",
+  "channel_id": "100",
+  "method": "minigame_vng",
+  "channel_notify_type": "getrolesbyuserid",
+  "query": "rx_openid=11111",
+  "body": "{\"userID\":\"vng_11331\",\"clientIP\":\"\""}"
+}
+```
+
+#### 返回示例
+
+```json
+{
+  "code": 0,
+  "data":{
+  "returnCode": 1,
+  "returnMessage": "success",
+  "data": {
+  "70590000002052": {
+  "roleID": "70590000002052",
+  "roleName": "YuiSakura",
+  "userID": "vng_11331",
+  "serverID": "1",
+  "serverName": "Server 1",
+  "info": {
+  "level": 93,
+  "power": 695020
+}
+}
+}
+}
+}
+}
+```
+
+### 响应要求
+
+| 字段 | 类型 | 说明 |
+| --- | --- | --- |
+| code | Number | 0 成功 |
+| msg | String | 错误信息 |
+| data | Data | 响应渠道方数据 |
+
+#### 响应data要求
+
+| 字段 | 类型 | 说明 |
+| --- | --- | --- |
+| returnCode | Number | 错误码，成功 = 1 ，失败≠1 |
+| returnMessage | String | 错误描述 |
+| data | Map &lt;String, RoleEntity> | 角色列表，键为 roleID |
+
+#### RoleEntity
+
+| 字段 | 类型 | 说明 |
+| --- | --- | --- |
+| roleID | String | 角色 ID |
+| roleName | String | 角色名称 |
+| userID | String | 用户 ID |
+| serverID | String | 服务器 ID |
+| serverName | String | 服务器名称 |
+| info | Object (json) | 需在 Webshop 展示的角色详细信息，例如：等级、排名、金币等 |

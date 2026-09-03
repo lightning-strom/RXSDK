@@ -1,0 +1,134 @@
+---
+sidebar_position: 1
+title: 客户端接入
+description: TikTok iOS / Android 端原生接入指南，包含 SDK 集成、配置说明及接口调用示例。
+---
+
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
+
+在 [TikTok 开发者](https://developers.tiktok.com/) 中创建项目，并获取相关参数。
+
+## SDK 集成
+
+<Tabs groupId="platform">
+
+<TabItem value="ios" label="iOS">
+
+**RXTikTokSDK 版本 1.0.6** / **RXSDK_Pure 版本 3.4.32** / **RXOSUIKit 版本 3.4.18**
+
+```objectivec
+pod 'RXTikTokSDK'
+```
+
+### 工程配置
+
+在 **info.plist->Queried URL Schemes** 中添加 `tiktokopensdk`、`tiktoksharesdk`、`snssdk1180`、`snssdk1233` 配置。
+
+![](https://guanwangyun.oss-cn-beijing.aliyuncs.com/document/tripartite/tiktok1.jpeg)
+
+在 **info.plist** 中添加 **TikTokAppID** 配置。
+
+![](https://guanwangyun.oss-cn-beijing.aliyuncs.com/document/tripartite/tiktok2.png)
+
+在 **Xcode > Info > URL Types** 中添加 **TikTokAppID**。
+
+![](https://guanwangyun.oss-cn-beijing.aliyuncs.com/document/tripartite/toktok3.png)
+
+</TabItem>
+
+<TabItem value="android" label="Android">
+
+:::tip[版本说明]
+`version` 为 SDK 版本号（替换为实际版本号），最新版本请从 [更新日志](/docs/开发者文档/入门指南/更新日志/Android) 中查看。
+:::
+
+```xml
+implementation 'com.ruixue:rxsdk_tiktok:${version}'
+```
+
+### 参数说明
+
+| 参数 | 类型 | 说明 |
+| --- | --- | --- |
+| clientKey | String | 在开发者后台查看，配置到 meta-data com.ruixue.sdk.tiktok.clientKey |
+| scheme | String | 跳转回应用的 uri，配置到 com.ruixue.sdk.tiktok.auth.scheme |
+
+### 配置说明
+
+在 AndroidManifest.xml 配置：
+
+```xml
+</application>
+<meta-data android:name="com.ruixue.sdk.tiktok.clientKey" android:value="your clientkey" />
+<meta-data android:name="com.ruixue.sdk.tiktok.auth.scheme" android:value="ruixue://sdkresponse" />
+
+<activity android:name="com.ruixue.sdk.tiktok.AuthResultActivity" android:exported="true">
+    <intent-filter>
+        <action android:name="android.intent.action.VIEW">
+        <category android:name="android.intent.category.DEFAULT">
+        <category android:name="android.intent.category.BROWSABLE">
+        <data android:host="sdkresponse" android:scheme="ruixue" />
+    </intent-filter>
+</activity>
+</application>
+```
+
+### 三方版本信息
+
+使用 `2.0.2` 版本
+
+### 依赖信息（aar 接入方式）
+
+```groovy
+api 'com.tiktok.open.sdk:tiktok-open-sdk-core:2.0.2'
+api 'com.tiktok.open.sdk:tiktok-open-sdk-auth:2.0.2'
+api 'com.tiktok.open.sdk:tiktok-open-sdk-share:2.0.2'
+```
+
+</TabItem>
+
+</Tabs>
+
+## 初始化
+
+<Tabs groupId="platform">
+
+<TabItem value="ios" label="iOS">
+
+在 `didFinishLaunchingWithOptions` 中进行初始化：
+
+```objectivec
+- (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions {
+ [[RXTikTokService sharedSDK] TTRegistWithApplication:application launchOptions:launchOptions];
+ return YES;
+}
+```
+
+### 跳转 openURL
+
+必须实现此方法，否则无法正常使用 TikTok 登录或分享功能。
+
+```objectivec
+- (BOOL)application:(UIApplication *)app openURL:(NSURL *)url options:(NSDictionary<NSString *, id> *)options {
+ if ([[RXTikTokService sharedSDK] TTApplication:app openURL:url options:options]) {
+ return YES;
+ }
+ return NO;
+}
+```
+
+</TabItem>
+
+<TabItem value="android" label="Android">
+
+集成 SDK 并配置参数后自动完成初始化。
+
+</TabItem>
+
+</Tabs>
+
+## 登录与分享
+
+- **登录**：[UI 登录方式（iOS）](/docs/开发者文档/社交/iOS-社交/快速接入) / [UI 登录方式（Android）](/docs/开发者文档/社交/Android-社交/快速接入) / [API 登录方式](/docs/开发者文档/登录-通行证/服务端接入/服务端-API)
+- **分享**：[分享 API](/docs/开发者文档/分享/服务端接入/服务端-API)

@@ -1,0 +1,193 @@
+---
+title: "Android"
+---
+
+## 准备工作
+
+在使用 SDK 时，部分接口对设备权限有要求，因此需要使用者在调用涉及以下功能的接口时注意，动态申请权限：
+
+- 具备读、写本地磁盘的接口，如：发送图片、文件等
+
+```xml
+android.permission.READ_EXTERNAL_STORAGE
+android.permission.WRITE_EXTERNAL_STORAGE
+```
+
+- 具备录音的特性的接口，如：发送语音
+
+```xml
+android.permission.RECORD_AUDIO
+```
+
+注意：如果不使用读取磁盘和录音操作，可以不用集成这些权限
+
+## SDK 集成
+
+**手动依赖接入**
+
+- 配置权限（必填）
+
+```xml
+ <!-- 网络相关 -->
+
+```
+
+- 下载 `RXSDK_IM-${version}.aar` 到 libs 路径下；
+- 绑定 libs 的引用路径：app->build.gradle，android{'{'}...{'}'}中添加
+
+```groovy
+repositories {
+    flatDir {
+        dirs 'libs'
+    }
+}
+```
+
+- 依赖必要组件
+
+```groovy
+implementation fileTree(dir: "libs", include: ["*.jar"])
+implementation 'com.squareup.okhttp3:okhttp:3.12.3'//网络请求
+implementation 'com.aliyun.dpa:oss-android-sdk:2.9.5'//oss
+implementation 'com.google.protobuf:protobuf-java:3.11.1'//PB
+implementation 'com.google.code.gson:gson:2.8.6'//json解析
+implementation 'org.java-websocket:Java-WebSocket:1.5.3'//websocket依赖
+
+implementation(name: 'RXSDK_IM-${version}', ext: 'aar')//IMCore
+```
+
+**自动依赖接入（推荐）**
+
+> gradle 配置参考[接入指南](/docs/v3.5/入门指南/快速开始/Android初始化/快速接入)
+
+```groovy
+implementation 'com.ruixue.im:rxsdk_im:$version'
+```
+
+## 快速开始
+
+### 初始化
+
+将 SDK 集成到客户端后，需要先完成 SDK 的初始化才能使用其他功能。
+
+```java
+
+//im 客户端类型 使用位运算
+//    ClientTypePlatformPhone   = 0x00000001 // 设备: Phone
+//    ClientTypePlatformPad     = 0x00000002 // 设备: Pad
+//    ClientTypePlatformDesktop = 0x00000004 // 设备: 桌面端
+//    ClientTypePlatformWeb     = 0x00000008 // 设备: Web
+//    ClientTypeTechServerAPI   = 0x00000100 // 实现: 服务端接口
+//    ClientTypeTechNative      = 0x00000200 // 实现: Native
+//    ClientTypeTechJS          = 0x00000400 // 实现: Javascript
+//    ClientTypeOSHarmony       = 0x00010000 // 系统: 鸿蒙
+//    ClientTypeOSAndroid       = 0x00020000 // 系统: Android
+//    ClientTypeOSiOS           = 0x00040000 // 系统: iOS
+//    ClientTypeOSWindows       = 0x00080000 // 系统: Windows
+//    ClientTypeOSMacOS         = 0x00100000 // 系统: MacOS
+//    ClientTypeOSLinux         = 0x00200000 // 系统: Linux
+
+// 建立基础参数
+//下述配置参数均为示例数据，请按照实际项目配置
+RXLoginNecessaryArgs args = new RXLoginNecessaryArgs();
+args.setContext(this.getApplicationContext());
+
+args.setChanelID("后台channelid");//渠道id，一个product可以有多个渠道
+args.setProductID("后台productid");//产品id，一个开发者账号下可以有多个产品
+args.setCpID("1000000");//开发者账号的id，创建了账号就有这个id
+args.setClientType(131585);//客户端类型
+args.setHostUrl("https://rapi.weiletest.com");// api 域名地址
+args.setDeviceCode(RuiXueSdk.getDeviceCode());//设备唯一标识
+
+args.setUserID(HW);//cp方用户id，用户标识符
+//以下参数cp 服务器登录返回
+args.setSecret("e77c6866685bc7da673bd4830d81875c80ce8e04178380ceb2bb0ec21788e05e");
+args.setIMToken("eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJTdGFuZGFyZENsYWltcyI6eyJleHAiOjE2NjI0Mjk5MTZ9LCJBY2NvdW50SUQiOjAsIlVzZXJJRCI6MCwiQ1BJRCI6MTAwMDAwMCwiVG9rZW5JRCI6ImUxZGIyNGRiLWU5NWYtNDU2ZS1hNmMzLWEwYTQyODVlM2E0MiIsIlByb2R1Y3RJRCI6InRlc3RfcHJvZHVjdCIsIkFwcElEIjoiIiwiZXh0Ijp7Imltc19hZXNrZXkiOiJlNzdjNjg2NjY4NWJjN2RhNjczYmQ0ODMwZDgxODc1YzgwY2U4ZTA0MTc4MzgwY2ViMmJiMGVjMjE3ODhlMDVlIiwiaW1zX2NoYW5uZWxpZCI6InRlc3RfY2hhbm5lbCIsImltc19jbGllbnR0eXBlIjoiMjYyNjU3IiwiaW1zX2RldmljZWNvZGUiOiIiLCJpbXNfdXNlcmlkIjoidGVzdHVzZXJfNDQ0NCJ9fQ.wGs3Gp6tuC7nLWnEJ0uoHBgynBwAxAbQlvDdgjNnMg");
+args.setRefreshToken("eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJTdGFuZGFyZENsYWltcyI6eyJleHAiOjE2NjQ5MzU1MTZ9LCJBY2NvdW50SUQiOjAsIlVzZXJJRC")
+
+//  注册连接状态监听器,用于监听引擎连接情况和引擎登录状态
+RXIMEngine.getInstance().registerConnectObserver(new IRXConnectObserver() {
+
+    @Override
+    public void onLoginResult(final JXIMStatusMapper mapper, Throwable extra) {
+        Log.e(" === ", "onIMLoginResult: " + mapper.getErrMsg());
+        runOnUiThread(new Runnable() {//该回调是执行在子线程中
+            @Override
+            public void run() {
+                mStatusTv.append(mapper.getErrMsg() + "\n");
+            }
+        });
+    }
+
+    @Override
+    public void onConnectSuccess(String ip, int port) {
+        mStatusTv.append("连接成功\n");
+    }
+
+    @Override
+    public void onConnectDisconnect(String ip, int port, int code, String message) {
+        mStatusTv.append("断开连接,信息" + message + " -- 状态码 :" + code + "\n");
+    }
+
+    @Override
+    public void onConnectFail(String ip, int port, int code, String message) {
+        mStatusTv.append("连接失败\n");
+    }
+});
+
+//  绑定参数到引擎并启动,获取模块，启动引擎。如果频繁（如：按钮事件）使用，只需要申请一个全局变量即可
+RXIMEngine.getInstance().catchModule(ProcessModuleInventory.BOOT).doAction(args, null);
+
+//  绑定消息监听器,监听接收消息
+RXIMEngine.getInstance().registerConversationObserver(new IRXConversationObserver() {
+            @Override
+            public void onReceive(ConversationType conversationType, RXIMMessage contentMessage) {
+//                LG.e(contentMessage.toString());
+                LG.e(contentMessage.getExtend());
+                if(contentMessage.getMsgType() == MessageTypeInventory2.TEXT){
+                    TextMessageEntity entity = contentMessage.getContentEntity();
+                    LG.e(entity.toString());
+                }else if(contentMessage.getMsgType() == MessageTypeInventory2.PIC){
+                    PicMessageEntity entity = contentMessage.getContentEntity();
+                    LG.e(entity.toString());
+                }else if(contentMessage.getMsgType() == MessageTypeInventory2.AUDIO){
+                    VoiceMessageEntity entity = contentMessage.getContentEntity();
+                    LG.e(entity.toString());
+                } else if(contentMessage.getMsgType() == MessageTypeInventory2.VIDEO){
+                    VideoMessageEntity entity = contentMessage.getContentEntity();
+                    LG.e(entity.toString());
+                }else if(contentMessage.getMsgType() == MessageTypeInventory2.POSITION){
+                    LocationMessageEntity entity = contentMessage.getContentEntity();
+                    LG.e(entity.toString());
+                }else if(contentMessage.getMsgType() == MessageTypeInventory2.FACE){
+                    EmotionMessageEntity entity = contentMessage.getContentEntity();
+                    LG.e(entity.toString());
+                }else if(contentMessage.getMsgType() == MessageTypeInventory2.FILE){
+                    FileMessageEntity entity = contentMessage.getContentEntity();
+                    LG.e(entity.toString());
+                }
+                mStatusTv.append(contentMessage.getInboxID() + " --- " + contentMessage.getMsgType() + " ---- " + contentMessage.getContent() + "\n");
+            }
+        });
+```
+
+SDK 的方法设计都是按照功能进行模块化分区，可以通过下面接口获取其他模块，更多枚举类型参考：**ProcessModuleInventory** 类型
+
+```java
+
+// ProcessModuleInventory.BOOT
+// ProcessModuleInventory.CONVERSATION
+// ProcessModuleInventory.SESSION
+// ProcessModuleInventory.HISTORY
+RXIMEngine.getInstance().catchModule(ProcessModuleInventory.枚举值);
+```
+
+### 退出
+
+客户端在下线或者切换账号等情况下需要退出 IM，用来断开 socket 连接切断通信以及清理缓存；再次上线或登录新账户时需要重新调用登录接口来完成 socket 连接进行通信。
+
+**调用示例**
+
+```java
+RXIMEngine.logout()
+```

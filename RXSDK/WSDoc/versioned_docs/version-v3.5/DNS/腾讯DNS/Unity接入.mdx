@@ -1,0 +1,52 @@
+---
+title: "Unity接入"
+---
+
+## 接入方式
+* Package Manager 导入 RuiXue.TxDns
+
+## SDK 集成
+
+* ( ) iOS::uniqueAlias1
+* ( ) Android::uniqueAlias2
+
+## 初始化
+
+:::warning
+DNS initAppID  初始化应放在 RuiXueSdk.initialize 之前
+:::
+
+**接口原型**
+
+```java
+/// <summary>
+/// 初始化腾讯DNS
+/// </summary>
+/// bundleID，iOS传bundle id, Android传空字符串
+/// dnsID
+/// dnsKey
+/// isDebug 调试日志模式，true 开启，false 关闭，默认
+public void TencentDNSInitAppID(string bundleID, string dnsID, string dnsKey, bool isDebug);
+```
+
+**调用示例**
+
+```csharp
+RXTxDns.TencentDNSInitAppID("", "xxx", "xxxx", false);
+```
+
+## 开启
+在调用初始化设置时
+
+```csharp
+RXSdkInitConfig rxSdkInitConfig = new RXSdkInitConfig();
+rxSdkInitConfig.cpId = cpId;
+rxSdkInitConfig.channelId = channelId;
+rxSdkInitConfig.productId = productId;
+rxSdkInitConfig.baseUrlList = list;
+rxSdkInitConfig.isUseDNS = true;
+
+RXTxDns.TencentDNSInitAppID("", "86004", "F0F03Gd9", true);
+
+RuiXueSdk.Initialize(rxSdkInitConfig, RequestResponseDelegate, RequestErrorDelegate);
+```

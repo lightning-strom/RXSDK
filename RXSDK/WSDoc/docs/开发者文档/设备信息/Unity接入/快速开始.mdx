@@ -1,0 +1,63 @@
+---
+sidebar_position: 1
+title: 快速开始
+description: "望舒SDK 快速开始 Unity 接入文档，提供完整的接口调用说明与示例。"
+---
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
+
+### 接入方式
+* Package Manager 导入 RuiXue.Base
+
+## SDK 集成
+
+<Tabs groupId="platform">
+
+<TabItem value="ios" label="iOS">
+
+iOS依赖的相关SDK已通过脚本自动引用到工程中，您无需手动引用。受网络环境等因素影响，相关SDK有可能引用失败，所以在生成iOS工程后，您需要检查工程中的Podfile文件中的SDK名称，在Podfile.lock文件中是否存在，如果Podfile中的SDK名称在Podfile.lock中未存在，说明SDK未完全下载成功，您需要进入Podfile文件所在路径，执行以下命令安装SDK：
+```objectivec
+pod install 
+```
+
+</TabItem>
+
+<TabItem value="android" label="Android">
+
+Android 无需配置。
+
+</TabItem>
+
+</Tabs>
+
+## 获取设备码
+
+**接口原型**
+
+```csharp
+/// <summary>
+/// 获取设备码（设备唯一标识）
+/// </summary>
+/// <param name="onResponse"></param>
+public void GetDeviceCode(RequestResponseDelegate onResponse);
+```
+
+**调用示例**
+
+```csharp
+public void getPromo()
+{
+   RuiXueSdk.GetDeviceCode(DeviceCodeResponseDelegate);
+}
+
+private void DeviceCodeResponseDelegate(string data)
+{
+   LogUtil.Log("EventManager", $"GetDeviceCode: {data}");
+}
+```
+
+### 响应结构(JSON)
+
+| **参数** | **类型**                                             | **备注** |
+| -------- | ---------------------------------------------------- | -------- |
+| data     | string                                               | 设备标识字符串 |

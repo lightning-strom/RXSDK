@@ -1,0 +1,72 @@
+---
+title: "客户端接入"
+---
+
+## 后台接入配置
+- [配置说明](/docs/v3.5/三方服务/TapTap/客户端接入)
+
+## 望舒快速接入（必接）
+- [快速接入文档](/docs/v3.5/登录（通行证）/Android 登录API/快速接入)
+
+## 三方渠道接入说明（必读）
+- [三方渠道接入说明](/docs/v3.5/入门指南/快速开始/Android初始化/快速接入)
+
+## SDK 集成
+
+```gradle
+implementation 'com.ruixue:rxsdk_taptap:${version}'
+```
+## 参数说明
+
+| **参数**  | **类型** | **说明**              |
+| --------- | -------- | --------------------- |
+| client_id | String   | initThirdSdk 接口传入 |
+
+## 初始化
+```java
+Map params = new HashMap<>();
+ // 这里填写使用方自己对应的参数
+params.put("client_id", "");
+RuiXueSdk.getApi().initThirdSdk(this, params, new RXJSONCallback() {
+    @Override
+    public void onSuccess(@Nullable JSONObject jsonObject) {
+        Log.d(TAG, "init third sdk success");
+    }
+
+    @Override
+    public void onFailed(@NonNull JSONObject jsonObject) {
+        Log.d(TAG, "init third sdk failed " + jsonObject);
+    }
+});
+```
+
+## 登录
+请参考 [Android端登录API](/docs/v3.5/登录（通行证）/Android 登录API/快速接入)
+```java
+String username = null;
+String loginType = LoginMethod.TAPTAP;
+String captchaCode = null;
+String loginOpenId = null;
+Map ext = null;
+String[] signFields = null;
+Object migrateArgs = null;
+RuiXueSdk.getApi().login(DemoActivity.this, loginType, username, password, captchaCode, loginOpenId, ext, signFields, migrateArgs, new RXJSONCallback() {
+    @Override
+    public void onSuccess(@Nullable JSONObject data) {
+        Toast.makeText(DemoActivity.this, "登录成功", Toast.LENGTH_SHORT).show();
+    }
+
+    @Override
+    public void onFailed(@NonNull JSONObject cause) {
+        Toast.makeText(DemoActivity.this, "登录失败", Toast.LENGTH_SHORT).show();
+    }
+});
+```
+
+## 支付
+- [微信 H5 支付](/docs/v3.5/三方服务/TapTap/客户端接入)
+- [支付宝 H5 支付](/docs/v3.5/三方服务/TapTap/客户端接入)
+- [京东支付](/docs/v3.5/三方服务/TapTap/客户端接入)
+- [Unipin 支付](/docs/v3.5/三方服务/TapTap/客户端接入)
+- [苏宁支付](/docs/v3.5/三方服务/TapTap/客户端接入)
+- [银联支付](/docs/v3.5/三方服务/TapTap/客户端接入)

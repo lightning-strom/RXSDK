@@ -1,0 +1,194 @@
+---
+title: "快速接入"
+---
+
+#### 望舒支付配置
+[支付宝APP支付配置](/docs/v3.5/支付/Android 支付宝App 支付/快速接入)
+#### SDK 集成
+
+```
+implementation 'com.ruixue:rxsdk_alipay:${version}'
+```
+
+#### 接口原型
+
+```java
+/**
+ * 查询是否支持免密支付
+ * @param callback {
+ *                 "data": {
+ *                 "agreement_no_encrypt": "string",
+                    "pay_cfgid":"string",
+ *                 "quick_text": "string" //免密支付提示
+ *                 },
+ *                 "code": 0
+ *                 }
+ */
+public void checkQuickAp(RXJSONCallback callback) 
+    
+/**
+ * 支付
+ * @param activity 应用上下文对象
+ * @param hashMap  PayParams 参数，参照参数说明
+ * @param callback 回调函数
+ */
+void pay(Activity activity, @NonNull Map map, RXJSONCallback callback)
+```
+
+#### 参数说明
+
+> Map 结构说明
+
+| **字段**      | **类型** | **是否必填** | **说明**                                                                                                                                         |
+| ------------- | -------- | ------------ | ------------------------------------------------------------------------------------------------------------------------------------------------ |
+| hq_type      | string   | 否           | 支付类型                                                                                       |
+| goods_tag     | string   | 是           | 望舒计费点标识                                                                                                                     |
+| trade_no      | string   | 是           | 商户订单号                                                                                                                                       |
+| transmit_args | string   | 否           | 透传参数                                                                                                                                         |
+| notify_url    | string   | 否           | 支付成功通知 CP 发货地址                                                                                                                         |
+| currency      | string   | 是           | 币种 全大写 国内传: CNY，参考 [国家编码 币种字典](/docs/v3.5/支付/功能介绍)|
+| ext           | object   | 否           | 支付下单扩展信息，不同渠道具体对接                                                                                                               |
+| indulge_auth  | int      | 否           | 默认(自运营渠道默认值 1 ,三方渠道默认值 0 )， 是否进行防沉迷验证 ，0 不验证、1 验证。                                                            |
+| age           | int      | 否           | 默认取登录返回 age 字段                                                                                                                          |
+| game_info     | object    | 否           | 游戏自定义数据， 上报区服和角色需要在 game_info 中传入属性，具体使用方式参考下方 game_info 字段说明  |
+| bigdata_report     | Map    | 否           | 商业化支付参数， 通过商业化触发的支付行为要传以下参数，否则数据统计会有丢失，具体使用方式参考下方 bigdata_report 字段说明  |
+| custom_ext          | Map  | 否           | 自定义透传参数
+> custom_ext 结构说明
+
+| **字段**     | **类型** | **是否必填** | **备注**                                                                                                                                             |
+| ------------ | -------- | ------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------- |
+| bigdata_ext     | Map | 否           | 大数据预置事件透传参数                                                                       |
+
+> `bigdata_report` 字段说明
+
+| **字段**  | **类型** | **是否必填** | **备注** |
+| --------- | ------  | ----------- |---------|
+| scene_identifier| string| 否             | 场景标识                           |
+| scene_name     | string| 否            | 场景名称                          |
+| trigger_button_identifier     | string| 否            | 触发按钮标识                         |
+| trigger_button_name     | string| 否            | 触发按钮名称                         |
+| window_identifier     | string| 否            | 窗口标识                         |
+| window_name     | string| 否            | 窗口名称                         |
+| window_sequence     | string| 否            | 窗口展示顺序                         |
+| gift_package     | HashMap| 否            | 礼包	                         |
+
+> `gift_package` 字段说明
+
+| **字段**  | **类型** | **是否必填** | **备注** |
+| --------- | ------  | ----------- |---------|
+| identifier| string| 否             | 礼包标识                           |
+| name     | string| 否            | 礼包名称                          |
+| purchase_medium     | string| 否            | 购买礼包介质                         |
+| price     | int| 否            | 礼包价格                         |
+| billing_point     | string| 否            | 礼包计费点                         |
+
+> `game_info` 字段说明
+
+| **字段**  | **类型** | **是否必填** | **备注** |
+| --------- | ------  | ----------- |---------|
+| cp_game_character_id| string| 否             | 角色 id                           |
+| cp_game_area_id     | string| 否            | 区服 id                           |
+> `ext` 字段说明
+
+| **字段**  | **类型** | **是否必填** | **备注** |
+| --------- | ------  | ----------- |---------|
+| agreement_no_encrypt| string| 否            | checkQuickAp 接口返回的值， 免密支付时传入               |
+| pay_cfgid| string| 是             | checkQuickAp 接口返回的值， 免密支付时传入               |
+
+> `hq_type值` 说明
+
+| **hq_type值**        | **备注**                                 |
+| --------------- | ---------------------------------------- |
+| alipay | 支付宝App 支付                            |
+
+**调用示例**
+
+```java
+RuiXueSdk.getApi().checkQuickAp(jsonCallback);//查询是否支持免密支付
+
+Activity activity; //应用上下文变量
+String goods_tag; //望舒后台计费点名称
+String pay_type="alipay"; //支付类型
+Map extmap = new HashMap<>();
+extmap.put("agreement_no_encrypt","checkQuickAp 接口返回的  agreement_no_encrypt");//免密支付时传入
+extmap.put("pay_cfgid","checkQuickAp 接口返回的  pay_cfgid");//免密支付时传入
+
+HQParams.GameInfo gameInfo=new HQParams.GameInfo();
+gameInfo.setCpGameCharacterId("//角色 id ");
+gameInfo.setCpGameCharacterId("//区服 id ");
+
+Map payParams = new HashMap<>();
+payParams.put("hq_type",hq_type);
+payParams.put("goods_tag",goods_tag);
+payParams.put("trade_no","cp订单号");
+payParams.put("transmit_args","cp透传参数，非必传");
+payParams.put("ext",extmap);
+payParams.put("game_info",gameInfo.toMap());//上报区服和角色需要在 game_info 中传入属性，具体使用方式参考下方 game_info 字段说明
+payParams.put("indulge_auth",1);//默认(自运营渠道默认值 1 ,三方渠道默认值 0 )， 是否进行防沉迷验证 ，0 不验证、1 验证。
+payParams.put("user_real_currency","CNY");//用户实际支付币种
+payParams.put("user_real_price",100);//用户实际支付金额
+
+//      // 商业化窗口支付 非必传
+//      HashMap businessPayMap = new HashMap<>();
+//      businessPayMap.put("scene_identifier", "场景标识");
+//      businessPayMap.put("scene_name", "场景名称");
+//      businessPayMap.put("trigger_button_identifier", "触发按钮标识");
+//      businessPayMap.put("trigger_button_name", "触发按钮名称");
+//      businessPayMap.put("window_identifier", "窗口标识");
+//      businessPayMap.put("window_name", "窗口名称");
+//      businessPayMap.put("window_sequence", "窗口展示顺序");
+//
+//      // 商业化窗口礼包 非必传
+//      HashMap businessGiftPayMap = new HashMap<>();
+//      businessGiftPayMap.put("identifier", "礼包标识");
+//      businessGiftPayMap.put("name", "礼包名称");
+//      businessGiftPayMap.put("purchase_medium", "购买礼包介质");
+//      businessGiftPayMap.put("price", 100); // 礼包价格
+//      businessGiftPayMap.put("billing_point", "礼包计费点");
+//
+//      businessPayMap.put("gift_package", businessGiftPayMap);
+//      payParams.put("bigdata_report", businessPayMap);
+
+ // 构造大数据透传参数 可选
+//Map bigdataExt = new HashMap<>();
+//bigdataExt.put("event_name", "user_login");  // 示例大数据事件
+//bigdataExt.put("event_value", "success");   // 示例事件值
+ 
+//// 构造自定义透传参数 可选
+//Map customExt = new HashMap<>();
+//customExt.put("bigdata_ext", bigdataExt);  // 将大数据透传参数添加到自定义透传参数中
+//customExt.put("user_agent", "Android 10"); // 自定义参数（如用户设备信息）
+//customExt.put("location", "New York");     // 自定义参数（如用户地理位置）
+//
+////可选
+//payParams.put("custom_ext", customExt);   
+
+RXRequestCallback rxRequestCallback = new RXRequestCallback() {
+    @Override
+    public void onResponse(JSONObject jsonObject) {
+        int code = jsonObject.optInt("code", -1);
+        if (code == 0) {
+            JSONObject data = jsonObject.optJSONObject("data"); // data 可能为空
+            if(data!=null){
+                //todo 根据业务解析相应data数据
+            }
+            //todo 处理成功逻辑
+        } else {
+            String msg = jsonObject.optString("msg");
+            String thirdcode = String.valueOf(jsonObject.opt("thirdcode"));
+            String thirdmsg = String.valueOf(jsonObject.opt("thirdmsg"));
+            //todo 根据错误码处理失败逻辑
+        }
+
+    }
+};
+RuiXueSdk.getApi().pay(activity, payParams, rxRequestCallback);
+```
+
+#### 响应结构
+
+```java
+{
+    "code": 0
+}
+```

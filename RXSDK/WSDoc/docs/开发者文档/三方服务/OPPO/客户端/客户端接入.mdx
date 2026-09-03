@@ -1,0 +1,159 @@
+---
+sidebar_position: 1
+title: 客户端接入
+description: "望舒SDK 三方服务 客户端接入文档，提供详细的功能说明与接入指引。"
+---
+
+## 后台接入配置
+
+[登录配置说明](/docs/开发者文档/三方服务/银联/配置说明)
+
+[支付配置说明](/docs/开发者文档/三方服务/银联/配置说明)
+
+[推送配置说明](/docs/开发者文档/三方服务/银联/配置说明)
+
+## 望舒快速接入（必接）
+
+[快速接入文档](/docs/开发者文档/入门指南/快速开始/Unity-初始化/快速开始)
+
+## 三方渠道接入说明（必读）
+
+[三方渠道接入说明](/docs/开发者文档/三方服务/三方接入说明)
+
+---
+
+## SDK集成
+
+
+:::tip[版本说明]
+`version` 为 SDK 版本号（替换为实际版本号），最新版本请从 [更新日志](/docs/开发者文档/入门指南/更新日志/Android) 中查看。
+:::
+
+```groovy
+//oppo渠道库
+ implementation 'com.ruixue:rxsdk_oppo:${version}'
+```
+
+## 参数说明
+
+| 参数 | 类型 | 说明 |
+| --- | --- | --- |
+| appSecret | String | initThirdSdk 接口传入 |
+| appkey | String | OPPO_APP_KEY 值 |
+
+## 配置说明
+
+在您的项目中， ` 打开 your_app | Gradle Scripts | build.gradle (Module: app)` 并将以下语句添加到 `defaultConfig{}` 部分：
+
+```groovy
+manifestPlaceholders = [
+ OPPO_APP_KEY : "xxxxxxx"
+]
+```
+
+在 `build.gradle` 文件的 `allprojects{repositories{}}` 块中引用中需要添加配置
+
+```groovy
+//oppo
+ maven {
+ url 'https://maven.columbus.heytapmobi.com/repository/releases/'
+ credentials {
+ username 'YOUR_MAVEN_USERNAME'
+ password 'YOUR_MAVEN_PASSWORD'
+ }
+ }
+```
+
+## 混淆配置
+
+[参考链接](https://open.oppomobile.com/new/developmentDoc/info?id=12176)
+
+在应用级根目录下打开混淆配置文件 `proguard-rules.pro` ，加入排除 SDK 的混淆配置
+
+```proguard
+-keep class com.nearme.** { *; }
+-dontwarn com.nearme.**
+-keep class com.nearme.** { *; }
+-dontwarn com.nearme.**
+```
+
+## 初始化
+
+[参考这里](/docs/开发者文档/三方服务/三方接入说明)
+
+```java
+Map<String, Object> params = new HashMap<>();
+
+// 这里填写使用方自己对应的参数
+params.put("appSecret", "");
+RuiXueSdk.getApi().initThirdSdk(this, params, new RXJSONCallback() {
+    @Override
+    public void onSuccess(@Nullable JSONObject jsonObject) {
+    Log.d(TAG, "init third sdk success");
+    }
+
+    @Override
+    public void onFailed(@NonNull JSONObject jsonObject) {
+    Log.d(TAG, "init third sdk failed " + jsonObject);
+    }
+});
+```
+
+## 登录 (必须接入) 请一定确保要初始化成功再调用登录
+
+请参考 [Android 端登录 API](/docs/开发者文档/登录-通行证/Android-登录API/快速接入)
+
+参考代码
+
+```java
+String username = null;
+String loginType = LoginMethod.OPPO;
+String captchaCode = null;
+String loginOpenId = null;
+Map<String, Object> ext = null;
+String[] signFields = null;
+Object migrateArgs = null;
+RuiXueSdk.getApi().login(DemoActivity.this, loginType, username, password, captchaCode, loginOpenId, ext, signFields, migrateArgs, new RXJSONCallback() {
+    @Override
+    public void onSuccess(@Nullable JSONObject data) {
+    Toast.makeText(DemoActivity.this, "登录成功", Toast.LENGTH_SHORT).show();
+    }
+
+    @Override
+    public void onFailed(@NonNull JSONObject cause) {
+    Toast.makeText(DemoActivity.this, "登录失败", Toast.LENGTH_SHORT).show();
+    }
+});
+```
+
+## 支付 (必须接入)
+
+请参考 [Android 端支付 API](/docs/开发者文档/支付/功能介绍)
+
+## 退出(在游戏主页面退出时需要添加)
+
+[参考这里](/docs/开发者文档/三方服务/三方接入说明)
+
+参考代码
+
+```java
+    RuiXueSdk.exitApp(this, new OnAppExitCallback() {
+    @Override
+    public void onExitConfirm(@Nullable String res) {
+    Toast.makeText(QuickDemoActivity.this, "退出游戏成功", Toast.LENGTH_SHORT).show();
+    }
+
+    @Override
+    public void onExitCancel() {
+    Toast.makeText(QuickDemoActivity.this, "退出游戏取消", Toast.LENGTH_SHORT).show();
+    }
+});
+```
+
+## 三方 SDK 版本信息
+
+使用 `20250722 ` 版本
+
+## 三方SDK错误
+
+[OPPO 三方接入 FAQ](https://open.oppomobile.com/new/developmentDoc/info?id=12249)

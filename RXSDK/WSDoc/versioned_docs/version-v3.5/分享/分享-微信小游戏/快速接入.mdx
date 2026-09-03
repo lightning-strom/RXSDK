@@ -1,0 +1,360 @@
+---
+title: "快速接入"
+---
+
+## 配置分享信息
+[微信小游戏分享配置](/docs/v3.5/三方服务/微信/小游戏配置/公众号支付配置说明)
+## 获取分享信息
+
+::: tip
+此接口用于根据入参获取分享的具体数据，然后使用数据将配置的内容分享到各大媒体平台，以达到用户裂变的效果。数据内容与后台的埋点配置，策略配置相关
+
+:::
+
+* ( ) JS::weixinminigame1
+* ( ) Unity::weixinminigame2
+
+### 响应结构
+
+| **字段** | **类型**                                                                                          | **说明**         |
+| -------- | ------------------------------------------------------------------------------------------------- | ---------------- |
+| code     | Number                                                                                            | 状态码 0 为成功  |
+| msg      | String                                                                                            | 失败时的错误信息 |
+| data     | [Data](/docs/v3.5/分享/功能介绍)   | 返回信息         |
+
+### 获取分享数据Data
+
+| **字段**  | **类型**                  | **说明**             |
+| --------- | ----------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------- |
+| trigger   | [Trigger](/docs/v3.5/分享/功能介绍)  | 埋点数据                                                                                                         |
+| strategy  | [Strategy](/docs/v3.5/分享/功能介绍) | 策略数据                                                                                                         |
+| content   | [Content](/docs/v3.5/分享/功能介绍)  | 返回信息                                                                                                         |
+| platforms | Platforms                                                                                             | 平台信息 值参考  [API](/docs/v3.5/分享/功能介绍) |
+| platform  | String                                                                                                | 当前分享平台                                                                                                     |
+| identity  | Stirng                                                                                                | 平台标识                                                                                                         |
+| transmits | String                                                                                                | 透传信息，传入 use_url_param=true 时， 将不使用短链接返回，而是将所有参数拼接到 url 中                                                                                                      |
+| scheduling |  [Scheduling](/docs/v3.5/分享/分享调度/Android)                                                            | 分享调度配置埋点时返回                                                                                        |
+
+#### 获取分享数据Trigger
+
+| **字段**   | **类型** | **说明**                              |
+| ---------- | -------- | ------------------------------------- |
+| id         | Number   | 埋点id                                |
+| tag        | String   | 埋点标识                              |
+| title      | String   | 埋点标题                              |
+| failed_msg | String   | 错误提示                              |
+| type       | Number   | 类型 1:诱导 2:活动 3:成就 4:好友房 5:特殊分享埋点 |
+| status       | Number   | 状态 1, 正常; -1, 禁用 |
+| time_interval       | Number   | 触发间隔时间 |
+
+#### 分享策略内容StrategyContent
+| **字段**   | **类型** | **说明**                        |
+| ---------- |--------|-------------------------------|
+| id         | Number | 埋点id                          |
+| strategy_id        | Number | 策略ID                          |
+| content_type      | Number | 分享内容类型. 1:图片; 2:链接; 3:卡片; 4:落地页; 5:口令; 6:视频 |
+| content_id | Number | 内容ID                          |
+| weight       | Number | 权重            |
+| title       | String | 标题                   |
+| region       | String | 按地区配置的策略，如果存在，优先获取。 [望舒地区码列表](https://pan.jiaxianghudong.com/s/pdEzbPRkDS9)  |
+
+#### 获取分享数据Content
+
+**分享内容素材类型 Content.material_type**
+
+| **标识**  | **备注**              |
+|---------|---------------------|
+| card    | [卡片](/docs/v3.5/分享/功能介绍)     |
+| poster   | [海报](/docs/v3.5/分享/功能介绍)    |
+
+#### 素材内容Card
+
+| **字段**      | **类型** | **备注**                     |
+| ------------- | -------- | ---------------------------- |
+| title         | String   | 标题                         |
+| material_type | String   | 素材类型，主要用于大数据上报 |
+| material_id   | Number   | 素材ID，主要用于大数据上报   |
+| image         | String   | 卡片的缩略图地址             |
+| content       | String   | 卡片上显示的内容             |
+
+> 示例： 此种素材主要应用于小程序分享。
+
+![](https://guanwangyun.oss-cn-beijing.aliyuncs.com/document/introduction/b3166acd-766c-45a8-91d3-ab6799f55a36%201%20(2).png?x-oss-process=image/resize,w_200,h_220)
+
+---
+
+#### 素材内容Poster
+
+| **字段**      | **类型** | **备注**                     |
+| ------------- | -------- | ---------------------------- |
+| material_type | String   | 素材类型，主要用于大数据上报 |
+| material_id   | Number   | 素材ID，主要用于大数据上报   |
+| image         | String   | 海报背景图 url            |
+| qrcode       | String   | 二维码 url            |
+
+> 示例： 此种素材主要应用于小程序分享。
+
+![](https://oss.ruixueyun.com/2025/9177d465-0b78-4066-9796-005d2e59bbdd.png?x-oss-process=image/resize,w_200,h_220)
+
+**响应示例**
+
+```json
+{
+    "data": {
+        "trigger": {    // 埋点数据
+            "id": 2,    // 埋点ID
+            "tag" : "youdao", // 埋点标识
+            "title": "诱导类埋点", // 埋点标题
+            "failed_msg": "诱导类失败", // 错误提示
+            "type": 1 // 埋点类型 1 诱导类 3成就类  5特殊分享埋点类
+        },
+        "strategy": { // 策略数据
+            "id": 16,    // 策略 ID
+            "platform": "wechat",    // 平台
+            "share_type": 1,    // 分享类型   1:app分享; 2:小游戏分享
+            "type": 2,    //  策略类型：1 诱导类 3成就类  5特殊分享埋点类
+            "name": "拼图活动的分享任务策略",  // 名称
+            "region": "-1", // 地区码
+            "channel_id": "-1", // 渠道 id
+            "status": 1
+        },
+        "content": { // 分享素材数据
+            "title": "诱导类链接标题", // 标题
+            "url": "https://domain-open.com/youdao?identity=9sz2oNCnR", // 链接
+            "material_type": "link", // 素材类型
+            "material_id": 1, // 素材ID
+            "landing_id": 1, // 落地页ID
+            "image": "https://rxfile.weilekuiming.com/operation_app/operation/20220601012849_weileshare.png", // 图片地址
+            "content": "诱导类链接文案", // 素材内容
+            "x": 0, // 图片类型时 二维码x轴坐标
+            "y": 0, // 图片类型时 二维码y轴坐标
+            "width": 0, // 图片类型时 二维码宽度
+            "height": 0, // 图片类型时 二维码高度
+            "meta_source": 0, // 1 手动维护 2 读取落地页信息
+            "qrcode": "https://xxx.png" // 二维码图片地址
+        },
+        "platforms": { // 平台信息，代表某个平台可用的分享方式 -1代表不限制 用于CP方不接sdk的情况。sdk方式通过分享通路配置获取此项配置。
+            "wechat": -1 // 微信， 1:好友 2:朋友圈 -1:不限制
+        },
+        "platform": "wechat", // 当前分享的平台，即客户端传啥 给返回啥
+        "example_platforms": { // 正式时不返回，此项用于验证平台信息是否正确
+            "wechat": {
+                "lure": -1, // 诱导类
+                "achievement": 1, // 成就类
+                "special": 2 // 特殊类
+            }
+        },
+        "identity": "wx", // 平台标识，如果是微信时返回的为微信ID
+        "transmits": "a=2&b=3"
+    },
+    "code": 0
+}
+```
+
+## 拉起分享
+
+::: tip
+因为小游戏分享 API 回调只有成功状态，所以 SDK 无法区分是否真正分享成功，只能证明成功调起分享
+
+:::
+
+* ( ) JS::weixinminigame3
+* ( ) Unity::weixinminigame4
+
+### 响应结构
+
+请参考 [获取分享数据data](/docs/v3.5/分享/功能介绍) 响应结构。
+
+## 分享/广告结果上报
+
+::: tip
+如果在望舒后台开启了分享调度功能，在上报时需要将调用 获取分享信息 时的 func、platform、region、transmits 传入。
+:::
+
+* ( ) JS::weixinminigame5
+* ( ) Unity::weixinminigame6
+
+### 响应结构
+
+**响应示例**：
+
+```json
+{
+    "data": {
+        "trigger": {    // 埋点数据
+            "id": 2,    // 埋点ID
+            "tag" : "youdao", // 埋点标识
+            "title": "诱导类埋点", // 埋点标题
+            "failed_msg": "诱导类失败", // 错误提示
+            "type": 1 // 埋点类型 1 诱导类 3成就类  5特殊分享埋点类
+        },
+        "strategy": { // 策略数据
+            "id": 16,    // 策略 ID
+            "platform": "wechat",    // 平台
+            "share_type": 1,    // 分享类型   1:app分享; 2:小游戏分享
+            "type": 2,    //  策略类型：1 诱导类 3成就类  5特殊分享埋点类
+            "name": "拼图活动的分享任务策略",  // 名称
+            "region": "-1", // 地区码
+            "channel_id": "-1", // 渠道 id
+            "status": 1
+        },
+        "content": { // 分享素材数据
+            "title": "诱导类链接标题", // 标题
+            "url": "https://domain-open.com/youdao?identity=9sz2oNCnR", // 链接
+            "material_type": "link", // 素材类型
+            "material_id": 1, // 素材ID
+            "landing_id": 1, // 落地页ID
+            "image": "https://rxfile.weilekuiming.com/operation_app/operation/20220601012849_weileshare.png", // 图片地址
+            "content": "诱导类链接文案", // 素材内容
+            "x": 0, // 图片类型时 二维码x轴坐标
+            "y": 0, // 图片类型时 二维码y轴坐标
+            "width": 0, // 图片类型时 二维码宽度
+            "height": 0, // 图片类型时 二维码高度
+            "meta_source": 0 // 1 手动维护 2 读取落地页信息
+        },
+        "platforms": { // 平台信息，代表某个平台可用的分享方式 -1代表不限制 用于CP方不接sdk的情况。sdk方式通过分享通路配置获取此项配置。
+            "wechat": -1 // 微信， 1:好友 2:朋友圈 -1:不限制
+        },
+        "platform": "wechat", // 当前分享的平台，即客户端传啥 给返回啥
+        "example_platforms": { // 正式时不返回，此项用于验证平台信息是否正确
+            "wechat": {
+                "lure": -1, // 诱导类
+                "achievement": 1, // 成就类
+                "special": 2 // 特殊类
+            }
+        },
+        "identity": "wx", // 平台标识，如果是微信时返回的为微信ID
+        "transmits": "a=2&b=3",
+        "scheduling": {
+            "scheduling_type": "ad",
+            "scheduling_sign": "xx",
+            "user_type": 1, // 1有效用户 2无效用户
+        }
+    },
+    "code": 0
+}
+```
+
+## 分享调度
+
+### 分享调度初始化
+
+:::tip
+如果在望舒后台开启了分享调度功能必须调用 分享调度初始化 接口，否则将无法正常使用分享调度功能
+:::
+
+* ( ) JS::weixinminigame7
+* ( ) Unity::weixinminigame8
+
+#### **响应结构**
+
+**响应示例**：
+
+```json
+{
+    "code": 0,
+    "msg":"",
+    "data": "func1": {
+        "scheduling_sign": "xx",
+        "scheduling_type": "ad",
+        "user_type": 1, // 1有效用户 2无效用户
+    }
+}
+```
+
+**响应参数（JSON）**
+::: warning
+未命中策略的埋点不返回
+:::
+
+| **参数**               | **类型** | **是否必填** | **备注**                                  |
+| ---------------------- | -------- | ------------ | ----------------------------------------- |
+| scheduling_sign    | String   | 是           | 调度分享看广告总次数                           |
+| scheduling_type | String   | 是           | 分享 share 广告 ad |  
+| user_type | Number   | 是           | 用户状态 1有效用户 2无效用户 |  
+
+### 获取埋点调度
+:::tip
+分享调度初始化后 SDK 会将数据缓存，客户端需要使用时可以调用 获取埋点调度 来获取需要的埋点调度数据，无需再次初始化。
+需要在登录后调用。
+:::
+
+* ( ) JS::weixinminigame9
+* ( ) Unity::weixinminigame10
+
+#### 响应结构
+
+**响应示例**：
+
+```json
+{
+    "code": 0,
+    "msg":"",
+    "data": "func1": {
+        "scheduling_sign": "xx",
+        "scheduling_type": "ad",
+        "user_type": 1, // 1有效用户 2无效用户
+    }
+}
+```
+
+**响应参数（JSON）**
+::: warning
+未命中策略的埋点不返回
+:::
+
+| **参数**               | **类型** | **是否必填** | **备注**                                  |
+| ---------------------- | -------- | ------------ | ----------------------------------------- |
+| scheduling_sign    | String   | 是           | 调度分享看广告总次数                           |
+| scheduling_type | String   | 是           | 分享 share 广告 ad |  
+| user_type | Number   | 是           | 用户状态 1有效用户 2无效用户 |  
+
+## 调度分享(分享、广告)
+
+* ( ) JS::weixinminigame31
+
+### 响应结构
+
+| **字段** | **类型**                                                                                          | **说明**         |
+| -------- | ------------------------------------------------------------------------------------------------- | ---------------- |
+| code     | Number                                                                                            | 状态码 0 为成功  |
+| msg      | String                                                                                            | 失败时的错误信息 |
+| scheduling_type| String                                                                                            | share / ad |
+
+## 打开分享图片弹窗
+
+* ( ) JS::weixinminigame32
+
+### 响应结构
+
+| **字段** | **类型**                                                                                          | **说明**         |
+| -------- | ------------------------------------------------------------------------------------------------- | ---------------- |
+| code     | Number                                                                                            | 状态码 0 为成功，请参考 [获取分享数据data](/docs/v3.5/分享/功能介绍) 响应结构。  |
+| msg      | String                                                                                            | 失败时的错误信息 |
+
+## 给指定的好友分享
+
+* ( ) JS::weixinminigame33
+
+### 响应结构
+
+| **字段** | **类型**                                                                                          | **说明**         |
+| -------- | ------------------------------------------------------------------------------------------------- | ---------------- |
+| code     | Number                                                                                            | 状态码 0 为成功，请参考 [获取分享数据data](/docs/v3.5/分享/功能介绍) 响应结构。  |
+| msg      | String                                                                                            | 失败时的错误信息 |
+
+## 获取指定好友分享query
+
+* ( ) JS::weixinminigame34
+
+## 拉起动态消息分享
+
+* ( ) JS::weixinminigame35
+
+## 获取海报分享信息
+::: tip
+此接口需要登录成功后使用
+
+:::
+
+* ( ) JS::weixinminigame36

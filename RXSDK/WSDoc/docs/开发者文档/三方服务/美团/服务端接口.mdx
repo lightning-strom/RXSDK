@@ -1,0 +1,140 @@
+---
+sidebar_position: 3
+title: 服务端接口
+description: "望舒SDK 三方服务 服务端接口服务端文档，提供接口请求参数与响应说明。"
+---
+
+## 游戏行为数据
+
+> **POST：** `/v1/thirdparty/api/channel_gateway/meituan/report`
+>
+> **认证方式：** [CPSign](/docs/开发者文档/入门指南/服务端接入须知)
+>
+> **应用场景：** 服务端调用
+
+```bash
+curl --location --request POST '{{接口域名}}/v1/thirdparty/api/channel_gateway/meituan/report' \
+--header 'ruixue-language: {{语言}}' \
+--header 'ruixue-cpid: {{CPID}}' \
+--header 'ruixue-productid: {{产品标识}}' \
+--header 'ruixue-cpts: {{时间戳}}' \
+--header 'ruixue-traceid: {{TraceID}}' \
+--header 'ruixue-cpsign: {{请求签名}}' \
+--header 'ruixue-devicecode: {{设备码}}' \
+--header 'ruixue-channelid: {{渠道标识}}' \
+--header 'ruixue-platformid: {{平台标识}}' \
+--header 'Content-Type: application/json' \
+--data-raw '{
+ "cp_user_id" : "2910001",
+ "openid" : "rxu1234567890",
+ "action_code":"xxx",
+ "action_finish_time":"2026-01-23 09:49:01",
+ "inner_source":"xxx",
+ "game_sn":"xxx"
+}'
+```
+
+>
+> ---
+>
+> **POST：** `/v1/thirdparty/api/channel_gateway_auth/meituan/report`
+>
+> **认证方式：** [Accesstoken](/docs/开发者文档/入门指南/服务端接入须知)
+>
+> **应用场景：** 客户端调用
+
+```bash
+curl --location --request POST '{{接口域名}}/v1/thirdparty/api/channel_gateway_auth/meituan/report' \
+--header 'ruixue-language: {{语言}}' \
+--header 'ruixue-cpid: {{CPID}}' \
+--header 'ruixue-productid: {{产品标识}}' \
+--header 'ruixue-traceid: {{TraceID}}' \
+--header 'ruixue-accesstoken: {{accesstoken}}' \
+--header 'ruixue-devicecode: {{设备码}}' \
+--header 'ruixue-channelid: {{渠道标识}}' \
+--header 'ruixue-platformid: {{平台标识}}' \
+--header 'Content-Type: application/json' \
+--data-raw '{
+ "cp_user_id" : "2910001",
+ "openid" : "rxu1234567890",
+ "action_code":"xxx",
+ "action_finish_time":"2026-01-23 09:49:01",
+ "inner_source":"xxx",
+ "game_sn":"xxx"
+}'
+```
+
+### 请求参数（JSON）
+
+
+| 字段 | 类型 | 是否必填 | 说明 |
+| --- | --- | --- | --- |
+| cp_user_id | String | 否 | 游戏 ID ； cp_user_id、openid 必传其中一个 |
+| openid | String | 否 | 望舒 openid ； cp_user_id、openid 必传其中一个 |
+| action_code | String | 是 | 在游戏开放平台成功注册的行为 code |
+| action_finish_time | String | 是 | 行为完成时间，格式： yyyy-MM-dd HH:mm:ss ； timezone = "GMT+8" |
+| inner_source | String | 否 | 渠道入口参数 |
+| game_sn | String | 是 | 数据的全局唯一标识。用于幂等 |
+
+
+**请求示例**
+
+```groovy
+ "cp_user_id" : "2910001",
+ "openid" : "rxu1234567890",
+ "action_code":"xxx",
+ "action_finish_time":"2026-01-23 09:49:01",
+ "inner_source":"xxx",
+ "game_sn":"xxx"
+```
+
+### 响应参数（JSON)
+
+**HTTP 状态码：**`200 OK`
+
+| 字段 | 类型 | 是否必填 | 说明 | 示例 |
+| --- | --- | --- | --- | --- |
+| code | Number | 是 | 响应状态码， 0 为成功，非 0 表示出错 | 0 |
+| msg | String | 否 | 响应信息，仅在 code 非 0 时返回 | data |
+| [Data](/docs/开发者文档/意见反馈/Unity-接入) | 否 | 响应信息，仅在 code 非 0 时返回 |  |  |
+
+#### Data
+
+
+| 字段 | 类型 | 是否必填 | 说明 |
+| --- | --- | --- | --- |
+| code | Number | 否 | 美团响应状态码 |
+| msg | String | 否 | 美团响应的结果描述 |
+
+
+**响应示例**
+
+```groovy
+// 成功案例
+{
+ "data": {
+ "code": 0,
+ "msg": "ok"
+ },
+ "code": 0
+}
+
+// 失败案例
+{
+ "data": {
+ "code": 710012,
+ "msg": "游戏类型不存在"
+ },
+ "code": 0
+}
+```
+
+### 美团常见状态码
+
+| 状态码 | 说明 |
+| --- | --- |
+| 0 | 正常 |
+| 710002 | 签名值无效 |
+| 710005 | ts 格式不正确 |
+| 710006 | ts 时间不正确 |
+| 710018 | 当前 IP 无权访问 |

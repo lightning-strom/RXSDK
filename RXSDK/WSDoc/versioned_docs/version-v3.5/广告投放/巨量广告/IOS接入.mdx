@@ -1,0 +1,45 @@
+---
+title: "IOS接入"
+---
+
+## SDK概述
+
+**主要功能**
+
+- 通过在望舒投放模块中的窗口期配置进行动态上报（假回传）；
+
+**接入准备**
+
+- 正式接入前请务必仔细阅读商业开放平台关于SDK接入流程的介绍，并且在巨量引擎广告投放平台官网成功申请真实可用的appid之后再进行接入动作。
+- 申请appid时请务必仔细阅读申请页关于申请appid的细则要求，并保证接入时写入的appname、package等字段信息与申请appid时填入的一致，否则后续测试无法通过。
+- 申请appid流程：上传真实在投包体至应用管理平台，完成app相关信息和资质填写后，即可获取到对应的appid，用于后续SDK对接。
+- 窗口期配置：在望舒投放模块中的窗口期配置appid和上报条件
+
+![](http://guanwangyun.oss-cn-beijing.aliyuncs.com/document/%E4%B8%89%E6%96%B9/20231128-160533.png)
+
+## 快速集成
+
+::: tip
+接入请前先做好准备工作。
+可通过 **pod** 方式接入 **RXBDASignalSDK** 组件，并使用 **RXBDASignalSDK** 相关功能。
+在需要使用功能的类中引用头文件 <code>#import </code>
+:::
+
+## SDK 集成
+
+- 编辑 Podfile 文件，添加如下配置：
+
+```objectivec
+pod 'RXBDASignalSDK'
+```
+
+## 初始化（必须）
+:::warning
+在 [SDK 初始化方法](/docs/v3.5/入门指南/快速开始/iOS初始化/快速开始) 之前调用。
+:::
+
+**调用示例**
+
+```objectivec
+[[RXBDAsignalService sharedSDK] regist];
+```

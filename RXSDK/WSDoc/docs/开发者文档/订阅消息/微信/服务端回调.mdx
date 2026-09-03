@@ -1,0 +1,56 @@
+---
+sidebar_position: 2
+title: 服务端回调
+description: "望舒SDK 服务端回调服务端文档，提供接口请求参数与响应说明。"
+---
+
+## 透传用户订阅模板
+
+> 类型：异步
+>
+> Action: user-report-wx-sub
+>
+> **认证方式：** [CPSign](/docs/开发者文档/入门指南/服务端接入须知)
+
+### 请求参数
+
+| 字段 | 类型 | 是否必填 | 说明 |
+| --- | --- | --- | --- |
+| product_id | String | 是 | 望舒产品 ID |
+| rx_open_id | String | 是 | 望舒 OpenID |
+| wx_template | map[String]String | 是 | 用户订阅模板 |
+
+#### 参数案例
+
+```json
+{
+ "rx_open_id":"rxu7oZ5Ob2x3_zvnXPzt7xCj8T96g7Ww4qlQk-jE",
+ "product_id":"12345",
+ "wx_template":{
+ "_aWO6ZQKD9tNiKPRU7OX2MlDBScLbsTeYahCcqp2UPE":"accept",
+ "_c640kwvs8uVWQa8mKOTCan6zBu7fjoRtxI7ZErTt5Q":"reject",
+ "_aWO6ZQKD9tNiKPRU7OX2MlDBScLbsTeYahCcqp2UPE":"ban",
+ "_aWO6ZQKD9tNiKPRU7OX2MlDBScLbsTeYahCcqp2UPE":"filter"
+ }
+}
+```
+
+### 响应参数
+
+| 字段 | 类型 | 是否必填 | 说明 |
+| --- | --- | --- | --- |
+| code | Number | 是 | 响应状态码 0 为正常，其他为异常 |
+| msg | String | 是 | 描述 |
+
+#### 响应案例
+
+```json
+{
+ "code":0,
+ "msg":"success",
+}
+```
+
+[发送订阅消息](https://developers.weixin.qq.com/minigame/dev/api-backend/open-api/subscribe-message/subscribeMessage.send.html)
+
+[用户订阅模板](https://developers.weixin.qq.com/minigame/dev/api/open-api/subscribe-message/wx.requestSubscribeMessage.html)

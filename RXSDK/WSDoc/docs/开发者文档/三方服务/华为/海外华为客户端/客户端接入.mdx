@@ -1,0 +1,326 @@
+---
+sidebar_position: 1
+title: 客户端接入
+description: "望舒SDK 三方服务 客户端接入文档，提供详细的功能说明与接入指引。"
+---
+
+## 后台接入配置
+
+[登录配置说明](/docs/开发者文档/三方服务/九游/登录配置说明)
+
+[支付配置说明](/docs/开发者文档/三方服务/九游/支付配置说明)
+
+[推送配置说明](/docs/开发者文档/三方服务/华为/海外华为客户端/推送配置说明)
+
+[华为 Facebook 登录配置](/docs/开发者文档/三方服务/华为/海外华为客户端/华为FaceBook登录配置)
+
+[华为 Google 登录](/docs/开发者文档/三方服务/华为/海外华为客户端/华为Google登录)
+
+## 望舒快速接入（必接）
+
+[快速接入文档](/docs/开发者文档/入门指南/快速开始/Unity-初始化/快速开始)
+
+## 三方渠道接入说明（必读）
+
+[三方渠道接入说明](/docs/开发者文档/三方服务/三方接入说明)
+
+华为海外渠道手机系统要求， Android 系统支持 GMS 服务的华为手机 ，国内鸿蒙系统海外不可用。
+
+华为内置 Google Facebook 等三方渠道库，不可再额外引用 Google Facebook 等三方库
+
+## SDK集成
+
+
+:::tip[版本说明]
+`version` 为 SDK 版本号（替换为实际版本号），最新版本请从 [更新日志](/docs/开发者文档/入门指南/更新日志/Android) 中查看。
+:::
+
+```groovy
+//华为渠道库
+ implementation 'com.ruixue:rxsdk_overseas_huawei:${version}'
+```
+
+## 参数说明
+
+| 参数 | 类型 | 说明 |
+| --- | --- | --- |
+| agconnect-services.json | json 文件 | 配置文件初始化 |
+
+
+## 配置说明
+
+需要在华为开发者平台 AppGallery Connect 中在 ` 项目设置>常规>` 下载 `agconnect-services.json` 文件并将其放在 app 根目录下。
+
+在 app 根目录下 `build.gradle` 添加 AGC 插件配置,请根据实际情况选择.
+
+```groovy
+//方式一：在文件头部声明下一行添加
+apply plugin: 'com.huawei.agconnect'
+
+//方式二：在 `plugins` 添加
+plugins {
+ id 'com.android.application'
+ id 'com.huawei.agconnect'
+}
+```
+
+在您的项目根目录中，打开 `your_app | Gradle Scripts | build.gradle (Project)` 并添加以下存储库：
+
+```groovy
+buildscript {
+ dependencies {
+ //华为
+ classpath 'com.huawei.agconnect:agcp:1.9.1.300'
+ }
+}
+
+allprojects {
+ repositories {
+ // 华为的库的仓库地址
+ maven { url 'https://developer.huawei.com/repo/' }
+ }
+}
+```
+
+**为满足监管要求，集成 SDK 后要求用户在未同意访问网络前不能发送任何网络请求，如何处理？**
+
+用户在未同意访问网络前请不要调用 initThirdSdk 接口初始化三方 SDK
+
+提供了设置能否发送网络请求的能力，在 AndroidManifest.xml 的 Application 中增加如下 meta-data 配置， value 配置为 false ，表示未同意协议前不发送网络请求。
+
+```plaintext
+
+```
+
+在您的项目中，打开 your_app | Gradle Scripts | build.gradle (Module: app) 并将以下语句添加到 `defaultConfig` 块 部分：
+
+```groovy
+manifestPlaceholders = [
+ FACEBOOK_APP_ID : "xxxxxxx"
+]
+
+resValue "string", "facebook_app_id", "16881xxxxx629555"
+resValue "string", "facebook_client_token", "140aaab9e9xxxxxxxxxxd242be2bc19d"
+
+//需要Google 登录时候添加，从Google firebase 后台 凭证中获取
+resValue "string", "google_app_id", "7288xx'xx69094"
+resValue "string", "google_client_id", "7288xxxx69094-v0apajj7rd65s3abb8aj9kkub79rdt4f.apps.googleusercontent.com"
+```
+
+## 混淆配置
+
+[参考链接](https://developer.huawei.com/consumer/cn/doc/development/HMSCore-Guides/config-obfuscation-scripts-0000001050166287)
+
+在应用级根目录下打开混淆配置文件 `proguard-rules.pro` ，加入排除 SDK 的混淆配置
+
+```plaintext
+-ignorewarnings
+-keepattributes *Annotation*
+-keepattributes Exceptions
+-keepattributes InnerClasses
+-keepattributes Signature
+-keepattributes SourceFile,LineNumberTable
+-keep class com.huawei.hianalytics.**{*;}
+-keep class com.huawei.updatesdk.**{*;}
+-keep class com.huawei.hms.**{*;}
+-keep interface com.huawei.hms.analytics.type.HAEventType{*;}
+-keep interface com.huawei.hms.analytics.type.HAParamType{*;}
+-keep class com.huawei.hms.analytics.HiAnalyticsInstance{*;}
+-keep class com.huawei.hms.analytics.HiAnalytics{*;}
+```
+
+如果您使用了 AndResGuard ，需要在应用级的“build.gradle”文件中加入 AndResGuard 允许清单
+
+```plaintext
+"R.string.agc*",
+"R.string.hms*",
+"R.string.connect_server_fail_prompt_toast",
+"R.string.getting_message_fail_prompt_toast",
+"R.string.no_available_network_prompt_toast",
+"R.string.third_app_*",
+"R.layout.hms*",
+"R.drawable.upsdk*",
+"R.color.upsdk*",
+"R.dimen.upsdk*",
+"R.style.upsdk*",
+"R.id.scroll_layout",
+"R.id.divider",
+"R.id.name_textview",
+"R.id.version_textview",
+"R.id.appsize_textview",
+"R.id.allsize_textview",
+"R.id.content_textview",
+"R.id.third_app_dl_progress_text",
+"R.id.cancel_bg",
+"R.id.third_app_dl_progressbar",
+"R.id.upsdk*",
+"R.string.upsdk*",
+"R.layout.upsdk*"
+```
+
+（可选）当您启用 R8 资源缩减（项目级“build.gradle”文件中“shrinkResources”属性为“true”）和严格引用检查（“res/raw/keep.xml”文件中的“shrinkMode”为“strict”）时，请您配置“keep.xml”文件手动保留 layout 资源，确保应用正常通过华为应用市场上架审核。
+
+```plaintext
+
+```
+
+## 三方 SDK 版本信息
+
+```plaintext
+ implementation 'com.huawei.hms:hwid:6.12.0.300'
+ implementation 'com.huawei.hms:iap:6.13.0.300'
+ implementation 'com.huawei.hms:game:6.14.0.300'
+ implementation 'com.huawei.hms:hianalytics:6.12.0.300'
+
+ implementation 'com.huawei.agconnect:agconnect-core:1.9.1.301'
+ implementation 'com.huawei.agconnect:agconnect-auth:1.9.1.301'
+
+ implementation "com.huawei.agconnect:agconnect-auth-google:1.9.1.301"
+ api 'com.google.android.gms:play-services-auth:21.2.0'
+
+ implementation "com.huawei.agconnect:agconnect-auth-facebook:1.9.1.301"
+ api "com.facebook.android:facebook-login:17.0.2"
+```
+
+## 三方SDK错误
+
+[华为接入 FAQ](https://developer.huawei.com/consumer/cn/doc/HMSCore-Guides/faq-0000001050039708#section32859289126)
+
+## 初始化 SDK（必接）
+
+```java
+Map<String, Object> params = new HashMap<>();
+
+RuiXueSdk.getApi().initThirdSdk(this, params, new RXJSONCallback() {
+    @Override
+    public void onSuccess(@Nullable JSONObject jsonObject) {
+    Log.d(TAG, "init third sdk success");
+    }
+
+    @Override
+    public void onFailed(@NonNull JSONObject jsonObject) {
+    Log.d(TAG, "init third sdk failed " + jsonObject);
+    }
+});
+```
+
+## 登录
+
+登录方式
+
+| method 参数 | 类型 | 说明 |
+| --- | --- | --- |
+| huawei_google | string | 华为 Google 登录 |
+| huawei_fb | string | 华为 facebook 登录 |
+| hwjos | string | 华为账号登录 |
+
+
+请参考 [Android 端登录 API](/docs/开发者文档/登录-通行证/Android-登录API/快速接入)
+
+参考代码
+
+```java
+String username = null;
+String loginType = "hwjos"; // 上面登录方式根据需求选择
+String password = null;
+String captchaCode = null;
+String loginOpenId = null;
+Map<String, Object> ext = null;
+String[] signFields = null;
+Object migrateArgs = null;
+RuiXueSdk.getApi().login(DemoActivity.this, loginType, username, password, captchaCode, loginOpenId, ext, signFields, migrateArgs, new RXJSONCallback() {
+    @Override
+    public void onSuccess(@Nullable JSONObject data) {
+    Toast.makeText(DemoActivity.this, "登录成功", Toast.LENGTH_SHORT).show();
+    }
+
+    @Override
+    public void onFailed(@NonNull JSONObject cause) {
+    Toast.makeText(DemoActivity.this, "登录失败", Toast.LENGTH_SHORT).show();
+    }
+});
+```
+
+## 支付 (必须接入)
+
+请参考 [Android 端支付 API](/docs/开发者文档/支付/功能介绍)
+
+## 商品详情查询
+
+**接口原型**
+
+```java
+/** 商品详情查询接口
+    * @param skusList googleplay商品id列表
+    * @param callback 商品 json字符串信息回调 json 数组
+    */
+queryProductDetailsAsync(@NonNull List<String> skusList, @NonNull RXStringCallback callback)
+```
+
+**调用示例**
+
+```java
+HmsOSSdkWrapper.getInstance().queryProductDetailsAsync(productIdList, new RXStringCallback() {
+    @Override
+    public void onSuccess(@Nullable String data) {
+    RXLogger.i("product info: " + data);
+    }
+
+    @Override
+    public void onFailed(int code, String msg, @Nullable String traceId) {
+    activity.runOnUiThread(new Runnable() {
+    @Override
+    public void run() {
+    ToastUtils.showToast(activity, code + msg);
+    }
+    });
+
+    RXLogger.e("sss queryProductDetailsAsync:" + msg);
+    }
+});
+```
+
+**响应示例**
+
+```json
+{
+ "code": 0,
+ "data":
+ [
+ {
+ "currency": "CNY",
+ "microsPrice": 2090000,
+ "offerUsedStatus": -1,
+ "originalLocalPrice": "¥2.09",
+ "originalMicroPrice": 2090000,
+ "price": "¥2.09",
+ "priceType": 0,
+ "productDesc": "20点券",
+ "productId": "com.yuetang.fishinggame.gb.hw.0.29",
+ "productName": "20点券",
+ "status": 0,
+ "subProductLevel": 0,
+ "subSpecialPeriodCycles": 0,
+ "subSpecialPriceMicros": 0
+ }
+ ]
+}
+```
+
+## 退出(在游戏主界面退出时需要接入该方法)
+
+参考代码
+
+```java
+    RuiXueSdk.exitApp(this, new OnAppExitCallback() {
+    @Override
+    public void onExitConfirm(@Nullable String res) {
+    Toast.makeText(DemoActivity.this, "退出游戏成功", Toast.LENGTH_SHORT).show();
+    }
+
+    @Override
+    public void onExitCancel() {
+    Toast.makeText(DemoActivity.this, "退出游戏取消", Toast.LENGTH_SHORT).show();
+    }
+});
+```

@@ -1,0 +1,206 @@
+---
+title: "快速接入"
+---
+
+## 上报事件
+
+可使用此功能将事件上报到望舒大数据后台中。
+:::tip
+需要在SDK初始化后调用！！！
+SDK只支持上报事件属性，用户属性请使用 [Go SDK](/docs/v3.5/数据分析/功能介绍/产品说明) 进行上报
+:::
+
+**接口原型**
+
+```java
+/**
+ * 埋点数据上报 
+ * 注意：不能放在主线程数据量大可能 ANR
+ * @param eventName  埋点标识事件
+ * @param distinctId 用户唯一标识，一般为 OpenID
+ * @param properties CP 自定义属性（由CP调用时传入）
+ * @return 数据上报是否成功记录 自3.3.9版本起添加
+ */
+boolean dataTrack(String eventName, String distinctId, Map properties);
+
+//异步埋点上报不会阻塞主线程导致 ANR
+void trackAsync(String eventName, String distinctId, Map properties);
+/**
+ * 埋点数据上报
+ *
+ * @param eventName     埋点标识事件
+ * @param distinctId    用户唯一标识，一般为 OpenID
+ * @param properties    CP 自定义属性（由CP调用时传入）
+ * @param flushInterval 上报时间间隔
+ * @param maxCacheCount 最大缓存条数
+ * @return 数据上报是否成功记录 自3.3.9版本起添加
+ */
+boolean dataTrack(String eventName, String distinctId, Map properties, int flushInterval, int maxCacheCount);
+```
+
+### 参数说明
+
+| **字段**      | **类型**            | **是否必填** | **说明**                                                                                              |
+| ------------- | ------------------- | ------------ | ----------------------------------------------------------------------------------------------------- |
+| eventName     | String              | 是           | 埋点标识                                                                                              |
+| distinctId  | String              | 否           | 用户唯一标识，一般为 OpenID                                                                      |
+| properties    | Map | 否           | 自定义属性注意：properties 中上传的属性内容，必须与在后台中添加的属性内容保持一致。否则数据无法统计。  
+ 在 properties 中传入属性 `"#env" : "1"` 表示该条数据为测试数据。   |
+| flushInteval  | int                 | 否           | 单位毫秒， 默认 1 分钟上报一次，传 -1 使用默认值                                                                        |
+| maxCacheCount | int                 | 否           | 默认缓存数据超过 100 条触发上报，传 -1 使用默认值                                                                       |
+
+**调用示例**
+
+```java
+HashMap hashMap = new HashMap<>();
+hashMap.put("testval", "testval");
+boolean isSuccess= RuiXueSdk.getRXSdkApi().dataTrack("event_name", "open id", hashMap);
+
+```
+
+### 响应结构
+
+返回boolean，标识数据上报是否被成功记录。
+
+## 设置测试数据
+
+**接口原型**
+
+```java
+/**
+ * 是否为测试数据，true 为测试数据，false 为正式数据，默认 false
+ */
+void setTrackEnv(boolean isTrackEnv)
+```
+
+**调用示例**
+
+```java
+// 正式数据
+RuiXueSdk.setTrackEnv(false);
+// 测试数据
+RuiXueSdk.setTrackEnv(true);
+```
+
+## 获取 client_distinct_id
+
+**client_distinct_id** 是望舒中使用的重要属性，用于关联在没有 openid 时上报的数据。
+
+**接口原型**
+
+```java
+/**
+ * 获取distinctId
+ */
+String getDistinctId();
+```
+
+**调用示例**
+
+```java
+RuiXueSdk.getDistinctId();
+```
+
+## 设置公共属性
+
+设置后由SDK填入自定义属性中进行上报，设置后SDK进行缓存，多次设置则会覆盖。
+
+**接口原型**
+
+```java
+/**
+ * 修改公共属性
+ * 修改的属性会将原有属性覆盖，未设置的属性则会补入缓存中
+ * @publicProperties 公共属性
+ */
+void setPublicProperties(Map publicProperties) 
+```
+
+**调用示例**
+
+```java
+    Map pub = new HashMap<>();
+    pub.put("a", 1);
+    pub.put("b", 2);
+    RuiXueSdk.setPublicProperties(pub);
+```
+
+## 修改公共属性
+
+修改的属性会将原有属性覆盖，未设置的属性则会补入缓存中。
+
+**接口原型**
+
+```java
+/**
+ * 修改公共属性
+ * 修改的属性会将原有属性覆盖，未设置的属性则会补入缓存中
+ * @key 公共属性key
+ * @value 公共属性value
+ */
+void updatePublicProperties(String key, Object value) 
+```
+
+**调用示例**
+
+```java
+    RuiXueSdk.updatePublicProperties("a","update");
+```
+
+## 删除公共属性
+
+删除缓存的某个公共属性。
+
+**接口原型**
+
+```java
+/**
+ * 删除公共属性
+ * 删除缓存的某个公共属性
+ * @key 公共属性key
+ */
+void deletePublicProperties(String key) 
+```
+
+**调用示例**
+
+```java
+ RuiXueSdk.deletePublicProperties("a");
+```
+
+## 用户行为统计
+:::tip
+SDK 会自动收集从 初始化->登录-> 实名认证 产生的用户行为，可在大数据中查看具体行为数据 [用户行为统计](https://nctpoatgf0.feishu.cn/wiki/SqKswRM22ipDKOkvLxCc7jQ5nhb)，客户端可以在望舒预置事件中插入游戏行为统计。
+:::
+
+**接口原型**
+
+```java
+
+/**
+ * 上报用户行为
+ *
+ * @param distinctId
+ * @param properties
+ */
+ void trackUserAction(String distinctId, Map properties);
+
+/**
+ * 终止用户行为统计
+ */
+void stopTrackUserAction();
+```
+
+**调用示例**
+
+```objectivec
+// 插入行为统计
+// 下面 properties 仅为示例，CP 方自己根据需求自定定义
+Map properties = new HashMap<>();
+properties.put("scene", "game");
+properties.put("action", "win");
+RuiXueSdk.getApi().trackUserAction("", properties);
+    
+// 终止行为统计
+RuiXueSdk.getApi().stopTrackUserAction();
+```

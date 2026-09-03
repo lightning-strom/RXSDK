@@ -1,0 +1,62 @@
+---
+title: "Android"
+---
+
+## 获取历史消息模块
+
+```java
+HistoryModule historyModule = RXIMEngine.getInstance().catchModule(ProcessModuleInventory.HISTORY);
+```
+
+## 获取服务器历史消息
+获取服务端的历史消息列表，因为服务端数据量很大，所以效率不会很高，建议在情况允许的情况下**优先考虑获取本地历史消息**方法
+
+**接口原型**
+
+```java
+/**
+ * 远程获取历史消息
+ * @param conversationID 会话id
+ * @param startID 起始锚点
+ * @param count 拉取数量
+ * @param observer 回调函数
+ */
+public void fetchHistoryMessages(String conversationID, String startID, int count, IRXSendingObserver observer)
+```
+
+**调用示例**
+
+```java
+historyModule.fetchHistoryMessages($会话id$, $锚点消息的msgID$, 20, new IRXSendingObserver() {
+    @Override
+    public void onStart(RXSyncMessage contentMessage) {
+        
+    }
+
+    @Override
+    public void complete(int code, RXSyncMessage contentMessage) {
+
+    }
+});
+```
+
+## 获取本地历史消息
+
+**接口原型**
+
+```java
+/**
+ * 获取本地Message
+ * @param targetID 对方openID
+ * @param count 查询数量
+ * @param page 页码
+ * @return 结果
+ */
+public List getHistoryMessages(String targetID, int count, int page)
+```
+
+**调用示例**
+
+```java
+historyModule.getHistoryMessages($对方id$, 20, 1)；
+```

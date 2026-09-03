@@ -1,0 +1,28 @@
+services:
+  rx-docs:
+    # 热更新模式：常驻 nginx，静态产物通过挂载宿主机目录提供
+    # 发布新内容用 scripts/release.sh 原子切换 current 软链接，无需重启本容器
+    image: nginxinc/nginx-unprivileged:alpine
+    container_name: rx-docs
+    ports:
+      - "3000:8080"
+    restart: unless-stopped
+    read_only: true
+    volumes:
+      # 站点产物根目录（含 releases/ 与 current 软链接），只读挂载
+      - ${SITE_DIR:-/opt/rx-docs/site}:/srv/site:ro
+      # nginx 配置，只读挂载（改配置后 docker compose restart 即可）
+      - ./docker/nginx.conf:/etc/nginx/conf.d/default.conf:ro
+    tmpfs:
+      - /tmp
+      - /var/cache/nginx
+      - /var/run
+    security_opt:
+      - no-new-privileges:true
+    cap_drop:
+      - ALL
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://localhost:8080/"]
+      interval: 30s
+      timeout: 3s
+      retries: 3

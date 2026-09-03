@@ -1,0 +1,64 @@
+---
+sidebar_position: 3
+title: "落地页JSSDK使用说明"
+description: "望舒帮助中心 落地页JSSDK使用说明 文档"
+---
+
+## 一、功能介绍
+
+该 SDK 将整合进入页面上报大数据、解析identity、点击按钮后的操作，方便快速制作落地页。
+SDK 包为 umd 格式，将会在页面 window 中注入字段名 **shareLandingSDK** 全局对象
+
+:::tip
+**SDK地址**：https://file.ruixueyun.com/public/js/share-landing-sdk.v5.umd.min.js
+
+:::
+
+SDK 中都做了什么？
+
+![](https://haiqi-ruixue-test.oss-cn-beijing.aliyuncs.com/docOnline/whiteboard_exported_image-1731045768335.png)
+
+## 二、使用SDK
+
+window.**shareLandingSDK.CommonSingle**
+对象说明：
+
+```js
+CommonSingle = {
+    // 所有参数的集合 包括解析短链接获取到的参数 + url 传递的参数
+    params: Object,
+    // 是否初始化
+    isInitialize: Boolean,
+    // 初始化 【* 注意 该方法是异步】
+    initialize: (params: Record<string, string>) => Record<string, string>
+    // 上报大数据 参数 Object => { action: 'download' | 'open' }
+    // 如不穿参数 默认为 { action: 'open' }
+    requestReportBi: Function,
+    // 点击下载按钮 调用该方法即可 
+    handleEvent: Function
+}
+```
+
+使用示例：
+
+```js
+// 1、第一步 刚进入页面 在适当的位置初始化（调用 initialize 方法会默认上报一次大数据open）
+// urlParams 是一个对象集合，包含了query上的参数以及identity解析出来的数据
+const urlParams = await shareLangingSDK.CommonSingle.initialize()
+
+// 2、当用户点击按钮的时候 调用 handleEvent 即可
+// 【* 一定是要在 初始化 之后才可以调用 handleEvent 方法】
+document.querySelect('#btn').addEventListener('click', () => shareLangingSDK.CommonSingle.handleEvent())
+```
+
+URL 参数说明：
+
+| **参数名称** | **说明** | **是否必须** | **示例** |
+| ---- | --- | ---- | --- |
+| identity | 短链接 | 否 | HW1W2th4R |
+| api | 请求域名 | 是 | rx-api.xze601.com |
+| protocol\_android | 安卓唤起协议 | 是 | jixiang433 |
+| protocol\_ios | ios 唤起协议 | 是 | jixiang433 |
+| cancelCopy | 如果链接上有这个参数，则点击下载按钮的时候 不把信息复制到剪切板上 | 否 |  |
+| customAction | 客户端自定义行为 | 否 | 此字段为唤起协议自定义行为，例如「免房号加入」则可在落地页 url 参数中设置 customAction 值为 joinroom ，则实际唤起链接为 weile141://joinroom？xxxx=xxxx&xxxx=xxxx&xxxx=xxxx 若落地页url参数中未设置 customAction 或 custom\_action字段，则默认唤起协议为 weile141://?xxxx=xxxx&xxxx=xxxx&xxxx=xxxx |
+| use\_scheme | 点击下载按钮的时候 ，是否需要调用唤起协议 | 否 | (默认是调起)<br/>值1=调用唤起协议<br/>值=0不调用唤起协议 |

@@ -1,0 +1,969 @@
+---
+sidebar_position: 2
+title: 服务端回调接口
+description: "望舒SDK 登录通行证 服务端回调接口服务端文档，提供接口请求参数与响应说明。"
+unlisted: true
+---
+
+## 封停用户
+
+使用运营【违规封号处理】、法务【违规举报管理】，封停用户时会调用此接口
+
+> 类型：同步
+>
+> Action: user-ban
+>
+> **认证方式：** [CPSign](/docs/开发者文档/入门指南/服务端接入须知)
+
+### 请求参数 []User
+
+**User 结构**
+
+| 字段 | 类型 | 是否必填 | 说明 |
+| --- | --- | --- | --- |
+| open_id | String | 是 | 望舒 OpenID |
+| user_id | String | 是 | 用户的 ID |
+| days | Int | 是 | 封停的天数,0 为永久封停;如不为 0 则用当前时间加上天数 |
+| cause | String | 是 | 封停的原因 |
+| title | String | 否 | 通知标题 |
+| content | String | 否 | 通知内容 |
+| cp_user_id | String | 是 | cp 游戏 id |
+
+#### 请求示例
+
+```groovy
+[
+ {
+ "open_id": "xxx",
+ "user_id": "user_123",
+ "days": 1,
+ "cause": "封停原因"
+ "title": "奖励提示的标题",
+ "content": "奖励提示的内容"
+ },
+ {
+ "open_id": "xxx",
+ "user_id": "user_123",
+ "days": 1,
+ "cause": "封停原因"
+ "title": "奖励提示的标题",
+ "content": "奖励提示的内容"
+ }
+]
+
+```
+
+#### 返回示例
+
+```json
+{
+ "code": 0
+}
+```
+
+### 响应要求
+
+| 字段 | 类型 | 说明 |
+| --- | --- | --- |
+| code | Number | 0 成功 |
+| msg | String | 错误信息 |
+| data | Any | 需要返回数据时放到此字段 |
+
+## 解封用户
+
+使用运营【违规封号处理】时，解封用户时会调用此接口
+
+> 类型：同步
+>
+> Action: user-unban
+>
+> **认证方式：** [CPSign](/docs/开发者文档/入门指南/服务端接入须知)
+
+### 请求参数 []Obeject
+
+**Obeject** 结构
+
+| 字段 | 类型 | 是否必填 | 说明 |
+| --- | --- | --- | --- |
+| open_id | String | 否 | 望舒 openid |
+| user_id | String | 否 | cp 方用户 id |
+| cause | String | 否 | 解封原因 |
+| cp_user_id | String | 是 | cp 游戏 id |
+
+#### 请求示例
+
+```groovy
+[
+ {
+ "open_id": "xxx",
+ "user_id": "cp 方用户 ID",
+ "cause": "解封原因"
+ }
+]
+```
+
+#### 返回示例
+
+```json
+{
+ "code": 0
+}
+```
+
+### 响应要求
+
+| 字段 | 类型 | 说明 |
+| --- | --- | --- |
+| code | Number | 0 成功 |
+| msg | String | 错误信息 |
+| data | Any | 需要返回数据时放到此字段 |
+
+## 通过望舒openid注销用户
+
+> 类型：同步
+>
+> Action: user-deregister
+>
+> **认证方式：** [CPSign](/docs/开发者文档/入门指南/服务端接入须知)
+
+### 请求参数
+
+| 字段 | 类型 | 是否必填 | 说明 |
+| --- | --- | --- | --- |
+| open_id | []String | 是 | 望舒 OpenID |
+| cp_user_ids | []String | 否 | 游戏用户 id ，不保证有值， 与 open_id 一一对应，无值的为空字符串 |
+| cpdata | String | 否 | CP 自定义数据，建议传 game_user_id=用户的游戏 id ，不传在望舒后台不会账号注销页面不显示游戏侧的用户 id |
+
+#### 请求示例
+
+```json
+{
+ "open_id": [
+ "openid_1"
+ ],
+ "cp_user_ids": [
+ ""
+ ],
+ "cpdata": "{}"
+}
+```
+
+#### 返回示例
+
+```json
+{"code": 0 }
+```
+
+### 响应要求
+
+| 字段 | 类型 | 说明 |
+| --- | --- | --- |
+| code | Number | 0 成功 |
+| msg | String | 错误信息 |
+| data | Any | 需要返回数据时放到此字段 |
+
+## 绑定望舒账号接口 已下线
+
+> 类型：同步
+>
+> Action: account-bind
+>
+> **认证方式：** [CPSign](/docs/开发者文档/入门指南/服务端接入须知)
+
+### 请求参数
+
+| 字段 | 类型 | 是否必填 | 说明 |
+| --- | --- | --- | --- |
+| credential_type | string | 否 | 账号类型，与上一节 "查询游戏账号信息接口" 中的 cerdential_type 参数相同。 |
+| identifier | [Identifier](/docs/开发者文档/意见反馈/Unity-接入) | 否 | 此为 "查询游戏账号信息接口" 接口返回的 identifier 信息。 |
+| rxinfo | [Rxinfo](/docs/开发者文档/意见反馈/Unity-接入) | 否 | 望舒账号标识信息。 |
+
+对于接入过旧望舒的项目，其 identifier 由新望舒直接从旧望舒查询， CP 方无需实现 account-query 接口。
+
+新望舒调用 account-bind 接口时，传递的 identifier 字段结构如下
+
+#### Identifier
+
+| 字段 | 类型 | 说明 |
+| --- | --- | --- |
+| id | int64 | 旧望舒用户 ID。 |
+| openid | string | 旧望舒 openid。 |
+| rxversion | int64 | 旧望舒数据版本： |
+
+null ， 0 表示望舒 1.0 的账号；
+
+1 表示望舒 2.0 或 3.0 的账号；
+
+##### Rxinfo
+
+| 字段 | 类型 | 说明 |
+| --- | --- | --- |
+| openid | string | 望舒 openid。 |
+
+#### 请求示例
+
+当望舒调用 CP 的 account-query 接口查询到用户名为 "rssllyn" 的旧账号信息时，望舒将会使用该旧账号信息创建对应的望舒账号，生成望舒 OpenID ，并调用以下 account-bind 接口通知 CP 游戏服务器，将该旧账号绑定与对应的望舒账号（通过望舒 OpenID 标识）绑定。
+
+```json
+{
+ "credential_type": "username",
+ "identifier": 5,
+ "rxinfo": {
+ "openid": "rxuBQtC2oRgb6Dytk43C0lHXA=="
+ }
+}
+```
+
+#### 返回示例
+
+```json
+{
+ "code": 0,
+ "data": {
+ "userid": 1
+ }
+}
+```
+
+### 响应要求
+
+| 字段 | 类型 | 说明 |
+| --- | --- | --- |
+| code | Number | 0 成功 |
+| msg | String | 错误信息 |
+| data | [Data](/docs/开发者文档/意见反馈/Unity-接入) | 需要返回数据时放到此字段 |
+
+#### Data
+
+对于接入过旧望舒的项目，由于前述"查询游戏账号信息接口"是在望舒内部查询旧望舒数据完成的，而其中的 userid 信息在旧望舒系统中没有存储，因此需要在此处返回。另外，在这种情况下会出现同一个旧望舒账号会生成多个新望舒账号，对应调用多次本接口，每次传递的新望舒 openid 不同， CP 方实现本接口时需要注意予以支持。
+
+| 字段 | 类型 | 说明 |
+| --- | --- | --- |
+| userid | number | CP 方的游戏用户 ID。 |
+
+## 查询并绑定望舒账号接口 已下线
+
+> 类型：同步
+>
+> Action: account-queryandbind
+>
+> **认证方式：** [CPSign](/docs/开发者文档/入门指南/服务端接入须知)
+
+### 请求参数
+
+| 字段 | 类型 | 是否必填 | 说明 |
+| --- | --- | --- | --- |
+| credential_type | string | 是 | 账号类型，对应通行证登录接口中的 [method](/docs/开发者文档/用户信息/获取指定用户信息)参数，但是当 method 为 "username" 时，根据用户名不同， credential_type 可以分为 "username", "phone", "email" 三种。 |
+| credential_params | object | 是 | 与 credential_type 对应的账号信息，旨在涵盖各游戏可能用于构造用于名的所有账号信息。 |
+| migrate_args | 任意合法的 json 类型, 比如 string, number, array, object | 否 | 客户端调用通行证接口时传的 migrate_args 参数, 在此处透传给 CP. 有可能触发调用 account-queryandbind 的通行证接口, 都支持传递此参数. |
+| rxinfo | [rxinfo](/docs/开发者文档/意见反馈/Unity-接入) | 是 | 望舒账号标识信息。 |
+
+#### rxinfo结构
+
+| 字段 | 类型 | 说明 |
+| --- | --- | --- |
+| openid | string | 望舒 openid。 |
+| cp_userid | int64 | 如果当前望舒用户是通过之前的账号迁移操作从 CP 方导入的，则 cp_userid 会带上之前账号迁移 account-query 接口返回的 info.userid 信息。 |
+
+CP 接口应判断当前迁移账号与 cp_userid 是否不同，如果不同，则不应绑定，防止两个 user 有相同的 openid ，除此之外，还应该返回当前账号的包括 userid 在内的信息，以便望舒判断两个 userid 不匹配而禁止用户操作。当然，本接口也可直接返回错误，但 CP 客户端得对应处理通过望舒转发到客户端的错误信息。
+
+#### 请求示例
+
+当用户初次登录一个微信小游戏账号时，望舒账号系统中找不到对应的账号信息，会先创建望舒账号，生成望舒 OpenID ，然后调用 account-queryandbind 接口查询是否存在旧账号，如果存在则将其绑定到望舒账号（通过望舒 OpenID 关联）并返回旧账号信息，如果有查询到旧账号信息，望舒将用返回的用户信息修改望舒用户，实现导入。
+
+```json
+{
+ "credential_type": "minigame",
+ "credential_params": {
+ "openid": "oD7-Z5amE_5wgGL19xxVqX3PpYrI",
+ "unionid": "oPXyfuLlc8JkrDKNy9xa86StszUA"
+ },
+ "rxinfo": {
+ "openid": "rxuW1CZqRJt22uL/g4YUAR6Ow=="
+ }
+}
+```
+
+#### 返回示例
+
+```json
+{"code": 0 }
+```
+
+### 响应要求
+
+| 字段 | 类型 | 说明 |
+| --- | --- | --- |
+| code | Number | 0 成功 |
+| msg | String | 错误信息 |
+| data | [data](/docs/开发者文档/意见反馈/Unity-接入) | 需要返回数据时放到此字段 |
+
+#### data结构
+
+| 字段 | 类型 | 说明 |
+| --- | --- | --- |
+| info | object | 账号数据 |
+
+> info 数据接口，参考 "查询游戏账号信息接口" 接口对返回数据结构的说明。
+
+> 由于这个接口相当于时前面两个接口的合并，省掉了中间过程，因此我们可以看到请求参数和返回数据结构中都没有 identifier 字段信息。
+
+## 查询游戏账号信息接口 已下线
+
+> 类型：同步
+>
+> Action: account-query
+>
+> **认证方式：** [CPSign](/docs/开发者文档/入门指南/服务端接入须知)
+
+### 请求参数
+
+| 参数 | 类型 | 备注 |
+| --- | --- | --- |
+| credential_type | string | 账号类型。 |
+| credential_params | object | 与 credential_type 对应的账号信息，旨在涵盖各游戏可能用于构造用于名的所有账号信息。 |
+| migrate_args | 任意合法的 json 类型, 比如 string, number, array, object | 客户端调用通行证接口时传的 migrate_args 参数, 在此处透传给 CP. 有可能触发调用 account-query 的通行证接口, 都支持传递此参数. |
+
+
+每种 credential_type 及其对应的 credential_params 结构如下。默认情况下，望舒对下列各种账号类型都会在用户进行相关账号操作时尝试调用 CP 账号迁移接口，如果需要禁用部分账号类型，请联系望舒进行修改。
+
+#### guest
+
+| 参数 | 类型 | 备注 |
+| --- | --- | --- |
+| idfa | string | 仅用于 iOS 设备。目前 iOS 系统主流的广告获取设备标识符方式。用户可开启、关闭，每次切换会改变为新的取值。10 以下的版本关闭时也能取到唯一值, >=10 的 iOS 版本关闭时取到的值为 00000000000 ；系统大版本升级（如 11 到 12 ） IDFA 也会发生变化。 |
+| android_id | string | 仅用于 Android 设备。Android 版本 = 8.0 ，应用签名、用户（即系统上的用户账号）和设备的每个组合都具有唯一的 ANDROID_ID 值，即使系统升级也不变。 |
+| imei | string | 仅用于 Android 设备。Android 版本 &lt; 6.0 ，只需要 READ_PHONE_STATE 静态权限（安装 App 时即可获取到该权限），即可通过系统 API TelephonyManager#getDeviceId API 获取准确值； 6.0 &lt;= Android 版本 &lt;= 9.0 ， READ_PHONE_STATE 升级为动态权限，安装 App 时不会获得该权限，需要在 App 运行时用户在弹窗确认授权后才可以获取； Android 版本 >= 10.0 ，设备不可变 ID 的隐私保护得到进一步升级，需要 READ_PRIVILEGED_PHONE_STATE 权限才可以获取 IMEI ，而该权限只有系统级别的应用才可以获得，因此一般 App 无法获取到 IMEI。 |
+| oaid | string | 仅用于 Android 设备。移动安全联盟（简称 MSA ）制定的匿名设备标识符。可用于 android 系统的补充设备标示，通常 android10 以上的国内主流设备都可以获取。具体 OAID 介绍以及最新覆盖厂商范围请详见 MSA 官网：[https://msa-alliance.cn](https://msa-alliance.cn)。 |
+| mac | string | 仅用于 Android 设备。设备 Mac 地址。 |
+| device_code | string | 望舒根据以上设备信息生成的设备码，或是游戏客户端自定义的设备码。 |
+
+
+请求示例
+
+```json
+{
+ "credential_type": "guest",
+ "credential_params": {
+ "device_code": "c97b107060054f01bd57e9511d0ca497"
+ }
+}
+```
+
+#### username, phone, email
+
+| 参数 | 类型 | 备注 |
+| --- | --- | --- |
+| username | string | 用户指定的用户名。 |
+
+
+请求示例
+
+username
+
+```json
+{
+ "credential_type": "username",
+ "credential_params": {
+ "username": "mike"
+ }
+}
+```
+
+phone
+
+```json
+{
+ "credential_type": "phone",
+ "credential_params": {
+ "username": "15912345678"
+ }
+}
+```
+
+email
+
+```json
+{
+ "credential_type": "email",
+ "credential_params": {
+ "username": "mike@gmail.com"
+ }
+}
+```
+
+#### quickphone
+
+| 参数 | 类型 | 备注 |
+| --- | --- | --- |
+| mobile | string | 手机号。 |
+
+
+请求示例
+
+```json
+{
+ "credential_type": "quickphone",
+ "credential_params": {
+ "mobile": "15912345678"
+ }
+}
+```
+
+#### wechat
+
+| 参数 | 类型 | 备注 |
+| --- | --- | --- |
+| openid | string | 微信用户 openid |
+| unionid | string | 微信用户 unionid |
+
+
+请求示例
+
+```json
+{
+ "credential_type": "wechat",
+ "credential_params": {
+ "openid": "oby68v0_myNxptMsiqFwtc2s1nAI",
+ "unionid": "oqh_nwLDbMRwM276dc4pkcrlXNIw"
+ }
+}
+```
+
+##### minigame
+
+| 参数 | 类型 | 备注 |
+| --- | --- | --- |
+| openid | string | 微信用户 openid |
+| unionid | string | 微信用户 unionid |
+
+
+请求示例
+
+```json
+{
+ "credential_type": "minigame",
+ "credential_params": {
+ "openid": "oD7-Z5amE_5wgGL19xxVqX3PpYrI",
+ "unionid": "oPXyfuLlc8JkrDKNy9xa86StszUA"
+ }
+}
+```
+
+#### mobileqq
+
+| 参数 | 类型 | 备注 |
+| --- | --- | --- |
+| openid | string | QQ 用户 openid。 |
+| unionid | string | QQ 用户 unionid。 |
+
+
+请求示例
+
+```json
+{
+ "credential_type": "mobileqq",
+ "credential_params": {
+ "openid": "BE26898276D9F25C4923C05DC0F34612",
+ "unionid": "EA4FE64A952DB7E54BEEA4563654DB63"
+ }
+}
+```
+
+#### ysdk
+
+请求示例
+
+```json
+{
+ "credential_type": "ysdk",
+ "credential_params": {
+ "login_type": 1,
+ "openid": "2bebbf7a5c9daaa3a0a5bb4b00249aa2"
+ }
+}
+```
+
+#### kuaishou
+
+请求示例
+
+```json
+{
+ "credential_type": "kuaishou",
+ "credential_params": {
+ "uid": 1168125428,
+ "game_id": "120592009db2d8f48807fb38a236aae281",
+ "unionid": "f198f325227b2c2514bf572499399a74"
+ }
+}
+```
+
+#### apple
+
+请求示例
+
+```json
+{
+ "credential_type": "apple",
+ "credential_params": {
+ "openid": "000542.0bfe915c84ba499d9b359f35966cecad.123d3"
+ }
+}
+```
+
+#### baidunet
+
+| 参数 | 类型 | 备注 |
+| --- | --- | --- |
+| uid | string | 百度网讯用户 id |
+
+
+请求示例
+
+```json
+{
+ "credential_type": "baidunet",
+ "credential_params": {
+ "uid": "e4db7caf0f3d4277b9ba0272a592863c"
+ }
+}
+```
+
+#### huawei, hwjos, huaweih5
+
+请求示例
+
+huawei
+
+```json
+{
+ "credential_type": "huawei",
+ "credential_params": {
+ "player_id": "1182933562602741"
+ }
+}
+```
+
+hwjos
+
+```json
+{
+ "credential_type": "hwjos",
+ "credential_params": {
+ "player_id": "1182933562602741"
+ }
+}
+```
+
+huaweih5
+
+```json
+{
+ "credential_type": "huaweih5",
+ "credential_params": {
+ "player_id": "1182933562602741"
+ }
+}
+```
+
+#### mi
+
+请求示例
+
+```json
+{
+ "credential_type": "mi",
+ "credential_params": {
+ "uid": "2022071409093707"
+ }
+}
+```
+
+#### vivo
+
+| 参数 | 类型 | 备注 |
+| --- | --- | --- |
+| openid | string | vivo 用户 openid |
+
+
+请求示例
+
+```json
+{
+ "credential_type": "vivo",
+ "credential_params": {
+ "openid": "aaf33c9b56033a84"
+ }
+}
+```
+
+#### oppo
+
+| 参数 | 类型 | 备注 |
+| --- | --- | --- |
+| ssoid | string | oppo 用户 ssoid |
+
+
+请求示例
+
+```json
+{
+ "credential_type": "oppo",
+ "credential_params": {
+ "ssoid": "123512259"
+ }
+}
+```
+
+#### meituan
+
+| 参数 | 类型 | 备注 |
+| --- | --- | --- |
+| mgc_ids | array of numbers | 美团用户 mgcIds |
+| unionid | string | 美团用户 unionid |
+
+
+请求示例
+
+```json
+{
+ "credential_type": "meituan",
+ "credential_params": {
+ "mgcids": [345968545068735],
+ "unionid": "oSnxXv2WjN1cwVBZzdBa1HJXG9A8"
+ }
+}
+```
+
+#### douyin
+
+| 参数 | 类型 | 备注 |
+| --- | --- | --- |
+| sdk_openid | string | 抖音用户 sdk_open_id |
+
+
+请求示例
+
+```json
+{
+ "credential_type": "douyin",
+ "credential_params": {
+ "sdk_openid": "7120813368654666536"
+ }
+}
+```
+
+#### douyinh5
+
+| 参数 | 类型 | 备注 |
+| --- | --- | --- |
+| openid | string | 用户在当前抖音小游戏的 ID |
+| anonymous_openid | string | 匿名用户在当前抖音小游戏的 ID |
+
+
+请求示例
+
+```json
+{
+ "credential_type": "douyinh5",
+ "credential_params": {
+ "openid": "_000PKZx1WSD3xBV0eilDVZbBMyEuXIs_9L9"
+ }
+}
+```
+
+#### facebook
+
+请求示例
+
+```json
+{
+ "credential_type": "facebook",
+ "credential_params": { "id": "796875091740952" }
+}
+```
+
+#### google
+
+| 参数 | 类型 | 备注 |
+| --- | --- | --- |
+| user_id | string | google 用户 id |
+
+
+请求示例
+
+```json
+{
+ "credential_type": "google",
+ "credential_params": {
+ "user_id": "103005857838561923071"
+ }
+}
+```
+
+#### taptap
+
+请求示例
+
+```json
+{
+ "credential_type": "taptap",
+ "credential_params": {
+ "openid": "PuO0aLYgA+HXJHDIllFeYA==",
+ "unionid": "QoioAYxmM6A4XSbYsJzlqg=="
+ }
+}
+```
+
+#### Line
+
+| 参数 | 类型 | 备注 |
+| --- | --- | --- |
+| user_id | number | 用户 id |
+
+
+请求示例
+
+```json
+{
+ "credential_type": "line",
+ "credential_params": {
+ "user_id": "Ub3d753fc9098cd5e3b985d16226a8efd"
+ }
+}
+```
+
+#### 4399
+
+| 参数 | 类型 | 备注 |
+| --- | --- | --- |
+| uid | string | 用户 id |
+
+
+请求示例
+
+```json
+{
+ "credential_type": "4399",
+ "credential_params": { "uid": "4056851511" }
+}
+```
+
+### 响应结构
+
+当通过给定参数在找不到已有账号时，接口应返回 `code` 为 0 ，且 `data` 为 null 或者不返回 `data` 字段。如果账号存在，则 `data` 字段应有如下结构。
+
+| 参数 | 类型 | 备注 |
+| --- | --- | --- |
+| identifier | 任意 json 值 | 该账号在游戏存储系统中的唯一标记，此数据会在之后的 "绑定望舒账号接口" 中传给 CP。具体的 `identifier` 结构由游戏侧自行定义，通常情况下， identifier 会比本接口传的参数更容易定位到游戏侧存储的账号数据，因此可以提高 "绑定望舒账号接口" 接口查询数据的效率。 |
+| info | object | 账号数据 |
+
+
+#### info 数据结构
+
+| 参数 | 类型 | 备注 |
+| --- | --- | --- |
+| password_type | number | 表示 password 字段存储的密码的编码方式。 |
+
+
+0 ，表示密码通过以下步骤编码：
+
+ 1. 计算 MD5 ，将字符串转为 bytes ；
+
+ 2. 将 bytes 转化为大写的 16 进制字符串；
+
+ 3. 重复 1 ， 2 步。
+
+ 4. 再次重复 1 ， 2 步。
+
+如果现有游戏账号的密码无法转化为以上编码方式之一，请联系望舒提供支持。
+password
+
+| string | 密码 |
+| --- | --- |
+| reg_platform_type | number |
+| 注册账号时客户端的类型。0 ，未知； 1 ，安卓； 2 ， iOS。 | registered_at_time |
+| number | 注册时间戳（秒） |
+| userid | number |
+| CP 方的游戏用户 ID ，如果不为 0 ，望舒将据此判断是否存在已有望舒用户数据，以便将多个账号与同一个望舒用户关联，共用一个望舒 OpenID。 | gender |
+| number | 性别。-1 ，未知； 0 ，女性； 1 ，男性。 |
+| nick_name | string |
+| 昵称。 | avatar |
+| string | 头像地址。 |
+| phone | string |
+| 手机号。 | email |
+| string | 邮箱地址。 |
+| real_name | string |
+| 真实姓名。real_name 和 idard 共用用于实名认证。 | idcard |
+| string | 身份证号。real_name 和 idard 共用用于实名认证。 |
+
+
+## accesstoken 推送
+
+当望舒后台 accesstoken 有刷新时推送给 cp 方， cp 方不应依赖此接口， 重启服务或者 accesstoken 提示过期时，应主动拉取望舒提供的 http 接口：[获取 accesstoken](/docs/开发者文档/意见反馈/Unity-接入)
+
+> 类型：同步
+>
+> Action: product-accesstoken_update
+>
+> **认证方式：** [CPSign](/docs/开发者文档/入门指南/服务端接入须知)
+
+### 请求参数
+
+| 字段 | 类型 | 是否必填 | 说明 |
+| --- | --- | --- | --- |
+| type | Number | 是 | 目前有 3 种， 1 微信。2QQ。 3 抖音。 |
+| appid | String | 是 | 三方 app 唯一标识 |
+| accesstoken | String | 是 | 生成的 accesstoken |
+| expir | Number | 是 | 有效期 |
+
+#### 请求示例
+
+```json
+{
+ "appid": "wx5d34c56fxxxxxxx",
+ "accesstoken": "71_W39RDiT5wuGu5-0uNn_v5vspyzqqqi_fpvEla28FClBNXtM_O4XtJM-WySOrAl0H4isD58G7xkoSBgugi8US3DbPME-LGH60TOFeevRlR7RhUWuKpW_Mm5kQ10AVKSbAEAZOW",
+ "expir": 7200,
+ "type": 1
+}
+```
+
+##### 响应示例
+
+```json
+{
+ "code": 0
+}
+```
+
+### 响应结构
+
+| 字段 | 类型 | 说明 |
+| --- | --- | --- |
+| code | Number | 0 成功 |
+| msg | String | 错误信息 |
+| data | Object | cp 方自定义返回 |
+
+#### 主动获取accesstoken
+
+[获取微信 accesstoken]
+
+> **GET: ** `/v1/accesstoken/wechat/data`
+>
+> **认证方式:** [CPSign](/docs/开发者文档/入门指南/服务端接入须知)
+
+*请求参数*
+
+| 参数 | 类型 | 备注 |
+| --- | --- | --- |
+| appid | String | 微信 APPID |
+
+[获取 QQ accesstoken]
+
+> **GET: ** `/v1/accesstoken/qq/data`
+>
+> **认证方式:** [CPSign](/docs/开发者文档/入门指南/服务端接入须知)
+
+*请求参数*
+
+| 参数 | 类型 | 备注 |
+| --- | --- | --- |
+| appid | String | QQ APPID |
+
+[获取抖音 accesstoken]
+
+> **GET: ** `/v1/accesstoken/douyin/data`
+>
+> **认证方式:** [CPSign](/docs/开发者文档/入门指南/服务端接入须知)
+
+*请求参数*
+
+| 参数 | 类型 | 备注 |
+| --- | --- | --- |
+| appid | String | 抖音 APPID |
+
+返回值为 accesstoken 字符串 或 错误信息字符串
+
+*请求示例*
+
+```bash
+ {望舒api域名}/v1/accesstoken/wechat/data?appid=xxxxx
+ {望舒api域名}/v1/accesstoken/qq/data?appid=xxxxx
+ {望舒api域名}/v1/accesstoken/douyin/data?appid=xxxxx
+```
+
+*返回示例*
+
+```json
+ {
+ "data": {
+ "access_token": "75_bCxXthQK-y49sOcPuQe7YNr54HkGdiHWaCdm7n9ANu5-VnigNulMUkSmKsOv1IFwEQDTi3a01jvFGBVWRTRSPZ3uAmyVTgkezywQ_Aeo8gUllTHhU28YsD7qPMIJRVbABAXFJ",
+ "expires_in": 3935
+ },
+ "code": 0
+}
+```
+
+*认证方式*
+
+```bash
+请求header中增加参数：
+ ruixue-traceid // 请求唯一标识（随机字符串）
+ ruixue-cpts // 时间戳
+ ruixue-cpsign // 签名
+签名示例：
+ h := sha1.New()
+ h.Write([]byte(ruixue-traceid + ruixue-cpts + cpKey)) // cpKey从望舒后台获取
+	ruixue-cpsign := hex.EncodeToString(h.Sum(nil))
+```
+
+## 用户信息更新通知接口
+
+当用户头像、昵称、性别变更及实名认证时通知 cp 数据变更
+
+> 类型：同步
+>
+> Action: action_user_info_change
+>
+> **认证方式：** [CPSign](/docs/开发者文档/入门指南/服务端接入须知)
+
+### 请求参数
+
+| 字段 | 类型 | 是否必填 | 说明 |
+| --- | --- | --- | --- |
+| openid | string | 否 | 望舒 openid |
+| cp_user_id | string | 否 | 游戏侧 id, 为空或'0'说明 cp 侧未同步游戏 id 到望舒侧 |
+| nickname | string | 否 | 昵称 |
+| avatar | string | 否 | 头像 |
+| gender | int | 否 | 性别 :0 女 1 男 -1 未知 |
+| real_auth | bool | 否 | 实名状态 ： true 已实名 false 未实名 |
+| is_test_account | bool | 否 | 是否为测试账号 |
+
+#### 请求示例
+
+```json
+{
+ "openid": "rxuLPo3mNYrJLwrnUR9A3s-YNkS1JvjxxxR-Mk4ZK",
+ "nickname": "昵称",
+ "avatar": "https://platform-lookaside.fbsbx.com/platform/profilepic/?asid=320067830096624&height=50&width=50&ext=1648721979&hash=AeSnTBqnknKdWBdM9fk",
+ "gender": 0,
+ "real_auth": true
+}
+```
+
+##### 返回示例
+
+```json
+{
+ "code": 0
+}
+```
+
+### 响应结构
+
+| 字段 | 类型 | 说明 |
+| --- | --- | --- |
+| code | Number | 0 成功 |
+| msg | String | 错误信息 |
+| data | Object | cp 方自定义返回 |

@@ -1,0 +1,793 @@
+---
+title: "服务端 API"
+---
+
+以下是 CP 服务端请求接口，需要准备好 `cp_id` `product_id` `channel_id` `cp_key` 等参数。
+domain：为产品对外域名
+请求头：[望舒服务端请求头](/docs/v3.5/入门指南/服务端接入须知)
+
+## 用户登录（仅限服务端使用）
+
+> **POST：**  `/v1/ims/server/login`
+> **认证方式:** **[CPSign](/docs/v3.5/入门指南/服务端接入须知)**
+
+### CURL 示例
+
+```bash
+curl --location --request POST '{{接口域名}}/v1/ims/server/login' \
+--header 'ruixue-language: {{语言}}' \
+--header 'ruixue-cpid: {{CPID}}' \
+--header 'ruixue-productid: {{产品标识}}' \
+--header 'ruixue-cpts: {{时间戳}}' \
+--header 'ruixue-traceid: {{TraceID}}' \
+--header 'ruixue-cpsign: {{请求签名}}' \
+--header 'ruixue-devicecode: {{设备码}}' \
+--header 'ruixue-channelid: {{渠道标识}}' \
+--header 'ruixue-platformid: {{平台标识}}' \
+--header 'Content-Type: application/json' \
+--data-raw '{    
+    "user_id": "testuser_abc",    
+    "product_id": "test",    
+    "channel_id": "test",    
+    "client_type": 26265
+}'
+```
+
+### 请求参数（JSON）
+
+| **字段** | **类型** | **是否必填** | **说明** | **示例** |
+| --- | --- | --- | --- | ----|
+| user_id | String | 是   | 用户在 CP 下的唯一标识符
+注意：该参数要与 IMS SDK 初始化传入的一致 |     |
+| product_id | String | 是   | 客户端产品 ID，即望舒产品管理中的对应值 |     |
+| channel_id | String | 是   | 客户端渠道 ID，即望舒产品管理中的对应值 |     |
+| device_code | String | 否   | 设备码 |     |
+| client_type | Number | 是   | 客户端类型，其是一个位运算结果值 |     |
+
+**请求示例**
+
+```json
+{    
+    "user_id": "testuser_abc",    
+    "product_id": "test",    
+    "channel_id": "test",    
+    "client_type": 26265
+}
+```
+
+### 响应参数（JSON）
+
+**HTTP 状态码：**`200 OK`
+
+| **字段** | **类型** | **是否必填** | **说明** | **示例** |
+| --- | --- | --- | --- | ----|
+| code | Number                         | 是   | 响应状态码，0为成功，非0表示出错 | 0   |
+| msg | String                         | 否   | 响应信息，仅在status为非0时不为空 |     |
+| data | [Token](/docs/v3.5/即时通讯/服务端接入/服务端 API) | 否   | 返回数据对象 |     |
+
+##### Token
+
+| **字段** | **类型** | **是否必填** | **说明** | **示例** |
+| --- | --- | --- | --- | ----|
+| access_token | String | 是   | Entry 连接令牌 |     |
+| access_token_expire | Number | 是   | Entry 连接令牌有效期（毫秒），默认为 24 小时 | 86400000 |
+| refresh_token | String | 是   | Entry 刷新令牌 |     |
+| refresh_token_expire | Number | 是   | Entry 刷新令牌有效期（毫秒），默认为 30 天 | 2592000000 |
+| aeskey | String | 是   | AES 密钥，返回格式为 16 进制 64 位字符串，需解析成 32 Byte 密钥使用。
+该密钥用于 IMS 消息加密，请 CP 以安全的方式发给客户端。 |     |
+
+**响应示例**
+
+```json
+{    
+    "data": {        
+        "access_token": "sXr4kl+pph9aaCBvLKxzXs2XqQuSUjRgc9JuRbDFdwZ8xeuVHOY70B1Sb8z3ZcD0glJAtQUn81kabaMG+rZXIoCMGgH/eQ4gaIhjZQllvCaB8XgK0M5CTxAGLj5vSTcP5Uc2nxvAKrg0ddlbyIDZdqgp+8gYvtvTEKNSkGGa3vgmeaPEsk3ar7FWrNjiEP4Hwz/ZJEmxsG4NCaXzXKSRz16+hQZFkFscod/wekSJH6xOsfZehBAEPO02HKhJrW0XfO4wLg9VoAENtFjUZpcsjhbq4hJyC5S1v8lNYQ2NpY4E68yJhCkul/X21OYab/u8",        
+        "access_token_expire": 86400000,        
+        "refresh_token": "sXr4kl+pph9aaCBvLKxzXh2tvJ483FYxExl6Za8owB7chWTM7uqlgIGWnX7TaAaA/XwEpqR51SHZ8Rqu9Ynt9TTqUi3GO/9cEagnumFYS10ekVtTuXAqO9RBAxrvd7DBvBEXgc2Cy0L5qR7Bi8FNUs8IvdZuZ50LRv36YMiFlZnu/vR+ZZfXZBETWaxs7QcYEzJ+sbjXae65Xs2yRvVCj7JhzqmOMKVS7pKjLCtoeQ4NsXMiywYeAtBD5n5G21x9s2ujAbnxZbVeHtqZKWnae9LevAQV2i0oPcqs+4hOEo4QNjyeZ/bHD0jXIgLMqA81",        
+        "refresh_token_expire": 2592000000,        
+        "aeskey": "9708d4ca8f5a5d3da0956a69e628f5f96fc647111593dcbf55b8813b8049a020"   
+    },    
+    "code": 0
+}
+```
+
+---
+
+## 发送消息
+
+> **POST：**  `/v1/ims/server/sendmessage`
+> **认证方式:** **[CPSign](/docs/v3.5/入门指南/服务端接入须知)**
+
+### CURL 示例
+
+```bash
+curl --location --request POST '{{接口域名}}/v1/ims/server/sendmessage' \
+--header 'ruixue-language: {{语言}}' \
+--header 'ruixue-cpid: {{CPID}}' \
+--header 'ruixue-productid: {{产品标识}}' \
+--header 'ruixue-cpts: {{时间戳}}' \
+--header 'ruixue-traceid: {{TraceID}}' \
+--header 'ruixue-cpsign: {{请求签名}}' \
+--header 'ruixue-devicecode: {{设备码}}' \
+--header 'ruixue-channelid: {{渠道标识}}' \
+--header 'ruixue-platformid: {{平台标识}}' \
+--header 'Content-Type: application/json' \
+--data-raw '{   
+    "option": 3,   
+    "client_type": 256,   
+    "type": 2,   
+    "uuid": "91a5ca77-ab9d-4dee-b5a6-ac440da22c4b",   
+    "sender": "a",   
+    "conversation_id": "$1$a:b",   
+    "conv_type": 1,   
+    "product_id": "test",   
+    "channel_id": "test",   
+    "content": "{\"text\":\"hahaha\"}",   
+    "ext": null
+}'
+```
+
+### 请求参数（JSON）
+
+| **字段** | **类型** | **是否必填** | **说明** | **示例** |
+| --- | --- | --- | --- | ----|
+| option | Number | 否   | 消息选项（位运算组合 |     |
+| client_type | Number | 是   | 客户端类型，其是一个位运算结果值 |     |
+| type | Number | 是   | 消息类型 |     |
+| sub_type | Number | 否   | 消息子类型，当 type 为 CP 自定义消息时有效， CP 请使用 [ 1 , 1亿 ] |     |
+| uuid | String | 是   | 消息发送者在发送时生成的唯一ID，用于去重 |     |
+| sender | String | 是   | 发送人 UserID
+注意：服务端发送消息时，该值应尽量为空，否则对于群聊或频道聊天要保证其已加入会话 |     |
+| receivers | []String | 否   | 接收人列表，单聊必须为空；群聊表示 @ 用户列表；自定义单聊表示实际接收人 UserID 清单； |     |
+| conversation_id | String | 是   | 会话 ID |     |
+| conv_type | Number | 是   | 会话类型，即会话 ID 两个 $ 中间的值 |     |
+| product_id | String | 是   | 产品 ID |     |
+| channel_id | String | 是   | 渠道 ID |     |
+| content | String | 是   | 消息内容 JSON 字符串 |     |
+| ext | Map[String]String | 否   | CP 扩展字段 |     |
+
+**请求示例**
+
+```json
+{   
+    "option": 3,   
+    "client_type": 256,   
+    "type": 2,   
+    "uuid": "91a5ca77-ab9d-4dee-b5a6-ac440da22c4b",   
+    "sender": "a",   
+    "conversation_id": "$1$a:b",   
+    "conv_type": 1,   
+    "product_id": "test",   
+    "channel_id": "test",   
+    "content": "{\"text\":\"hahaha\"}",   
+    "ext": null
+}
+```
+
+### 响应参数（JSON）
+
+**HTTP 状态码：**`200 OK`
+
+| **字段** | **类型** | **是否必填** | **说明** | **示例** |
+| --- | --- | --- | --- | ----|
+| code | Number                       | 是   | 响应状态码，0为成功，非0表示出错 | 0   |
+| msg | String                       | 否   | 响应信息，仅在status为非0时不为空 |     |
+| data | [Send](/docs/v3.5/即时通讯/服务端接入/服务端 API) | 否   | 返回数据对象 |     |
+
+##### Send
+
+| **字段** | **类型** | **是否必填** | **说明** | **示例** |
+| --- | --- | --- | --- | ----|
+| msg_id | String | 是   | 消息唯一ID，发送成功后由服务端生成 |     |
+| uuid | String | 是   | 发送者在发送时生成的唯一ID，原封不动带回 |     |
+| inbox_id | Number | 是   | 当前用户信箱序列号 |     |
+| milli_ts | Number | 是   | 毫秒时间戳 |     |
+
+**响应示例**
+
+```json
+{    
+    "data": {        
+        "msg_id": "1552973976152571904.$1$a:b",        
+        "uuid": "91a5ca77-ab9d-4dee-b5a6-ac440da22c4b",        
+        "inbox_id": 123,        
+        "milli_ts": 1659061339059    
+    },    
+    "code": 0
+}
+```
+
+---
+
+## 获取用户历史消息
+
+> **POST：**  `/v1/ims/server/gethistory`
+> **认证方式:** **[CPSign](/docs/v3.5/入门指南/服务端接入须知)**
+
+### CURL 示例
+
+```bash
+curl --location --request POST '{{接口域名}}/v1/ims/server/gethistory' \
+--header 'ruixue-language: {{语言}}' \
+--header 'ruixue-cpid: {{CPID}}' \
+--header 'ruixue-productid: {{产品标识}}' \
+--header 'ruixue-cpts: {{时间戳}}' \
+--header 'ruixue-traceid: {{TraceID}}' \
+--header 'ruixue-cpsign: {{请求签名}}' \
+--header 'ruixue-devicecode: {{设备码}}' \
+--header 'ruixue-channelid: {{渠道标识}}' \
+--header 'ruixue-platformid: {{平台标识}}' \
+--header 'Content-Type: application/json' \
+--data-raw '{    
+    "conversation_id": "$1$a:b",    
+    "start_msg_id": "1552973976152571904.$1$a:b",    
+    "fetch_count": 10
+}'
+```
+
+### 请求参数（JSON）
+
+| **字段** | **类型** | **是否必填** | **说明** | **示例** |
+| --- | --- | --- | --- | ----|
+| conversation_id | String | 是   | 会话 ID |     |
+| start_msg_id | String | 是   | 起始 MsgID 即当前最后一条消息的 MsgID（开区间，结果中不含此项） |     |
+| fetch_count | Number | 否   | 要获取的数量 |     |
+
+**请求示例**
+
+```json
+{    
+    "conversation_id": "$1$a:b",    
+    "start_msg_id": "1552973976152571904.$1$a:b",    
+    "fetch_count": 10
+}
+```
+
+### 响应参数（JSON）
+
+**HTTP 状态码：**`200 OK`
+
+| **字段** | **类型** | **是否必填** | **说明** | **示例** |
+| --- | --- | --- | --- | ----|
+| code | Number                             | 是   | 响应状态码，0为成功，非0表示出错 | 0   |
+| msg | String                             | 否   | 响应信息，仅在status为非0时不为空 |     |
+| data | [History](/docs/v3.5/即时通讯/服务端接入/服务端 API) | 否   | 返回数据对象 |     |
+
+##### History
+
+| **字段** | **类型** | **是否必填** | **说明** | **示例** |
+| --- | --- | --- | --- | ----|
+| chat_message | [][ChatMessage](/docs/v3.5/即时通讯/服务端接入/服务端 API) | 否   | 返回的消息数组 |     |
+| count | Number                                       | 是   | 返回的消息数量 |     |
+| done | Bool                                         | 是   | 是否已结束 |     |
+
+##### ChatMessage
+
+| **字段** | **类型** | **是否必填** | **说明** | **示例** |
+| --- | --- | --- | --- | ----|
+| milli_ts | Number | 是   | 消息时间 |     |
+| attr | Number | 否   | 消息属性（位运算组合），该参数由服务端填充，客户端只读 |     |
+| option | Number | 否   | 消息选项（位运算组合），该参数可由客户端设置 |     |
+| status | Number | 否   | 消息状态 |     |
+| client_type | Number | 否   | 发送方客户端类型 |     |
+| type | Number | 是   | 消息类型 |     |
+| sub_type | Number | 否   | 消息子类型，当 Type 为 CPCustom 时有效 |     |
+| inbox_id | Number | 否   | 该消息在当前用户信箱中的序列号 |     |
+| uuid | String | 是   | 消息发送者在发送时生成的唯一ID，用于去重 |     |
+| msg_id | String | 是   | 消息唯一ID |     |
+| sender | String | 是   | 发送人 UserID |     |
+| receivers | []String | 否   | 接收人列表 |     |
+| unread_count | Number | 否   | 当前消息的未读数 |     |
+| receiver_num | Number | 否   | 用户在该消息中的接收者编号 |     |
+| conversation_id | String | 是   | 会话 ID |     |
+| conv_type | Number | 是   | 会话类型 |     |
+| cpid | Number | 是   | 发送方 CPID |     |
+| product_id | String | 是   | 产品 ID |     |
+| channel_id | String | 否   | 渠道 ID |     |
+| content | String | 否   | 消息内容 JSON 字符串 |     |
+| milextli_ts | Map[String]String | 否   | CP 扩展字段 |     |
+| ims_ext | Map[String]String | 否   | IMS 系统内部扩展信息 |     |
+
+**响应示例**
+
+```json
+{    
+    "data": {        
+        "chat_message": [             
+            {               
+                "option": 3,             
+                "client_type": 256,              
+                "type": 2,              
+                "uuid": "91a5ca77-ab9d-4dee-b5a6-ac440da22c4b",             
+                "sender": "a",              
+                "conversation_id": "$4$world",               
+                "conv_type": 1,               
+                "product_id": "test",               
+                "channel_id": "test",               
+                "content": "{\"text\":\"hahaha\"}",               
+                "ext": null,               
+                "msg_id":"1574596413734518784.$4$world",              
+                "receivers": ["$4$world"]          
+            }       
+        ],      
+        "count": 1,        
+        "done": true    
+    },    
+    "code": 0
+}
+```
+
+---
+
+## 创建会话
+
+> **POST：**  `/v1/ims/server/createconversation`
+> **认证方式:** **[CPSign](/docs/v3.5/入门指南/服务端接入须知)**
+
+### CURL 示例
+
+```bash
+curl --location --request POST '{{接口域名}}/v1/ims/server/createconversation' \
+--header 'ruixue-language: {{语言}}' \
+--header 'ruixue-cpid: {{CPID}}' \
+--header 'ruixue-productid: {{产品标识}}' \
+--header 'ruixue-cpts: {{时间戳}}' \
+--header 'ruixue-traceid: {{TraceID}}' \
+--header 'ruixue-cpsign: {{请求签名}}' \
+--header 'ruixue-devicecode: {{设备码}}' \
+--header 'ruixue-channelid: {{渠道标识}}' \
+--header 'ruixue-platformid: {{平台标识}}' \
+--header 'Content-Type: application/json' \
+--data-raw '{  
+    "conversation_id": "$2$testgroup",  
+    "option": 0,  
+    "creator": "a", 
+    "creator_option": 0,  
+    "ext": null,  
+    "ims_ext": null,  
+    "members": ["userA","userB"]
+}'
+```
+
+### 请求参数（JSON）
+
+| **字段** | **类型** | **是否必填** | **说明** | **示例** |
+| --- | --- | --- | --- | ----|
+| conversation_id | String | 是   | 会话 ID，[格式请参考](/docs/v3.5/即时通讯/功能介绍) | $2$testgroup |
+| option | Number | 否   | 会话选项 |     |
+| creator | String | 否   | 会话创建者 UserID，非频道聊天会话时必填 |     |
+| creator_option | Number | 否   | 创建者在该会话中的选项 |     |
+| ext | Map[String]String | 否   | CP 扩展字段 |     |
+| ims_ext | Map[String]String | 否   | IMS 扩展字段 |     |
+| members | []String | 否   | 会话为群聊时，加入群聊的用户列表 |     |
+
+**请求示例**
+
+```json
+{  
+    "conversation_id": "$2$testgroup",  
+    "option": 0,  
+    "creator": "a", 
+    "creator_option": 0,  
+    "ext": null,  
+    "ims_ext": null,  
+    "members": ["userA", "userB"]
+}
+```
+
+### 响应参数（JSON）
+
+**HTTP 状态码：**`200 OK`
+
+| **字段** | **类型** | **是否必填** | **说明** | **示例** |
+| --- | --- | --- | --- | ----|
+| code | Number | 是   | 响应状态码，0为成功，非0表示出错 | 0   |
+| msg | String | 否   | 响应信息，仅在status为非0时不为空 |     |
+
+**响应示例**
+
+```json
+{"code": 0}
+```
+
+---
+
+## 更新会话数据
+
+> **POST：**  `/v1/ims/server/updateconversation`
+> **认证方式:** **[CPSign](/docs/v3.5/入门指南/服务端接入须知)**
+
+### CURL 示例
+
+```bash
+curl --location --request POST '{{接口域名}}/v1/ims/server/updateconversation' \
+--header 'ruixue-language: {{语言}}' \
+--header 'ruixue-cpid: {{CPID}}' \
+--header 'ruixue-productid: {{产品标识}}' \
+--header 'ruixue-cpts: {{时间戳}}' \
+--header 'ruixue-traceid: {{TraceID}}' \
+--header 'ruixue-cpsign: {{请求签名}}' \
+--header 'ruixue-devicecode: {{设备码}}' \
+--header 'ruixue-channelid: {{渠道标识}}' \
+--header 'ruixue-platformid: {{平台标识}}' \
+--header 'Content-Type: application/json' \
+--data-raw '{  
+    "conversation_id": "$2$testgroup",  
+    "option": 0,  
+    "ext": null, 
+    "ims_ext": null
+}'
+```
+
+### 请求参数（JSON）
+
+| **字段** | **类型** | **是否必填** | **说明** | **示例** |
+| --- | --- | --- | --- | ----|
+| conversation_id | String | 是   | 会话 ID，[格式请参考](/docs/v3.5/即时通讯/功能介绍) | $2$testgroup |
+| option | Number | 否   | 会话选项 |     |
+| ext | Map[String]String | 否   | CP 扩展字段 |     |
+| ims_ext | Map[String]String | 否   | IMS 扩展字段 |     |
+
+**请求示例**
+
+```json
+{  
+    "conversation_id": "$2$testgroup",  
+    "option": 0,  
+    "ext": null, 
+    "ims_ext": null
+}
+```
+
+### 响应参数（JSON）
+
+**HTTP 状态码：**`200 OK`
+
+| **字段** | **类型** | **是否必填** | **说明** | **示例** |
+| --- | --- | --- | --- | ----|
+| code | Number | 是   | 响应状态码，0为成功，非0表示出错 | 0   |
+| msg | String | 否   | 响应信息，仅在status为非0时不为空 |     |
+
+**响应示例**
+
+```json
+{"code": 0}
+```
+
+---
+
+## 删除/解散会话
+
+> **POST：**  `/v1/ims/server/deleteconversation`
+> **认证方式:** **[CPSign](/docs/v3.5/入门指南/服务端接入须知)**
+
+### CURL 示例
+
+```bash
+curl --location --request POST '{{接口域名}}/v1/ims/server/deleteconversation' \
+--header 'ruixue-language: {{语言}}' \
+--header 'ruixue-cpid: {{CPID}}' \
+--header 'ruixue-productid: {{产品标识}}' \
+--header 'ruixue-cpts: {{时间戳}}' \
+--header 'ruixue-traceid: {{TraceID}}' \
+--header 'ruixue-cpsign: {{请求签名}}' \
+--header 'ruixue-devicecode: {{设备码}}' \
+--header 'ruixue-channelid: {{渠道标识}}' \
+--header 'ruixue-platformid: {{平台标识}}' \
+--header 'Content-Type: application/json' \
+--data-raw '{"conversation_id": "$2$testgroup"}'
+```
+
+### 请求参数（JSON）
+
+| **字段** | **类型** | **是否必填** | **说明** | **示例** |
+| --- | --- | --- | --- | ----|
+| conversation_id | String | 是   | 会话 ID，[格式请参考](/docs/v3.5/即时通讯/功能介绍) | $2$testgroup |
+
+**请求示例**
+
+```json
+{"conversation_id": "$2$testgroup"}
+```
+
+### 响应参数（JSON）
+
+**HTTP 状态码：**`200 OK`
+
+| **字段** | **类型** | **是否必填** | **说明** | **示例** |
+| --- | --- | --- | --- | ----|
+| code | Number | 是   | 响应状态码，0为成功，非0表示出错 | 0   |
+| msg | String | 否   | 响应信息，仅在status为非0时不为空 |     |
+
+**响应示例**
+
+```json
+{"code": 0}
+```
+
+---
+
+## 获取会话信息
+
+支持获取「单聊」和「群聊」会话信息
+
+> **POST：**  `/v1/ims/server/getconversation`
+> **认证方式:** **[CPSign](/docs/v3.5/入门指南/服务端接入须知)**
+
+### CURL 示例
+
+```bash
+curl --location --request POST '{{接口域名}}/v1/ims/server/getconversation' \
+--header 'ruixue-language: {{语言}}' \
+--header 'ruixue-cpid: {{CPID}}' \
+--header 'ruixue-productid: {{产品标识}}' \
+--header 'ruixue-cpts: {{时间戳}}' \
+--header 'ruixue-traceid: {{TraceID}}' \
+--header 'ruixue-cpsign: {{请求签名}}' \
+--header 'ruixue-devicecode: {{设备码}}' \
+--header 'ruixue-channelid: {{渠道标识}}' \
+--header 'ruixue-platformid: {{平台标识}}' \
+--header 'Content-Type: application/json' \
+--data-raw '{  
+    "conversation_id": "$2$testgroup",  
+    "user_id": "a"
+}'
+```
+
+### 请求参数（JSON）
+
+| **字段** | **类型** | **是否必填** | **说明** | **示例** |
+| --- | --- | --- | --- | ----|
+| conversation_id | String | 是   | 会话 ID，[格式请参考](/docs/v3.5/即时通讯/功能介绍) | $2$testgroup |
+| user_id | String | 是   | 用户 UserID，该用户必须已加入该会话 |     |
+
+**请求示例**
+
+```json
+{  
+    "conversation_id": "$2$testgroup",  
+    "user_id": "a"
+}
+```
+
+### 响应参数（JSON）
+
+**HTTP 状态码：**`200 OK`
+
+| **字段** | **类型**                     | **是否必填** | **说明** | **示例** |
+| --- |----------------------------| --- | --- | ----|
+| code | Number                     | 是   | 响应状态码，0为成功，非0表示出错 | 0   |
+| msg | String                     | 否   | 响应信息，仅在status为非0时不为空 |     |
+| data | [Msg](/docs/v3.5/即时通讯/服务端接入/服务端 API) | 否   | 返回数据对象 |     |
+
+##### Msg
+
+| **字段** | **类型** | **是否必填** | **说明** | **示例** |
+| --- | --- | --- | --- | ----|
+| conversation_id | String | 是   | 会话 ID |     |
+| attr | Number | 否   | 会话属性，位运算组合 |     |
+| option | Number | 否   | 会话选项，位运算组合 |     |
+| create_milli_ts | Number | 是   | 会话创建毫秒时间戳 |     |
+| update_milli_ts | Number | 否   | 会话最后更新毫秒时间戳 |     |
+| join_milli_ts | Number | 是   | 当前用户加入该会话的毫秒时间戳 |     |
+| Number | Number | 否   | 用户在该会话中的属性，位运算组合 |     |
+| user_option | Number | 否   | 用户在该会话中的选项，位运算组合 |     |
+| creator | String | 是   | 会话创建者 |     |
+| user_ext | Map[String]String | 否   | CP 给用户在该会话中设置的扩展数据 |     |
+| user_ims_ext | Map[String]String | 否   | IMS 给用户在该会话中设置的扩展数据 |     |
+| ext | Map[String]String | 否   | 会话 CP 扩展信息 |     |
+| ims_ext | Map[String]String | 否   | 会话 IMS 扩展信息 |     |
+| members | []String | 是   | 会话成员列表 |     |
+| cpid | Number | 是   | 会话 CPID |     |
+| type | Number | 否   | 会话类型 |     |
+| status | Number | 否   | 会话状态 |     |
+
+**响应示例**
+
+```json
+{    
+    "data": {      
+        "conversation_id": "$2$testgroup",      
+        "attr": 0,      
+        "option": 0,      
+        "create_milli_ts": 0,      
+        "update_milli_ts": 0,      
+        "join_milli_ts": 0,      
+        "user_attr": 0,      
+        "user_option": 0,      
+        "creator": "userA",      
+        "user_ext": null,      
+        "user_ims_ext": null,      
+        "ext": null,      
+        "ims_ext": null,      
+        "members": ["userB", "userC"],      
+        "cpid": 0,      
+        "type": 0,     
+        "status": 0   
+    },    
+    "code": 0
+}
+```
+
+---
+
+## 加入会话
+
+> **POST：**  `/v1/ims/server/joinconversation`
+> **认证方式:** **[CPSign](/docs/v3.5/入门指南/服务端接入须知)**
+
+### CURL 示例
+
+```bash
+curl --location --request POST '{{接口域名}}/v1/ims/server/joinconversation' \
+--header 'ruixue-language: {{语言}}' \
+--header 'ruixue-cpid: {{CPID}}' \
+--header 'ruixue-productid: {{产品标识}}' \
+--header 'ruixue-cpts: {{时间戳}}' \
+--header 'ruixue-traceid: {{TraceID}}' \
+--header 'ruixue-cpsign: {{请求签名}}' \
+--header 'ruixue-devicecode: {{设备码}}' \
+--header 'ruixue-channelid: {{渠道标识}}' \
+--header 'ruixue-platformid: {{平台标识}}' \
+--header 'Content-Type: application/json' \
+--data-raw '{
+    "conversation_id": "$2$testgroup", 
+    "client_type": 262657,  
+    "user_id": "a",  
+    "ext": null
+}'
+```
+
+### 请求参数（JSON）
+
+| **字段** | **类型** | **是否必填** | **说明** | **示例** |
+| --- | --- | --- | --- | ----|
+| conversation_id | String | 是   | 会话 ID，[格式请参考](/docs/v3.5/即时通讯/功能介绍) | $2$testgroup |
+| client_type | Number | 是   | 客户端类型，其是一个位运算结果值 |     |
+| user_id | String | 是   | 用户 ID |     |
+| ext | Map[String]String | 否   | CP 扩展字段 |     |
+
+**请求示例**
+
+```json
+{
+    "conversation_id": "$2$testgroup", 
+    "client_type": 262657,  
+    "user_id": "a",  
+    "ext": null
+}
+```
+
+### 响应参数（JSON）
+
+**HTTP 状态码：**`200 OK`
+
+| **字段** | **类型** | **是否必填** | **说明** | **示例** |
+| --- | --- | --- | --- | ----|
+| code | Number | 是   | 响应状态码，0为成功，非0表示出错 | 0   |
+| msg | String | 否   | 响应信息，仅在status为非0时不为空 |     |
+
+**响应示例**
+
+```json
+{"code": 0}
+```
+
+---
+
+## 离开会话
+
+> **POST：**  `/v1/ims/server/leaveconversation`
+> **认证方式:** **[CPSign](/docs/v3.5/入门指南/服务端接入须知)**
+
+### CURL 示例
+
+```bash
+curl --location --request POST '{{接口域名}}/v1/ims/server/leaveconversation' \
+--header 'ruixue-language: {{语言}}' \
+--header 'ruixue-cpid: {{CPID}}' \
+--header 'ruixue-productid: {{产品标识}}' \
+--header 'ruixue-cpts: {{时间戳}}' \
+--header 'ruixue-traceid: {{TraceID}}' \
+--header 'ruixue-cpsign: {{请求签名}}' \
+--header 'ruixue-devicecode: {{设备码}}' \
+--header 'ruixue-channelid: {{渠道标识}}' \
+--header 'ruixue-platformid: {{平台标识}}' \
+--header 'Content-Type: application/json' \
+--data-raw '{  
+    "conversation_ids": ["$2$testgroup"], 
+    "user_id": "a",  
+    "client_type": 262657
+}'
+```
+
+### 请求参数（JSON）
+
+| **字段** | **类型** | **是否必填** | **说明** | **示例** |
+| --- | --- | --- | --- | ----|
+| conversation_ids | []String | 是   | 会话 ID 列表，[格式请参考](/docs/v3.5/即时通讯/功能介绍) | ["$2$testgroup"] |
+| user_id | String | 是   | 用户 ID |     |
+| client_type | Number | 是   | 客户端类型，其是一个位运算结果值 |     |
+
+**请求示例**
+
+```json
+{  
+    "conversation_ids": ["$2$testgroup"], 
+    "user_id": "a",  
+    "client_type": 262657
+}
+```
+
+### 响应参数（JSON）
+
+**HTTP 状态码：**`200 OK`
+
+| **字段** | **类型** | **是否必填** | **说明** | **示例** |
+| --- | --- | --- | --- | ----|
+| code | Number | 是   | 响应状态码，0为成功，非0表示出错 | 0   |
+| msg | String | 否   | 响应信息，仅在status为非0时不为空 |     |
+
+**响应示例**
+
+```json
+{"code": 0}
+```
+
+---
+
+## 更新用户在会话中的信息
+
+> **POST：**  `/v1/ims/server/updateconversatonuserdata`
+> **认证方式:** **[CPSign](/docs/v3.5/入门指南/服务端接入须知)**
+
+### CURL 示例
+
+```bash
+curl --location --request POST '{{接口域名}}/v1/ims/server/updateconversatonuserdata' \
+--header 'ruixue-language: {{语言}}' \
+--header 'ruixue-cpid: {{CPID}}' \
+--header 'ruixue-productid: {{产品标识}}' \
+--header 'ruixue-cpts: {{时间戳}}' \
+--header 'ruixue-traceid: {{TraceID}}' \
+--header 'ruixue-cpsign: {{请求签名}}' \
+--header 'ruixue-devicecode: {{设备码}}' \
+--header 'ruixue-channelid: {{渠道标识}}' \
+--header 'ruixue-platformid: {{平台标识}}' \
+--header 'Content-Type: application/json' \
+--data-raw '{  
+    "conversation_id": "$2$testgroup",  
+    "user_id": "a",  
+    "client_type": 262657,  
+    "ext": null
+}'
+```
+
+### 请求参数（JSON）
+
+| **字段** | **类型** | **是否必填** | **说明** | **示例** |
+| --- | --- | --- | --- | ----|
+| conversation_id | String | 是   | 会话 ID，[格式请参考](/docs/v3.5/即时通讯/功能介绍) | $2$testgroup |
+| user_id | String | 是   | 用户 ID |     |
+| client_type | Number | 是   | 客户端类型，其是一个位运算结果值 |     |
+| ext | Map[String]String | 否   | 用户在该会话中的扩展字段 |     |
+
+**请求示例**
+
+```json
+{  
+    "conversation_id": "$2$testgroup",  
+    "user_id": "a",  
+    "client_type": 262657,  
+    "ext": null
+}
+```
+
+### 响应参数（JSON）
+
+**HTTP 状态码：**`200 OK`
+
+| **字段** | **类型** | **是否必填** | **说明** | **示例** |
+| --- | --- | --- | --- | ----|
+| code | Number | 是   | 响应状态码，0为成功，非0表示出错 | 0   |
+| msg | String | 否   | 响应信息，仅在status为非0时不为空 |     |

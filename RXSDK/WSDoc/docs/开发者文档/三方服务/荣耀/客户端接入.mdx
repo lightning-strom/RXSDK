@@ -1,0 +1,164 @@
+---
+sidebar_position: 1
+title: 客户端接入
+description: "望舒SDK 三方服务 客户端接入文档，提供详细的功能说明与接入指引。"
+---
+
+## 后台接入配置
+
+[登录配置说明](/docs/开发者文档/三方服务/九游/登录配置说明)
+
+[支付配置说明](/docs/开发者文档/三方服务/九游/支付配置说明)
+
+[推送配置说明](/docs/开发者文档/三方服务/银联/配置说明)
+
+## 望舒快速接入（必接）
+
+[快速接入文档](/docs/开发者文档/入门指南/快速开始/Unity-初始化/快速开始)
+
+## 三方渠道接入说明（必读）
+
+[三方渠道接入说明](/docs/开发者文档/三方服务/三方接入说明)
+
+## SDK集成
+
+
+:::tip[版本说明]
+`version` 为 SDK 版本号（替换为实际版本号），最新版本请从 [更新日志](/docs/开发者文档/入门指南/更新日志/Android) 中查看。
+:::
+
+```groovy
+//华为渠道库
+ implementation 'com.ruixue:rxsdk_honor:${version}'
+```
+
+## 参数说明
+
+| 参数 | 类型 | 说明 |
+| --- | --- | --- |
+| honor_appid | String | initThirdSdk 接口传入 |
+| honor_cpid | String | initThirdSdk 接口传入 |
+| sandbox_token | String | InitThirdSdk 接口传入 ，沙盒支付时传此参数 |
+
+## 初始化参数获取
+
+登录 [荣耀平台](https://developer.honor.com/cn/manageCenter)，位置：**荣耀平台 > 生态服务 > 游戏服务 > 游戏联运服务 > 选择项目 > 游戏联运参数获取**。` 开发者 ID` 为 `honor_cpid` ， `App ID` 为 `honor_appid`。
+
+![](https://haiqi-ruixue-test.oss-cn-beijing.aliyuncs.com/docOnline/image-1760949960377.png)
+
+## 配置说明
+
+在您的项目根目录中，打开 `your_app | Gradle Scripts | build.gradle (Project)` 并添加以下存储库：
+
+```groovy
+allprojects {
+ repositories {
+ maven { url 'https://developer.hihonor.com/repo' }
+ }
+}
+```
+
+如需要统计采集 OAID 请先调用 initThirdSdk 初始化三方再初始化望舒。
+
+## 三方 SDK 版本信息
+
+game `2.0.10.301` 版本
+
+ads-identifier `1.0.3.300` 版本
+
+## 三方SDK错误
+
+[荣耀接入 FAQ](https://developer.honor.com/cn/docs/game_center/guides/jieruzhinan/lianyunfaq)
+
+## 初始化 SDK（必接）
+
+```java
+Map<String, Object> params = new HashMap<>();
+
+// 这里填写使用方自己对应的参数
+params.put("honor_appid", "");
+params.put("honor_cpid", "");
+params.put("force_update", false);
+params.put("sandbox_token", "");
+params.put("reconfirm_login", false);
+RuiXueSdk.getApi().initThirdSdk(this, params, new RXJSONCallback() {
+    @Override
+    public void onSuccess(@Nullable JSONObject jsonObject) {
+    Log.d(TAG, "init third sdk success");
+    }
+
+    @Override
+    public void onFailed(@NonNull JSONObject jsonObject) {
+    Log.d(TAG, "init third sdk failed " + jsonObject);
+    }
+});
+```
+
+## 登录 (必须接入)
+
+请参考 [Android 端登录 API](/docs/开发者文档/登录-通行证/Android-登录API/快速接入)
+
+参考代码
+
+```java
+String username = null;
+String loginType = LoginMethod.HONOR;
+String password = null;
+String captchaCode = null;
+String loginOpenId = null;
+Map<String, Object> ext = null;
+String[] signFields = null;
+Object migrateArgs = null;
+RuiXueSdk.getApi().login(DemoActivity.this, loginType, username, password, captchaCode, loginOpenId, ext, signFields, migrateArgs, new RXJSONCallback() {
+    @Override
+    public void onSuccess(@Nullable JSONObject data) {
+    Toast.makeText(DemoActivity.this, "登录成功", Toast.LENGTH_SHORT).show();
+    }
+
+    @Override
+    public void onFailed(@NonNull JSONObject cause) {
+    Toast.makeText(DemoActivity.this, "登录失败", Toast.LENGTH_SHORT).show();
+    }
+});
+```
+
+## 支付 (必须接入)
+
+请参考 [Android 端支付 API](/docs/开发者文档/支付/功能介绍)
+
+## 退出(在游戏主界面退出时需要接入该方法, 必接)
+
+参考代码
+
+```java
+    RuiXueSdk.exitApp(this, new OnAppExitCallback() {
+    @Override
+    public void onExitConfirm(@Nullable String res) {
+    Toast.makeText(DemoActivity.this, "退出游戏成功", Toast.LENGTH_SHORT).show();
+    }
+
+    @Override
+    public void onExitCancel() {
+    Toast.makeText(DemoActivity.this, "退出游戏取消", Toast.LENGTH_SHORT).show();
+    }
+});
+```
+
+## 上报用户数据
+
+```java
+// roleId	String	是	角色Id
+// roleName	String	是	角色昵称
+// roleLevel	Int	是	角色等级
+// realmId	String	是	区服Id
+// realmName	String	是	区服名称
+// chapter	String	是	关卡章节
+// ext	Map	否	扩展字段，键值对必须都是String类型
+HonorSdkApiImpl.getInstance().reportUserData(roleId, roleName, roleLevel, realmId, realmName, chapter, ext);
+```
+
+## getOaid
+
+```java
+HonorSdkHelper.getOaid(Context context)
+```

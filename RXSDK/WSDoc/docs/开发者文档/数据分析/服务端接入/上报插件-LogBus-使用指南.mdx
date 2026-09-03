@@ -1,0 +1,278 @@
+---
+sidebar_position: 3
+title: 上报插件(LogBus)使用指南
+description: "望舒SDK 数据分析 上报插件(LogBus)使用指南服务端文档，提供接口请求参数与响应说明。"
+---
+
+## 一、LogBus 简介
+
+- LogBus 是一款用于实时导入 Kafka 数据到望舒大数据平台后台的工具。当 kafka 指定 Topic 有新数据产生时， LogBus 会实时发送至望舒大数据平台后台。
+- LogBus 适用于以下几类用户来接入数据：
+- 服务端使用 Kafka 存储望舒大数据标准格式数据的用户，可通过 LogBus 上传数据。
+- 对数据的准确性及维度要求较高，仅使用客户端 SDK 无法满足数据需求或不方便接入客户端 SDK 的用户。
+- 不希望自行开发后端数据推送流程、需要传输大批量历史数据，并对内存使用和传输效率有一定要求的情况。
+
+## 二、下载插件
+
+### 最新版本(v0.0.6)
+
+**版本号: v0.0.6**
+
+- 新增 ZSTD 压缩模式；
+- 新增每秒最大流量限制；
+- 新增分区缓存队列长度设置；
+- 新增分区每次最大提交条数限制；
+- 新增分区每次最大提交间隔限制；
+
+**更新日期: ** 2024-01-20
+
+**下载地址：[https://pan.jiaxianghudong.com/s/uAiPveJpkmR](https://pan.jiaxianghudong.com/s/uAiPveJpkmR)**
+
+### 历史版本
+
+**v0.0.5**
+
+- 新增程序异常崩溃时飞书群通知功能；
+
+**更新日期: ** 2023-09-12
+
+**下载地址：[https://pan.jiaxianghudong.com/s/rDYBBbtAhzw](https://pan.jiaxianghudong.com/s/rDYBBbtAhzw) **
+
+#### v0.0.4
+
+- 优化网络异常下重传机制；
+- 优化重传过程中错误日志；
+
+**更新日期: ** 2023-08-23
+
+**下载地址: [https://pan.jiaxianghudong.com/s/77Jf8nMve6C](https://pan.jiaxianghudong.com/s/77Jf8nMve6C)**
+
+##### v0.0.3
+
+- 配置文件中支持指定 kafka 版本号；
+
+**更新日期: ** 2023-08-17
+
+**下载地址: [https://pan.jiaxianghudong.com/s/jqUv9Vr9W2J](https://pan.jiaxianghudong.com/s/jqUv9Vr9W2J)**
+
+##### v0.0.2
+
+- 优化启动前消费点位读取逻辑；
+
+**更新日期: ** 2023-08-03
+
+**下载地址: [https://pan.jiaxianghudong.com/s/65jXGm4LvzU](https://pan.jiaxianghudong.com/s/65jXGm4LvzU) **
+
+##### v0.0.1
+
+**更新日期: ** 2023-07-21
+
+**下载地址: [https://pan.jiaxianghudong.com/s/JotJk4HQw63](https://pan.jiaxianghudong.com/s/JotJk4HQw63) **
+
+## 三、使用前准备
+
+### Kafka
+
+- 确保 Kafka Message 的 value 符合望舒大数据上报格式 ,格式请参见[望舒大数据标准格式数据]；
+- 使用 docker/kubernetes 部署时,请对运行目录下的**cache**文件夹创建永久储存卷；
+
+## 四、安装与配置
+
+### 安装
+
+- 下载 望舒大数据上报插件 [下载地址]；
+- 目录结构；
+
+```plaintext
+- 根目录；
+ - logbus 二进制文件；
+ - config 配置文件目录；
+ - config.yaml 配置文件；
+ - cache 缓存目录；
+```
+
+### 配置
+
+#### 默认配置文件模版
+
+```yaml
+bigdata_url: "" ## 望舒API地址
+panic_notify: ## 异常崩溃通知配置
+ feishu: ## 飞书群机器人webhook地址
+rate:
+ limit: 4096 #每秒最大上传流量 单位kb
+transport:
+ encoding: zstd ## 支持gzip/zstd
+ encoding_level: 1 ## 压缩级别
+ max_queue: 5 ## 每个分区最大缓冲队列长度
+ commit:
+ limit: 5000 ## 每次分区最大提交条数
+ interval: 200 ## 最大提交间隔 ms
+datasource: ## 数据源
+ type: kafka ## 数据源类型 固定 kafka
+ topic: test1 ## kakfa topic 名称
+ version: 0.10.2.0 ## kakfa 版本号
+ brokers: ## kafka 实例地址
+ - localhost:9091；
+ - localhost:9092；
+ - localhost:9093；
+ username: "shirui" ## kafka 用户名
+ password: "123456" ## kafka 密码
+ protocol: "NONE" ## kafka 连接协议类型
+ tls: fasle ## kafka 连接是否使用tls
+ partition: ## kafka 每个分区开始消费的点位
+ 0: 0
+ 1: 0
+ 2: 0
+ 3: 0
+ 4: 0
+ 5: 0
+ 6: 0
+ 7: 0
+ 8: 0
+ 9: 0
+ 10: 0
+```
+
+#### 配置模版说明
+
+| 配置项 | 类型 | 默认值 | 是否必填 | 说明 |
+| --- | --- | --- | --- | --- |
+| bigdata_url | string | 无 | 是 | 望舒 API 地址 |
+| datasource | DataSource | 无 | 是 | 数据源 |
+
+
+- DataSource 结构；
+
+
+| 字段 | 类型 | 是否必填 | 说明 |
+| --- | --- | --- | --- |
+| type | string | kafka | 是 |
+| 数据源类型 | topic | string | 是 |
+| Kakfa topic 名称 | version | string | 是 |
+| Kafka 版本号 | brokers | []string | 是 |
+| Kafka 实例 地址 | username | string | 否 |
+| kakfa 用户名 | password | string | 否 |
+| kafka 密码 | protocol | string | NONE |
+| 否 | kakfa 认证模式 NONE/PLAIN/SCRAM-SHA-256/SCRAM-SHA-512 | tls | bool |
+| false | 否 | kafka 连接是否使用 tls | partiton |
+| map[int32]int64 | 否 | 设置每个分区开始消费的点位 map[分区]点位 |  |
+
+
+
+### 启动
+
+```shell
+./logsbus
+```
+
+### 重启
+
+- 每次启动 LogBus 时，它都会尝试从 cache 文件中恢复上次的任务信息。但是，如果你更换了新的数据源或需要重新上传数据，则建议在再次启动前清空 cache 文件夹。
+
+### 异常退出
+
+- 在出现硬件、操作系统或程序错误，导致 LogBus 程序异常退出的情况下，当重新启动 LogBus 时，程序将自动尝试从 cache 文件夹中恢复之前上传的任务信息。若无需恢复上次任务，则建议在再次启动前清空 cache 文件夹。
+
+## 五、附录
+
+### 望舒大数据标准格式数据
+
+| 参数 | 类型 | 属性类型 | 是否必须 | 说明 | 示例 |
+| --- | --- | --- | --- | --- | --- |
+| type | string | 预置属性 | 是 | 事件类型： track |  |
+
+
+- 用户属性： user ；
+事件类型： track
+
+- 用户属性： user ；
+time
+
+| 字段 | 类型 | 说明 |
+| --- | --- | --- |
+| distinct_id | string | 预置属性 |
+| 是 | 用户唯一标识，一般为用户 ID （由 CP 调用时传入） | openid |
+| devicecode | string | 预置属性 |
+| 是 | 设备码（由 CP 调用时传入） | event |
+| string | 预置属性 | 是 |
+| 埋点标识 | 事件名称样例： played |  |
+
+
+- 用户属性目前支持类型（全部为小写）：
+- user_setonce ；
+- user_set ；
+- user_add ；
+- user_min ；
+- user_max ；
+uuid
+
+| string | 预置属性 | 是 |
+| --- | --- | --- |
+| ip | string | 预置属性 |
+| 是 | 事件发生 IP ，字符串类型 | product_id |
+| string | 预置属性 | 否 |
+| 产品 ID | app_id | string |
+| 预置属性 | 否 | 应用 ID |
+| channel_id | string | 预置属性 |
+| 是 | 渠道 ID | sub_channel_id |
+| string | 预置属性 | 否 |
+| 子渠道 ID （如有） | cpid | uint |
+| 预置属性 | 是 | cpid |
+| platform_id | int32 | 预置属性 |
+| 是 | 平台 ID, 1 ：安卓； 2 ： iOS ； 3 ： H5 ； 4 ：微信小程序,10:服务端； | properties |
+| object | 自定义属性 | 是 |
+| 自定义属性 map[string]interface`{}` | 注意： |  |
+
+
+1、properties 中上传的属性内容，必须与在后台中添加的属性内容保持一致。否则数据无法统计。
+
+2、properties 中上传的属性内容不能与以上字段重复。
+
+**示例**
+
+```json
+{
+ "distinct_id":"rxufoLM6n4J-0rurOQoSe02P83Ok2ER7",
+ "devicecode":"4e63c98e51cc49c3983f632a3165eaa6",
+ "type":"track",
+ "time":"2022-08-11 14:25:43",
+ "event":"share_report",
+ "uuid":"b0538202-dae3-446d-9927-2b6626a00d4d",
+ "cpid":1000037,
+ "app_id":"434",
+ "product_id":"434",
+ "platform_id":0,
+ "channel_id":"100",
+ "sub_channel_id":"normal",
+ "properties":{
+ "landing_id":33,
+ "result":"ok",
+ "ad_materialid":854,
+ "func":"reward_reichgold2",
+ "source":"",
+ "strategy_type":1,
+ "time":"2022-08-11 14:25:43",
+ "type":"share",
+ "func_type":1,
+ "share_today":7,
+ "content_type":2,
+ "downLoad_link_id":5,
+ "method":4,
+ "region":"",
+ "source_channel":"normal",
+ "strategy_id":55,
+ "ad_material":"url",
+ "ad_today":0,
+ "user_id":5885995,
+ "bought":0,
+ "custom":"",
+ "fusc":0,
+ "is_new":0,
+ "action":"Report",
+ "app_type":"APP"
+ }
+}
+```
+
+- 注意：由于 logbus 本身不能自启动，所以需要使用方保证 logbus 的状态。

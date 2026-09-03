@@ -1,0 +1,373 @@
+---
+sidebar_position: 1
+title: 客户端接入
+description: "望舒SDK 三方服务 客户端接入文档，提供详细的功能说明与接入指引。"
+---
+
+## 后台接入配置
+
+[登录配置说明](/docs/开发者文档/三方服务/九游/登录配置说明)
+
+[支付配置说明](/docs/开发者文档/三方服务/九游/支付配置说明)
+
+## 望舒快速接入（必接）
+
+[快速接入文档](/docs/开发者文档/入门指南/快速开始/Unity-初始化/快速开始)
+
+## 三方渠道接入说明（必读）
+
+[三方渠道接入说明](/docs/开发者文档/三方服务/三方接入说明)
+
+## Quick SDK 集成
+
+
+:::tip[版本说明]
+`version` 为 SDK 版本号（替换为实际版本号），最新版本请从 [更新日志](/docs/开发者文档/入门指南/更新日志/Android) 中查看。
+:::
+
+```groovy
+implementation 'com.ruixue:rxsdk_quick:${version}'
+```
+
+## 配置说明
+
+在 `src/main/AndroidManifest.xml` 中配置 application 节点下增加 `android:networkSecurityConfig` 属性
+
+```xml
+
+manifest xmlns:android="http://schemas.android.com/apk/res/android"
+ xmlns:tools="http://schemas.android.com/tools"
+ <package="游戏包名">
+ ...
+ <application android:networkSecurityConfig="@xml/network_security_config">
+
+</application>
+</manifest>
+```
+
+在 `src/main/res/xml` 中添加 `network_security_config.xml`, 内容如下
+
+```xml
+
+</network-security-config>
+ <base-config cleartextTrafficPermitted="true">
+</network-security-config>
+```
+
+在 `src/main/AndroidManifest.xml` 中添加如下三个权限，如果有的无需重复添加，
+
+```xml
+manifest xmlns:android="http://schemas.android.com/apk/res/android"
+ xmlns:tools="http://schemas.android.com/tools"
+ <package="游戏包名">
+
+ <uses-permission android:name="android.permission.INTERNET">
+ <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE">
+
+ <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW">
+
+ ...
+</manifest>
+```
+
+## 混淆说明
+
+在应用级根目录下打开混淆配置文件 `proguard-rules.pro` ，加入排除 SDK 的混淆配置
+
+```proguard
+-keep class com.quicksdk.** { *; }
+```
+
+## QuickSdkApplication(必接)
+
+Application 配置 参考 [这里](/docs/开发者文档/入门指南/快速开始/Unity-初始化/快速开始)
+
+并在 游戏的 Application 继承 QuickSdkApplication ，根据上面文档，采用如下配置
+
+```java
+
+public class GameApplication extends QuickSdkApplication {
+
+    @Override
+    public void onCreate() {
+        super.onCreate();
+        RuiXueSdk.onApplicationCreate(this);
+    }
+
+    @Override
+    protected void attachBaseContext(Context base) {
+        super.attachBaseContext(base);
+        RuiXueSdk.attachBaseContext(base);
+    }
+}
+
+```
+
+## 添加闪屏（必接）
+
+新建游戏闪屏 Activity ，继承自 `QuickSdkSplashActivity` ，参考如下代码
+
+```java
+public class SplashActivity extends QuickSdkSplashActivity {
+
+    @Override
+    public int getBackgroundColor() {
+        return Color.WHITE;
+    }
+
+    @Override
+    public void onSplashStop() {
+        // QuickDemoActivity 替换为游戏主界面 Activity
+        Intent intent = new Intent(SplashActivity.this, QuickDemoActivity.class);
+        startActivity(intent);
+        finish(); // 关闭闪屏界面
+    }
+}
+```
+
+并将闪屏 Activity 添加到 AndroidManifest.xml 中，并设置为 ` 游戏启动 Activity`
+
+```java
+activity android:name="com.quicksdk.test.SplashActivity" android:label="@string/app_name">
+intent-filter>
+action android:name="android.intent.action.MAIN">
+category android:name="android.intent.category.LAUNCHER">/category>
+/action>
+/intent-filter>
+/activity>
+```
+
+android:name 属性，其值为游戏自定义的闪屏 Activity 全路径
+
+android:screenOrientation 属性，其值根据游戏需求决定是横屏还是竖屏 (landscape 或者 portrait)
+
+## 初始化 SDK(切勿重复调用初始化)
+
+首先，您需要在程序开始的地方初始化，一般在游戏主界面 onCreate 方法中调用，通过调用 initThirdSdk 方法初始化游戏 SDK。` 调取前应检查权限 `
+
+在初始化失败的状态下，此方法必须在 UI 线程中调用。代码参考如下
+
+```java
+private static final int REQUEST_CODE = 10011; // 这个 CP 根据自己的情况定义，这里只是一个例子
+(Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+    private void checkPermissionPreInit() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            if (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_PHONE_STATE) != PackageManager.PERMISSION_GRANTED
+            || (ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED)) {
+                //没有,申请权限 权限数组
+                ActivityCompat.requestPermissions(this, new String[] { Manifest.permission.READ_PHONE_STATE ,Manifest.permission.WRITE_EXTERNAL_STORAGE}, REQUEST_CODE);
+            } else {
+                init();
+            }
+        } else {
+            init();
+        }
+    }
+    private void init() {
+        Map<String,Object> thirdSdkParams=new HashMap<>();
+        thirdSdkParams.put("quick_product_code", "cp 自己的 quick product code");
+        thirdSdkParams.put("quick_product_key", "cp 自己的 quick product key");
+        RuiXueSdk.getApi().initThirdSdk(activity, thirdSdkParams, new RXRequestCallback() {
+            @Override
+            public void onResponse(JSONObject jsonObject) {
+                int code = jsonObject.optInt("code", -1);
+                if (code == 0) {
+                    //todo 成功
+                }else {
+                    //todo 失败
+                }
+            }
+        });
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        RuiXueSdk.onRequestPermissionsResult(this, requestCode, permissions, grantResults);
+        if (requestCode != REQUEST_CODE) {
+            return;
+        }
+
+        if (grantResults.length == 2 && grantResults[0] == PackageManager.PERMISSION_GRANTED && grantResults[1] == PackageManager.PERMISSION_GRANTED) {
+            //申请成功
+            init();
+        } else {
+            //失败 这里逻辑以游戏为准 这里只是模拟申请失败 cp方可改为继续正常初始化调登录然后进游戏 或者继续申请权限 或者退出游戏 或者其他逻辑
+        }
+    }
+```
+
+## 登录 (必须接入) 请一定确保要初始化成功再调用登录
+
+请参考 [Android 端登录 API](/docs/开发者文档/登录-通行证/Android-登录API/快速接入)
+
+参考代码
+
+```java
+String username = null;
+String loginType = LoginMethod.QUICK;
+String captchaCode = null;
+String loginOpenId = null;
+Map<String, Object> ext = null;
+String[] signFields = null;
+Object migrateArgs = null;
+RuiXueSdk.getApi().login(QuickDemoActivity.this, loginType, username, password, captchaCode, loginOpenId, ext, signFields, migrateArgs, new RXJSONCallback() {
+    @OverrideQuickDemoActivity
+    public void onSuccess(@Nullable JSONObject data) {
+        Toast.makeText(QuickDemoActivity.this, "登录成功", Toast.LENGTH_SHORT).show();
+    }QuickDemoActivity
+
+    @Override
+    public void onFailed(@NonNull JSONObject cause) {
+        Toast.makeText(QuickDemoActivity.this, "登录失败", Toast.LENGTH_SHORT).show();
+    }QuickDemoActivity
+});
+```
+
+## 支付 (必须接入)
+
+请参考 [Android 端支付 API](/docs/开发者文档/支付/功能介绍)
+
+## 退出 (必须接入)
+
+参考代码
+
+```java
+RuiXueSdk.exitApp(this, new OnAppExitCallback() {
+    @Override
+    public void onExitConfirm(@Nullable String res) {
+        Toast.makeText(QuickDemoActivity.this, "退出游戏成功", Toast.LENGTH_SHORT).show();
+    }
+
+    @Override
+    public void onExitCancel() {
+        Toast.makeText(QuickDemoActivity.this, "退出游戏取消", Toast.LENGTH_SHORT).show();
+    }
+});
+```
+
+## 游戏角色上报(必须接入)
+
+1) 在创建游戏角色、进入游戏和角色升级 3 个地方调用此接口，当创建角色时 createRole 值为 true ，其他两种情况为 false。true & false 均需要调用一遍
+
+2) GameRoleInfo 所有字段均需上传，不能传 null ，游戏没有的字段可以传一个默认值（比如 default 或者 1 之类的）。
+
+3) 关于 360 渠道上传角色信息的具体说明，请参考： https://www.quicksdk.com/doc-190.html?cid=15
+
+参考代码
+
+```java
+RXGameRoleInfo rxGameRoleInfo = new RXGameRoleInfo();
+boolean createRoleInfo = true;// 是否为创建新角色
+rxGameRoleInfo.setServerID("1");// 服务器ID
+rxGameRoleInfo.setServerName("火星服务器");// 服务器名称
+rxGameRoleInfo.setGameRoleName("裁决之剑");// 角色名称
+rxGameRoleInfo.setGameRoleID("1121121");// 角色ID
+rxGameRoleInfo.setGameUserLevel("12");// 等级
+rxGameRoleInfo.setVipLevel("9"); // 设置当前用户vip等级，必须为整型字符串
+rxGameRoleInfo.setGameBalance("5000"); // 角色现有金额
+rxGameRoleInfo.setGameUserLevel("12"); // 设置游戏角色等级
+rxGameRoleInfo.setPartyName("无敌联盟"); // 设置帮派，公会名称
+rxGameRoleInfo.setRoleCreateTime("1473141432"); // UC与1881渠道必传，值为10位数时间戳
+rxGameRoleInfo.setPartyId("1100"); // 360渠道参数，设置帮派id，必须为整型字符串
+rxGameRoleInfo.setGameRoleGender("男"); // 360渠道参数
+rxGameRoleInfo.setGameRolePower("38"); // 360渠道参数，设置角色战力，必须为整型字符串
+rxGameRoleInfo.setPartyRoleId("11"); // 360渠道参数，设置角色在帮派中的id
+rxGameRoleInfo.setPartyRoleName("帮主"); // 360渠道参数，设置角色在帮派中的名称
+rxGameRoleInfo.setProfessionId("38"); // 360渠道参数，设置角色职业id，必须为整型字符串
+rxGameRoleInfo.setProfession("法师"); // 360渠道参数，设置角色职业名称
+rxGameRoleInfo.setFriendlist("无"); // 360渠道参数，设置好友关系列表，格式请参考：http://open.quicksdk.net/help/detail/aid/190
+QuickSdkHelper.getInstance().setGameRoleInfo(this, rxGameRoleInfo, createRoleInfo);
+```
+
+## 登出
+
+在游戏需要登出的地方调用如下代码
+
+```java
+RuiXueSdk.getApi().logout(new OnLogoutCallback() {
+    @Override
+    public void onSuccess(@Nullable String data) {
+        Toast.makeText(QuickDemoActivity.this, "登出成功", Toast.LENGTH_SHORT).show();
+    }
+
+    @Override
+    public void onFailed(int code, String msg) {
+        RXLogger.d("logout failed code = " + code + " msg = " + msg);
+        Toast.makeText(QuickDemoActivity.this, "登出失败", Toast.LENGTH_SHORT).show();
+    }
+});
+```
+
+## 游戏账号切换 和 logout 全局监听
+
+参考代码
+
+```java
+RuiXueSdk.setRuiXueSdkCallback(new RuiXueSdkCallback() {
+
+    // ... 省略了一些无关代码
+
+    /**
+    * 切换账号全局回调,如果有游戏内切换账号可关注此回调
+    * @param code 0
+    * @param data 三方数据
+    */
+    @Override
+    public boolean onSwitchAccount(int code, String data) {
+        // 调用方如果有要处理的逻辑放在此处
+        // 返回 true，望舒sdk，会执行 logout 操作
+        // 返回 false，望舒sdk 不执行任何操作
+        return true;
+    }
+
+    @Override
+    public void onLogout(int code, String msg) {
+        // code 0: 登出成功
+        // code -1: 登录出失败
+        RXLogger.d(TAG, "onLogout code = " + code + " msg = " + msg);
+    }
+});
+```
+
+## 实名认证（登录成功后进行调用，目前渠道基本都做了实名跟防沉迷，游戏可以不用调此接口获取实名信息来做防沉迷限制）
+
+说明： callback 的 onSuccess 将返回封装的 json 实体； uid (表示用户 id)， age (表示年龄, 如果渠道没返回默认为-1)， realName (是否已实名： true 表示已实名， false 表示未实名；如果渠道没返回默认为 false)， resumeGame (渠道实名认证失败之后是否可以继续游戏 ： true 表示可以， false 表示不可以；如果渠道没返回默认为 true)， other (预留字段，如果渠道没返回默认为""的字符串)
+
+```java
+QuickSdkHelper.getInstance().verifyRealName(this, new RXJSONCallback() {
+    @Override
+    public void onSuccess(@Nullable JSONObject data) {
+        RXLogger.d("WLTest", "verify real name success " + data);
+        ToastUtils.showToast(QuickDemoActivity.this, "实名认证请求成功 " + data);
+        try {
+            // 用户id
+            String uid = jsonObject.getString("uid");
+            // 年龄, 如果渠道没返回默认为-1
+            int age = jsonObject.getInt("age");
+            // 是否已实名 true表示已实名
+            // false表示未实名,如果渠道没返回默认为false
+            boolean realName = jsonObject.getBoolean("realName");
+            // oppo实名认证失败之后是否可以继续游戏 true表示可以
+            // false表示不可以,如果渠道没返回默认为true
+            boolean resumeGame = jsonObject.getBoolean("resumeGame");
+            // 预留字段,如果渠道没返回默认为""的字符串
+            String other = jsonObject.getString("other");
+            // 游戏根据返回信息做对应的逻辑处理
+
+        } catch (JSONException e) {
+
+        }
+    }
+
+    @Override
+    public void onFailed(@NonNull JSONObject cause) {
+        RXLogger.d("WLTest", "verify real name failed " + cause);
+        ToastUtils.showToast(QuickDemoActivity.this, "实名认证请求失败 由于母包中并未支持，打渠道包才支持，渠道基本都做了实名跟防沉迷，游戏可以不用调此接口获取实名信息来做防沉迷限制！");
+    }
+});
+```
+
+## 三方SDK 版本信息
+
+使用 `quicksdk_v2.7.4_20230322` 版本

@@ -1,0 +1,173 @@
+---
+sidebar_position: 1
+title: 快速接入
+description: "望舒SDK 游戏公告 快速接入 Unity 接入文档，提供完整的接口调用说明与示例。"
+---
+
+## UI示例
+
+![](https://haiqi-ruixue-test.oss-cn-beijing.aliyuncs.com/docOnline/announce_mutiple_ui-1725619282374.png)
+
+![](https://haiqi-ruixue-test.oss-cn-beijing.aliyuncs.com/docOnline/announce_single_ui-1725619336078.png)
+
+## 显示公告UI
+
+**接口原型**
+
+```csharp
+/// summary>
+/// 显示公告UI
+/// summary>
+/// param name="limit">param> 显示条数，limit > 0
+/// param name="onLink">param>
+/// param name="hsAnnounceUI">param>
+public static void ShowAnnounceView(int limit, OnLink onLink, HsAnnounceUI hsAnnounceUI)
+```
+
+**调用示例**
+
+```csharp
+RXLoginUIOverSeas.ShowAnnounceView(100, Onlink, HsAnnounceUI);
+
+/// summary>
+/// 返回图片配置link或者url
+/// summary>
+/// param name="data">param>
+public void Onlink(String data)
+{
+ LogUtil.Log("EventManager", "Announce Onlink: " + data);
+}
+/// summary>
+/// 当前UI是否显示了
+/// summary>
+/// param name="isHas">param>
+public void HsAnnounceUI(bool isHas)
+{
+ LogUtil.Log("EventManager", "Announce HsAnnounceUI: " + isHas);
+}
+```
+
+## 产品包版本检查公告UI（通用）
+
+**接口原型**
+
+```csharp
+/// summary>
+/// 产品包版本检查公告UI（通用）
+/// summary>
+/// param name="version">param> 客户端版本号，3段或4段
+/// param name="region">param> 地区码
+/// param name="queryMap">param> type 脚本类型 默认json， 可选 lua， u3d format 输出文件后缀，默认json，可选lua
+/// param name="isShowUI">param> isShowUI 是否显示UI
+/// param name="onLink">param>
+/// param name="hsAnnounceUI">param>
+/// param name="responseDelegate">param>
+/// param name="errorDelegate">param>
+public static void ShowUpdateAppView(string version, string region, Dictionarystring, object> queryMap,
+ bool isShowUI, OnLink onLink, HsAnnounceUI hsAnnounceUI,
+ RequestResponseDelegate responseDelegate, RequestErrorDelegate errorDelegate)
+```
+
+**调用示例**
+
+```csharp
+Dictionarystring, object> queryMap = new Dictionarystring, object>();
+queryMap.Add("format", "json");
+RXLoginUIOverSeas.ShowUpdateAppView("1", "150000", queryMap, true, Onlink,
+ HsAnnounceUI, AnnounceResponseDelegate, AnnounceErrorDelegate);
+
+/// summary>
+/// 返回图片配置link或者url
+/// summary>
+/// param name="data">param>
+public void Onlink(String data)
+{
+ LogUtil.Log("EventManager", "Announce Onlink: " + data);
+}
+/// summary>
+/// 当前UI是否显示了
+/// summary>
+/// param name="isHas">param>
+public void HsAnnounceUI(bool isHas)
+{
+ LogUtil.Log("EventManager", "Announce HsAnnounceUI: " + isHas);
+}
+/// summary>
+/// 成功返回 版本检查数据
+/// summary>
+/// param name="data">param>
+public void AnnounceResponseDelegate(string data)
+{
+ LogUtil.Log("EventManager", $"UserCenterUI RequestResponseDelegate: {data}");
+}
+/// summary>
+/// 失败返回 版本检查数据
+/// summary>
+/// param name="data">param>
+public void AnnounceErrorDelegate(string data)
+{
+ LogUtil.Log("EventManager", $"UserCenterUI RequestErrorDelegate: {data}");
+}
+```
+
+## 产品包版本检查UI（自定义）
+
+**接口原型**
+
+```csharp
+/// summary>
+/// 产品包版本检查公告UI（自定义）
+/// summary>
+/// param name="version">param> 客户端版本号， 3段或4段
+/// param name="region">param> 地区码， 默认0
+/// param name="type">param> 脚本类型 默认js， 可选lua， u3d
+/// param name="queryMap">param> queryMap games {"games:{"游戏id": 客户端游戏版本}"}activities {"activities":{"活动别名": 客户端活动版本}}
+/// param name="isShowUI">param> 是否显示UI
+/// param name="onLink">param>
+/// param name="hsAnnounceUI">param>
+/// param name="responseDelegate">param>
+/// param name="errorDelegate">param>
+public static void ShowCheckUpdateAppView(string version, string region, string type,
+ Dictionarystring, object> queryMap, bool isShowUI, OnLink onLink, HsAnnounceUI hsAnnounceUI,
+ RequestResponseDelegate responseDelegate, RequestErrorDelegate errorDelegate)
+```
+
+**调用示例**
+
+```csharp
+RXLoginUIOverSeas.ShowCheckUpdateAppView("1.0.1", "150000", "js", null, true,
+ Onlink, HsAnnounceUI, AnnounceResponseDelegate, AnnounceErrorDelegate);
+
+/// summary>
+/// 返回图片配置link或者url
+/// summary>
+/// param name="data">param>
+public void Onlink(String data)
+{
+ LogUtil.Log("EventManager", "Announce Onlink: " + data);
+}
+/// summary>
+/// 当前UI是否显示了
+/// summary>
+/// param name="isHas">param>
+public void HsAnnounceUI(bool isHas)
+{
+ LogUtil.Log("EventManager", "Announce HsAnnounceUI: " + isHas);
+}
+/// summary>
+/// 成功返回 版本检查数据
+/// summary>
+/// param name="data">param>
+public void AnnounceResponseDelegate(string data)
+{
+ LogUtil.Log("EventManager", $"UserCenterUI RequestResponseDelegate: {data}");
+}
+/// summary>
+/// 失败返回 版本检查数据
+/// summary>
+/// param name="data">param>
+public void AnnounceErrorDelegate(string data)
+{
+ LogUtil.Log("EventManager", $"UserCenterUI RequestErrorDelegate: {data}");
+}
+```

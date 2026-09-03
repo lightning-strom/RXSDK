@@ -1,0 +1,1008 @@
+---
+sidebar_position: 2
+title: 抖音小游戏
+description: "望舒SDK 抖音小游戏 小游戏 接入文档，提供完整的接口调用说明与示例。"
+---
+
+## 准备工作
+
+请登录望舒系统初始化相关服务，如果还没有望舒账号请[查看准备工作说明](/docs/开发者文档/入门指南/准备工作)。
+
+望舒系统地址，可登录企业管理后台 > 已部署项目中查看。
+
+## 环境要求
+
+Unity 需要按照抖音要求调整引用方式，参考官方文档：[https://developer.open-douyin.com/docs/resource/zh-CN/mini-game/develop/guide/game-engine/rd-to-SCgame/unity-game-access/install-connect/unity-new](https://developer.open-douyin.com/docs/resource/zh-CN/mini-game/develop/guide/game-engine/rd-to-SCgame/unity-game-access/install-connect/unity-new)
+
+基础库最低版本： 2.53.0 ，最高版本请选择稳定版本
+
+[点击下载 SDK 最新版本](https://pan.jiaxianghudong.com/s/vEiCVfQhGWu)，下载抖音小游戏 SDK
+
+把 SDK 导入项目工程中
+
+## SDK 初始化
+
+初始化为异步调用，失败将不能使用 SDK 功能，请注意处理调用逻辑。
+
+初始化 SDK 时需传入 `productId`、`channelId`、`cpid`、`baseUrlList` 参数信息。
+
+
+| 字段 | 类型 | 是否必填 | 说明 |
+| --- | --- | --- | --- |
+| string | 是 | 产品 id ，望舒游戏发行平台创建产品，[查看使用说明](/docs/开发者文档/入门指南/准备工作)。 | **channelId** |
+| string | 是 | 渠道 id ，望舒游戏发行平台创建渠道，[查看使用说明](/docs/开发者文档/入门指南/准备工作)。 | **cpid** |
+| string | 是 | CP id ，望舒企业管理后台创建项目，[查看使用说明](/docs/开发者文档/入门指南/准备工作)。 | **baseUrlList** |
+| string[] | 是 | 请求域名队列，望舒企业管理后台创建项目，[查看使用说明](/docs/开发者文档/入门指南/准备工作)。 | **complete** |
+| function | 是 | 初始化回调函数 |  |
+
+
+接口实例：
+
+```javascript
+// 路径仅为示例，需要传入SDK在项目中的真实路径，如出现引用错误请检查路径是否正确
+const channelSdk = require("your path/channelSDK/index.js")
+//以下参数为测试参数，需要更换为接入方对应的参数
+const sdk = new channelSdk({
+ productId: '1', //产品 id
+ channelId: '818', //渠道id
+ cpid: '1000049', //客户端id
+ baseUrlList: ['https://ruixue.weiletest.com'],//请求域名队列
+ complete: (data) => {
+ console.log('init complete: ', data)
+ if (data.code === 0) {
+ // 初始化成功
+ }
+ },
+})
+```
+
+### 设置子渠道
+
+通行证记录来源（分包）、子渠道参数。必须在 登录 前调用。
+
+#### 参数说明
+
+| 字段 | 类型 | 是否必填 | 备注 |
+| --- | --- | --- | --- |
+| params | string | 是 | 子渠道 id |
+
+**调用示例**
+
+```javascript
+// 同步函数
+const result = sdk.setSubChannelId('your sub_channel_id')
+console.log('setSubChannelId res: ', result)
+```
+
+#### 响应结构
+
+成功 code 为 0
+
+### 设置自定义返回错误消息
+
+规则 1 ：根据错误码直接读取对应提示替换 msg ；
+
+规则 2 ：如果表中有 default 的 key ，将未配置的错误码 msg 统一替换为 default 的 value ；
+
+规则 3 ：$code$ $thirdcode$ $thirdmsg$ 为动态配置字段，如下所示，最终展示的信息为 支付错误 4002
+
+以上规则仅适用于调用了 setErrorMsg 接口，未调用保持原有规则
+
+**调用示例**
+
+```javascript
+// 同步函数
+sdk.setErrorMsg({
+ 4001: 'cancel pay',
+ 4002: '支付错误$code$',
+ 2001: 'init fail',
+ default: 'default$code$$thirdcode$'
+})
+```
+
+### 清除自定义返回错误消息
+
+**调用示例**
+
+```javascript
+// 同步函数
+sdk.clearErrorMsg()
+```
+
+## 接入功能
+
+SDK 提供了众多功能。请在初始化 SDK 后，根据项目需要，参考相应功能的文档，接入相应功能。 绝大多数游戏都会接入望舒登录，所以我们推荐从这一功能开始。
+
+### 拉起实名认证
+
+#### 参数说明
+
+| 字段 | 类型 | 是否必填 | 备注 |
+| --- | --- | --- | --- |
+| callback | IMethodParams | 是 | 回调函数集合 |
+
+> IMethodParams 说明
+
+| 字段 | 备注 |
+| --- | --- |
+| complete | (data) => void |
+
+complete ：为函数且必传， data 为结果数据
+
+**调用示例**
+
+```javascript
+sdk.authenticateRealName(
+ {
+ complete: (res) => {
+ console.log(res)
+ },
+ }
+);
+```
+
+### 录制屏幕
+
+返回全局唯一的录屏管理器 调用方式[请查看说明](https://developer.open-douyin.com/docs/resource/zh-CN/mini-game/develop/api/media/screen-recording/game-recorder-manager/game-recorder-manager)
+
+#### 参数说明
+
+| 字段 | 类型 | 是否必填 | 备注 |
+| --- | --- | --- | --- |
+| callback | IMethodParams | 是 | 回调函数集合 |
+
+> IMethodParams 说明
+
+| 字段 | 备注 |
+| --- | --- |
+| complete | (data) => void |
+
+complete ：为函数且必传， data 为结果数据
+
+**调用示例**
+
+```javascript
+let recorder
+
+sdk.getGameRecorderManager(
+ {
+ complete: (res) => {
+ recorder = res.data
+ // 录屏开始示例
+ tt.getSystemInfo({
+ success(res) {
+ const screenWidth = res.screenWidth;
+ const screenHeight = res.screenHeight;
+ var maskInfo = recorder.getMark();
+ var x = (screenWidth - maskInfo.markWidth) / 2;
+ var y = (screenHeight - maskInfo.markHeight) / 2;
+ recorder.onStart((res) => {
+ console.log("录屏开始");
+ });
+ //添加水印并且居中处理
+ recorder.start({
+ duration: 30,
+ isMarkOpen: true,
+ locLeft: x,
+ locTop: y,
+ });
+ },
+ });
+ },
+ }
+);
+
+```
+
+### 跳转客服
+
+参考文档 抖音客服平台
+
+### 用户的排行榜能力
+
+#### 设置写入用户的排行榜数据
+
+在关键的游戏场景，设置写入用户的排行榜数据（游戏成绩信息），该数据会上传到服务端。[查看说明](/docs/开发者文档/入门指南/准备工作)
+
+#### 参数说明
+
+| 字段 | 类型 | 是否必填 | 备注 |
+| --- | --- | --- | --- |
+| params | IParams | 是 | 参数 |
+| callback | IMethodParams | 是 | 回调函数集合 |
+
+> IParams说明
+
+| 字段 | 类型 | 是否必填 | 备注 |
+| --- | --- | --- | --- |
+| value | string | 是 | 展示出来的数值， dataType 为 0 时只能传正数的字符串 （如'103', '105'）,且取值范围为 [0, int32_MAX)，否则会报错。dataType 为 1 时，则可传入任意字符串（ eg ：'青铜'、'白银'） |
+| dataType | number | 是 | 可选值: 0 或 1。0 表示数据为数字类型，往往适用于游戏的通关分数（如 103 分、105 分）； 1 表示数据为字符串类型，适用于段位信息（如 '青铜'、'白银'） |
+| zoneId | string | 否 | 排行榜分区标识，取值可以是 'default' 或 'test' 或其他开发者自定义的分区标识，'default' 表示为默认的线上分区，'test' 表示测试分区。不同分区的排行榜数据存在数据隔离，如 zoneId='test' 设置的数据不会影响通过 zoneId='default' 的排行榜，可用于测试环境。目前每个小游戏除了 default 和 test ， 最多可支持 10 个分区 |
+| priority | number | 否 | 用于判断权重 ，仅当 dataType 为 1 时需要，不传则使用默认值 0。如传入 value 为'白银'， priority 为 2 ，则白银的权重为 2 ，传入 value 为 '黄金'， priority 为 3 ，则黄金的权重为 3 ，高于白银，届时生成的榜单，黄金段位会排在白银前面 |
+| extra | string | 否 | 预留字段 |
+
+> IMethodParams 说明
+
+| 字段 | 备注 |
+| --- | --- |
+| complete | (data) => void |
+
+complete ：为函数且必传， data 为结果数据
+
+**调用示例**
+
+```javascript
+sdk.setImRankData(
+ {
+ dataType: 0, //成绩为数字类型
+ value: "999999", //该用户得了999999分
+ priority: 0, //dataType为数字类型，不需要权重，直接传0
+ extra: "extra",
+ zoneId: 'test'
+ },
+ {
+ complete: (res) => {
+ console.log(res)
+ },
+ }
+);
+```
+
+#### 获取排行榜列表
+
+获取排行榜列表，调用 API 后， 根据参数自动绘制游戏好友排行榜。[查看说明](https://developer.open-douyin.com/docs/resource/zh-CN/mini-game/develop/api/open-capacity/game-rank/getImRankList)
+
+##### 参数说明
+
+| 字段 | 类型 | 是否必填 | 备注 |
+| --- | --- | --- | --- |
+| params | IParams | 是 | 参数 |
+| callback | IMethodParams | 是 | 回调函数集合 |
+
+> IParams说明
+
+| 字段 | 类型 | 是否必填 | 备注 |
+| --- | --- | --- | --- |
+| dataType | number | 是 | 可选值有 0 或 1。 0 表示数据被解析为数值。1 表示数据被解析为字符串 |
+| relationType | string | 是 | 排行榜类型 |
+
+ 可选值有 friend / all
+| 字段 | 类型 | 是否必填 | 说明 |
+| --- | --- | --- | --- |
+| rankType | string | 是 | 可选值有 day/ week / month / all |
+| rankTitle | string | 否 | 排行榜标题 |
+| suffix | string | 否 | 分数后缀补充文案 |
+| zoneId | string | 否 | 排行榜分区标识，取值可以是 'default' 或 'test' 或其他开发者自定义字符串，'default' 表示为默认的线上分区，不同分区的排行榜数据存在数据隔离，如 zoneId='test' 设置的数据不会影响通过 zoneId='default' 的排行榜，可用于测试环境。目前每个小游戏除了 default 和 test ， 最多可支持 10 个分区 |
+
+
+> IMethodParams 说明
+
+| 字段 | 备注 |
+| --- | --- |
+| complete | (data) => void |
+
+complete ：为函数且必传， data 为结果数据
+
+**调用示例**
+
+```javascript
+sdk.getImRankList(
+ {
+ relationType: "default", //好友榜、总榜都展示
+ dataType: 1, //只圈选type为枚举类型的数据进行排序
+ rankType: "day", //每天凌晨0点更新，只对当天0点到现在写入的数据进行排序
+ suffix: "", //为空或不填，一般枚举类型不需要填后缀
+ rankTitle: "rankTitle", //标题
+ zoneId: 'default',
+ },
+ {
+ complete: (res) => {
+ console.log(res)
+ },
+ }
+);
+```
+
+### 调起客户端订阅消息界面
+
+调起客户端订阅消息界面，返回用户订阅消息的操作结果。当用户勾选了订阅面板中的 “总是保持以上选择，不再询问” 时，或是点击了订阅面板中 “拒绝，不再询问” 时，模板消息会被添加到用户的小程序设置页，用户可以在设置页面进行管理。[查看说明](https://developer.open-douyin.com/docs/resource/zh-CN/mini-game/develop/api/open-capacity/subscribe-message/tt-request-subscribe-message)
+
+#### 参数说明
+
+| 字段 | 类型 | 是否必填 | 备注 |
+| --- | --- | --- | --- |
+| params | IParams | 是 | 参数 |
+| callback | IMethodParams | 是 | 回调函数集合 |
+
+> IParams说明
+
+| 字段 | 类型 | 是否必填 | 备注 |
+| --- | --- | --- | --- |
+| tmplIds | number | 是 | 需要订阅的消息模板的 id 的集合，最多支持传入三个 tmplId。消息 id 获取请参考[教程](https://developer.open-douyin.com/docs/resource/zh-CN/mini-game/develop/guide/open-ability/introduce)中的【获取消息 ID】步骤 |
+
+> IMethodParams 说明
+
+| 字段 | 备注 |
+| --- | --- |
+| complete | (data) => void |
+
+complete ：为函数且必传， data 为结果数据
+
+**调用示例**
+
+```javascript
+const tmplIds = ["MSGxx", "MSGxx"]
+sdk.requestSubscribeMessage(
+ {
+ tmplIds
+ },
+ {
+ complete: (res) => {
+ console.log(res)
+ },
+ }
+);
+```
+
+#### 成功响应
+
+| 字段 | 类型 | 备注 |
+| --- | --- | --- |
+| TEMPLATE_ID | [TEMPLATE_ID]为模板 id | code |
+| 0 |  |  |
+
+> TEMPLATE_ID 说明
+
+| 字段 | 说明 |
+| --- | --- |
+| accept | 用户同意订阅该条 id 对应的模板消息 |
+| reject | 用户拒绝订阅该条 id 对应的模板消息 |
+| ban | 表示已被后台封禁 |
+| fail | 表示该条 id 对应的模版消息授权失败 |
+
+### 跳转个人抖音号主页
+
+跳转个人抖音号主页，用户可以选择关注/取消关注抖音号。[查看说明](https://developer.open-douyin.com/docs/resource/zh-CN/mini-game/develop/api/open-capacity/follow/follow-aweme/tt-open-aweme-user-profile)
+
+#### 参数说明
+
+| 字段 | 类型 | 是否必填 | 备注 |
+| --- | --- | --- | --- |
+| callback | IMethodParams | 是 | 回调函数集合 |
+
+> IMethodParams 说明
+
+| 字段 | 备注 |
+| --- | --- |
+| complete | (data) => void |
+
+complete ：为函数且必传， data 为结果数据
+
+**调用示例**
+
+```javascript
+sdk.openAwemeUserProfile(
+ {
+ complete: (res) => {
+ console.log(res)
+ },
+ }
+);
+```
+
+#### 响应结构
+
+成功 code 为 0 ， hasFollowed boolean 是否关注抖音号
+
+### 查看抖音号是否关注
+
+提供从小游戏查看抖音号是否关注的能力。[查看说明](https://developer.open-douyin.com/docs/resource/zh-CN/mini-game/develop/api/open-capacity/follow/follow-aweme/tt-check-follow-state)
+
+#### 参数说明
+
+| 字段 | 类型 | 是否必填 | 备注 |
+| --- | --- | --- | --- |
+| callback | IMethodParams | 是 | 回调函数集合 |
+
+> IMethodParams 说明
+
+| 字段 | 备注 |
+| --- | --- |
+| complete | (data) => void |
+
+complete ：为函数且必传， data 为结果数据
+
+**调用示例**
+
+```javascript
+sdk.checkFollowAwemeState(
+ {
+ complete: (res) => {
+ console.log(res)
+ },
+ }
+);
+```
+
+#### 响应结构
+
+成功 code 为 0 ， hasFollowed boolean 是否关注抖音号
+
+### 创建游戏推荐组件实例
+
+游戏互推组件。[查看说明](https://developer.open-douyin.com/docs/resource/zh-CN/mini-game/develop/api/open-capacity/grid-game-panel/tt-create-grid-game-panel)
+
+#### 参数说明
+
+| 字段 | 类型 | 是否必填 | 备注 |
+| --- | --- | --- | --- |
+| params | IParams | 是 | 参数 |
+| callback | IMethodParams | 是 | 回调函数集合 |
+
+> IParams说明
+
+| 字段 | 类型 | 是否必填 | 备注 |
+| --- | --- | --- | --- |
+| gridCount | number | 是 | 表示游戏推荐组件的格子数量 可选值有 one/ four/ nine |
+| size | string | 是 | 表示组件大小，仅 gridCount = one |
+| position | object | 否 | 控制游戏推荐组件的展示位置，不传入时默认展示在屏幕右下角。仅 gridCount = one 时有效 |
+| query | object | 否 | 从组件内打开游戏时附带的 query 信息 |
+
+> Position说明
+
+| 字段 | 类型 | 是否必填 | 备注 |
+| --- | --- | --- | --- |
+| top | number | 是 | 组件左上角纵坐标 |
+| left | number | 是 | 组件左上角横坐标 |
+
+> Query说明
+
+| 字段 | 类型 | 是否必填 | 备注 |
+| --- | --- | --- | --- |
+| appid1 | string | 否 | query 字符串，必须是 key1=val1&key2=val2 的格式。打开游戏后，可通过 tt.getLaunchOptionsSync 获取启动参数中的 query。appid1 是游戏的 AppId 的具体值，用于给指定游戏设置 query |
+| appid2 | string | 否 | 同上 |
+
+```json
+{
+ "ttc203b4be5d39867a": "age=1",
+ "ttc203b4be5d39867b": "age=2&name=xxx",
+ "ttc203b4be5d39867c": "age=3&location=xxx"
+}
+```
+
+> IMethodParams 说明
+
+| 字段 | 备注 |
+| --- | --- |
+| complete | (data) => void |
+
+complete ：为函数且必传， data 为结果数据
+
+**调用示例**
+
+```javascript
+sdk.createGridGamePanel(
+ {
+ gridCount: "nine",
+ query: {
+ tt00000000000000: "age=12&name=xxxx",
+ }
+ },
+ {
+ complete: (res) => {
+ const gridGamePanel = res.data
+ gridGamePanel
+ .show()
+ .then(() => {
+ console.error("展示游戏推荐组件成功");
+ })
+ .catch((err) => {
+ console.error("展示游戏推荐组件失败", err);
+ })
+ },
+ }
+);
+```
+
+### 小游戏公会群能力
+
+客户端版本 >= 32.4.0 ， 基础库版本 >= 3.51.0.0。必须在 登录 前调用。
+
+#### 查询指定公会是否绑定公开群
+
+##### 参数说明
+
+| 字段 | 类型 | 是否必填 | 备注 |
+| --- | --- | --- | --- |
+| params | IParams | 是 | 参数 |
+| callback | IMethodParams | 是 | 回调函数集合 |
+
+> IParams说明
+
+| 字段 | 类型 | 是否必填 | 备注 |
+| --- | --- | --- | --- |
+| unionId | number | 是 | 查询绑定群信息的公会 ID ，由游戏侧生成和存储，格式限制为字母数字下划线，长度不超过 30 |
+
+> IMethodParams 说明
+
+| 字段 | 备注 |
+| --- | --- |
+| complete | (data) => void |
+
+complete ：为函数且必传， data 为结果数据
+
+**调用示例**
+
+```javascript
+sdk.getUnionGroupInfo({
+        unionId: 'hewei_unionid_001',
+    }, {
+        complete: (res) => {
+            console.log(res)
+    }
+})
+```
+
+##### 响应结构
+
+| 字段 | 类型 | 说明 |
+| --- | --- | --- |
+| code | number | 查询成功 code 为 0 |
+| bindStatus | boolean | 目前公会的绑定状态， true 则公会已绑定， false 则公会未绑定 |
+| msg | string | 错误提示 |
+| **错误 code** | **错误 msg** | **类型** |
+| **说明** | 135801 | unknown error |
+| F | 小程序框架内部错误，有需要请拉客服咨询 | 135802 |
+| server error | F | 小程序框架内部错误，有需要请拉客服咨询 |
+| 999983 | platform auth deny | D |
+| 游戏无接口权限 | 999985 | server error |
+| U | 网络请求失败 | 999986 |
+| invoke too frequently | D | 接口调用太过频繁 |
+| 999987 | The feature is not supported in app | D |
+| 当前应用不支持该能力 | 999988 | The feature is not available in current operating system |
+| D | 当前系统不支持该能力 | 999996 |
+| not login | D | 用户未登录 |
+| 999999 | invalid param | D |
+| 参数错误 |  |  |
+
+#### 给指定公会绑定公开群
+
+##### 参数说明
+
+| 字段 | 类型 | 是否必填 | 备注 |
+| --- | --- | --- | --- |
+| params | IParams | 是 | 参数 |
+| callback | IMethodParams | 是 | 回调函数集合 |
+
+> IParams说明
+
+| 字段 | 类型 | 是否必填 | 备注 |
+| --- | --- | --- | --- |
+| unionId | number | 是 | 查询绑定群信息的公会 ID ，由游戏侧生成和存储，格式限制为字母数字下划线，长度不超过 30 |
+
+> IMethodParams 说明
+
+| 字段 | 备注 |
+| --- | --- |
+| complete | (data) => void |
+
+complete ：为函数且必传， data 为结果数据
+
+**调用示例**
+
+```javascript
+sdk.bindUnionGroup({
+        unionId: 'hewei_unionid_001',
+    }, {
+        complete: (res) => {
+            console.log(res)
+    }
+})
+```
+
+##### 响应结构
+
+| 字段 | 类型 | 说明 |
+| --- | --- | --- |
+| code | number | 绑定成功 code 为 0 |
+| bindStatus | boolean | 目前公会的绑定状态， true 则公会已绑定， false 则公会未绑定 |
+| msg | string | 错误提示 |
+| **错误 code** | **错误 msg** | **类型** |
+| **说明** | 135901 | unknown error |
+| F | 小程序框架内部错误，有需要请拉客服咨询 | 135902 |
+| server error | F | 小程序框架内部错误，有需要请拉客服咨询 |
+| 135903 | union has been bound to a group | D |
+| 公会已绑定公开群 | 135904 | user auth deny |
+| U | 用户拒绝授权 | 135905 |
+| user auth expired | U | 用户授权过期 |
+| 135906 | user auth fail | U |
+| 小程序框架内部错误，有需要请拉客服咨询 | 135907 | open auth faill |
+| U | 小程序框架内部错误，有需要请拉客服咨询 | 135908 |
+| open page fail | U | 小程序框架内部错误，有需要请拉客服咨询 |
+| 999976 | must be invoked by user tap gesture | D |
+| 必须由用户点击触发 | 999983 | platform auth deny |
+| D | 游戏无接口权限 | 999985 |
+| network unavailable | D | 网络请求失败 |
+| 999986 | invoke too frequently | D |
+| 接口调用太过频繁 | 999987 | The feature is not supported in app |
+| D | 当前应用不支持该能力 | 999988 |
+| The feature is not available in current operating system | D | 当前系统不支持该能力 |
+| 999996 | not login | D |
+| 用户未登录 | 999999 | invalid param |
+| D | 参数错误 |  |
+
+#### 解除指定公会和公开群的绑定关系
+
+##### 参数说明
+
+| 字段 | 类型 | 是否必填 | 备注 |
+| --- | --- | --- | --- |
+| params | IParams | 是 | 参数 |
+| callback | IMethodParams | 是 | 回调函数集合 |
+
+> IParams说明
+
+| 字段 | 类型 | 是否必填 | 备注 |
+| --- | --- | --- | --- |
+| unionId | number | 是 | 查询绑定群信息的公会 ID ，由游戏侧生成和存储，格式限制为字母数字下划线，长度不超过 30 |
+
+> IMethodParams 说明
+
+| 字段 | 备注 |
+| --- | --- |
+| complete | (data) => void |
+
+complete ：为函数且必传， data 为结果数据
+
+**调用示例**
+
+```javascript
+sdk.unbindUnionGroup({
+        unionId: 'hewei_unionid_001',
+    }, {
+        complete: (res) => {
+            console.log(res)
+    }
+})
+```
+
+##### 响应结构
+
+| 字段 | 类型 | 说明 |
+| --- | --- | --- |
+| code | number | 解绑成功 code 为 0 |
+| bindStatus | boolean | 目前公会的绑定状态， true 则公会已绑定， false 则公会未绑定 |
+| msg | string | 错误提示 |
+| **错误 code** | **错误 msg** | **类型** |
+| **说明** | 136001 | unknown error |
+| F | 小程序框架内部错误，有需要请拉客服咨询 | 136002 |
+| server error | F | 小程序框架内部错误，有需要请拉客服咨询 |
+| 136003 | union has been bound to a group | D |
+| 公会未绑定公开群 | 136004 | not the same operator |
+| U | 解绑人和绑定人不是同一个人 | 999983 |
+| platform auth deny | D | 游戏无接口权限 |
+| 999985 | network unavailable | D |
+| 网络请求失败 | 999986 | invoke too frequently |
+| D | 接口调用太过频繁 | 999987 |
+| The feature is not supported in app | D | 当前应用不支持该能力 |
+| 999988 | The feature is not available in current operating system | D |
+| 当前系统不支持该能力 | 999996 | not login |
+| D | 用户未登录 | 999999 |
+| invalid param | D | 参数错误 |
+
+#### 加入指定公会绑定的公开群
+
+##### 参数说明
+
+| 字段 | 类型 | 是否必填 | 备注 |
+| --- | --- | --- | --- |
+| params | IParams | 是 | 参数 |
+| callback | IMethodParams | 是 | 回调函数集合 |
+
+> IParams说明
+
+| 字段 | 类型 | 是否必填 | 备注 |
+| --- | --- | --- | --- |
+| unionId | number | 是 | 查询绑定群信息的公会 ID ，由游戏侧生成和存储，格式限制为字母数字下划线，长度不超过 30 |
+| **字段** | **备注** | complete | (data) => void |
+
+complete ：为函数且必传， data 为结果数据
+
+**调用示例**
+
+```javascript
+sdk.joinUnionGroup({
+        unionId: 'hewei_unionid_001',
+    }, {
+        complete: (res) => {
+            console.log(res)
+    }
+})
+```
+
+##### 响应结构
+
+| 字段 | 类型 | 说明 |
+| --- | --- | --- |
+| code | number | 绑定成功 code 为 0 |
+| msg | string | 错误提示 |
+| **code** | **msg** | **类型** |
+| **说明** | 136101 | unknown error |
+| F | 小程序框架内部错误，有需要请拉客服咨询 | 136102 |
+| server error | F | 小程序框架内部错误，有需要请拉客服咨询 |
+| 136103 | union is not bound to a groupp | D |
+| 公会未绑定任何公开群 | 136104 | open page fail |
+| F | 小程序框架内部错误，有需要请拉客服咨询 | 999983 |
+| platform auth deny | D | 游戏无接口权限 |
+| 999985 | network unavailable | D |
+| 网络请求失败 | 999986 | invoke too frequently |
+| D | 接口调用太过频繁 | 999987 |
+| The feature is not supported in app | D | 当前应用不支持该能力 |
+| 999988 | The feature is not available in current operating system | D |
+| 当前系统不支持该能力 | 999996 | not login |
+| D | 用户未登录 | 999999 |
+| invalid param | D | 参数错误 |
+
+### 推荐流直出游戏能力
+
+#### 直玩订阅授权
+
+向用户请求授权，允许游戏在满足一定的条件后出现在 Feed 流中。[查看说明](https://developer.open-douyin.com/docs/resource/zh-CN/mini-game/develop/api/open-capacity/feed-subscribe/request-feed-subscribe)
+
+##### 参数说明
+
+| 字段 | 类型 | 是否必填 | 备注 |
+| --- | --- | --- | --- |
+| params | IParams | 是 | 参数 |
+| callback | IMethodParams | 是 | 回调函数集合 |
+
+> IParams说明
+
+| 字段 | 类型 | 是否必填 | 备注 |
+| --- | --- | --- | --- |
+| scene | number | 否 | 订阅的场景 ID （非全场景下必传） |
+
+1 - 离线收益场景
+
+2 - 体力恢复场景
+
+3 - 重要事件掉落
+contentIDs
+| string[] | 否 | 自定义文案 contentID 数组（非全场景下必传）， contentID 在后台申请开通直玩能力后可获取 |
+| --- | --- | --- |
+| allScene | boolean | 否 |
+| 是否为全场景订阅，默认 false | type | string |
+| 否 | 订阅 Feed 流的类型，目前只支持传 'play' |  |
+
+> IMethodParams 说明
+
+| 字段 | 备注 |
+| --- | --- |
+| complete | (data) => void |
+
+complete ：为函数且必传， data 为结果数据
+
+**调用示例**
+
+```javascript
+// 发起单场景订阅
+sdk.requestFeedSubscribe({
+        type: 'play',
+        allScene: false,
+        scene: 1,
+        contentIDs: ["CONTENT123", "CONTENT234"],
+    }, {
+        complete: (res) => {
+            console.log(res)
+            if(res.code === 0) {
+                tt.showModal({
+                    title: "提示",
+                    content: res.success ? '订阅成功' : '订阅失败'
+                })
+            } else {
+                tt.showModal({
+                    title: "错误提示",
+                    content: res.msg
+                })
+            }
+        }
+})
+
+// 发起全场景订阅
+sdk.requestFeedSubscribe({
+        type: "play",
+ allScene: true,
+    }, {
+        complete: (res) => {
+            console.log(res)
+            if(res.code === 0) {
+                tt.showModal({
+                    title: "提示",
+                    content: res.success ? '订阅成功' : '订阅失败'
+                })
+            } else {
+                tt.showModal({
+                    title: "错误提示",
+                    content: res.msg
+                })
+            }
+        }
+})
+
+// 监听 Feed 流进入/退出小游戏事件，sdk内部对预加载登录事件进行上报
+function feedChangeCallback({ type }) {
+ if (type === 'feedEnter') {
+ console.log('触发从Feed流进入小游戏事件回调')
+ }
+ if (type === 'feedExit') {
+ console.log('触发从小游戏退回到Feed流事件回调')
+ }
+}
+
+// 注册事件监听
+sdk.onFeedStatusChange(feedChangeCallback);
+
+// 取消事件监听
+sdk.offFeedStatusChange(feedChangeCallback);
+
+```
+
+##### 响应结构
+
+| 字段 | 类型 | 说明 |
+| --- | --- | --- |
+| code | number | 绑定成功 code 为 0 |
+| msg | string | 错误提示 |
+| success | boolean | 用户的订阅结果（ true 为成功， false 为订阅失败，具体原因看 msg ） |
+| **code** | **msg** | **说明** |
+| 10301 | feature is not supported in app | 宿主不支持该功能 |
+| 21100 | host does not have permission | 该 app 未开通该能力 |
+| 21101 | no permission | 该游戏没有订阅权限 |
+| 10601 | not login | 需要调用 tt.login 登录 |
+| 20001 | params contentIDs or scene is required | 参数错误 |
+| 21102 | network error | 网络环境问题，一般指无网环境 |
+| 21103 | service error:具体错误信息 | 网络请求失败 |
+| 21104 | frequency control | 频控限制 |
+| 21500 | must be invoked by user gesture | 交互类型限制，全场景订阅必须由玩家点击触发在 tt.touchEnd 回调内调用该接口 |
+
+#### 查询直玩订阅授权
+
+查询用户直玩订阅的授权情况。[查看说明](https://developer.open-douyin.com/docs/resource/zh-CN/mini-game/develop/api/open-capacity/feed-subscribe/check-feed-subscribe-status)
+
+##### 参数说明
+
+| 字段 | 类型 | 是否必填 | 备注 |
+| --- | --- | --- | --- |
+| params | IParams | 是 | 参数 |
+| callback | IMethodParams | 是 | 回调函数集合 |
+
+> IParams说明
+
+| 字段 | 类型 | 是否必填 | 备注 |
+| --- | --- | --- | --- |
+| scene | number | 否 | 订阅的场景 ID （非全场景下必传） |
+
+1 - 离线收益场景
+
+2 - 体力恢复场景
+
+3 - 重要事件掉落
+contentIDs
+| string[] | 否 | 自定义文案 contentID 数组（非全场景下必传）， contentID 在后台申请开通直玩能力后可获取 |
+| --- | --- | --- |
+| allScene | boolean | 否 |
+| 是否为全场景订阅，默认 false | type | string |
+| 否 | 订阅 Feed 流的类型，目前只支持传 'play' |  |
+
+> IMethodParams 说明
+
+| 字段 | 备注 |
+| --- | --- |
+| complete | (data) => void |
+
+complete ：为函数且必传， data 为结果数据
+
+**调用示例**
+
+```javascript
+sdk.checkFeedSubscribeStatus({
+        allScene: true,
+        scene: 1
+    }, {
+        complete: (res) => {
+            console.log(res)
+            if(res.code === 0) {
+                tt.showModal({
+                    title: "提示",
+                    content: res.status ? '已经订阅' : '用户未订阅'
+                })
+            } else {
+                tt.showModal({
+                    title: "错误提示",
+                    content: res.msg
+                })
+            }
+        }
+})
+```
+
+##### 响应结构
+
+| 字段 | 类型 | 说明 |
+| --- | --- | --- |
+| code | number | 绑定成功 code 为 0 |
+| msg | string | 错误提示 |
+| status | boolean | 用户的订阅状态（ true 为已经订阅， false 为用户未订阅） |
+| **code** | **msg** | **说明** |
+| 10301 | feature is not supported in app | 宿主不支持该功能 |
+| 21100 | host does not have permission | 该 app 未开通该能力 |
+| 21101 | no permission | 该游戏没有订阅权限 |
+| 10601 | not login | 需要调用 tt.login 登录 |
+| 20001 | params contentIDs or scene is required | 参数错误 |
+| 21102 | network error | 网络环境问题，一般指无网环境 |
+| 21103 | service error:具体错误信息 | 网络请求失败 |
+
+### 自定义启动场景数据上报
+
+#### 参数说明
+
+| 字段 | 类型 | 是否必填 | 备注 |
+| --- | --- | --- | --- |
+| params | IParams | 是 | 参数 |
+| callback | IMethodParams | 是 | 回调函数集合 |
+
+> IParams说明
+
+| 字段 | 类型 | 是否必填 | 备注 |
+| --- | --- | --- | --- |
+| sceneId | number | 是 | 场景 ID ，登录[抖音开放平台](https://developer.open-douyin.com/)，进入「数据」-「性能分析」-「启动监控」-「启动场景配置」模块，添加游戏的自定义启动场景。 游戏每次启动只可以上报一次 |
+| costTime | number | 是 | 场景耗时，单位 ms ，默认值 0 |
+| dimension | object | 否 | 自定义维度数据。只支持能够通过 JSON.stringify 序列化的对象，且序列化后长度不超过 1024 个字符 ，默认值 `{}` |
+| metric | object | 否 | 自定义指标数据。只支持能够通过 JSON.stringify 序列化的对象，且序列化后长度不超过 1024 个字符，默认值 `{}` |
+
+> IMethodParams 说明
+
+| 字段 | 备注 |
+| --- | --- |
+| complete | (data) => void |
+
+complete ：为函数且必传， data 为结果数据
+
+**调用示例**
+
+```javascript
+sdk.reportScene({
+        sceneId: 1000,
+        costTime: 350,
+        dimension: {
+            d1: '2.1.0', // value仅支持传入String类型。若value表示Boolean，请将值处理为'0'、'1'进行上报；若value为Number，请转换为String进行上报
+        },
+        metric: {
+            m1: '546', // value仅支持传入数值且需要转换为String类型进行上报
+        },
+    }, {
+        complete: (res) => {
+            console.log(res)
+        }
+})
+```
+
+#### 响应结构
+
+| 字段 | 类型 | 说明 |
+| --- | --- | --- |
+| code | number | 绑定成功 code 为 0 |
+| msg | string | 错误提示 |
+| data | object | 开发者上报的原始数据 |
+| **code** | **msg** | **说明** |
+| 20001 | params.`${key}` should be `${expect_type}`, but got `${actual_value}` | 参数数据类型校验，请根据「参数说明」检查对应字段传参情况 |
+| 20001 | report sceneId:`${scene_id}` repeatedly | 同一个场景 ID 重复上报，游戏每次启动只可以上报一次 |
+| 20001 | params.dimension.`${key}` needs to be a string type and a non-empty string | dimension 中每个字段需要为非空字符串 |
+| 20001 | params.metric.`${key}` needs to be a numeric value of type string | metric 中每个字段需要为非空字符串且可以 parse 为非 NaN 数字 |
+| 20001 | params contentIDs or scene is required | dimension / metric 字段 stringify 后字符串长度不可超过 1024 |
+| 20001 | params.`${key}` cannot exceed 1024 characters | 网络环境问题，一般指无网环境 |
+| 20001 | failed to serialize params.$`{}` by JSON.stringify | dimension / metric 对象 stringify 失败 |
+
+### 接入望舒登录
+
+请根据开发者指南，[登录（通行证）](/docs/开发者文档/登录-通行证/小游戏渠道登录/快速接入) 完成操作。

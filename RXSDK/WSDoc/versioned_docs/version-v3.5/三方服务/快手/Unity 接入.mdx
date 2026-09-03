@@ -1,0 +1,102 @@
+---
+title: "Unity 接入"
+---
+
+## SDK集成
+
+打开 mainTemplate.gradle 文件，在 dependencies 中新增：
+
+```groovy
+    //快手渠道库
+    implementation 'com.ruixue:rxsdk_kwaiallin:${version}'
+```
+
+## 配置说明
+
+- 打开 launcherTemplate.gradle 文件， 在 defaultConfig 中新增：
+
+```groovy
+    manifestPlaceholders = [
+        KWAI_APP_ID    : "xxxxxxx"
+        KWAI_APP_NAME    : "xxxxxxx"
+    ]
+```
+
+::: tip
+1. meta-data 要配置在 application 标签内，否则不生效。
+2. 使用快手 sdk 隐私时，需要同步打开快手后台sdk隐私权限配置开关。
+3. 必须配置望舒 RXApplication (在 AndroidManifest.xml文件application中配置 android:name="com.ruixue.openapi.RXApplication)。
+:::
+
+- 打开 AndroidManifest.xml 文件
+
+```xml
+
+    <!--[可选] 是否允许游客登录，默认不允许-->
+    
+    <!--[可选] 是否不显示悬浮球，默认显示-->
+    
+    <!--[可选] 是否自定义隐私，true时使用自定义隐私界面，默认false使用快手 sdk 隐私界面-->
+    
+
+    <!--CP中的主Activity-->
+    
+        <!-- 快手配置 需要把以下代码加入到你们主界面，如果没有特殊需要按下面处理-->
+        <!-- 注意：默认情况下  游戏使用ks(+游戏缩写小写://home即可  path和参数可以根据自身是否需要-->
+        <!-- 如下面锁示，需要将此加入游戏主界面的Activity里。 -->
+        
+            
+
+            
+            
+            <!--协议部分-->
+            
+        
+    
+
+```
+
+## 快手常用词汇术语
+
+- Appid
+  游戏app 在快手游戏的唯一身份标识，例如：ks685673047210945076
+
+- App_secret
+  快手游戏中台分配给游戏的秘钥，用于加密数据及校验权限
+
+- UserId
+  游戏用户在快手游戏的唯一身份标识（经加密处理），客户端登录返回的AccountMode里面SdkUserId
+
+- Token
+  用户的登录凭证，客户端登录返回的AccountMode里面的sdkToken
+
+- Schema
+  从快手app或网页中启动游戏app时，需要配置的协议
+
+## 常见问题
+
+1. 如遇冲突 Duplicate class com.google.common.util.concurrent.ListenableFuture found in modules jetified-guava-24.0-android (com.google.guava:guava:24.0-android) and jetified-listenablefuture-1.0 (com.google.guava:listenablefuture:1.0)
+
+在 app build.gradle 中添加下面配置
+
+```groovy
+    configurations {
+    all*.exclude group: 'com.google.guava', module: 'listenablefuture'
+    }
+```
+
+2. 如微信组件出现冲突，请使用下面方式可以排除冲突。
+
+```groovy
+    api ("com.ruixue:rxsdk_weixin:+" ){
+    exclude group: 'com.tencent.mm.opensdk', module: 'wechat-sdk-android'
+    }
+```
+
+3. 如遇错误 java.lang.NoClassDefFoundError: Failed resolution of: Lcom/google/common/base/Optional; Caused by: java.lang.ClassNotFoundException: Didn't find class "com.google.common.base.Optional"
+
+请添加  ('com.google.guava:guava:24.0-android') 库
+
+4. 如遇 编译报错， compileSdkVersion 版本低
+
+打开 launcherTemplate.gradle， 在 defaultConfig 新增 compileSdkVersion 33

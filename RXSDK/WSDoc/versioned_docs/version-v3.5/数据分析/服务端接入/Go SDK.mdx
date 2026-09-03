@@ -1,0 +1,98 @@
+---
+title: "Go SDK"
+---
+
+### 获取最新SDK
+> 执行以下命令获取最新版 Golang SDK。
+> 集成并初始化 SDK
+
+```shell
+# 获取SDK
+go get https://github.com/ruixueyun/ruixuego
+```
+
+### 1. 初始化SDK
+
+> 注意：
+> 使用大数据埋点功能上传数据后, 必须在程序退出前显式调用 ruixuego.Close()
+> 不然可能导致数据丢失
+
+```go
+const (
+testAppID     = "wltestapp"
+testChannelID = "wltestchannel"
+testAppKey    = "a463deade4b15d5ac5398f97cdaeab65"
+)
+
+func main() {
+// SDK 初始化
+err := ruixuego.Init(&ruixuego.Config{
+APIDomain: "http://ruixue.weiletest.com",
+CPKey:     "0984cde09ebe42fd167510c727f57f71",//联系技术支持获取cpid/cpkey
+CPID:      1000049,
+BigData: &ruixuego.BigDataConfig{ // 要使用大数据埋点功能必须配置此参数
+AutoFlush: true,
+},
+ProductID: 100,
+ServiceMark: "default",  // 用于区分区服标识  
+})
+if err != nil {
+panic(err)
+}
+
+defer func() {
+// 使用大数据埋点功能上传数据后, 必须在程序退出前显式调用 ruixuego.Close()
+// 不然可能导致数据丢失
+fmt.Println("close result:", ruixuego.Close())
+}()
+
+fmt.Println("done")
+}
+
+```
+
+### 2. 事件埋点
+
+```go
+    // 事件埋点
+err = ruixuego.GetDefaultClient().Tracks(
+"abcdef",// 设备码
+"123456",//用户标识, 通常为望舒 OpenID
+ruixuego.SetEvent("login"),//事件埋点必传
+ruixuego.SetPreset(map[string]interface{}{// 预制属性
+ruixuego.PresetKeyAppID:        "123", // 设置 AppID 请用预置 Key
+ruixuego.PresetKeyChannelID:    "456", // 设置渠道 ID 请用预置 Key
+ruixuego.PresetKeySubChannelID: "789", // 设置子渠道 ID 请用预置 Key
+}),
+ruixuego.SetProperties(map[string]interface{}{// 自定义属性
+"key1": "val",
+}))
+if err != nil {
+panic(err)
+}
+```
+
+### 3. 用户属性埋点
+
+> ruixuego.SetUserUpdateType("user_setonce")必填
+> 类型：user_setonce,user_set,user_add,user_min,user_max
+
+```go
+// 用户属性埋点
+err = ruixuego.GetDefaultClient().Tracks(
+"abcdef", // 设备码
+"123456", //用户标识, 通常为望舒 OpenID
+ruixuego.SetUserUpdateType("user_setonce"),//用户属性埋点必传 目前支持 
+ruixuego.SetPreset(map[string]interface{}{// 预制属性
+ruixuego.PresetKeyAppID:        "123", // 设置 AppID 请用预置 Key
+ruixuego.PresetKeyChannelID:    "456", // 设置渠道 ID 请用预置 Key
+ruixuego.PresetKeySubChannelID: "789", // 设置子渠道 ID 请用预置 Key
+}),
+ruixuego.SetProperties(map[string]interface{}{// 自定义属性
+"key1": "val",
+}))
+if err != nil {
+panic(err)
+}
+
+```

@@ -1,0 +1,520 @@
+---
+sidebar_position: 33
+title: UC小游戏
+description: "望舒SDK 登录通行证 UC小游戏 小游戏 接入文档，提供完整的接口调用说明与示例。"
+unlisted: true
+---
+
+## 登录
+
+**启动路径参数注意事项**
+
+SDK 登录内部会从启动路径上获取参数，用于裂变和导量效果的数据分析，所以 CP 如果需要自定义分享需要拼接以下参数，分享参数来自 `getShareData` 接口，并且注意除了 CP 自定义分享场景，不要使用以下参数！！！
+
+| 字段 | 类型 | 备注 |
+| --- | --- | --- |
+| type | string | rx |
+| user_source | string | share ｜ guide ｜ transmits |
+
+`share` 分享 `guide` 导量 `transmits` 自定义透传参数
+
+> 分享相关字段
+
+| 字段 | 类型 | 备注 |
+| --- | --- | --- |
+| landing_id | string | 广告推广来源信息 |
+| trigger_id | string | 埋点 ID |
+| trigger_tag | string | 埋点唯一标识 |
+| trigger_type | string | 埋点类型 |
+| material_type | string | 分享素材类型 |
+| material_id | string | 分享素材类型 |
+| strategy_type | string | 策略类型 |
+| strategy_id | string | 策略唯一 ID |
+| share_time | string | 分享时间 |
+| share_type | string | mini ，游戏客户端自定义的分享类型 |
+| inviter_region | string | 分享者所在地区编码 |
+| inviter_openid | string | 分享者的望舒 openid |
+| inviter_productid | string | 分享者的产品 ID, 若为空, 则通行证通过 inviter_openid 获取关联信息 |
+| inviter_channelid | string | 分享者的渠道 ID, 若为空, 则通行证通过 inviter_openid 获取关联信息 |
+| inviter_subchannelid | string | 分享者的子渠道 ID, 若为空, 则通行证通过 inviter_openid 获取关联信息 |
+
+> 导量相关字段
+
+| 字段 | 类型 | 备注 |
+| --- | --- | --- |
+| guide_platform | string | 导量来源游戏平台 |
+| guide_app | string | 导量来源游戏 app 标识 |
+
+> transmits 字段
+
+transmits 的数据为透传参数，规则需要满足 user_source=transmits ，除 user_source=transmits 外其他拼接的参数登录后将原样返回。
+
+示例： `https://xxx.html?user_source=transmits&a=b&c=d` 登录成功数据会新增字段 `user_transmits:{"a":"b", "c":"d"}`
+
+### 首次登录
+
+#### 参数说明
+
+| 字段 | 类型 | 是否必填 | 备注 |
+| --- | --- | --- | --- |
+| params | ILogin | 是 | 参数 |
+| callback | IMethodParams | 是 | 回调函数集合 |
+
+> ILogin 说明
+
+| 字段 | 类型 | 是否必填 | 备注 |
+| --- | --- | --- | --- |
+| method | string | 是 | 'minigame_uc'，登录账号的类型 |
+
+> IMethodParams 说明
+
+| 字段 | 备注 |
+| --- | --- |
+| complete | (data) => void |
+
+complete ：为函数且必传， data 为结果数据
+
+#### 调用示例
+
+```javascript
+sdk.login(
+ {
+ method: "minigame_uc",
+ },
+ {
+ complete: (data) => {
+ console.log(data);
+ },
+ }
+);
+```
+
+#### 响应结构
+
+请参考 [服务端登录 API](/docs/开发者文档/用户信息/获取指定用户信息)响应结构
+
+### 二次登录
+
+用户完成首次登录之后，为了降低三方账号授权导致的延迟，后续可以使用登录接口返回的 login_openid 进行登录。
+
+#### 参数说明
+
+| 字段 | 类型 | 是否必填 | 备注 |
+| --- | --- | --- | --- |
+| params | ILogin | 是 | 参数 |
+| callback | IMethodParams | 是 | 回调函数集合 |
+
+> ILogin 说明
+
+| 字段 | 类型 | 是否必填 | 备注 |
+| --- | --- | --- | --- |
+| method | string | 是 | 'minigame_uc'，登录账号的类型 |
+| login_openid | string | 是 | 首次登录返回的 login_openid 数据，用于二次登录 |
+
+> IMethodParams 说明
+
+| 字段 | 备注 |
+| --- | --- |
+| complete | (data) => void |
+
+complete ：为函数且必传， data 为结果数据
+
+#### 调用示例
+
+```javascript
+sdk.login(
+ {
+ method: "minigame_uc",
+ login_openid:
+ "PHD7PmiZjsSVmFq5hDjxxmo6TgkNhgYe8MIjMc2kEfhHQbL2Y+BVNj97TGgFK/LNtxoRcTWaX47grVvVUwS/84FWrU3MoD1HnFo4P/Imn3pEFnhnJpV+XUFzg1eptZTTJH8CArYFg0s5Ux2X2C3hnFtjIRoUu44eLtrhR2Y7jCbqPl3ohddWJExFBsRXe40CQdEt5ECBGprtqpT3u5WWzzo+LmHJHiIckGv2Ox2EkAgR0vcYgfCCtANPzSZydNDDFCIpwWbW09vuzyZLvccJDsTp27FF6L0fk9ZVvnm9OBl3hlnE6CPrEFMF4wArNjuu",
+ },
+ {
+ complete: (data) => {
+ console.log(data);
+ },
+ }
+);
+```
+
+#### 响应结构
+
+请参考 [登录 API](/docs/开发者文档/登录-通行证/服务端接入/服务端-API) 响应结构。
+
+## 用户中心
+
+### 申请注销账号
+
+#### 参数说明
+
+| 字段 | 类型 | 是否必填 | 备注 |
+| --- | --- | --- | --- |
+| params | IDeregister | 是 | 参数 |
+| callback | IMethodParams | 是 | 回调函数集合 |
+
+> IDeregister 说明
+
+| 字段 | 类型 | 是否必填 | 备注 |
+| --- | --- | --- | --- |
+| idcard | string | 否 | 身份证号码，已实名用户必传，未实名用户可不传 |
+| realname | string | 否 | 真实姓名，已实名用户必传，未实名用户可不传 |
+| cpdata | string | 否 | CP 自定义数据，建议传 game_user_id=用户的游戏 id ，不传在望舒后台不会账号注销页面不显示游戏侧的用户 id |
+
+> IMethodParams 说明
+
+| 字段 | 备注 |
+| --- | --- |
+| complete | (data) => void |
+
+complete ：为函数且必传， data 为结果数据
+
+#### 调用示例
+
+```javascript
+sdk.deregister(
+ {
+ idcard: "220123198905030033",
+ realname: "真名",
+ cpdata: "abc",
+ },
+ {
+ complete: (data) => {
+ console.log(data);
+ },
+ }
+);
+```
+
+#### 响应结构
+
+```json
+{
+ "code": 0
+}
+```
+
+### 撤销注销申请
+
+#### 参数说明
+
+| 字段 | 类型 | 是否必填 | 备注 |
+| --- | --- | --- | --- |
+| callback | IMethodParams | 是 | 回调函数集合 |
+
+> IMethodParams 说明
+
+| 字段 | 备注 |
+| --- | --- |
+| complete | (data) => void |
+
+complete ：为函数且必传， data 为结果数据
+
+#### 调用示例
+
+```javascript
+sdk.deregisterCancel({
+ complete: (data) => {
+ console.log(data);
+ },
+});
+```
+
+#### 响应结构
+
+```json
+{
+ "code": 0
+}
+```
+
+### 获取验证码
+
+优先根据指定 email 或 phone 发送验证码；否则根据当前登录的手机或者邮箱账号发送验证码。
+
+#### 参数说明
+
+| 字段 | 类型 | 是否必填 | 备注 |
+| --- | --- | --- | --- |
+| params | ISendCaptcha | 是 | 参数 |
+| callback | IMethodParams | 是 | 回调函数集合 |
+
+> ISendCaptcha 说明
+
+| 字段 | 类型 | 是否必填 | 备注 |
+| --- | --- | --- | --- |
+| email | string | 否 | 接收验证码的邮箱地址 |
+| phone | string | 否 | 接收验证码的手机号 |
+| purpose | string | 是 | 验证码的用途 |
+
+> purpose 说明
+
+| 字段 | 备注 |
+| --- | --- |
+| register | 注册 |
+| bindphone | 绑定手机 |
+| unbindphone | 解绑手机 |
+| resetpwd | 重置密码 |
+| bindemail | 绑定邮箱 |
+| unbindemail | 解绑邮箱 |
+| login | 登录 |
+| setpwd | 设置密码 |
+
+> IMethodParams 说明
+
+| 字段 | 备注 |
+| --- | --- |
+| complete | (data) => void |
+
+complete ：为函数且必传， data 为结果数据
+
+#### 调用示例
+
+```javascript
+sdk.sendCaptcha(
+ {
+ phone: "18626656376",
+ purpose: "bindphone",
+ },
+ {
+ complete: (data) => {
+ console.log(data);
+ },
+ }
+);
+```
+
+#### 响应结构
+
+```json
+{
+ "code": 0,
+ "data": {
+ "interval": 60,
+ "surplus": 60
+ }
+}
+```
+
+### 绑定邮箱
+
+#### 参数说明
+
+| 字段 | 类型 | 是否必填 | 备注 |
+| --- | --- | --- | --- |
+| params | IBindEmail | 是 | 参数 |
+| callback | IMethodParams | 是 | 回调函数集合 |
+
+> IBindEmail 说明
+
+| 字段 | 类型 | 是否必填 | 备注 |
+| --- | --- | --- | --- |
+| email | string | 是 | 邮箱地址 |
+| password | string | 是 | 密码 |
+| captcha_code | string | 是 | 发送到 email 邮箱地址的，用于绑定邮箱的验证码 |
+
+> IMethodParams 说明
+
+| 字段 | 备注 |
+| --- | --- |
+| complete | (data) => void |
+
+complete ：为函数且必传， data 为结果数据
+
+#### 调用示例
+
+```javascript
+sdk.bindEmail(
+ {
+ email: "abc@qq.com",
+ captcha_code: "123456",
+ password: "123456",
+ },
+ {
+ complete: (data) => {
+ console.log(data);
+ },
+ }
+);
+```
+
+#### 响应结构
+
+```json
+{
+ "code": 0
+}
+```
+
+### 绑定手机号
+
+#### 参数说明
+
+| 字段 | 类型 | 是否必填 | 备注 |
+| --- | --- | --- | --- |
+| params | IBindPhone | 是 | 参数 |
+| callback | IMethodParams | 是 | 回调函数集合 |
+
+> IBindPhone 说明
+
+| 字段 | 类型 | 是否必填 | 备注 |
+| --- | --- | --- | --- |
+| phone | string | 是 | 手机号 |
+| password | string | 是 | 密码 |
+| captcha_code | string | 是 | 验证码 |
+
+> IMethodParams 说明
+
+| 字段 | 备注 |
+| --- | --- |
+| complete | (data) => void |
+
+complete ：为函数且必传， data 为结果数据
+
+#### 调用示例
+
+```javascript
+sdk.bindPhone(
+ {
+ phone: "18888888888",
+ captcha_code: "123456",
+ password: "123456",
+ },
+ {
+ complete: (data) => {
+ console.log(data);
+ },
+ }
+);
+```
+
+#### 响应结构
+
+```json
+{
+ "code": 0
+}
+```
+
+### 获取用户信息
+
+#### 参数说明
+
+| 字段 | 类型 | 是否必填 | 备注 |
+| --- | --- | --- | --- |
+| callback | IMethodParams | 是 | 回调函数集合 |
+
+> IMethodParams 说明
+
+| 字段 | 备注 |
+| --- | --- |
+| complete | (data) => void |
+
+complete ：为函数且必传， data 为结果数据
+
+#### 调用示例
+
+```javascript
+sdk.getInfo({
+ complete: (data) => {
+ console.log(data);
+ },
+});
+```
+
+#### 响应结构
+
+| 字段 | 类型 | 说明 |
+| --- | --- | --- |
+| age | Number | 用户年龄，根据实名信息获取。 |
+| sex | Number | 性别。0 表示女性， 1 表示男性。 |
+| user_state | Number | 用户状态定义, 0 为正常用户。为正数时，使用各位编码用户的不同状态（以下表述中，第 0 位表示最低位）:第 0 位: 为 1 表示玩家已提交注销申请第 1 位: 为 1 表示已注销。可以是客服同意玩家的注销申请，也可以是客服直接在后台操作将账号注销。第 2 位: 为 1 表示已封停。 |
+| attr | Number | 账号状态标记，使用位运算构成。参考下文 [attr 标记说明](/docs/开发者文档/登录-通行证/服务端接入/服务端-API) |
+| openid | String | 望舒用户 OpenID。 |
+| external_openid | String | 三方 openid |
+| external_unionid | String | 三方 unionid |
+| wx_unionid | String | [DEPRECATED] 三方 unionid |
+| mobile_phone | String | 手机号 |
+| nickname | String | 昵称 |
+| avatarurl | String | 头像 |
+| idCard | String | 身份证号 |
+| realName | String | 姓名 |
+
+##### attr标记
+
+attr 标记，由以下标记位构成
+
+| 标识 | 备注 |
+| --- | --- |
+| 0 | 是否已通过望舒完成实名认证， 1 表示已实名。 |
+| 1 | 用户当前是否有绑定手机号， 1 表示有绑定。 |
+| 2 | 用户当前是否有绑定邮箱， 1 表示有绑定。 |
+| 3 | 用户当前是否有已设置密码的登录凭证， 1 表示有。 |
+| 4 | 用户是否通过望舒完成实名认证， 1 表示是。 |
+
+#### 响应结构
+
+```json
+{
+ "code": 0,
+ "data": {
+ "avatarurl": "",
+ "mobile_phone": "159****7520",
+ "nickname": "rssllyn",
+ "openid": "rxuWFnlHRbTZ5ED5TkwAG5XVQ==",
+ "sex": 0,
+ "user_state": 0,
+ "attr": 0
+ }
+}
+```
+
+### 修改用户信息
+
+#### 参数说明
+
+| 字段 | 类型 | 是否必填 | 备注 |
+| --- | --- | --- | --- |
+| params | IUpdateUserInfo | 是 | 参数 |
+| callback | IMethodParams | 是 | 回调函数集合 |
+
+> IUpdateUserInfo 说明
+
+| 字段 | 类型 | 是否必填 | 备注 |
+| --- | --- | --- | --- |
+| nickname | string | 是 | 昵称 |
+| avatarurl | string | 是 | 头像地址 |
+| region | string | 是 | 用户所在地区编码 |
+| sex | string | 是 | 性别， 0 表示女性， 1 表示男性 |
+
+> IMethodParams 说明
+
+| 字段 | 备注 |
+| --- | --- |
+| complete | (data) => void |
+
+complete ：为函数且必传， data 为结果数据
+
+#### 调用示例
+
+```javascript
+sdk.updateInfo(
+ {
+ nickname: "我的狼",
+ avatarurl: "xxx",
+ region: "xxx",
+ sex: 0,
+ },
+ {
+ complete: (data) => {
+ console.log(data);
+ },
+ }
+);
+```
+
+#### 响应结构
+
+```json
+{
+ "code": 0
+}
+```

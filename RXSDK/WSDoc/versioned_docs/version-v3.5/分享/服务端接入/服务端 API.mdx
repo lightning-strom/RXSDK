@@ -1,0 +1,1093 @@
+---
+title: "服务端 API"
+---
+
+## 获取通路配置
+
+> **GET: **  `/v1/operationapi/share/platforms`
+> **认证方式：** 无
+
+  
+
+### CURL 示例
+
+```bash
+curl --location --request GET '{{接口域名}}/v1/operationapi/share/platforms' 
+```
+
+**响应示例**
+
+```json
+{
+    "data": {               // 值为-1时表示不限制，值使用 | 运算 为将来扩展做准备
+        "wechat": {         // 微信配置
+        "lure": -1,         // 诱导类
+        "achievement": 1,   // 成就类
+        "special": 2        // 特殊类
+        }
+    },
+     "code": 0
+}
+```
+
+  
+
+### 响应结构（JSON）
+
+| **字段** | **类型**                                                                                                     | **说明**                                                                                                                                     |
+| -------- | ------------------------------------------------------------------------------------------------------------ | -------------------------------------------------------------------------------------------------------------------------------------------- |
+| code     | Number                                                                                                       | 状态码 0 为成功                                                                                                                              |
+| msg      | String                                                                                                       | 失败时的错误信息                                                                                                                             |
+| data     | Map[String][Data](/docs/v3.5/分享/服务端接入/服务端 API) | 返回信息, key 为平台名， 例如 wechat 值参考 [API](/docs/v3.5/分享/服务端接入/服务端 API) |
+
+##### 通路配置Data
+
+| **字段**    | **类型** | **说明**                                                                                                         |
+| ----------- | -------- | ---------------------------------------------------------------------------------------------------------------- |
+| lure        | Number   | 诱导类 值参考 [API](/docs/v3.5/分享/服务端接入/服务端 API)   |
+| achievement | Number   | 成就类 值参考 [API](/docs/v3.5/分享/服务端接入/服务端 API)   |
+| special     | Number   | 返回信息 值参考 [API](/docs/v3.5/分享/服务端接入/服务端 API) |
+
+  
+
+## 获取分享数据
+
+> **POST: **  `/v1/operationapi/share/data`
+> **认证方式：** 无
+
+### CURL 示例
+
+```bash
+curl --location --request POST '{{接口域名}}/v1/operationapi/share/data' \
+--data-raw '{    
+    "product_id": "26", 
+    "channel_id": "20", 
+    "func": "eiusmod commodo occaecat in in", 
+    "platform": "aliqua", 
+    "type": "dolore elit est", 
+    "open_id": "84", 
+    "sub_channel_id": "22", 
+    "region": "aliqua Lorem eiusmod culpa in", 
+    "transmits": "elit quis laboris dolore proident"
+}'
+```
+
+  
+
+**请求示例**
+
+```json
+{
+    "product_id" : "1",
+    "channel_id" : "1",
+    "open_id": "84", 
+    "sub_channel_id": "2",
+    "region" : "210201",
+    "func" : "youdao",
+    "platform" : "wechat",
+    "type" : "app",
+    "transmits" : "a=2&b=3"
+}
+```
+
+  
+
+### 请求参数（JSON）
+
+| **参数**       | **类型** | **是否必填** | **备注**                                                 |
+| -------------- | -------- | ------------ |--------------------------------------------------------|
+| product_id     | String   | 是           | 产品ID                                                   |
+| channel_id     | String   | 是           | 渠道ID                                                   |
+| sub_channel_id | String   | 否           | 子渠道ID，通行证下发,没有传空字符串或者不传                                |
+| region         | String   | 否           | 地区码，没有则不传，会取全国地区的数据。 [望舒地区码列表](https://pan.jiaxianghudong.com/s/pdEzbPRkDS9)                                    |
+| func           | String   | 是           | 埋点标记                                                   |
+| platform       | String   | 是           | 平台 微信（wechat）、脸书（facebook）、QQ(qq) 抖音(douyin)  参考望舒后台通路 |
+| type           | String   | 是           | 客户端类型 app（应用App） mini(小游戏)                             | mini（小游戏）                                     |
+| transmits      | String   | 否           | 透传参数，原样返回， 请使用key=value形式，并对值使用urlencode，返回时会原样返回， 当key为use_url_param=true时， 将不使用短链接返回，而是将所有参数拼接到url中      |
+| open_id        | String   | 是           | 用户的OpenID                                              |
+
+  
+
+**响应示例**
+
+```json
+{
+    "data": {
+        "trigger": {    // 埋点数据
+            "id": 2,    // 埋点ID
+            "tag" : "youdao", // 埋点标识
+            "title": "诱导类埋点", // 埋点标题
+            "failed_msg": "诱导类失败", // 错误提示
+            "type": 1 // 埋点类型 1 诱导类 3成就类  5特殊分享埋点类
+        },
+        "strategy": { // 策略数据
+            "id": 16,    // 策略 ID
+            "platform": "wechat",    // 平台
+            "share_type": 1,    // 分享类型   1:app分享; 2:小游戏分享
+            "type": 2,    //  策略类型：1 诱导类 3成就类  5特殊分享埋点类
+            "name": "拼图活动的分享任务策略",  // 名称
+            "region": "-1", // 地区码
+            "channel_id": "-1", // 渠道 id
+            "status": 1
+        },
+        "content": { // 分享素材数据
+            "title": "诱导类链接标题", // 标题
+            "url": "https://domain-open.com/youdao?identity=9sz2oNCnR", // 链接
+            "material_type": "link", // 素材类型
+            "material_id": 1, // 素材ID
+            "landing_id": 1, // 落地页ID
+            "image": "https://rxfile.weilekuiming.com/operation_app/operation/20220601012849_weileshare.png", // 图片地址
+            "content": "诱导类链接文案", // 素材内容
+            "x": 0, // 图片类型时 二维码x轴坐标
+            "y": 0, // 图片类型时 二维码y轴坐标
+            "width": 0, // 图片类型时 二维码宽度
+            "height": 0, // 图片类型时 二维码高度
+            "meta_source": 0 // 1 手动维护 2 读取落地页信息
+        },
+        "platforms": { // 平台信息，代表某个平台可用的分享方式 -1代表不限制 用于CP方不接sdk的情况。sdk方式通过分享通路配置获取此项配置。
+            "wechat": -1 // 微信， 1:好友 2:朋友圈 -1:不限制
+        },
+        "platform": "wechat", // 当前分享的平台，即客户端传啥 给返回啥
+        "example_platforms": { // 正式时不返回，此项用于验证平台信息是否正确
+            "wechat": {
+                "lure": -1, // 诱导类
+                "achievement": 1, // 成就类
+                "special": 2 // 特殊类
+            }
+        },
+        "identity": "wx", // 平台标识，如果是微信时返回的为微信ID
+        "transmits": "a=2&b=3"
+    },
+    "code": 0
+}
+```
+
+  
+
+### 响应结构（JSON）
+
+| **字段** | **类型**                                                                                          | **说明**         |
+| -------- | ------------------------------------------------------------------------------------------------- | ---------------- |
+| code     | Number                                                                                            | 状态码 0 为成功  |
+| msg      | String                                                                                            | 失败时的错误信息 |
+| data     | [Data](/docs/v3.5/分享/服务端接入/服务端 API)   | 返回信息         |
+
+##### 获取分享数据Data
+
+| **字段**  | **类型**                                                                                              | **说明**                                                                                                         |
+| --------- | ----------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------- |
+| trigger   | [Trigger](/docs/v3.5/分享/服务端接入/服务端 API)  | 埋点数据                                                                                                         |
+| strategy  | [Strategy](/docs/v3.5/分享/服务端接入/服务端 API) | 策略数据                                                                                                         |
+| content   | [Content](/docs/v3.5/分享/服务端接入/服务端 API)  | 返回信息                                                                                                         |
+| platforms | Platforms                                                                                             | 平台信息 值参考 [API](/docs/v3.5/分享/服务端接入/服务端 API) |
+| platform  | String                                                                                                | 当前分享平台                                                                                                     |
+| identity  | Stirng                                                                                                | 平台标识                                                                                                         |
+| transmits | String                                                                                                | 透传信息                                                                                                         |
+| scheduling | [Scheduling](/docs/v3.5/分享/服务端接入/服务端 API)                                                            | 分享调度配置埋点时返回                                                                                        |
+
+##### 获取分享数据Trigger
+
+| **字段**   | **类型** | **说明**                              |
+| ---------- | -------- | ------------------------------------- |
+| id         | Number   | 埋点id                                |
+| tag        | String   | 埋点标识                              |
+| title      | String   | 埋点标题                              |
+| failed_msg | String   | 错误提示                              |
+| type       | Number   | 类型 1:诱导 2:活动 3:成就 4:好友房 5:特殊分享埋点 |
+| status       | Number   | 状态 1, 正常; -1, 禁用 |
+| time_interval       | Number   | 触发间隔时间 |
+
+##### 分享策略内容StrategyContent
+| **字段**   | **类型** | **说明**                        |
+| ---------- |--------|-------------------------------|
+| id         | Number | 埋点id                          |
+| strategy_id        | Number | 策略ID                          |
+| content_type      | Number | 分享内容类型. 1:图片; 2:链接; 3:卡片; 4:落地页; 5:口令; 6:视频 |
+| content_id | Number | 内容ID                          |
+| weight       | Number | 权重            |
+| title       | String | 标题                   |
+| region       | String | 按地区配置的策略，如果存在，优先获取   |
+
+##### 获取分享数据Strategy
+
+| **字段**     | **类型**                                         | **是否必须** | **说明**                                           |
+|------------|------------------------------------------------|---|--------------------------------------------------|
+| id         | Number                                         | 是 | 策略id                                             |
+| platform   | String                                         | 是 | 平台标识                                             |
+| share_type | Number                                         | 是 | 分享类型 1 app 2小游戏                                  |
+| type       | Number                                         | 是 | 1:诱导 2:活动 3:成就 4:好友房 5:特殊分享埋点                    |
+| name       | String                                         | 是 | 策略名称                                             |
+| region     | Number                                         | 是 | 地区码 -1 不限                                        |
+| product_id | String                                         | 否 | 产品                                               |
+| channel_id | String                                         | 否 | 渠道id                                             |
+| is_general | Number                                         | 否 | 是否为通用。  0为否 1为是 策略为成就的才允许通用  小程序/App、每个类型下边只能有一个 |
+| triggers | Array [*Trigger](/docs/v3.5/分享/服务端接入/服务端 API)     | 否 | 策略关联的埋点ID列表                                       |
+| contents | Array [*StrategyContent](/docs/v3.5/分享/服务端接入/服务端 API)   | 否 | 策略关联的内容                                       |
+| status | Number                                         | 否 | 状态 1:正常 -1:禁用   |
+
+  
+
+##### 获取分享数据Content
+
+**分享内容素材类型 Content.material_type**
+
+| **标识**  | **备注**              |
+|---------|---------------------|
+| link    | [链接](/docs/v3.5/分享/服务端接入/服务端 API)     |
+| image   | [图片](/docs/v3.5/分享/服务端接入/服务端 API)    |
+| landing | [落地页](/docs/v3.5/分享/服务端接入/服务端 API) |
+| card    | [卡片](/docs/v3.5/分享/服务端接入/服务端 API)     |
+| words   | [口令](/docs/v3.5/分享/服务端接入/服务端 API)    |
+| video   | [视频](/docs/v3.5/分享/服务端接入/服务端 API)    |
+| poster| [海报](/docs/v3.5/分享/服务端接入/服务端 API)    |
+  
+
+##### 素材内容Link
+
+| **字段**      | **类型** | **备注**                                          |
+| ------------- | -------- | ------------------------------------------------- |
+| title         | String   | 标题                                              |
+| material_type | String   | 素材类型，主要用于大数据上报                      |
+| material_id   | Number   | 素材ID，主要用于大数据上报                        |
+| image         | String   | 展示图片地址                                      |
+| content       | string   | 展示内容                                          |
+| url           | String   | 链接地址                                          |
+| landing_id    | Number   | 落地页ID，主要用于大数据上报                      |
+| meta_source   | Number   | 1 使用望舒后台配置 2 落地页需为动态页，客户端传参 |
+
+---
+
+> 示例：
+
+![](https://guanwangyun.oss-cn-beijing.aliyuncs.com/document/introduction/28a60aaa-bd14-4fc1-9e7c-847c16044029%201.png)
+
+---
+
+  
+
+##### 素材内容Image
+
+| **字段**      | **类型** | **备注**                                    |
+| ------------- | -------- | ------------------------------------------- |
+| title         | String   | 标题                                        |
+| material_type | String   | 素材类型，主要用于大数据上报                |
+| material_id   | Number   | 素材ID，主要用于大数据上报                  |
+| image         | String   | 图片地址                                    |
+| x             | Number   | 图片上二维码x轴坐标，为0时不显示            |
+| y             | Number   | 图片上二维码y轴坐标，为0时不显示            |
+| width         | Number   | 图片上二维码宽度，为0时不显示               |
+| height        | Number   | 图片上二维码高度，为0时不显示               |
+| url           | String   | 链接地址，需要sdk根据二维码参数合成到图片上 |
+| landing_id    | Number   | 落地页ID，主要用于大数据上报                |
+
+> 示例：此种形式用于图片分享并增加二维码的场景，其中图片由后台控制。
+
+![](https://guanwangyun.oss-cn-beijing.aliyuncs.com/document/introduction/3ac1523e-9ed1-4ad2-a4fd-a228fc96688a%201.png)
+
+---
+
+##### 素材内容Landing
+
+| **字段**      | **类型** | **备注**                     |
+| ------------- | -------- | ---------------------------- |
+| title         | String   | 标题                         |
+| material_type | String   | 素材类型，主要用于大数据上报 |
+| material_id   | Number   | 素材ID，主要用于大数据上报   |
+| url           | String   | 落地页地址                   |
+| landing_id    | Number   | 落地页ID，主要用于大数据上报 |
+
+> 示例：此种形式用于图片分享并增加二维码的场景，与图片的差别在于其中图片由客户端自己生成，二维码相关参数也由客户端自己写死。返回数据中有用的数据只有url，其他信息为上报使用。
+
+---
+
+##### 素材内容Card
+
+| **字段**      | **类型** | **备注**                     |
+| ------------- | -------- | ---------------------------- |
+| title         | String   | 标题                         |
+| material_type | String   | 素材类型，主要用于大数据上报 |
+| material_id   | Number   | 素材ID，主要用于大数据上报   |
+| image         | String   | 卡片的缩略图地址             |
+| content       | String   | 卡片上显示的内容             |
+
+> 示例： 此种素材主要应用于小程序分享。
+
+![](https://guanwangyun.oss-cn-beijing.aliyuncs.com/document/introduction/b3166acd-766c-45a8-91d3-ab6799f55a36%201%20(2).png?x-oss-process=image/resize,w_200,h_220)
+
+---
+
+##### 素材内容words
+
+| **字段**      | **类型** | **备注**                  |
+| ------------- | -------- | ------------------------- |
+| title         | String   | 标题                      |
+| material_type | String   | 素材类型，主要用于大数据上报 |
+| material_id   | Number   | 素材ID，主要用于大数据上报   |
+| content       | String   | 显示的内容             |
+| share_id       | String   | 抖音口令分享ID             |
+
+---
+
+##### 素材内容video
+
+| **字段**      | **类型**   | **备注**      |
+| ------------- |----------| ------------- |
+| title         | String   | 标题          |
+| material_type | String   | 素材类型，主要用于大数据上报 |
+| material_id   | Number   | 素材ID，主要用于大数据上报 |
+| video_contents | []String |  抖音视频分享话题内容 |
+
+##### 素材内容poster
+
+| **字段**      | **类型** | **备注**                                    |
+| ------------- | -------- | ------------------------------------------- |
+| title         | String   | 标题                                        |
+| material_type | String   | 素材类型，主要用于大数据上报                |
+| material_id   | Number   | 素材ID，主要用于大数据上报                  |
+| image         | String   | 图片地址                                    |
+| x             | Number   | 图片上二维码x轴坐标，为0时不显示            |
+| y             | Number   | 图片上二维码y轴坐标，为0时不显示            |
+| width         | Number   | 图片上二维码宽度，为0时不显示               |
+| height        | Number   | 图片上二维码高度，为0时不显示               |
+| image| String   | 图片链接地址 |
+| qrcode| String| 二维码地址，需要sdk根据二维码参数合成到图片              |
+
+> 示例：此种形式用于海报图片分享并增加二维码的场景，其中图片由后台配置，二维码由参数控制。
+
+### 分享调度
+
+当埋点配置了分享调度后，诱导类分享会根据分享调度策略决定用户是分享还是广告， 分享成功或者失败， 返回值中会增加 scheduling 对象，值如下：
+
+##### 获取分享调度Scheduling
+
+| **字段**   | **类型** | **说明**                              |
+| ---------- | -------- | ------------------------------------- |
+| scheduling_type         | String   | 值为 ad 时为广告， share 时为分享。                                |
+| scheduling_sign        | String   | 调度策略当前可分享看广告总数密文, 需用aes解密，使用cpkey作为key。
+解出值转为字符串， 格式: "type=share&count=10&uuid=xxx&ts=1695796034&ddid=a" [详情](/docs/v3.5/分享/服务端接入/服务端 API)                             |
+| scheduling_event | Number                                                        | 1 分享成功  -1 分享失败          |
+| scheduling_failed_msg | String   | 分享失败时的信息          |
+
+##### scheduling_sign对应标识
+
+| **字段**   | **类型** | **说明**                              |
+| ---------- | -------- | ------------------------------------- |
+| type         | String   | 值为 ad 时为广告， share 时为分享。                                |
+| count        | Number   | 调度策略当前可分享看广告总数       |
+| uuid | String                                                        | 唯一标识          |
+| ts | Number   | 时间戳          |
+| ddid | String   | 调度标识         |
+
+#### 响应策略为分享时
+```json
+{
+    "data": {
+        "trigger": {// 埋点数据
+            ...
+        },
+        "strategy": { // 策略数据
+            ...
+        },
+        "content": { // 分享素材数据
+            ...
+        },
+        "platforms": { // 平台信息，代表某个平台可用的分享方式 -1代表不限制 用于CP方不接sdk的情况。sdk方式通过分享通路配置获取此项配置。
+            "wechat": -1 // 微信， 1:好友 2:朋友圈 -1:不限制
+        },
+        "platform": "wechat", // 当前分享的平台，即客户端传啥 给返回啥
+        "example_platforms": { // 正式时不返回，此项用于验证平台信息是否正确
+            ...
+        },
+        "identity": "wx", // 平台标识，如果是微信时返回的为微信ID
+        "transmits": "a=2&b=3",
+        "scheduling": {
+            "scheduling_type": "share",
+            "scheduling_sign": "xx",
+            "scheduling_event": -1,
+            "scheduling_failed_msg": "诱导类失败", // 错误提示
+        }
+    },
+    "code": 0
+}
+```
+
+#### 响应策略为广告时
+
+只返回埋点和透传信息
+
+```json
+{
+    "data": {
+        "trigger": {        // 埋点数据
+            ...
+        },
+        "transmits": "a=2&b=3",
+        "scheduling": {
+            "scheduling_type": "ad",
+            "scheduling_sign": "xx"
+        }
+    },
+    "code": 0
+}
+```
+
+  
+
+#### 分享调度失败原因参考下表
+| **错误码**               | **错误描述** | **解决方法** |
+| ---------------------- | -------- | ------------ |
+| 305405    | 操作频繁，请稍后再试   | 该用户触发了 基础配置=>分享管理=>埋点配置的触发时间间隔           |
+| 305406 | 今日分享次数已达上限   | 该用户触发了 商业化基础配置=>分享广告配置=>分享广告次数配置=>次数限制           |
+| 305407                | 今日循环调度次数已达上限   | 该用触发了 商业化基础配置=>分享广告配置=>分享广告调度策略=>循环次数限制           |
+| 305408                | 分享调度策略未命中   | 商业化基础配置=>分享广告配置=>分享广告调度策略中的调度策略没有覆盖用户的条件           |
+| 305409                | app有效用户界定不存在   | 缺少配置信息： 商业化基础配置=>分享广告配置=>分享广告次数配置=>游戏&无效用界定=>APP           |
+| 305410                | 小游戏有效用户界定不存在   | 缺少配置信息： 商业化基础配置=>分享广告配置=>分享广告次数配置=>游戏&无效用界定=>小游戏           |
+| 305411    | 分享失败提示语不存在   | 缺少配置信息： 商业化基础配置=>分享广告配置=>分享广告次数配置=>分享失败概率&提示           |
+| 305412    | 分享次数限制不存在   | 缺少配置信息： 商业化基础配置=>分享广告配置=>分享广告次数配置=>次数限制           |
+| 305413    | 分享调度策略不存在   | 商业化基础配置=>分享广告配置=>分享广告调度策略中没有用户的埋点或用户类型未配置           |
+| 305414    | 分享调度策略虽然命中但配置无效   | 商业化基础配置=>分享广告配置=>分享广告调度策略中未配置循环策略           |
+
+## 调度初始化
+
+> **POST: **  `/v1/operationapi/scheduling/init`
+> **认证方式：** 无
+
+::: warning
+需要获取用户表示，必须在登录后再调用该接口。
+适用场景：在获取调度内容之前，先批量获取埋点的调度策略所命中的是分享还是广告
+:::
+  
+
+### CURL 示例
+
+```bash
+curl --location --request POST '{{接口域名}}/v1/operationapi/scheduling/init' \
+--data-raw '{
+    "func": ["share"],
+    "type": "app",
+    "open_id": "123"
+}'
+```
+
+  
+
+**请求示例**
+
+```json
+{
+    "func" : ["share"],
+    "type" : "app",
+    "open_id": "123"
+}
+```
+
+  
+
+### 请求参数（JSON）
+
+| **参数**               | **类型** | **是否必填** | **备注**                                  |
+| ---------------------- | -------- | ------------ | ----------------------------------------- |
+| func    | Array   | 否           | 需要获取的埋点标识，不传返回全部                           |
+| type | String   | 是           | 类型 app、mini |
+| open_id                | String   | 是           | 望舒openid                              |
+
+**响应示例**：
+
+```json
+{
+    "code": 0,
+    "msg":"",
+    "data": "func1": {
+        "scheduling_sign": "xx",
+        "scheduling_type": "ad",
+        "user_type": 1, // 1有效用户 2无效用户
+    }
+}
+```
+
+### 响应参数（JSON）
+::: warning
+未命中策略的埋点不返回
+:::
+
+| **参数**               | **类型** | **是否必填** | **备注**                                  |
+| ---------------------- | -------- | ------------ | ----------------------------------------- |
+| scheduling_sign    | String   | 是           | 调度分享看广告总次数                           |
+| scheduling_type | String   | 是           | 分享 share 广告 ad |  
+| user_type | Number   | 是           | 用户状态 1有效用户 2无效用户 |  
+
+## 调度结果上报
+
+> **POST: **  `/v1/operationapi/scheduling_report`
+> **认证方式：** 无
+
+::: warning
+适用场景：望舒系统可以控制用户看广告 -> 分享 -> 看广告行为，该接口由 CP 端上报用户看完广告行为。
+注意：使用分享调度必须上报结果并下发策略分配的下一次内容
+:::
+  
+
+### CURL 示例
+
+```bash
+curl --location --request POST '{{接口域名}}/v1/operationapi/scheduling_report' \
+--data-raw '{
+    "func": "func",
+    "platform": "wechat",
+    "type": "app",
+    "open_id": "123",
+    "region": "220000",
+    "sub_channel_id": "",
+    "transmits": "",
+    "scheduling_type": "share",
+    "scheduling_event": "done",
+    "properties": {
+        "trigger_tag": "",
+        "trigger_id": 0,
+        "trigger_type": "",
+        "material_type": 0,
+        "material_id": 0,
+        "landing_id": 0,
+        "strategy_id": 0,
+        "strategy_type": 0,
+        "region": "",
+        "platform": ""
+    }
+}'
+```
+
+  
+
+**请求示例**
+
+```json
+{
+    "func": "func",
+    "platform": "wechat",
+    "type": "app",
+    "open_id": "123",
+    "region": "220000",
+    "sub_channel_id": "",
+    "transmits": "",
+    "scheduling_type" : "share",
+    "scheduling_event": "xxxxxxx",
+     "properties": {
+        "trigger_tag": "",
+        "trigger_id": 0,
+        "trigger_type": "",
+        "material_type": 0,
+        "material_id": 0,
+        "landing_id": 0,
+        "strategy_id": 0,
+        "strategy_type": 0,
+        "region": "",
+        "platform": ""
+    }
+}
+```
+
+  
+
+### 请求参数（JSON）
+
+| **参数**               | **类型** | **是否必填** | **备注**                                  |
+| ---------------------- | -------- | ------------ | ----------------------------------------- |
+| product_id     | String   | 是           | 产品ID                                                                          |
+| channel_id     | String   | 是           | 渠道ID                                                                          |
+| sub_channel_id | String   | 否           | 子渠道ID，通行证下发,没有传空字符串或者不传                                     |
+| region         | String   | 否           | 地区码，没有则不传，会取全国地区的数据。 [望舒地区码列表](https://pan.jiaxianghudong.com/s/pdEzbPRkDS9)                                         |
+| func           | String   | 是           | 埋点标记                                                                        |
+| platform       | String   | 是           | 平台 微信（wechat）、脸书（facebook）、QQ(qq)  参考望舒后台通路                         |
+| type           | String   | 是           | 客户端类型 app（应用App）| mini（小游戏）                                     |
+| transmits      | String   | 否           | 透传参数，原样返回， 请使用key=value形式，并对值使用urlencode，返回时会原样返回， 当key为use_url_param=true时， 将不使用短链接返回，而是将所有参数拼接到url中   |
+| open_id        | String   | 是           | 用户的OpenID                                                                    |
+| scheduling_type    | String   | 是           | 分享 share， 广告 ad                           |
+| scheduling_event                | String   | 是           | 成功 done， 失败 fail                              |
+| properties    | [Properties](/docs/v3.5/分享/服务端接入/服务端 API)   | 是           | 上报大数据#share埋点信息                           |
+
+##### 上报大数据properties
+
+| **参数**               | **类型** | **是否必填** | **备注**                                  |
+| ---------------------- | -------- | ------------ | ----------------------------------------- |
+| trigger_id     | Number   | 是           | 埋点ID                              |
+| trigger_tag     | String   | 是           | 埋点标记                              |
+| trigger_type     | Number   | 是           | 埋点类型 1诱导 3 成就 5 特殊类                              |
+| material_type     | String   | 是           | 素材类型  link链接 image图片 card卡片                              |
+| material_id     | Number   | 是           | 素材ID                              |
+| landing_id     | Number   | 是           | 落地页ID                              |
+| strategy_id     | Number   | 是           | 策略ID                              |
+| strategy_type     | Number   | 是           | 策略类型 1诱导 3成就 5 特殊类                              |
+| region     | String   | 是           | 地区码  。 [望舒地区码列表](https://pan.jiaxianghudong.com/s/pdEzbPRkDS9)                            |
+| platform     | String   | 是           | 平台 ID 1:安卓, 2：ios, 3:H5, 4:微信小程序                 |
+| ...     | Any   | 否           | 其他自定义字段                 |
+
+响应结果同『获取分享数据』
+使用方法： 首次调用获取分享数据接口， 分享后， cp主动调用此接口上报分享成功或者失败并获取下一次的分享数据
+
+**响应示例**：
+
+```json
+{
+    "data": {
+        "trigger": {    // 埋点数据
+            "id": 2,    // 埋点ID
+            "tag" : "youdao", // 埋点标识
+            "title": "诱导类埋点", // 埋点标题
+            "failed_msg": "诱导类失败", // 错误提示
+            "type": 1 // 埋点类型 1 诱导类 3成就类  5特殊分享埋点类
+        },
+        "strategy": { // 策略数据
+            "id": 16,    // 策略 ID
+            "platform": "wechat",    // 平台
+            "share_type": 1,    // 分享类型   1:app分享; 2:小游戏分享
+            "type": 2,    //  策略类型：1 诱导类 3成就类  5特殊分享埋点类
+            "name": "拼图活动的分享任务策略",  // 名称
+            "region": "-1", // 地区码
+            "channel_id": "-1", // 渠道 id
+            "status": 1
+        },
+        "content": { // 分享素材数据
+            "title": "诱导类链接标题", // 标题
+            "url": "https://domain-open.com/youdao?identity=9sz2oNCnR", // 链接
+            "material_type": "link", // 素材类型
+            "material_id": 1, // 素材ID
+            "landing_id": 1, // 落地页ID
+            "image": "https://rxfile.weilekuiming.com/operation_app/operation/20220601012849_weileshare.png", // 图片地址
+            "content": "诱导类链接文案", // 素材内容
+            "x": 0, // 图片类型时 二维码x轴坐标
+            "y": 0, // 图片类型时 二维码y轴坐标
+            "width": 0, // 图片类型时 二维码宽度
+            "height": 0, // 图片类型时 二维码高度
+            "meta_source": 0 // 1 手动维护 2 读取落地页信息
+        },
+        "platforms": { // 平台信息，代表某个平台可用的分享方式 -1代表不限制 用于CP方不接sdk的情况。sdk方式通过分享通路配置获取此项配置。
+            "wechat": -1 // 微信， 1:好友 2:朋友圈 -1:不限制
+        },
+        "platform": "wechat", // 当前分享的平台，即客户端传啥 给返回啥
+        "example_platforms": { // 正式时不返回，此项用于验证平台信息是否正确
+            "wechat": {
+                "lure": -1, // 诱导类
+                "achievement": 1, // 成就类
+                "special": 2 // 特殊类
+            }
+        },
+        "identity": "wx", // 平台标识，如果是微信时返回的为微信ID
+        "transmits": "a=2&b=3",
+        "scheduling": {
+            "scheduling_type": "ad",
+            "scheduling_sign": "xx",
+            "user_type": 1, // 1有效用户 2无效用户
+        }
+    },
+    "code": 0
+}
+```
+
+  
+
+## 短连接解析
+
+> **GET: **  `/v1/operationapi/url/parse`
+> **认证方式：** 无
+
+  
+
+### CURL 示例
+
+```bash
+curl --location --request GET '{{接口域名}}/v1/operationapi/url/parse?identity=xxx'
+```
+
+  
+
+### 请求参数
+
+| **参数** | **类型** | **是否必填** | **备注**   |
+| -------- | -------- | ------------ | ---------- |
+| identity | String   | 是           | 短连接标识 |
+
+::: warning
+注意，短连接默认有效时间为7天，当6天后有用户调用本接口解析短连接时，短连接有效期会重新计算
+:::
+
+> 短链接标识在哪取？
+
+取自[根据客户端传入参数获取分享数据](/docs/v3.5/分享/服务端接入/服务端 API) 返回数据中的content.url字段，具体如下图。
+
+![](https://guanwangyun.oss-cn-beijing.aliyuncs.com/share/serverAccess/c4c69abe-d3dd-4589-91ab-10f5b135666d.png?x-oss-process=image/resize,w_800)
+  
+
+**响应示例**
+
+```json
+{
+    "data": {
+        "action": "share",
+        "landing_id": "1",
+        "material_id": "1",
+        "a": "2",
+        "share_time": "1658999631",
+        "trigger_tag": "youdao",
+        "material_type": "link",
+        "strategy_id": "81",
+        "trigger_id": "2",
+        "cpid": "1000049",
+        "share_type": "app",
+        "strategy_type": "1",
+        "inviter_openid": "",
+        "trigger_type": "1",
+        "b": "3",
+        "channel_id": "100",
+        "platform": "wechat",
+        "delay_ts": "1658999631",
+        "c": "3",
+        "inviter_region": "220201",
+        "product_id": "1002"
+    },
+    "code": 0
+}
+```
+
+  
+
+### 响应结构（JSON）
+
+| **字段** | **类型**                                                                                          | **说明**         |
+| -------- | ------------------------------------------------------------------------------------------------- | ---------------- |
+| code     | Number                                                                  | 状态码 0 为成功  |
+| msg      | String                                                                                            | 失败时的错误信息 |
+| data     | [Data](/docs/v3.5/分享/服务端接入/服务端 API) | 返回信息         |
+
+##### 短链接解析Data
+
+| **字段**             | **类型** | **说明**                                               |
+| -------------------- | -------- | ------------------------------------------------------ |
+| share_type           | String   | 类型 app ｜ mini                                       |
+| product_id           | String   | 产品ID                                                 |
+| channel_id           | String   | 渠道ID                                                 |
+| inviter_region       | String   | 分享人地区码                                           |
+| trigger_id           | String   | 埋点ID                                                 |
+| trigger_type         | String   | 埋点类型 1:诱导 3:成就 5:特殊                          |
+| strategy_id          | String   | 策略ID                                                 |
+| strategy_type        | String   | 策略类型 1, 诱导; 3:成就; 5:特殊                       |
+| material_id          | String   | 素材ID                                                 |
+| material_type        | String   | 素材类型 link:链接 image:图片 landing:落地页 card:卡片 |
+| landing_id           | String   | 落地页ID                                               |
+| inviter_openid       | String   | 分享人openid（需接入通行证）                           |
+| ios_download_url     | String   | ios下载地址（需接入望舒）                              |
+| android_download_url | String   | 安卓下载地址（需接入望舒）                             |
+| hm_download_url | String   | 鸿蒙下载地址（需接入望舒）                             |
+| delay_ts             | String   | 延期时间戳，当本key有延期操作时才有此字段              |
+| 其他                 | String   | 其他参数为透传参数，具体意义联系项目组                 |
+
+  #### APP 下载/跳转地址来源
+返回的字段中  ios_download_url、android_download_url、hm_download_url 配置页面
+
+![image.png](https://haiqi-ruixue-test.oss-cn-beijing.aliyuncs.com/docOnline/image-1739430905413.png)
+
+## 自动重定向APP 下载/跳转地址
+
+> **GET: **  `/v1/jump/产品id/[渠道id]`
+> **认证方式：** [无]
+
+### 请求参数
+
+| **参数** | **类型** | **是否必填** | **备注**   |
+| -------- | -------- | ------------ | ---------- |
+| 产品id | String   | 是           | 路径上的产品id |
+| 渠道id | String   | 否           | 路径上的渠道id |
+
+### CURL 示例
+
+```bash
+curl --location --request GET '{{接口域名}}/v1/jump/1002/100'
+
+curl --location --request GET '{{接口域名}}/v1/jump/1002'
+```
+### 响应结构（JSON）
+
+| **字段** | **类型**                                                                                          | **说明**         |
+| -------- | ------------------------------------------------------------------------------------------------- | ---------------- |
+| code     | Number                                                                                            | 失败时的错误码， 成功时直接跳转  |
+| msg      | String                                                                                            | 失败时的错误信息 |
+
+  #### APP 下载/跳转地址来源
+
+![image.png](https://haiqi-ruixue-test.oss-cn-beijing.aliyuncs.com/docOnline/image-1739430905413.png)
+
+## 获取自动重定向短链接
+
+> **POST: **  `/v1/url/short`
+> **认证方式：** [AccessToken]
+
+  
+
+### CURL 示例
+
+```bash
+curl --location --request POST '{{接口域名}}/v1/url/short' \
+--data-raw '{
+    "url": "http://baidu.com"
+}'
+```
+
+### 请求参数
+
+| **参数** | **类型** | **是否必填** | **备注**   |
+| -------- | -------- | ------------ | ---------- |
+| url | String   | 是           | 要跳转的链接地址 |
+| title | String   | 否           | 填充海外meta值og:title |
+| content | String   | 否           | 填充海外meta值og:description |
+| image | String   | 否           | 填充海外meta值og:image |
+| ext | String   | 否           | 预留字段 |
+
+**响应示例**：
+
+```json
+{
+    "code": 0,
+    "msg":"",
+    "data": {"short_url": "{{分享短链接域名}}/v1/url/redirect?d=xxxxx"}
+}
+```
+
+### 响应结构（JSON）
+
+| **字段** | **类型**                                                                                          | **说明**         |
+| -------- | ------------------------------------------------------------------------------------------------- | ---------------- |
+| code     | Number                                                                                            | 状态码 0 为成功  |
+| msg      | String                                                                                            | 失败时的错误信息 |
+| data     | Map | 短链接地址， 当请求短链接时自动重定向到原地址         |
+
+## 设置文本短链
+> **POST: **  `/v1/text/short`
+> **认证方式：** [AccessToken]
+
+  
+
+### CURL 示例
+
+```bash
+curl --location --request POST '{{接口域名}}/v1/text/short' \
+--data-raw '{
+    "test": "123"
+}'
+```
+
+### 请求参数
+
+| **参数** | **类型** | **是否必填** | **备注**   |
+| -------- | -------- | ------------ | ---------- |
+| text | String   | 是           | 文本内容 |
+
+**响应示例**：
+
+```json
+{
+    "code": 0,
+    "msg":"",
+    "data": {"short_name": "abc"}
+}
+```
+## 获取文本短链
+
+> **GET: **  `/v1/text/short`
+> **认证方式：** 无
+
+  
+
+### CURL 示例
+
+```bash
+curl --location --request GET '{{接口域名}}/v1/text/short?short_name=abc'
+```
+
+**响应示例**
+
+```json
+{
+    "data": {
+            "text": "123",
+        },
+    "code": 0
+}
+```
+
+## 获取埋点列表
+
+> **GET: **  `/v1/operationapi/trigger/list`
+> **认证方式：** 无
+
+  
+
+### CURL 示例
+
+```bash
+curl --location --request GET '{{接口域名}}/v1/operationapi/trigger/list'
+```
+
+**响应示例**
+
+```json
+{
+    "data": [
+        {
+            "id": 3,    // 望舒侧埋点的 id 
+            "tag": "埋点标记",
+            "title": "埋点标题",
+            "failed_msg": "埋点分享失败提示语",
+            "type": 1, // 类型 1:诱导 3:成就 5:特殊
+            "status": 1 // 埋点当前状态
+        }
+    ],
+    "code": 0
+}
+```
+
+  
+
+### 响应结构（JSON）
+
+| **字段** | **类型**                                                                                          | **说明**         |
+| -------- | ------------------------------------------------------------------------------------------------- | ---------------- |
+| code     | Number                                                                                            | 状态码 0 为成功  |
+| msg      | String                                                                                            | 失败时的错误信息 |
+| data     | [Data](/docs/v3.5/分享/服务端接入/服务端 API) | 返回信息         |
+
+##### 获取埋点列表Data
+
+| **字段**   | **类型** | **说明**                              |
+| ---------- | -------- | ------------------------------------- |
+| id         | Number   | 埋点id                                |
+| tag        | String   | 埋点标识                              |
+| title      | String   | 埋点标题                              |
+| failed_msg | String   | 错误提示                              |
+| type       | Number   | 类型 1 诱导类 3成就类 5特殊分享埋点类 |
+
+  
+
+## 获取埋点版本
+
+> **GET: **  `/v1/operationapi/trigger/version`
+> **认证方式****：****无**
+
+  
+
+### CURL 示例
+
+```bash
+curl --location --request GET '{{接口域名}}/v1/operationapi/trigger/version'
+```
+
+**响应示例**
+
+```json
+{
+    "data": {
+        "version": 1670811895 // 版本 一般为埋点有更新时的时间戳
+    },
+    "code": 0
+}
+```
+
+  
+
+### 响应结构（JSON）
+
+| **字段** | **类型**                                                                                          | **说明**         |
+| -------- | ------------------------------------------------------------------------------------------------- | ---------------- |
+| code     | Number                                                                                            | 状态码 0 为成功  |
+| msg      | String                                                                                            | 失败时的错误信息 |
+| data     | [Data](/docs/v3.5/分享/服务端接入/服务端 API) | 返回信息         |
+
+##### 获取埋点版本Data
+
+| **字段** | **类型** | **说明** |
+| -------- | -------- | -------- |
+| version  | String   | 版本     |
+
+  
+
+## 获取跳转微信小程序信息
+
+> **GET: **  `/v1/operationapi/jump_wechat/list`
+> **认证方式：** 无
+
+  
+
+### CURL 示例
+
+```bash
+curl --location --request GET '{{接口域名}}/v1/operationapi/jump_wechat/list?product_id=&channel_id='
+```
+
+  
+
+**请求参数**
+
+| **参数**   | **类型** | **是否必填** | **备注** |
+| ---------- | -------- | ------------ | -------- |
+| product_id | String   | 是           | 产品id   |
+| channel_id | String   | 是           | 渠道id   |
+
+**响应示例**
+
+```json
+{
+    "data": [
+        {
+            "wechat_appid": "wxabcdefghijklmnopqrstuvwxyz",    // 客户端跳转时才有 微信开放平台-管理中心-移动应用」所关联应用的AppID            
+            "jump_wechat": [                
+                {                    
+                    "app_id" : "wxabcdefghijklmnopqrstuvwxyz", // 小程序appid                    
+                    "gh_id": "gh_abc1234567890", // 小程序原始id                    
+                    "path": "/page/index/share", // 小程序跳转路径                    
+                    "tag": "wechat_to_service", // 跳转唯一标识                
+                }            
+            ]
+        }
+    ],
+    "code": 0
+}
+```
+
+  
+
+### 响应结构（JSON）
+
+| **字段** | **类型**                                                                                          | **说明**         |
+| -------- | ------------------------------------------------------------------------------------------------- | ---------------- |
+| code     | Number                                                                                            | 状态码 0 为成功  |
+| msg      | String                                                                                            | 失败时的错误信息 |
+| data     | [Data](/docs/v3.5/分享/服务端接入/服务端 API) | 返回信息         |
+
+##### 获取跳转微信小程序信息Data
+
+| **字段**     | **类型**                                                                                                  | **说明**  |
+| ------------ | --------------------------------------------------------------------------------------------------------- | --------- |
+| wechat_appid | String                                                                                                    | 应用appid |
+| jump_wechat  | [][JumpWechat](/docs/v3.5/分享/服务端接入/服务端 API) |           |
+
+##### 获取跳转微信小程序信息JumpWechat
+
+| **字段** | **类型** | **说明**       |
+| -------- | -------- | -------------- |
+| app_id   | String   | 小程序appid    |
+| gh_id    | String   | 小程序原始id   |
+| path     | String   | 小程序跳转路径 |
+| tag      | String   | 跳转唯一标识   |
+
+  
+
+##### 各平台配置
+
+| **平台**  | **值**                                                                      |
+| --------- | --------------------------------------------------------------------------- |
+| wechat    | 1:好友 2:朋友圈 -1:不限制                                                   |
+| facebook  | 128 动态 -1:不限制                                                          |
+| qq        | 4:QQ通讯录 8: 快速转发列表 16:QQ空间 32: 微信好友 64: 微信朋友圈 -1: 不限制 |
+| messenger | 1:好友 -1:不限制                                                            |
+| line      | 1:好友                                                                      |
+| tiktok    | 1:好友                                                                      |
+| twitter   | 128:动态                                                                    |
+| system    | -1: 不限制                                                                  |

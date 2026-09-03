@@ -1,0 +1,996 @@
+---
+sidebar_position: 2
+title: 服务端 API
+description: "望舒SDK 社交 服务端 API服务端文档，提供接口请求参数与响应说明。"
+---
+
+## 准备工作
+
+以下是 CP 服务端请求接口，需要准备好 `cp_id` 、 `product_id` 、`channel_id` 、`cp_key` 等参数。
+
+domain ：为产品对外域名
+
+请求头：[望舒服务端请求头](/docs/开发者文档/入门指南/服务端接入须知)
+
+## 添加自定义关系
+
+> **POST：** `/v1/social/serverapi/addrelation`
+>
+> **认证方式：** [CPSign](/docs/开发者文档/入门指南/服务端接入须知)
+
+### CURL 示例
+
+```bash
+curl --location --request POST '{{接口域名}}/v1/social/serverapi/addrelation' \
+--header 'ruixue-language: {{语言}}' \
+--header 'ruixue-cpid: {{CPID}}' \
+--header 'ruixue-productid: {{产品标识}}' \
+--header 'ruixue-cpts: {{时间戳}}' \
+--header 'ruixue-traceid: {{TraceID}}' \
+--header 'ruixue-cpsign: {{请求签名}}' \
+--header 'ruixue-devicecode: {{设备码}}' \
+--header 'ruixue-channelid: {{渠道标识}}' \
+--header 'ruixue-platformid: {{平台标识}}' \
+--header 'Content-Type: application/json' \
+--data-raw '{
+ "types":{"pp":true},
+ "target":"rxufb2GKDBm5n4u7gYkcOLbOv7J4RrVP",
+ "openid":"rxuSl4QZoNk0G1HY2-Za6GlO7wO-p_ej",
+ "user_remarks":"",
+ "target_remarks":""
+}'
+```
+
+### 请求参数（JSON）
+
+
+| 字段 | 类型 | 是否必填 | 说明 |
+| --- | --- | --- | --- |
+| openid | String | 条件必填 | 己方 望舒 openid。和 cp_user_id 任传一个即可 |
+| cp_user_id | String | 条件必填 | cp 侧 userid。和望舒 openid 任传一个即可 |
+| target | String | 条件必填 | 对方 望舒 OpenID。和 target_cp_user_id 任传一个即可 |
+| target_cp_user_id | String | 条件必填 | cp 侧 userid。和 target 任传一个即可 |
+| types | `Object<String, Boolean>` | 是 | CP 自定义关系类型列表，其值是一个 map 键值对列表 |
+| target_remarks | String | 否 | 用户给 Target 设置的备注信息（最长 512 字符） |
+| user_remarks | String | 否 | Target 给用户设置的备注信息（最长 512 字符） |
+
+
+```groovy
+{
+ "类型标识符(String)": "是否为双向关系"
+}
+```
+
+```json
+{
+ "test": true,
+ "aaa": false
+}
+```
+
+| target_remarks | String | 否 | 用户给 Target 设置的备注信息（最长 512 字符） |
+| user_remarks | String | 否 | Target 给用户设置的备注信息（最长 512 字符） |
+| bbbb |  |  |  |
+
+**请求示例**
+
+使用望舒 OpenID：
+
+```json
+{
+ "types":{"pp":true},
+ "target":"rxufb2GKDBm5n4u7gYkcOLbOv7J4RrVP",
+ "openid":"rxuSl4QZoNk0G1HY2-Za6GlO7wO-p_ej",
+ "user_remarks":"",
+ "target_remarks":""
+}
+```
+
+使用 CP 用户 ID：
+
+```json
+{
+ "types":{"pp":true},
+ "target_cp_user_id":"10000",
+ "cp_user_id":"10001",
+ "user_remarks":"",
+ "target_remarks":""
+}
+```
+
+### 响应参数（JSON)
+
+**HTTP 状态码：**`200 OK`
+
+| 字段 | 类型 | 是否必填 | 说明 | 示例 |
+| --- | --- | --- | --- | --- |
+| code | Number | 是 | 响应状态码， 0 为成功，非 0 表示出错 | 0 |
+| msg | String | 否 | 响应信息，仅在 code 非 0 时返回 |  |
+
+**响应示例**
+
+```json
+{"code": 0}
+```
+
+---
+
+## 删除自定义关系
+
+> **POST：** `/v1/social/serverapi/deleterelation`
+>
+> **认证方式:** **[CPSign](/docs/开发者文档/入门指南/服务端接入须知)**
+
+### CURL 示例
+
+```bash
+curl --location --request POST '{{接口域名}}/v1/social/serverapi/deleterelation' \
+--header 'ruixue-language: {{语言}}' \
+--header 'ruixue-cpid: {{CPID}}' \
+--header 'ruixue-productid: {{产品标识}}' \
+--header 'ruixue-cpts: {{时间戳}}' \
+--header 'ruixue-traceid: {{TraceID}}' \
+--header 'ruixue-cpsign: {{请求签名}}' \
+--header 'ruixue-devicecode: {{设备码}}' \
+--header 'ruixue-channelid: {{渠道标识}}' \
+--header 'ruixue-platformid: {{平台标识}}' \
+--header 'Content-Type: application/json' \
+--data-raw '{
+ "types": {
+ "test": true,
+ "aaa": false
+ },
+ "openid" : "rxaaaaaaaaa",
+ "target": "rxuLylN9pM1Kq9zUP719Somjqo3vnOQ4"
+}'
+```
+
+### 请求参数（JSON）
+
+
+| 字段 | 类型 | 是否必填 | 说明 |
+| --- | --- | --- | --- |
+| openid | String | 条件必填 | 己方 望舒 openid。和 cp_user_id 任传一个即可 |
+| cp_user_id | String | 条件必填 | cp 侧 userid。和望舒 openid 任传一个即可 |
+| target | String | 条件必填 | 对方 望舒 OpenID。和 target_cp_user_id 任传一个即可 |
+| target_cp_user_id | String | 条件必填 | cp 侧 userid。和 target 任传一个即可 |
+| types | `Object<String, Boolean>` | 是 | CP 自定义关系类型列表，其值是一个 map 键值对列表 |
+| target_remarks | String | 否 | 用户给 Target 设置的备注信息（最长 512 字符） |
+| user_remarks | String | 否 | Target 给用户设置的备注信息（最长 512 字符） |
+
+
+```groovy
+{
+ "类型标识符(String)": "是否为双向关系"
+}
+```
+
+```json
+{
+ "test": true,
+ "aaa": false
+}
+```
+
+**请求示例**
+
+```json
+{
+ "types": {
+ "test": true,
+ "aaa": false
+ },
+ "openid" : "rxaaaaaaaaa",
+ "target": "rxuLylN9pM1Kq9zUP719Somjqo3vnOQ4"
+}
+```
+
+### 响应参数（JSON）
+
+**HTTP 状态码：**`200 OK`
+
+| 字段 | 类型 | 是否必填 | 说明 | 示例 |
+| --- | --- | --- | --- | --- |
+| code | Number | 是 | 响应状态码， 0 为成功，非 0 表示出错 | 0 |
+| msg | String | 否 | 响应信息，仅在 code 非 0 时返回 |  |
+
+**响应示例**
+
+```json
+{"code": 0}
+```
+
+---
+
+## 更新自定义关系备注
+
+> **POST：** `/v1/social/serverapi/updaterelationremarks`
+>
+> **认证方式:** **[CPSign](/docs/开发者文档/入门指南/服务端接入须知)**
+
+### CURL 示例
+
+```bash
+curl --location --request POST '{{接口域名}}/v1/social/serverapi/updaterelationremarks' \
+--header 'ruixue-language: {{语言}}' \
+--header 'ruixue-cpid: {{CPID}}' \
+--header 'ruixue-productid: {{产品标识}}' \
+--header 'ruixue-cpts: {{时间戳}}' \
+--header 'ruixue-traceid: {{TraceID}}' \
+--header 'ruixue-cpsign: {{请求签名}}' \
+--header 'ruixue-devicecode: {{设备码}}' \
+--header 'ruixue-channelid: {{渠道标识}}' \
+--header 'ruixue-platformid: {{平台标识}}' \
+--header 'Content-Type: application/json' \
+--data-raw '{
+ "type": "test",
+ "openid" : "rxaaaaaa",
+ "target": "rxuLylN9pM1Kq9zUP719Somjqo3vnOQ4",
+ "target_remarks": "xxxxx"
+}'
+```
+
+### 请求参数（JSON）
+
+
+| 字段 | 类型 | 是否必填 | 说明 |
+| --- | --- | --- | --- |
+| openid | String | 条件必填 | 己方 望舒 openid。和 cp_user_id 任传一个即可 |
+| cp_user_id | String | 条件必填 | cp 侧 userid。和望舒 openid 任传一个即可 |
+| target | String | 条件必填 | 对方 望舒 OpenID。和 target_cp_user_id 任传一个即可 |
+| target_cp_user_id | String | 条件必填 | cp 侧 userid。和 target 任传一个即可 |
+| type | String | 是 | CP 自定义关系类型 |
+| target_remarks | String | 否 | 用户给 Target 设置的备注信息（最长 512 字符） |
+| user_remarks | String | 否 | Target 给用户设置的备注信息（最长 512 字符） |
+
+
+**请求示例**
+
+```json
+{
+ "type": "test",
+ "openid" : "rxaaaaaa",
+ "target": "rxuLylN9pM1Kq9zUP719Somjqo3vnOQ4",
+ "target_remarks": "xxxxx"
+}
+```
+
+### 响应参数（JSON）
+
+**HTTP 状态码：**`200 OK`
+
+| 字段 | 类型 | 是否必填 | 说明 | 示例 |
+| --- | --- | --- | --- | --- |
+| code | Number | 是 | 响应状态码， 0 为成功，非 0 表示出错 | 0 |
+| msg | String | 否 | 响应信息，仅在 code 非 0 时返回 |  |
+
+**响应示例**
+
+```json
+{"code": 0}
+```
+
+---
+
+## 判断两用户是否存在某自定义关系
+
+> **POST：** `/v1/social/serverapi/hasrelation`
+>
+> **认证方式:** **[CPSign](/docs/开发者文档/入门指南/服务端接入须知)**
+
+### CURL 示例
+
+```bash
+curl --location --request POST '{{接口域名}}/v1/social/serverapi/hasrelation' \
+--header 'ruixue-language: {{语言}}' \
+--header 'ruixue-cpid: {{CPID}}' \
+--header 'ruixue-productid: {{产品标识}}' \
+--header 'ruixue-cpts: {{时间戳}}' \
+--header 'ruixue-traceid: {{TraceID}}' \
+--header 'ruixue-cpsign: {{请求签名}}' \
+--header 'ruixue-devicecode: {{设备码}}' \
+--header 'ruixue-channelid: {{渠道标识}}' \
+--header 'ruixue-platformid: {{平台标识}}' \
+--header 'Content-Type: application/json' \
+--data-raw '{
+ "type": "test",
+ "openid" : "rxaaaaaaa",
+ "target": "rxuLylN9pM1Kq9zUP719Somjqo3vnOQ4"
+}'
+```
+
+### 请求参数（JSON）
+
+
+| 字段 | 类型 | 是否必填 | 说明 |
+| --- | --- | --- | --- |
+| openid | String | 条件必填 | 己方 望舒 openid。和 cp_user_id 任传一个即可 |
+| cp_user_id | String | 条件必填 | cp 侧 userid。和望舒 openid 任传一个即可 |
+| target | String | 条件必填 | 对方 望舒 OpenID。和 target_cp_user_id 任传一个即可 |
+| target_cp_user_id | String | 条件必填 | cp 侧 userid。和 target 任传一个即可 |
+| type | String | 是 | CP 自定义关系类型 |
+| target_remarks | String | 否 | 用户给 Target 设置的备注信息（最长 512 字符） |
+| user_remarks | String | 否 | Target 给用户设置的备注信息（最长 512 字符） |
+
+
+**请求示例**
+
+```json
+{
+ "type": "test",
+ "openid" : "rxaaaaaaa",
+ "target": "rxuLylN9pM1Kq9zUP719Somjqo3vnOQ4"
+}
+```
+
+### 响应参数（JSON）
+
+**HTTP 状态码：**`200 OK`
+
+
+| 字段 | 类型 | 是否必填 | 说明 |
+| --- | --- | --- | --- |
+| code | Number | 是 | 响应状态码， 0 为成功，非 0 表示出错 |
+| msg | String | 否 | 响应信息，仅在 code 非 0 时返回 |
+| data | Bool | 是 | 存在关系时为 true ；否则为 false |
+
+
+**响应示例**
+
+```json
+{ "code": 0, "data": true}
+```
+
+---
+
+## 获取自定义关系列表
+
+> **POST：** `/v1/social/serverapi/relationlist`
+>
+> **认证方式:** **[CPSign](/docs/开发者文档/入门指南/服务端接入须知)**
+
+### CURL 示例
+
+```bash
+curl --location --request POST '{{接口域名}}/v1/social/serverapi/relationlist' \
+--header 'ruixue-language: {{语言}}' \
+--header 'ruixue-cpid: {{CPID}}' \
+--header 'ruixue-productid: {{产品标识}}' \
+--header 'ruixue-cpts: {{时间戳}}' \
+--header 'ruixue-traceid: {{TraceID}}' \
+--header 'ruixue-cpsign: {{请求签名}}' \
+--header 'ruixue-devicecode: {{设备码}}' \
+--header 'ruixue-channelid: {{渠道标识}}' \
+--header 'ruixue-platformid: {{平台标识}}' \
+--header 'Content-Type: application/json' \
+--data-raw '{
+ "type": "test",
+ "openid" : "rxaaaaaaa"
+}'
+```
+
+### 请求参数（JSON）
+
+
+| 字段 | 类型 | 是否必填 | 说明 |
+| --- | --- | --- | --- |
+| type | String | 是 | CP 自定义关系类型 |
+| openid | String | 条件必填 | 己方 望舒 openid。和 cp_user_id 任传一个即可 |
+| cp_user_id | String | 条件必填 | cp 侧 userid。和望舒 openid 任传一个即可 |
+| target_remarks | String | 否 | 用户给 Target 设置的备注信息（最长 512 字符） |
+| user_remarks | String | 否 | Target 给用户设置的备注信息（最长 512 字符） |
+
+
+**请求示例**
+
+```json
+{
+ "type": "test",
+ "openid" : "rxaaaaaaa"
+}
+```
+
+### 响应参数（JSON）
+
+**HTTP 状态码：**`200 OK`
+
+| 字段 | 类型 | 是否必填 | 说明 | 示例 |
+| --- | --- | --- | --- | --- |
+| code | Number | 是 | 响应状态码， 0 为成功，非 0 表示出错 | 0 |
+| msg | String | 否 | 响应信息，仅在 code 非 0 时返回 |
+| data | Node[] | 否 | 结果数据集 |
+
+#### Node
+
+
+| 字段 | 类型 | 是否必填 | 说明 |
+| --- | --- | --- | --- |
+| openid | String | 是 | 用户望舒 OpenID |
+| nickname | String | 否 | 用户昵称 |
+| birthday | String | 否 | 用户生日日期 |
+| remarks | String | 否 | 当前用户对其的备注 |
+| avatar | String | 否 | 用户头像 |
+| custom | String | 否 | CP 自定义信息 |
+| time | Number | 否 | 关系形成时间戳（单位：秒） |
+| sex | Number | 否 | 用户性别， 1:男； 0:女 |
+| cp_userid | Number | 否 | CP 侧 用户 id |
+
+
+**响应示例**
+
+```json
+{
+ "data": [
+ {
+ "openid": "rxuSl4QZoNk0G1HY2-Za6GlO7wO-p_ej",
+ "nickname": "xdh"
+ }
+ ],
+ "code": 0
+}
+```
+
+---
+
+## 添加好友关系
+
+> **POST：** `/v1/social/serverapi/addfriend`
+>
+> **认证方式:** **[CPSign](/docs/开发者文档/入门指南/服务端接入须知)**
+
+### CURL 示例
+
+```bash
+curl --location --request POST '{{接口域名}}/v1/social/serverapi/addfriend' \
+--header 'ruixue-language: {{语言}}' \
+--header 'ruixue-cpid: {{CPID}}' \
+--header 'ruixue-productid: {{产品标识}}' \
+--header 'ruixue-cpts: {{时间戳}}' \
+--header 'ruixue-traceid: {{TraceID}}' \
+--header 'ruixue-cpsign: {{请求签名}}' \
+--header 'ruixue-devicecode: {{设备码}}' \
+--header 'ruixue-channelid: {{渠道标识}}' \
+--header 'ruixue-platformid: {{平台标识}}' \
+--header 'Content-Type: application/json' \
+--data-raw '{
+ "openid" : "rxaaaaaaa",
+ "target": "rxuLylN9pM1Kq9zUP719Somjqo3vnOQ4",
+ "target_remarks": "xxxxx"
+}'
+```
+
+### 请求参数（JSON）
+
+
+| 字段 | 类型 | 是否必填 | 说明 |
+| --- | --- | --- | --- |
+| openid | String | 条件必填 | 己方 望舒 openid。和 cp_user_id 任传一个即可 |
+| cp_user_id | String | 条件必填 | cp 侧 userid。和望舒 openid 任传一个即可 |
+| target | String | 条件必填 | 对方 望舒 OpenID。和 target_cp_user_id 任传一个即可 |
+| target_cp_user_id | String | 条件必填 | cp 侧 userid。和 target 任传一个即可 |
+| target_remarks | String | 否 | 用户给 Target 设置的备注信息（最长 512 字符） |
+| user_remarks | String | 否 | Target 给用户设置的备注信息（最长 512 字符） |
+
+
+**请求示例**
+
+```json
+{
+ "openid" : "rxaaaaaaa",
+ "target": "rxuLylN9pM1Kq9zUP719Somjqo3vnOQ4",
+ "target_remarks": "xxxxx"
+}
+```
+
+### 响应参数（JSON）
+
+**HTTP 状态码：**`200 OK`
+
+| 字段 | 类型 | 是否必填 | 说明 | 示例 |
+| --- | --- | --- | --- | --- |
+| code | Number | 是 | 响应状态码， 0 为成功，非 0 表示出错 | 0 |
+| msg | String | 否 | 响应信息，仅在 code 非 0 时返回 |  |
+
+**响应示例**
+
+```json
+{"code": 0}
+```
+
+---
+
+## 删除好友关系
+
+> **POST：** `/v1/social/serverapi/delfriend`
+>
+> **认证方式:** **[CPSign](/docs/开发者文档/入门指南/服务端接入须知)**
+
+### CURL 示例
+
+```bash
+curl --location --request POST '{{接口域名}}/v1/social/serverapi/delfriend' \
+--header 'ruixue-language: {{语言}}' \
+--header 'ruixue-cpid: {{CPID}}' \
+--header 'ruixue-productid: {{产品标识}}' \
+--header 'ruixue-cpts: {{时间戳}}' \
+--header 'ruixue-traceid: {{TraceID}}' \
+--header 'ruixue-cpsign: {{请求签名}}' \
+--header 'ruixue-devicecode: {{设备码}}' \
+--header 'ruixue-channelid: {{渠道标识}}' \
+--header 'ruixue-platformid: {{平台标识}}' \
+--header 'Content-Type: application/json' \
+--data-raw '{
+ "openid" : "rxaaaaaaa",
+ "target": "rxuLylN9pM1Kq9zUP719Somjqo3vnOQ4"
+}'
+```
+
+### 请求参数（JSON）
+
+
+| 字段 | 类型 | 是否必填 | 说明 |
+| --- | --- | --- | --- |
+| openid | String | 条件必填 | 己方 望舒 openid。和 cp_user_id 任传一个即可 |
+| cp_user_id | String | 条件必填 | cp 侧 userid。和望舒 openid 任传一个即可 |
+| target | String | 条件必填 | 对方 望舒 OpenID。和 target_cp_user_id 任传一个即可 |
+| target_cp_user_id | String | 条件必填 | cp 侧 userid。和 target 任传一个即可 |
+
+
+**请求示例**
+
+```json
+{
+ "openid" : "rxaaaaaaa",
+ "target": "rxuLylN9pM1Kq9zUP719Somjqo3vnOQ4"
+}
+```
+
+### 响应参数（JSON）
+
+**HTTP 状态码：**`200 OK`
+
+| 字段 | 类型 | 是否必填 | 说明 | 示例 |
+| --- | --- | --- | --- | --- |
+| code | Number | 是 | 响应状态码， 0 为成功，非 0 表示出错 | 0 |
+| msg | String | 否 | 响应信息，仅在 code 非 0 时返回 |  |
+
+**响应示例**
+
+```json
+{"code": 0}
+```
+
+---
+
+## 更新好友关系备注
+
+> **POST：** `/v1/social/serverapi/updatefriendremarks`
+>
+> **认证方式:** **[CPSign](/docs/开发者文档/入门指南/服务端接入须知)**
+
+### CURL 示例
+
+```bash
+curl --location --request POST '{{接口域名}}/v1/social/serverapi/updatefriendremarks' \
+--header 'ruixue-language: {{语言}}' \
+--header 'ruixue-cpid: {{CPID}}' \
+--header 'ruixue-productid: {{产品标识}}' \
+--header 'ruixue-cpts: {{时间戳}}' \
+--header 'ruixue-traceid: {{TraceID}}' \
+--header 'ruixue-cpsign: {{请求签名}}' \
+--header 'ruixue-devicecode: {{设备码}}' \
+--header 'ruixue-channelid: {{渠道标识}}' \
+--header 'ruixue-platformid: {{平台标识}}' \
+--header 'Content-Type: application/json' \
+--data-raw '{
+ "openid" : "rxaaaaaaa",
+ "target": "rxuLylN9pM1Kq9zUP719Somjqo3vnOQ4",
+ "target_remarks": "xxxxx"
+}'
+```
+
+### 请求参数（JSON）
+
+
+| 字段 | 类型 | 是否必填 | 说明 |
+| --- | --- | --- | --- |
+| openid | String | 条件必填 | 己方 望舒 openid。和 cp_user_id 任传一个即可 |
+| cp_user_id | String | 条件必填 | cp 侧 userid。和望舒 openid 任传一个即可 |
+| target | String | 条件必填 | 对方 望舒 OpenID。和 target_cp_user_id 任传一个即可 |
+| target_cp_user_id | String | 条件必填 | cp 侧 userid。和 target 任传一个即可 |
+| target_remarks | String | 否 | 用户给 Target 设置的备注信息（最长 512 字符） |
+| user_remarks | String | 否 | Target 给用户设置的备注信息（最长 512 字符） |
+
+
+**请求示例**
+
+```json
+{
+ "openid" : "rxaaaaaaa",
+ "target": "rxuLylN9pM1Kq9zUP719Somjqo3vnOQ4",
+ "target_remarks": "xxxxx"
+}
+```
+
+### 响应参数（JSON）
+
+**HTTP 状态码：**`200 OK`
+
+| 字段 | 类型 | 是否必填 | 说明 | 示例 |
+| --- | --- | --- | --- | --- |
+| code | Number | 是 | 响应状态码， 0 为成功，非 0 表示出错 | 0 |
+| msg | String | 否 | 响应信息，仅在 code 非 0 时返回 |  |
+
+**响应示例**
+
+```json
+{"code": 0}
+```
+
+---
+
+## 判断两用户是否为好友
+
+> **POST：** `/v1/social/serverapi/isfriend`
+>
+> **认证方式:** **[CPSign](/docs/开发者文档/入门指南/服务端接入须知)**
+
+### CURL 示例
+
+```bash
+curl --location --request POST '{{接口域名}}/v1/social/serverapi/isfriend' \
+--header 'ruixue-language: {{语言}}' \
+--header 'ruixue-cpid: {{CPID}}' \
+--header 'ruixue-productid: {{产品标识}}' \
+--header 'ruixue-cpts: {{时间戳}}' \
+--header 'ruixue-traceid: {{TraceID}}' \
+--header 'ruixue-cpsign: {{请求签名}}' \
+--header 'ruixue-devicecode: {{设备码}}' \
+--header 'ruixue-channelid: {{渠道标识}}' \
+--header 'ruixue-platformid: {{平台标识}}' \
+--header 'Content-Type: application/json' \
+--data-raw '{
+ "openid" : "rxaaaaaaa",
+ "target": "rxuLylN9pM1Kq9zUP719Somjqo3vnOQ4"
+}'
+```
+
+### 请求参数（JSON）
+
+
+| 字段 | 类型 | 是否必填 | 说明 |
+| --- | --- | --- | --- |
+| openid | String | 条件必填 | 己方 望舒 openid。和 cp_user_id 任传一个即可 |
+| cp_user_id | String | 条件必填 | cp 侧 userid。和望舒 openid 任传一个即可 |
+| target | String | 条件必填 | 对方 望舒 OpenID。和 target_cp_user_id 任传一个即可 |
+| target_cp_user_id | String | 条件必填 | cp 侧 userid。和 target 任传一个即可 |
+
+
+**请求示例**
+
+```json
+{
+ "openid" : "rxaaaaaaa",
+ "target": "rxuLylN9pM1Kq9zUP719Somjqo3vnOQ4"
+}
+```
+
+### 响应参数（JSON）
+
+**HTTP 状态码：**`200 OK`
+
+
+| 字段 | 类型 | 是否必填 | 说明 |
+| --- | --- | --- | --- |
+| code | Number | 是 | 响应状态码， 0 为成功，非 0 表示出错 |
+| msg | String | 否 | 响应信息，仅在 code 非 0 时返回 |
+| data | Bool | 是 | 存在关系时为 true ；否则为 false |
+
+
+**响应示例**
+
+```json
+{"code": 0, "data": true}
+```
+
+---
+
+## 获取好友关系列表
+
+> **POST：** `/v1/social/serverapi/friendlist`
+>
+> **认证方式:** **[CPSign](/docs/开发者文档/入门指南/服务端接入须知)**
+
+### CURL 示例
+
+```bash
+curl --location --request POST '{{接口域名}}/v1/social/serverapi/friendlist' \
+--header 'ruixue-language: {{语言}}' \
+--header 'ruixue-cpid: {{CPID}}' \
+--header 'ruixue-productid: {{产品标识}}' \
+--header 'ruixue-cpts: {{时间戳}}' \
+--header 'ruixue-traceid: {{TraceID}}' \
+--header 'ruixue-cpsign: {{请求签名}}' \
+--header 'ruixue-devicecode: {{设备码}}' \
+--header 'ruixue-channelid: {{渠道标识}}' \
+--header 'ruixue-platformid: {{平台标识}}' \
+--header 'Content-Type: application/json' \
+--data-raw '{"openid" : "rxaaaaaaa"}'
+```
+
+### 请求参数（JSON）
+
+
+| 字段 | 类型 | 是否必填 | 说明 |
+| --- | --- | --- | --- |
+| openid | String | 条件必填 | 己方 望舒 openid。和 cp_user_id 任传一个即可 |
+| cp_user_id | String | 条件必填 | cp 侧 userid。和望舒 openid 任传一个即可 |
+
+
+**请求示例**
+
+```json
+{"openid" : "rxaaaaaaa"}
+```
+
+#### 响应参数（JSON）
+
+**HTTP 状态码：**`200 OK`
+
+| 字段 | 类型 | 是否必填 | 说明 | 示例 |
+| --- | --- | --- | --- | --- |
+| code | Number | 是 | 响应状态码， 0 为成功，非 0 表示出错 | 0 |
+| msg | String | 否 | 响应信息，仅在 code 非 0 时返回 |
+| data | Node[] | 否 | 结果数据集 |
+
+**响应示例**
+
+```json
+{
+ "data": [
+ {
+ "openid": "rxuSl4QZoNk0G1HY2-Za6GlO7wO-p_ej",
+ "nickname": "xdh"
+ }
+ ],
+ "code": 0
+}
+```
+
+---
+
+## 上报/更新经纬度坐标
+
+用于上报用户当前所在位置的经纬度信息，以供后续 LBS 功能使用。
+
+> **POST：** `/v1/social/serverapi/lbsupdate`
+>
+> **认证方式:** **[CPSign](/docs/开发者文档/入门指南/服务端接入须知)**
+
+### CURL 示例
+
+```bash
+curl --location --request POST '{{接口域名}}/v1/social/serverapi/lbsupdate' \
+--header 'ruixue-language: {{语言}}' \
+--header 'ruixue-cpid: {{CPID}}' \
+--header 'ruixue-productid: {{产品标识}}' \
+--header 'ruixue-cpts: {{时间戳}}' \
+--header 'ruixue-traceid: {{TraceID}}' \
+--header 'ruixue-cpsign: {{请求签名}}' \
+--header 'ruixue-devicecode: {{设备码}}' \
+--header 'ruixue-channelid: {{渠道标识}}' \
+--header 'ruixue-platformid: {{平台标识}}' \
+--header 'Content-Type: application/json' \
+--data-raw '{
+ "types": ["test"],
+ "lon": 14.2079746,
+ "lat": 14.2079746,
+ "openid" : "rxufb2GKDBm5n4u7gYkcOLbOv7J4RrVP"
+}'
+```
+
+### 请求参数（JSON）
+
+
+| 字段 | 类型 | 是否必填 | 说明 |
+| --- | --- | --- | --- |
+| types | `String[]` | 是 | 分组名称列表，由 CP 自定义 |
+| lon | Float64 | 是 | WGS84 经度 |
+| lat | Float64 | 是 | WGS84 纬度 |
+| openid | String | 条件必填 | 己方 望舒 openid。和 cp_user_id 任传一个即可 |
+| cp_user_id | String | 条件必填 | cp 侧 userid。和望舒 openid 任传一个即可 |
+
+
+**请求示例**
+
+```json
+{
+ "types": ["test"],
+ "lon": 14.2079746,
+ "lat": 14.2079746,
+ "openid" : "rxufb2GKDBm5n4u7gYkcOLbOv7J4RrVP"
+}
+```
+
+### 响应参数（JSON）
+
+**HTTP 状态码：**`200 OK`
+
+| 字段 | 类型 | 是否必填 | 说明 | 示例 |
+| --- | --- | --- | --- | --- |
+| code | Number | 是 | 响应状态码， 0 为成功，非 0 表示出错 | 0 |
+| msg | String | 否 | 响应信息，仅在 code 非 0 时返回 |  |
+
+**响应示例**
+
+```json
+{"code": 0}
+```
+
+---
+
+## 删除经纬度坐标
+
+> **POST：** `/v1/social/serverapi/lbsdelete`
+>
+> **认证方式:** **[CPSign](/docs/开发者文档/入门指南/服务端接入须知)**
+
+### CURL 示例
+
+```bash
+curl --location --request POST '{{接口域名}}/v1/social/serverapi/lbsdelete' \
+--header 'ruixue-language: {{语言}}' \
+--header 'ruixue-cpid: {{CPID}}' \
+--header 'ruixue-productid: {{产品标识}}' \
+--header 'ruixue-cpts: {{时间戳}}' \
+--header 'ruixue-traceid: {{TraceID}}' \
+--header 'ruixue-cpsign: {{请求签名}}' \
+--header 'ruixue-devicecode: {{设备码}}' \
+--header 'ruixue-channelid: {{渠道标识}}' \
+--header 'ruixue-platformid: {{平台标识}}' \
+--header 'Content-Type: application/json' \
+--data-raw '{
+ "types": ["test"],
+ "openid" : "rxufb2GKDBm5n4u7gYkcOLbOv7J4RrVP"
+}'
+```
+
+### 请求参数（JSON）
+
+
+| 字段 | 类型 | 是否必填 | 说明 |
+| --- | --- | --- | --- |
+| types | `String[]` | 是 | 分组名称列表，由 CP 自定义 |
+| openid | String | 条件必填 | 己方 望舒 openid。和 cp_user_id 任传一个即可 |
+| cp_user_id | String | 条件必填 | cp 侧 userid。和望舒 openid 任传一个即可 |
+
+
+**请求示例**
+
+```json
+{
+ "types": ["test"],
+ "openid" : "rxufb2GKDBm5n4u7gYkcOLbOv7J4RrVP"
+}
+```
+
+### 响应参数（JSON）
+
+**HTTP 状态码：**`200 OK`
+
+| 字段 | 类型 | 是否必填 | 说明 | 示例 |
+| --- | --- | --- | --- | --- |
+| code | Number | 是 | 响应状态码， 0 为成功，非 0 表示出错 | 0 |
+| msg | String | 否 | 响应信息，仅在 code 非 0 时返回 |  |
+
+**响应示例**
+
+```json
+{"code": 0}
+```
+
+---
+
+## 获取指定半径内的其他用户信息
+
+> **POST：** `/v1/social/serverapi/lbsradius`
+>
+> **认证方式:** **[CPSign](/docs/开发者文档/入门指南/服务端接入须知)**
+
+### CURL 示例
+
+```bash
+curl --location --request POST '{{接口域名}}/v1/social/serverapi/lbsradius' \
+--header 'ruixue-language: {{语言}}' \
+--header 'ruixue-cpid: {{CPID}}' \
+--header 'ruixue-productid: {{产品标识}}' \
+--header 'ruixue-cpts: {{时间戳}}' \
+--header 'ruixue-traceid: {{TraceID}}' \
+--header 'ruixue-cpsign: {{请求签名}}' \
+--header 'ruixue-devicecode: {{设备码}}' \
+--header 'ruixue-channelid: {{渠道标识}}' \
+--header 'ruixue-platformid: {{平台标识}}' \
+--header 'Content-Type: application/json' \
+--data-raw '{
+ "type": "test",
+ "lon": 14.2079746,
+ "lat": 14.2079746,
+ "radius": 1000.00,
+ "count": 0,
+ "page": 1,
+ "page_size": 100,
+ "openid" : "rxufb2GKDBm5n4u7gYkcOLbOv7J4RrVP"
+}'
+```
+
+### 请求参数（JSON）
+
+
+| 字段 | 类型 | 是否必填 | 说明 |
+| --- | --- | --- | --- |
+| type | String | 是 | 分组名称 |
+| lon | Float64 | 是 | WGS84 经度 |
+| lat | Float64 | 是 | WGS84 纬度 |
+| radius | Float64 | 是 | 限定半径距离，单位：米 |
+| count | Number | 否 | 获取数量，0 表示获取全部 |
+| page_size | Number | 是 | 每页数量 |
+| page | Number | 是 | 页码 |
+| 是 | 获取第几页的数据 从 1 开始 | 1 | openid |
+| String | 条件必填 | 己方 望舒 openid。和 cp_user_id 任传一个即可 | cp_user_id |
+| String | 条件必填 | cp 侧 userid。和望舒 openid 任传一个即可 |  |
+
+
+**请求示例**
+
+```json
+{
+ "type": "test",
+ "lon": 14.2079746,
+ "lat": 14.2079746,
+ "radius": 1000.00,
+ "count": 0,
+ "page": 1,
+ "page_size": 100,
+ "openid" : "rxufb2GKDBm5n4u7gYkcOLbOv7J4RrVP"
+}
+```
+
+### 响应参数（JSON）
+
+**HTTP 状态码：**`200 OK`
+
+| 字段 | 类型 | 是否必填 | 说明 | 示例 |
+| --- | --- | --- | --- | --- |
+| code | Number | 是 | 响应状态码， 0 为成功，非 0 表示出错 | 0 |
+| msg | String | 否 | 响应信息，仅在 code 非 0 时返回 |
+| data | DataNode[] | 否 | 结果数据集 |
+
+#### DataNode
+
+
+| 字段 | 类型 | 是否必填 | 说明 |
+| --- | --- | --- | --- |
+| openid | String | 是 | 用户望舒 OpenID |
+| nickname | String | 否 | 用户昵称 |
+| birthday | String | 否 | 用户生日日期 |
+| remarks | String | 否 | 当前用户对其的备注 |
+| avatar | String | 否 | 用户头像 |
+| custom | String | 否 | CP 自定义信息 |
+| dist | Float64 | 是 | 距离当前用户的距离（米） |
+| sex | Number | 否 | 用户性别， 1:男； 0:女 |
+| cp_userid | Number | 否 | CP 侧 用户 id |
+
+
+**响应示例**
+
+```json
+{
+ "data": [
+ {
+ "openid": "rxuSl4QZoNk0G1HY2-Za6GlO7wO-p_ej",
+ "nickname": "xdh"
+ }
+ ],
+ "code": 0
+}
+```

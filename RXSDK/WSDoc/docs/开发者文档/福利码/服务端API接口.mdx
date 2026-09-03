@@ -1,0 +1,179 @@
+---
+sidebar_position: 7
+title: 服务端 API 接口
+description: "望舒SDK 福利码 服务端 API 接口服务端文档，提供接口请求参数与响应说明。"
+---
+
+## 兑换福利码（服务端）
+
+> **POST: ** `/v1/operationtoolsapi/extension/exchange`
+>
+> **认证方式:** [CPSign](/docs/开发者文档/入门指南/服务端接入须知)
+
+### CURL 示例
+
+```bash
+curl --location --request POST '{{接口域名}}/v1/operationtoolsapi/extension/exchange' \
+--header 'ruixue-language: {{语言}}' \
+--header 'ruixue-cpid: {{CPID}}' \
+--header 'ruixue-productid: {{产品标识}}' \
+--header 'ruixue-cpts: {{时间戳}}' \
+--header 'ruixue-traceid: {{TraceID}}' \
+--header 'ruixue-cpsign: {{签名}}' \
+--header 'ruixue-devicecode: {{设备码}}' \
+--header 'ruixue-channelid: {{渠道标识}}' \
+--header 'ruixue-platformid: {{平台标识}}' \
+--header 'Content-Type: application/json' \
+--data-raw '{
+ "cdkey": "6oYwULM",
+ "open_id": "",
+ "cp_user_id": 0
+}'
+```
+
+**请求头 Header 参数**
+
+| 参数 | 类型 | 备注 |
+| --- | --- | --- |
+| ruixue-language | String | zh-CN |
+| Content-Type | String | application/json |
+| ruixue-cpid | String | 内容提供商 CPID |
+| ruixue-productid | String | 产品 ID |
+| ruixue-channelid | String | 渠道 ID |
+| ruixue-platformid | String | 平台 platformid |
+| ruixue-devicecode | String | 设备码 |
+| ruixue-cpsign | String | 签名 |
+| ruixue-cpts | String | CP 签名时间戳 |
+| ruixue-traceid | String | TraceID |
+
+**请求示例**
+
+```json
+{
+ "cdkey": "6oYwULM",
+ "open_id": "",
+ "cp_user_id": 0
+ }
+```
+
+### 请求参数（JSON）
+
+| 参数 | 类型 | 是否必填 | 备注 |
+| --- | --- | --- | --- |
+| cdkey | String | 是 | 福利码 |
+| open_id | String | 是 | openid |
+| cp_user_id | Number | 是 | 用户 id(必传) |
+
+**响应示例**
+
+```json
+{
+ "data": [{
+ "prop_id": "aaa",
+ "prop_name": "bbb",
+ "prop_num": "ccc"
+ }],
+ "msg": "success",
+ "code": 0
+}
+```
+
+### 响应结构(JSON)
+
+| 参数 | 类型 | 备注 |
+| --- | --- | --- |
+| code | Number | 0 为成功 |
+| msg | String | 失败信息 |
+| data | [][Data](/docs/开发者文档/意见反馈/Unity-接入) |  |
+
+#### data
+
+| 参数 | 类型 | 说明 |
+| --- | --- | --- |
+| prop_id | String | 道具标识 |
+| prop_name | String | 道具名称 |
+| prop_num | String | 道具数量 |
+
+## 获取达人游戏内显示福利码（服务端）
+
+> **GET: ** `/v1/operationtoolsapi/extension/game_display`
+>
+> **认证方式:** [CPSign](/docs/开发者文档/入门指南/服务端接入须知)
+
+### CURL 示例
+
+```bash
+curl --location --request GET '{{接口域名}}/v1/operationtoolsapi/extension/game_display?game_id=1' \
+--header 'ruixue-language: {{语言}}' \
+--header 'ruixue-cpid: {{CPID}}' \
+--header 'ruixue-productid: {{产品标识}}' \
+--header 'ruixue-cpts: {{时间戳}}' \
+--header 'ruixue-traceid: {{TraceID}}' \
+--header 'ruixue-cpsign: {{签名}}' \
+--header 'ruixue-devicecode: {{设备码}}' \
+--header 'ruixue-channelid: {{渠道标识}}' \
+--header 'ruixue-platformid: {{平台标识}}'
+```
+
+**请求头 Header 参数**
+
+| 参数 | 类型 | 备注 |
+| --- | --- | --- |
+| ruixue-language | String | zh-CN |
+| Content-Type | String | application/json |
+| ruixue-cpid | String | 内容提供商 CPID |
+| ruixue-productid | String | 产品 ID |
+| ruixue-channelid | String | 渠道 ID |
+| ruixue-platformid | String | 平台 platformid |
+| ruixue-devicecode | String | 设备码 |
+| ruixue-cpsign | String | 签名 |
+| ruixue-cpts | String | CP 签名时间戳 |
+| ruixue-traceid | String | TraceID |
+
+### 请求参数（JSON）
+
+| 参数 | 类型 | 是否必填 | 备注 |
+| --- | --- | --- | --- |
+| game_id | String | 是 | 达人游戏 id |
+
+**响应示例**
+
+```json
+{
+ "data": {
+ "refresh_period": 1,
+ "promo_name": "福利码策略",
+ "gift_name": "礼包名",
+ "promo_valid_start": "2024-01-01 01:01:01",
+ "promo_valid_end": "2024-01-02 01:01:01",
+ "promo_code": "123456",
+ "refresh_period_exp": 1000,
+ "polling": 10
+ },
+ "msg": "success",
+ "code": 0
+}
+```
+
+### 响应结构(JSON)
+
+| 参数 | 类型 | 备注 |
+| --- | --- | --- |
+| code | Number | 0 为成功 |
+| msg | String | 失败信息 |
+| data | [][Data](/docs/开发者文档/意见反馈/Unity-接入) |  |
+
+#### data
+
+| 参数 | 类型 | 说明 |
+| --- | --- | --- |
+| refresh_period | Number | 刷新周期 单位分钟 |
+| promo_name | String | 福利码名称 |
+| gift_name | String | 礼包名称 |
+| promo_valid_start | String | 福利码创建时间 |
+| promo_valid_end | String | 福利码有效期结束时间 |
+| promo_code | String | 游戏内显示福利码 |
+| refresh_period_exp | Number | 刷新周期过期时间 秒 |
+| polling | Number | 轮询间隔时间 秒 |
+
+游戏侧需在获取**刷新周期过期时间**为正数时开启倒计时，当倒计时结束时，在**轮询间隔时间**后调用此接口，如果获取到的**刷新周期过期时间**为 0 或负数时， 直接在**轮询间隔时间**后调用此接口， 直至 promo_code 变更， 主播下线后停止调用此接口， 则福利码暂停生成

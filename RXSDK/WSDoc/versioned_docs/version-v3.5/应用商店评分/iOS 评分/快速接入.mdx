@@ -1,0 +1,78 @@
+---
+title: "快速接入"
+---
+
+评分提供三种方式，App 内拉起应用详情页、App 内弹出小窗口、跳转到 App Store。
+
+> 三种方式有不同的规则，请根据情况选择。
+
+## 应用内拉起 App 页面评分
+
+此方法会在应用内模态的方式弹出 App 详情页。
+
+**接口原型**
+
+```objectivec
+/**
+ * 应用内拉起App页面评分
+ * @param complete 点击完成或取消回调
+ * 注意：此处点击完成并不代表用户已经完成评分，仅监听VC dismiss
+ */
+- (void)inAppStoreReview:(NSString *)appid
+                complete:(void(^)(void))complete;
+```
+
+**调用示例**
+
+```objectivec
+[[RXStoreKitService sharedSDK] inAppStoreReview:@"1620105487" complete:^{
+        NSLog(@"点击了完成或取消");
+}];
+```
+
+![](https://guanwangyun.oss-cn-beijing.aliyuncs.com/document/positioning/BCOxb9DYXo3btpx8qBaclXGnn5f.png)
+
+## 应用内评分弹框
+
+此方法会在应用内弹出评分的 alert。
+
+**接口原型**
+
+```objectivec
+/**
+ * 应用内评分弹框
+ */
+- (void)alertAppReview;
+```
+
+**调用示例**
+
+```objectivec
+[[RXStoreKitService sharedSDK] alertAppReview];
+```
+
+![](https://guanwangyun.oss-cn-beijing.aliyuncs.com/document/positioning/TMyzbS4SboYSTAxTJd5cCLDYn87.png)
+
+## 跳转到 App Store 评分
+
+此方法会跳转到 App Store 应用首页或直接拉起评分/评论页。
+
+**接口原型**
+
+```objectivec
+/**
+ * 跳转到App Store评分
+ * @param appid App Store 应用 id
+ * @param writeReview 是否直接拉起评论页
+ */
+- (void)toAppStoreReview:(NSString *)appid
+             writeReview:(BOOL)writeReview;
+```
+
+**调用示例**
+
+```objectivec
+[[RXStoreKitService sharedSDK] toAppStoreReview:@"App Store 应用 id" writeReview:NO];
+```
+
+![](https://guanwangyun.oss-cn-beijing.aliyuncs.com/document/positioning/GO3SbnafNoDYlPx4EEhcPOzInih.png)

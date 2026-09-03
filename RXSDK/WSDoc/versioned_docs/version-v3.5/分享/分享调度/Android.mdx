@@ -1,0 +1,108 @@
+---
+title: "Android"
+---
+
+## 配置分享调度
+[分享调度配置](/docs/v3.5/分享/分享调度/Android)
+## 分享调度
+
+### 分享调度初始化
+
+:::tip
+如果在望舒后台开启了分享调度功能必须调用 `分享调度初始化` 接口，否则将无法正常使用分享调度功能
+:::
+
+**接口原型**
+
+```java
+void shareSchedulingInit(@NonNull Map hashMap, RXJSONCallback callback)
+```
+
+#### 参数说明
+
+| **字段**  | **类型**     | **是否必填** | **备注**                                                                           |
+| --------- | ------------ | ------------ | ---------------------------------------------------------------------------------- |
+| funcs      | Array     | 是           | 埋点数组，传空获取所有埋点调度                                                          |
+
+**调用示例**
+
+```java
+    Map m = new HashMap<>();
+    m.put("funcs", Arrays.asList("func1","func2"));
+    RXSdkApi.getInstance().shareSchedulingInit(m, jsonCallback);
+```
+
+#### 响应参数（JSON）
+::: warning
+未命中策略的埋点不返回
+:::
+
+| **参数**               | **类型** | **是否必填** | **备注**                                  |
+| --------- | -------- | ------------ |---------------------- |
+| scheduling_sign    | String   | 是           | 调度分享看广告总次数                           |
+| scheduling_type | String   | 是           | 分享 share 广告 ad |  
+| user_type | Number   | 是           | 用户状态 1有效用户 2无效用户 |  
+
+**响应示例**：
+
+```json
+{
+    "code": 0,
+    "msg":"",
+    "data": "func1": {
+        "scheduling_sign": "xx",
+        "scheduling_type": "ad",
+        "user_type": 1, // 1有效用户 2无效用户
+    }
+}
+```
+
+### 获取埋点调度
+
+分享调度初始化后 SDK 会将数据缓存，客户端需要使用时可以调用 获取埋点调度 来获取需要的埋点调度数据，无需再次初始化。
+需要在登录后调用。
+
+**接口原型**
+
+```java
+Map getShareScheduling(String... func)
+```
+
+#### 参数说明
+
+| **字段**  | **类型**     | **是否必填** | **备注**                                                                           |
+| --------- | ------------ | ------------ | -------- |
+| funcs     | Array        | 是           | 埋点数组，传空获取所有埋点调度    |
+
+**调用示例**
+
+```java
+    String [] funcs=new String[]{"func1","func2"};
+    RXSdkApi.getInstance().getShareScheduling(funcs);
+```
+
+#### 响应参数（JSON）
+
+| **参数**               | **类型** | **是否必填** | **备注**                                  |
+| --------- | -------- | ------------ |---------------------- |
+| scheduling_sign    | String   | 是           | 调度分享看广告总次数                           |
+| scheduling_type | String   | 是           | 分享 share 广告 ad |  
+| user_type | Number   | 是           | 用户状态 1有效用户 2无效用户 |  
+
+**响应示例**：
+
+```json
+// 方法返回值为 Map，结构如下
+{   
+    "func1": {
+        "scheduling_sign": "xx",
+        "scheduling_type": "ad",
+        "user_type": 1, // 1有效用户 2无效用户
+    },
+    "func2": {
+        "scheduling_sign": "xx",
+        "scheduling_type": "ad",
+        "user_type": 1, // 1有效用户 2无效用户
+    }
+}
+```

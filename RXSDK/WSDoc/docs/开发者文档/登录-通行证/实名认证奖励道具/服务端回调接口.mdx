@@ -1,0 +1,50 @@
+---
+sidebar_position: 2
+title: 服务端回调接口
+description: "望舒SDK 登录通行证 服务端回调接口服务端文档，提供接口请求参数与响应说明。"
+---
+
+## 实名奖励
+
+> 类型：同步
+>
+> Action: reward_real_auth
+>
+> **认证方式：** [CPSign](/docs/开发者文档/入门指南/服务端接入须知)
+
+### 请求参数
+
+| 字段 | 类型 | 是否必填 | 说明 |
+| --- | --- | --- | --- |
+| cp_user_id | String | 是 | 用户游戏 ID |
+| awards | []Awards | 是 | 奖励 |
+
+#### Awards
+
+| 字段 | 类型 | 是否必填 | 说明 |
+| --- | --- | --- | --- |
+| tag | String | 是 | 道具标识 |
+| count | Number | 是 | 道具数量 |
+| time_limit | Number | 是 | 非永久有效道具的有效期, 以天为单位， 0:永久有效 |
+
+### 请求案例
+
+```json
+{
+ "cp_user_id":"用户游戏ID",
+ "awards":[
+ {
+ "tag":"RealAuthReward", // 道具标识
+ "count":100, // 数量
+ "time_limit":1 // 非永久有效道具的有效期, 以天为单位 0:永久有效
+ }
+ ]
+}
+```
+
+### 响应参数
+
+| 字段 | 类型 | 是否必填 | 说明 |
+| --- | --- | --- | --- |
+| code | Number | 是 | 响应状态码 0 为正常，其他为异常 |
+| msg | String | 是 | 描述 |

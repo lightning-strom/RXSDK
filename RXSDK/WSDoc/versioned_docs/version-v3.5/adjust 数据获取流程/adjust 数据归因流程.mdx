@@ -1,0 +1,41 @@
+---
+sidebar_position: 2
+title: "adjust 数据归因流程"
+---
+
+阶段一：Adjust SDK 初始化与归因
+
+客户端集成 SDK：在应用程序中集成并配置 Adjust SDK。
+
+用户安装启动：用户从应用商店下载安装 App，并首次打开。
+
+SDK 自主归因：Adjust SDK 自动启动，收集设备信息（如 IDFA、GAID 等）并发送至 Adjust 后台。
+
+Adjust 分析归因：Adjust 后台根据收到的信息进行归因分析，判断用户来源（例如，来自某个广告点击或自然安装），并生成一个唯一的 Adjust Device Identifier (ADID)。
+
+SDK 接收结果：Adjust 后台将归因结果（包括 ADID、来源渠道等数据）下发给客户端 SDK。
+
+阶段二：客户端上报信息至服务端
+
+客户端上报：客户端将从 Adjust SDK 获取到的 ADID 以及本机的设备标识（如手机号、邮箱、或自生成的 UUID）一并上报给自家的服务端。
+
+阶段三：Adjust 向服务端同步数据
+
+Adjust 回传：Adjust 后台通过配置的回传地址（Callback），将详细的归因数据（其中包含关键的 ADID）主动发送给您的服务端。
+
+阶段四：服务端数据匹配
+
+ADID 匹配：服务端收到两方面的数据。
+
+来自客户端上报的 ADID。
+
+来自 Adjust 回传的 ADID。
+服务端以 ADID 为关键键，将两条数据记录进行匹配，从而获得一个完整的画像：”这个设备 (ADID) 的归因来源是什么“。
+
+账号绑定匹配：服务端将客户端上报的设备标识与系统内用户注册的账号标识进行匹配，从而确定”这个设备是哪个用户在使用“。
+
+阶段五：完成归因
+
+归因结果绑定用户：通过以上两个匹配，服务端成功地将 Adjust 的归因结果 与 最终的用户账号 关联起来。至此，完成了从广告点击到最终用户的完整归因链路。
+
+![](https://haiqi-ruixue-test.oss-cn-beijing.aliyuncs.com/docOnline/deepseek_mermaid_20251105_300cb7-1762327065792.png)

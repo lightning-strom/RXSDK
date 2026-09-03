@@ -1,0 +1,273 @@
+---
+sidebar_position: 1
+title: 客户端接入
+description: "望舒SDK 三方服务 客户端接入文档，提供详细的功能说明与接入指引。"
+---
+
+## 后台接入配置
+
+[登录配置说明](/docs/开发者文档/三方服务/九游/登录配置说明)
+
+[支付配置说明](/docs/开发者文档/三方服务/九游/支付配置说明)
+
+## 望舒快速接入（必接）
+
+[快速接入文档](/docs/开发者文档/入门指南/快速开始/Unity-初始化/快速开始)
+
+## 三方渠道接入说明（必读）
+
+[三方渠道接入说明](/docs/开发者文档/三方服务/三方接入说明)
+
+## SDK集成
+
+### 快手渠道库联运版
+
+SDK 3.7.28 开始 依赖快手 sdk 1.5.0-449 版本，之前版本依赖 1.4.3-218
+
+
+:::tip[版本说明]
+`version` 为 SDK 版本号（替换为实际版本号），最新版本请从 [更新日志](/docs/开发者文档/入门指南/更新日志/Android) 中查看。
+:::
+
+```groovy
+implementation 'com.ruixue:rxsdk_kwaiallin:${version}'
+```
+
+#### 快手渠道库买量版
+
+进行买量投放的接入此版本库 与 国家通信院 sdk 配合使用 [参考链接](/docs/开发者文档/三方服务/九游/客户端接入)
+
+买量版本 oaid 获取完成后再初始化快手 sdk
+
+依赖 1.4.3.213-base 版本，为快手单独发送 sdk
+
+```groovy
+
+implementation 'com.ruixue:rxsdk_kwai_buy:${version}'
+```
+
+## 配置说明
+
+在您的项目中，打开 your_app | Gradle Scripts | build.gradle (Module: app) 并将以下语句添加到 `defaultConfig` 块 部分：
+
+```groovy
+ manifestPlaceholders = [
+ KWAI_APP_ID : "xxxxxxx"
+ KWAI_APP_NAME : "xxxxxxx"
+ ]
+```
+
+meta-data 要配置在 application 标签内，否则不生效。
+
+使用快手 sdk 隐私时，需要同步打开快手后台 sdk 隐私权限配置开关。
+
+必须 必须接望舒 onApplicationCreate 生命周期函数。
+
+```xml
+</application>
+
+ meta-data
+ android:name="kwai_allow_tourist"
+ android:value="false" />
+
+ meta-data
+ android:name="kwai_disable_float_switch"
+ android:value="false" />
+
+ meta-data
+ android:name="kwai_custom_privacy"
+ android:value="false" />
+
+ activity
+ android:name=".xxxActivity"
+ android:configChanges="orientation|keyboardHidden|screenSize"
+ android:screenOrientation="landscape">
+
+</intent-filter>
+ <action android:name="android.intent.action.VIEW">
+
+ <category android:name="android.intent.category.BROWSABLE">
+ <category android:name="android.intent.category.DEFAULT">
+
+ data
+ android:host="home"
+ android:scheme="ks+游戏缩写" />
+</intent-filter>
+</activity>
+</application>
+```
+
+## 快手常用词汇术语
+
+[https://ks-game-docs.kuaishou.com/guide/activity/3.accountSystem.html#_3-4-faq](https://ks-game-docs.kuaishou.com/guide/activity/3.accountSystem.html#_3-4-faq)
+
+## 接入三方sdk版本信息
+
+使用快手 sdk 1.3.3.143 版本.
+
+SDK v3.4.18 后使用 1.4.3.209 版本，兼容 targetSdk 30
+
+SDK v3.6.15 后 使用 1.4.3.218 版本
+
+## 依赖信息
+
+使用 aar 接入方式的的请添加下面依赖配置，否则无需添加
+
+```groovy
+ implementation "androidx.appcompat:appcompat:${libs.appcompat}"
+ //noinspection GradleDependency
+ implementation "com.google.code.gson:gson:${libs.gson}"
+
+ implementation('com.kwai.sdk:kwaisdk-base:1.3.3.143')
+
+ implementation('com.kwai.sdk:kwaisdk-base:1.4.3.209')// 2024年01月15日16:53:42 v3.4.18 后版本使用
+
+ implementation('com.kwai.sdk:kwaisdk-base:1.4.3.218')// 2024年12月10日 v3.6.15 后版本使用
+
+ //noinspection GradleDependency
+ implementation 'com.alipay.sdk:AlipaySdk:15.8.01.20210112203525'
+```
+
+## 常见问题
+
+如遇冲突 Duplicate class com.google.common.util.concurrent.ListenableFuture found in modules jetified-guava-24.0-android (com.google.guava:guava:24.0-android) and jetified-listenablefuture-1.0 (com.google.guava:listenablefuture:1.0)
+
+在 app build.gradle 中添加下面配置
+
+```groovy
+ configurations {
+ all*.exclude group: 'com.google.guava', module: 'listenablefuture'
+ }
+```
+
+如微信组件出现冲突，请使用下面方式可以排除冲突。
+
+```groovy
+ api ("com.ruixue:rxsdk_weixin:+" ){
+ exclude group: 'com.tencent.mm.opensdk', module: 'wechat-sdk-android'
+ }
+```
+
+如遇错误
+
+```plaintext
+java.lang.NoClassDefFoundError: Failed resolution of: Lcom/google/common/base/Optional; Caused by: java.lang.ClassNotFoundException: Didn't find class "com.google.common.base.Optional"
+
+```
+
+请添加 ('com.google.guava:guava:24.0-android') 库
+
+如遇编译错误错误
+
+```groovy
+Duplicate class androidx.core.util.Supplier found in modules core-1.8.0-runtime (androidx.core:core:1.8.0) and jetified-kwaisdk-base-1.4.3.209-runtime (com.kwai.sdk:kwaisdk-base:1.4.3.209)
+Duplicate class androidx.lifecycle.DefaultLifecycleObserver found in modules jetified-kwaisdk-base-1.4.3.209-runtime (com.kwai.sdk:kwaisdk-base:1.4.3.209) and lifecycle-common-2.5.1 (androidx.lifecycle:lifecycle-common:2.5.1)
+
+Go to the documentation to learn how to Fix dependency resolution errors.
+```
+
+请在 gradle.properties 中添加
+
+```groovy
+android.useAndroidX=true
+android.enableJetifier=true
+android.jetifier.blacklist=kwaisdk-base-1.4.3.209.aar
+android.jetifier.ignorelist=kwaisdk-base-1.4.3.209.aar
+
+#注意 1.4.3.209 为版本号，要使用最新的，目前为 1.4.3.218
+
+```
+
+## 初始化 SDK（必接）
+
+```java
+Map<String, Object> params = new HashMap<>();
+RuiXueSdk.getApi().initThirdSdk(this, params, new RXJSONCallback() {
+    @Override
+    public void onSuccess(@Nullable JSONObject jsonObject) {
+    Log.d(TAG, "init third sdk success");
+    }
+
+    @Override
+    public void onFailed(@NonNull JSONObject jsonObject) {
+    Log.d(TAG, "init third sdk failed " + jsonObject);
+    }
+});
+```
+
+## 登录 (必须接入)
+
+请参考 [Android 端登录 API](/docs/开发者文档/登录-通行证/Android-登录API/快速接入)
+
+参考代码
+
+```java
+String username = null;
+String loginType = LoginMethod.KUAISHOU;
+String password = null;
+String captchaCode = null;
+String loginOpenId = null;
+Map<String, Object> ext = null;
+String[] signFields = null;
+Object migrateArgs = null;
+RuiXueSdk.getApi().login(DemoActivity.this, loginType, username, password, captchaCode, loginOpenId, ext, signFields, migrateArgs, new RXJSONCallback() {
+    @Override
+    public void onSuccess(@Nullable JSONObject data) {
+    Toast.makeText(DemoActivity.this, "登录成功", Toast.LENGTH_SHORT).show();
+    }
+
+    @Override
+    public void onFailed(@NonNull JSONObject cause) {
+    Toast.makeText(DemoActivity.this, "登录失败", Toast.LENGTH_SHORT).show();
+    }
+});
+```
+
+## 支付 (必须接入)
+
+请参考 [Android 端支付 API](/docs/开发者文档/支付/功能介绍)
+
+## 登出
+
+```java
+RuiXueSdk.getApi().logout(new OnLogoutCallback() {
+    @Override
+    public void onSuccess(@Nullable String data) {
+    // 登出成功
+    }
+});
+```
+
+## 退出(在游戏主界面退出时需要接入该方法)
+
+参考代码
+
+```java
+    RuiXueSdk.exitApp(this, new OnAppExitCallback() {
+    @Override
+    public void onExitConfirm(@Nullable String res) {
+    Toast.makeText(DemoActivity.this, "退出游戏成功", Toast.LENGTH_SHORT).show();
+    }
+
+    @Override
+    public void onExitCancel() {
+    Toast.makeText(DemoActivity.this, "退出游戏取消", Toast.LENGTH_SHORT).show();
+    }
+});
+```
+
+## 切换账号
+
+```java
+KwaiSdkHelper.switchLogin(new OnLoginCallback() {
+    @Override
+    public void onSuccess(@Nullable String data) {
+
+    }
+
+    @Override
+    public void onFailed(int code, String msg, @Nullable String traceId) {
+
+    }
+});
+```

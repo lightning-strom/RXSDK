@@ -1,0 +1,205 @@
+---
+title: "iOS"
+---
+
+## 准备工作
+
+## SDK 集成
+
+- 编辑 Podfile 文件，添加如下配置：
+
+```objectivec
+pod 'RXNetworkingKit'
+pod 'YYModel'
+pod 'AliyunOSSiOS'
+pod 'WCDB'
+pod 'RXIMSDK-iOS'
+```
+
+## 快速开始
+
+### 初始化
+将 SDK 集成到客户端后，需要先完成 SDK 的初始化才能使用其他功能。
+
+**接口原型**
+
+```objectivec
+/**
+ * 初始化SDK
+ * @param productId 产品id，一个开发者账号下可以有多个产品
+ * @param channelId 渠道id，一个product可以有多个渠道
+ * @param cpId 产品cpid， 开发者账号的id，创建了账号就有这个id
+ * @param clientType 客户端类型
+ * @param baseUrl 服务器域名
+ * @param version sdk版本号
+ */
+- (void)initWithProductId:(NSString * _Nonnull)productId
+                channelId:(NSString * _Nonnull)channelId
+                     cpid:(NSInteger)cpId
+               clientType:(NSInteger)clientType
+                  version:(NSString * _Nonnull)version
+                  baseUrl:(NSString * _Nonnull)baseUrl;
+```
+以上提供了SDK内初始化的接口，可以在程序运行时调用，如放入AppDelete中。
+#### 参数说明
+
+| **字段**   | **类型**  | **是否必填** | **备注**                                                                                                                            |
+| ---------- | --------- | ------------ | ----------------------------------------------------------------------------------------------------------------------------------- |
+| productId  | NSString  | 是           | 产品 id                                                                                                                             |
+| channelId  | NSString  | 否           | 渠道 id                                                                                                                             |
+| cpId       | NSString  | 是           | cpid                                                                                                                                |
+| clientType | NSInteger | 是           | 客户端类型参照数据约束中的[客户端类型](/docs/v3.5/即时通讯/功能介绍)。例：iPhone：0x00000001 |
+| version    | NSString  | 否           | 版本号，仅做观察使用，不影响功能例：v1.0.0                                                                                          |
+| baseUrl    | NSString  | 是           | 请求域名                                                                                                                            |
+
+**调用示例**
+
+```objectivec
+- (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions {
+    ...
+    //推荐在程序启动的时候初始化 RXIMSdk
+   [[RXIMSDKManager sharedSDK] initWithProductId:@"test_product" channelId:@"test_channel" cpid:1000000 clientType:262657 version:@"v1.0.0" baseUrl:@"https://ruixue.weiletest.com"];
+    ...
+}
+```
+
+### 设置数据库基地址（非必须）
+
+默认地址：/var/mobile/Containers/Data/Application/99883D50-62D3-435F-ADA8-DEF0269BA9A6/Documents/RXIMSDK
+
+**接口原型**
+
+```objectivec
+/**
+ * 设置数据库的基地址
+ */
+- (void)setDBBasePath:(NSString * _Nullable)path;
+```
+
+**调用示例**
+
+```objectivec
+[[RXIMSDKManager sharedSDK] setDBBasePath:@"沙盒路径"];
+```
+
+### 连接
+
+**接口原型**
+
+```objectivec
+/**
+ * 启动引擎
+ */
+-(void)onStart;
+```
+onStart用于通过长链接链接服务器，用以即时通讯
+
+**调用示例**
+
+```objectivec
+[[RXIMSocketEngine sharedSDK] onStart];
+```
+
+#### 注册连接监听
+
+`[RXIMSocketEngine sharedSDK].delegate = self;`
+
+注册后，可以通过delegate的到连接成功与断开的通知
+
+**接口原型**
+
+```objectivec
+/**
+ * IM连接监听
+ */
+@protocol RXIMSocketDelegate 
+@optional
+/**
+ * 连接成功
+ */
+- (void)onSocketConnectSuccess;
+
+/**
+ * 断开连接
+ */
+- (void)onSocketDisconnect:(NSError *)error;
+
+@end
+```
+
+**调用示例**
+
+```objectivec
+#pragma mark - 连接成功回执
+- (void)onSocketConnectSuccess
+{
+
+}
+
+#pragma mark - 连接断开回执
+- (void)onSocketDisconnect:(NSError *)error
+{
+
+}
+```
+
+### 登录
+
+用户在登录IM后，才可以正常收发消息。您可以将登录信息缓存到本地，在登录时使用。
+
+**接口原型**
+
+```objectivec
+/**
+ * 登陆IM
+ * @param userId 用户标识符
+ * @param accessToken 访问令牌
+ * @param refreshToken 刷新令牌
+ * @param aesKey AES 密钥
+ */
+- (void)loginRXIMSDKWithUserId:(NSString * _Nonnull)userId
+                   accessToken:(NSString * _Nonnull)accessToken
+                  refreshToken:(NSString * _Nonnull)refreshToken
+                        aesKey:(NSString * _Nonnull)aesKey
+                      complete:(void(^)(RXIMError *error))complete;
+```
+
+### 参数说明
+
+| **字段**     | **类型**  | **是否必填** | **备注**                                                                                                                      |
+| ------------ | --------- | ------------ | ----------------------------------------------------------------------------------------------------------------------------- |
+| userId       | NSString  | 是           | 用户标识符采用字符串类型，格式为 `^[a-zA-Z\d_-]{1,32}$`，即：只能由 `数字`、`大小写字母`、`_`、`-` 组成，长度为 `1-32` 个字符 |
+| accessToken  | NSString  | 否           | 访问令牌                                                                                                                      |
+| refreshToken | NSString  | 是           | 刷新令牌                                                                                                                      |
+| aesKey       | NSInteger | 是           | AES 密钥                                                                                                                      |
+
+**调用示例**
+
+```objectivec
+[[RXIMSDKManager sharedSDK] loginRXIMSDKWithUserId:self.userId accessToken:@"访问令牌" refreshToken:@"刷新令牌" aesKey:@"AES密钥" complete:^(RXIMError * _Nonnull error) {
+    if (!error) {
+        NSLog(@"登录成功");
+    }else{
+        NSLog(@"登录失败");
+    }
+}];
+```
+
+### 退出
+
+客户端在下线或者切换账号等情况下需要退出 IM，用来断开 socket 连接切断通信以及清理缓存；再次上线或登录新账户时需要重新调用登录接口来完成 socket 连接进行通信。
+
+**接口原型**
+
+```objectivec
+/**
+ * 退出
+ */
+- (void)logout;
+```
+
+**调用示例**
+
+```objectivec
+[[RXIMSDKManager sharedSDK] logout];
+```

@@ -1,0 +1,150 @@
+---
+title: "快速接入"
+---
+
+## 帮助中心
+
+### 展示帮助中心
+
+**UI示例**
+
+![](https://guanwangyun.oss-cn-beijing.aliyuncs.com/document/charts/helpdark.png)
+![](https://guanwangyun.oss-cn-beijing.aliyuncs.com/document/charts/helpligth.png)
+
+**接口原型**
+
+```java
+/**
+ * @param activity 页面上下文
+ * @param map cp自定义参数         
+ * @param callback 回调
+ * @return IRXView
+ */
+IRXView helperCenterUI(Activity activity, Map map, RXUICallback callback)
+```
+
+#### 参数说明
+
+> Map 结构说明
+
+| **字段**      | **备注**                                            |
+| ------------- | --------------------------------------------------- |
+| transmit_args | 透传数据，使用 jsonString 形式                      |
+| game_user_id  | 用户的游戏 id                                       |
+| nickname      | 用户昵称                                            |
+| head_img_url  | 用户头像                                            |
+| queue_name    | 在望舒客服系统设置的接入点名称 不填写默认为 default |
+
+**调用示例**
+
+```java
+RXSdkUI.getInstance().helperCenterUI(this, new HashMap<>(), jsonCallback).show();
+```
+
+### 客服会话
+
+**UI示例**
+
+![](https://guanwangyun.oss-cn-beijing.aliyuncs.com/document/chatService/HrMKbwZDDo5CayxoqPWcQfLinfw.png)
+
+**接口原型**
+
+```java
+/**
+ * 客服 WebView 
+ * @param activity 上下文对象
+ * @param map cp方自定义参数
+ * @param callback 回调
+ * @return IRXView
+ */
+@Override
+public IRXView chatServiceUI(Activity activity, Map map, RXUICallback callback)
+```
+
+#### 参数说明
+
+> Map 结构说明
+
+| **字段**      | **备注**                                            |
+| ------------- | --------------------------------------------------- |
+| transmit_args | 透传数据，使用 jsonString 形式                      |
+| game_user_id  | 用户的游戏 id                                       |
+| nickname      | 用户昵称                                            |
+| head_img_url  | 用户头像                                            |
+| queue_name    | 在望舒客服系统设置的接入点名称 不填写默认为 default |
+
+**调用示例**
+
+```java
+RXSdkUI.getInstance().chatServiceUI(this, new HashMap<>(), jsonCallback).show();
+```
+
+## 获取客服消息未读数
+**接口原型**
+
+```java
+/**
+ * 获取客服消息未读数
+ */
+void getServiceChatUnreadCount(RXRequestCallback callback);
+```
+
+**调用示例**
+
+```java
+RuiXueSdk.getApi().getServiceChatUnreadCount(new RXRequestCallback() {
+                @Override
+                public void onResponse(JSONObject jsonObject) {
+                    RXLogger.d("WLTest", "resp:" + jsonObject);
+                }
+            });
+```
+
+### 响应结构
+
+| **字段** | **类型**                                                                                          | **说明**         |
+| -------- | ------------------------------------------------------------------------------------------------- | ---------------- |
+| code     | Number                                                                                            | 状态码 0 为成功  |
+| msg      | String                                                                                            | 失败时的错误信息 |
+| data     | Object  | 返回信息         |
+
+> data 说明
+
+| **字段** | **类型**                                                           | **说明**         |
+| -------- | ----------------------------------------------- | ---------------- |
+| unread     | Number                                      | 未读数  |
+
+**响应示例**
+```json
+{
+    "code" : 0,
+    "data" : {
+        "unread" : 5
+    },
+    "trace_id" : "F989D228-6BBC-4508-B972-D45174E579A9"
+}
+```
+
+## 清空客服消息未读数
+:::tip
+连接客服会话后会自动清除未读数，需要在未连接时清空未读数调用此接口。
+:::
+**接口原型**
+
+```java
+/**
+ * 清空客服消息未读数
+ */
+void clearServiceChatUnreadCount(RXRequestCallback callback);
+```
+
+**调用示例**
+
+```java
+ RuiXueSdk.getApi().clearServiceChatUnreadCount(new RXRequestCallback() {
+                @Override
+                public void onResponse(JSONObject jsonObject) {
+                    RXLogger.d("WLTest", "clearServiceUnreadCount resp:" + jsonObject);
+                }
+            });
+```

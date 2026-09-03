@@ -1,0 +1,204 @@
+---
+title: "Game Center"
+---
+
+## 准备工作
+
+:::tip
+接入请前先做好准备工作。可通过 pod 方式接入 **RXGameCenterSDK** 组件，并使用 **RXGameCenterSDK** 相关功能。
+在需要使用功能的类中引用头文件```#import ```
+
+:::
+
+## SDK 集成
+
+* 编辑 Podfile 文件，添加如下配置：
+
+```objectivec
+pod 'RXGameCenterSDK'
+```
+
+## 工程配置
+
+### 配置Game Center Capability
+
+我们需要在Xcode中添加Game Center Capability，添加方式如下：
+![image.png](https://haiqi-ruixue-test.oss-cn-beijing.aliyuncs.com/docOnline/image-1758776864342.png)
+
+### 配置App Store Connect
+
+1. 登录 [App Store Connect](https://security.feishu.cn/link/safety?target=https%3A%2F%2Fappstoreconnect.apple.com&scene=ccm&logParams=%7B%22location%22%3A%22ccm_drive%22%7D&lang=zh-CN)
+2. 选择你的应用
+3. 进入"功能" → "Game Center"
+4. 启用Game Center功能
+5. 创建排行榜和成就
+
+## 功能实现
+
+###  Game Center 登录
+
+建议在游戏启动时或者其他恰当的时机进行GameCenter认证登录，确保在提交分数或解锁成就前已完成认证。
+**接口原型**
+
+```objectivec
+/**
+ * 登录 Game Center
+ */
+- (void)authenticateWithComplete:(RequestComplete)complete;
+```
+
+**调用示例**
+
+```objectivec
+    [[RXGameCenterService sharedSDK] authenticateWithComplete:^(NSDictionary * _Nullable response, RX_CommonRequestError * _Nullable error) {'{'}
+        if (!error) {'{'}
+            NSLog(@"Game Center 登录成功");
+        {'}'} else {'{'}
+            NSLog(@"Game Center 登录失败 %@", error.responesObject);
+        {'}'}
+    {'}'}];
+```
+
+### 上传 Game Center 排行榜分数
+
+用于将玩家的分数提交到 Game Center 的排行榜（Leaderboard）。
+**接口原型**
+
+```objectivec
+/**
+ * 上传 Game Center 排行榜分数
+ * @param score 分数
+ * @param leaderboardID 排行榜 id
+ */
+- (void)submitScoreWithScore:(NSInteger)score
+               leaderboardID:(NSString *)leaderboardID
+                    complete:(RequestComplete)complete;
+```
+
+#### 参数说明
+
+| **字段** | **类型** | **是否必填** | **备注** |
+| -------- | -------- | ------------ | -------- |
+| score    | NSInteger | 是           | 分数     |
+| leaderboardID    | NSString | 是           | 排行榜 id     |
+
+**调用示例**
+
+```objectivec
+    [[RXGameCenterService sharedSDK] submitScoreWithScore:分数 leaderboardID:排行榜 id complete:^(NSDictionary * _Nullable response, RX_CommonRequestError * _Nullable error) {'{'}
+        if (!error) {'{'}
+            NSLog(@"Game Center 上传排行榜成功");
+        {'}'} else {'{'}
+            NSLog(@"Game Center 上传排行榜失败 %@", error.responesObject);
+        {'}'}
+    {'}'}];
+```
+
+### 解锁 Game Center 成就进度
+
+用于 **解锁或更新 Game Center 成就进度**。通过 `achievementID` 指定成就，设置 `percentComplete` 来更新完成进度（0.0 \~ 100.0），如果完成度达到 100.0%，Game Center 会自动显示系统成就解锁横幅。
+**接口原型**
+
+```objectivec
+/**
+ * 解锁 Game Center 成就进度
+ * @param percentComplete 进度
+ * @param achievementID 成就 id
+ */
+- (void)unlockGKAchievementWithAchievementID:(NSString *)achievementID
+                             percentComplete:(double)percentComplete
+                                    complete:(RequestComplete)complete;
+```
+
+#### 参数说明
+
+| **字段** | **类型** | **是否必填** | **备注** |
+| -------- | -------- | ------------ | -------- |
+| percentComplete    | double | 是           | 分数     |
+| achievementID    | NSString | 是           | 排行榜 id     |
+
+**调用示例**
+
+```objectivec
+    [[RXGameCenterService sharedSDK] unlockGKAchievementWithAchievementID: 成就 id percentComplete:进度 complete:^(NSDictionary * _Nullable response, RX_CommonRequestError * _Nullable error) {'{'}
+        if (!error) {'{'}
+            NSLog(@"Game Center 解锁成就进度成功");
+        {'}'} else {'{'}
+            NSLog(@"Game Center 解锁成就进度失败 %@", error.responesObject);
+        {'}'}
+    {'}'}];
+```
+
+## 界面展示
+
+### GameCenter 主界面
+
+展示 **Game Center 内置界面**（`GKGameCenterViewController`），用于显示排行榜、成就、挑战等内容。
+**接口原型**
+
+```objectivec
+/**
+ * 展示 Game Center 主界面
+ */
+- (void)showGameCenterWithComplete:(RequestComplete)complete;
+```
+
+**调用示例**
+
+```objectivec
+    [[RXGameCenterService sharedSDK] showGameCenterWithComplete:^(NSDictionary * _Nullable response, RX_CommonRequestError * _Nullable error) {'{'}
+        if (!error) {'{'}
+            NSLog(@"Game Center 展示主界面成功");
+        {'}'} else {'{'}
+            NSLog(@"Game Center 展示主界面成功失败 %@", error.responesObject);
+        {'}'}
+    {'}'}];
+```
+
+### GameCenter 排行榜界面
+
+单独展示 **Game Center 内置排行榜界面**，让玩家查看自己和其他玩家在排行榜中的排名与分数。
+**接口原型**
+
+```objectivec
+/**
+ * 展示排行榜
+ */
+- (void)showLeaderboardWithComplete:(RequestComplete)complete;
+```
+
+**调用示例**
+
+```objectivec
+    [[RXGameCenterService sharedSDK] showLeaderboardWithComplete:^(NSDictionary * _Nullable response, RX_CommonRequestError * _Nullable error) {'{'}
+        if (!error) {'{'}
+            NSLog(@"Game Center 展示排行榜界面成功");
+        {'}'} else {'{'}
+            NSLog(@"Game Center 展示排行榜界面成功失败 %@", error.responesObject);
+        {'}'}
+    {'}'}];
+```
+
+###  GameCenter 成就界面
+
+单独展示 **Game Center 内置成就界面**，让玩家查看自己在游戏中解锁的成就进度。
+**接口原型**
+
+```objectivec
+/**
+ * 展示成就
+ */
+- (void)showAchievementsWithComplete:(RequestComplete)complete;
+```
+
+**调用示例**
+
+```objectivec
+    [[RXGameCenterService sharedSDK] showAchievementsWithComplete:^(NSDictionary * _Nullable response, RX_CommonRequestError * _Nullable error) {'{'}
+        if (!error) {'{'}
+            NSLog(@"Game Center 展示成就界面成功");
+        {'}'} else {'{'}
+            NSLog(@"Game Center 展示成就界面成功失败 %@", error.responesObject);
+        {'}'}
+    {'}'}];
+```

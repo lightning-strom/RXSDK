@@ -1,0 +1,250 @@
+---
+title: "快速接入"
+---
+
+## 配置分享信息
+[查看所需分享平台的分享配置](/docs/v3.5/分享/Unity 接入/快速接入)
+### 接入方式
+* Package Manager 导入 RuiXue.Share
+## SDK集成
+
+* ( ) iOS::shareunity1
+* ( ) Android::shareunity2
+
+### 分享调度初始化
+
+**接口原型**
+
+```csharp
+public void ShareSchedulingInit(string[] funcs, 
+            RequestResponseDelegate onResponse, RequestErrorDelegate onError);
+```
+
+**调用示例**
+
+```csharp
+    public void OnShareSchedulingInit()
+    {
+        // 埋点标识数组
+        string[] arr = { "maidian3"};
+        RXShare.ShareSchedulingInit(arr, ShareInitResponseDelegate, ShareInitErrorDelegate);
+    }
+```
+
+### 获取埋点调度
+
+**接口原型**
+
+```csharp
+public string GetShareScheduling(string[] func);
+```
+
+**调用示例**
+
+```csharp
+    public void OnShareSchedulingInit()
+    {
+    public void OnGetShareScheduling()
+    {
+        // 埋点标识数组
+        string[] arr = { "maidian3"};
+        string scheduleStr = RXShare.GetShareScheduling(arr);
+    }
+    }
+```
+### 获取分享/广告埋点信息
+
+**接口原型**
+
+```csharp
+public void GetShareInfo(RXShareConfig shareConfig,
+            RequestResponseDelegate onResponse, RequestErrorDelegate onError);
+```
+
+### 参数说明
+
+> RXShareConfig
+
+| **字段**         | **类型** | **是否必填** | **说明**                                                          |
+| ---------------- | -------- | ------------ | ----------------------------------------------------------------- |
+| func             | string   | 是           | 埋点标识数组                                                      |
+| platform         | string   | 否           | 枚举，支持 wechat ，facebook                                      |
+| region           | string   | 否           | 地区码。 [望舒地区码列表](https://pan.jiaxianghudong.com/s/pdEzbPRkDS9)                                                            |
+| transmits        | string   | 否           | 透传参数，原样返回， 请使用 key=value 形式，并使用 urlencode 编码，此数据在落地页中可以通过 key 获取到 |
+| protocol_android | string   | 是           | cp 方  android app scheme                                         |
+| protocol_ios     | string   | 是           | cp 方 启动 ios app  scheme                                        |
+| use_scheme       | string | 否           | 由cp控制是否使用游戏协议，如传0则在落地页上操作不会尝试打开应用，直接跳转到对应商店，如传1则会尝试打开应用 |
+| readCache        | bool | 否           | 是否读取缓存，默认不读取 |
+| auto_report        | bool | 否           | 是否自动上报 |
+
+**调用示例**
+
+```csharp
+    public void OnGetShareInfo()
+    {
+        RXShareConfig rxShareConfig = new RXShareConfig();
+        rxShareConfig.func = "unity_test";
+        rxShareConfig.platform = "wechat";
+        rxShareConfig.read_cache = true;
+        rxShareConfig.protocol_android = "android_protocal_test";
+        rxShareConfig.protocol_ios = "ios_protocal_test";
+        RXShare.GetShareInfo(rxShareConfig, GetShareInfoResponseDelegate, GetShareInfoErrorDelegate);
+    }
+```
+
+### 自定义数据分享
+
+**接口原型**
+
+```csharp
+public void ShareCustom(RXCustomShareConfig shareConfig,
+            RequestResponseDelegate onResponse, RequestErrorDelegate onError);
+```
+
+### 参数说明
+
+> RXCustomShareConfig
+
+| **字段**         | **类型** | **是否必填** | **说明**                                                          |
+| ---------------- | -------- | ------------ | ----------------------------------------------------------------- |
+| platform         | string   | 否           | 分享平台
+| protocol_android | string   | 是           | cp 方  android app scheme                                         |
+| protocol_ios     | string   | 是           | cp 方 启动 ios app  scheme                                        |
+| use_scheme       | string | 否           | 由cp控制是否使用游戏协议，如传0则在落地页上操作不会尝试打开应用，直接跳转到对应商店，如传1则会尝试打开应用 |
+| thirdAppid        | string | 否           | 三方appid |
+| materialType        | string | 是           | 分享类型，text/image/landing/link/video |
+| image        | string | 否           | url或本地路径 |
+| url        | string | 否           | 分享链接  |
+| title        | string | 否           | 分享标题  |
+| content        | string | 否           | 分享描述  |
+| shareScene        | int | 否           | 0好友 1朋友圈  |
+| x        | int | 否           | 二维码坐标x    |
+| y        | int | 否           | 二维码坐标y |
+| width        | int | 否           | 二维码坐标width |
+| height        | int | 否           | 二维码坐标height |
+
+#### materialType 说明
+
+| **类型**         |**说明**                                                                                          |
+| ---------------- |------------------------------------------------------------------------------------------------- |
+|  text              | 文本类型，支持平台  wechat/system/line                                                                            |
+| image              | 图片类型，支持平台  wechat/system/facebook/messenger/tiktok/zalo/snapchat                                                                                      |
+| landing/link       | 落地页/链接 类型，支持平台  wechat/system/facebook/messenger/zalo/line                                                                                      |
+| video            |  视频类型，支持平台  tiktok/snapchat                                                                                     |
+
+**调用示例**
+
+```csharp
+    public void OnShareCustom()
+    {
+        RXCustomShareConfig rxCustomShareConfig = new RXCustomShareConfig();
+        rxCustomShareConfig.platform = "wechat";
+        rxCustomShareConfig.appid = "wxd9cba83a0a1ef20d";
+        rxCustomShareConfig.material_type = "text";
+        rxCustomShareConfig.title = "分享标题";
+        rxCustomShareConfig.content = "分享内容";
+        rxCustomShareConfig.shareScene = 1;
+        
+        RXShare.ShareCustom(rxCustomShareConfig, GetShareInfoResponseDelegate, GetShareInfoErrorDelegate);
+
+    }
+```
+
+### 发起分享
+
+```csharp
+public void Share(RXShareConfig shareConfig, RequestResponseDelegate onResponse, RequestErrorDelegate onError);
+```
+
+### 参数说明
+
+> RXShareConfig
+
+| **字段**         | **类型** | **是否必填** | **说明**                                                          |
+| ---------------- | -------- | ------------ | ----------------------------------------------------------------- |
+| func             | string   | 是           | 埋点标识数组                                                      |
+| platform         | string   | 否           | 分享平台
+| region           | string   | 否           | 地区码。 [望舒地区码列表](https://pan.jiaxianghudong.com/s/pdEzbPRkDS9)                                                            |
+| transmits        | string   | 否           | 透传参数，原样返回， 请使用 key=value 形式，并使用 urlencode 编码，此数据在落地页中可以通过 key 获取到 |
+| protocol_android | string   | 是           | cp 方  android app scheme                                         |
+| protocol_ios     | string   | 是           | cp 方 启动 ios app  scheme                                        |
+| use_scheme       | string | 否           | 由cp控制是否使用游戏协议，如传0则在落地页上操作不会尝试打开应用，直接跳转到对应商店，如传1则会尝试打开应用 |
+| readCache        | bool | 否           | 是否读取缓存，默认不读取 |
+| auto_report        | bool | 否           | 是否自动上报 |
+
+**调用示例**
+
+```csharp
+
+    public void WeixinShare()
+    {
+        RXShareConfig rxShareConfig = new RXShareConfig();
+        rxShareConfig.func = "gh";
+        rxShareConfig.platform = "weixin";
+        rxShareConfig.read_cache = true;
+        rxShareConfig.protocol_android = "android_protocal_test";
+        rxShareConfig.protocol_ios = "ios_protocal_test";
+        
+        RXShare.Share(rxShareConfig, ShareResponseDelegate, ShareErrorDelegate);
+        
+    }
+
+```
+
+::: tip
+此方法暂时不支持 tiktok
+:::
+
+### 分享/广告结果上报
+
+**接口原型**
+
+```csharp
+public void ShareSchedulingReport(string func, string platform, string region, bool scheduling_event, 
+            string scheduling_type, string transmits, Dictionary properties, 
+            RequestResponseDelegate onResponse, RequestErrorDelegate onError);
+```
+
+### 参数说明
+
+> RXShareConfig
+
+| **字段**         | **类型** | **是否必填** | **说明**                                                          |
+| ---------------- | -------- | ------------ | ----------------------------------------------------------------- |
+| func             | string   | 是           | 埋点标识数组                                                      |
+| platform         | string   | 否           | 分享平台
+| region           | string   | 否           | 地区码。 [望舒地区码列表](https://pan.jiaxianghudong.com/s/pdEzbPRkDS9)                                                            |
+| scheduling_event | bool   | 否           | 分享结果 true false 布尔值                                            |
+| scheduling_type | string   | 否           | 上报类型  share 分享 ad 广告                                         |
+| transmits        | string   | 否           | 透传参数，原样返回， 请使用 key=value 形式，并使用 urlencode 编码，此数据在落地页中可以通过 key 获取到 |
+| properties        | Dictionary   | 否           | 自定义属性 |
+
+**调用示例**
+
+```csharp
+
+    public void OnShareSchedulingReport()
+    {
+        RXShare.ShareSchedulingReport("wake_game_honor_1", "wechat", "220101", true,
+            "share", "", null, 
+            ShareSchedulingReportResponseDelegate, ShareSchedulingReportErrorDelegate);
+    }
+
+```
+
+### 获取自动重定向短链接
+
+**接口原型**
+
+```csharp
+public void GetShortUrl(string url, RequestResponseDelegate onResponse, RequestErrorDelegate onError);
+```
+
+**调用示例**
+
+```csharp
+    public void OnGetShortUrl()
+    {
+        RXShare.GetShortUrl("www.baidu.com", GetShortUrlResponseDelegate, GetShortUrlErrorDelegate);
+    }
+```

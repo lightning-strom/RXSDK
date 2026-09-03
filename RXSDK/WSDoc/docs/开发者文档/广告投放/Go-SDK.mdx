@@ -1,0 +1,91 @@
+---
+sidebar_position: 2
+title: Go SDK
+description: "望舒SDK 广告 Go SDK文档，提供详细的功能说明与接入指引。"
+---
+
+---
+
+### Go 项目设置依赖
+
+在 go.mod 中添加 依赖 `github.com/ruixueyun/ruixuego`` latest`
+
+```go
+ go get github.com/ruixueyun/ruixuego
+ go mod tidy
+```
+
+### 初始化 Go SDK
+
+```go
+// Init 初始化 SDK
+func Init(conf *Config) (err error)
+```
+
+#### 参数说明
+
+| 字段 | 类型 | 是否必填 | 备注 |
+| --- | --- | --- | --- |
+| conf | [Config](/docs/开发者文档/性能分析/GPM-SDK接入/快速开始) | 是 | CP 配置信息 |
+
+##### Config结构信息
+
+| 字段 | 类型 | 是否必填 | 备注 |
+| --- | --- | --- | --- |
+| APIDomain | string | 是 | CP 对外 API 接口域名 |
+| AppKeys | map[string]map[string]string | 是 | APPID 对应的 ChannelID : APPKEY |
+| Timeout | int32 | 否 | 请求超时时间(毫秒) |
+| TrackTimeout | int32 | 否 | 埋点数据上报超时时间(毫秒) |
+| Concurrency | int | 否 | 并发请求限制 |
+| CPKey | string | 是 | 产品密钥 |
+| CPID | uint32 | 是 | CP id |
+| ServiceMark | string | 否 | 区服标识 |
+| ProductID | string | 是 | 产品 ID |
+| BigData | *[BigDataConfig](/docs/开发者文档/性能分析/GPM-SDK接入/快速开始) | 否 | 大数据上传配置 |
+
+##### BigDataConfig结构
+
+| 字段 | 类型 | 是否必填 | 备注 |
+| --- | --- | --- | --- |
+| CacheCapacity | int | 是 | 缓存容量 |
+| BatchSize | int | 是 | 大数据埋点批量发送每批条数 |
+| AutoFlushInterval | int | 是 | 自动上传间隔, 单位秒 |
+| AutoFlush | bool | 是 | 是否启动自动上传 |
+| DisableCompress | bool | 是 | 是否禁用 GZip 压缩 |
+
+**调用示例**
+
+```go
+err := ruixuego.Init(&ruixuego.Config{
+ APIDomain: "{{接口域名}}",
+ AppKeys: map[string]map[string]string{"{{AppID}}": {"{{ChannelID}}": "{{AppKey}}"}},
+ CPKey: "{{CPKEY}}",
+ CPID: {{CPID}},
+ ProductID: "{{产品ID}}",
+ ServiceMark: "{{区服标识}}",
+})
+if err != nil {
+ panic(err)
+}
+```
+
+#### 响应结构
+
+| 字段 | 类型 | 是否必填 | 备注 |
+| --- | --- | --- | --- |
+| err | error | 是 | 成功时 nil, 其他为错误 |
+
+### 投放归因自定义上报
+
+调用方法：
+
+```Go
+ ReportCustomAction(openID, action string) error
+```
+
+参数
+
+| 参数 | 类型 | 约束 |
+| --- | --- | --- |
+| openID | string | 玩家的望舒 openid |
+| action | string | CREATE_ROLE 广点通小游戏创角 |

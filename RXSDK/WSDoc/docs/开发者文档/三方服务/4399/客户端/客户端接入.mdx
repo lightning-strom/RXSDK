@@ -1,0 +1,141 @@
+---
+sidebar_position: 1
+title: 客户端接入
+description: "望舒SDK 三方服务 客户端接入文档，提供详细的功能说明与接入指引。"
+---
+
+## 后台接入配置
+
+[登录配置说明](/docs/开发者文档/三方服务/九游/登录配置说明)
+
+[支付配置说明](/docs/开发者文档/三方服务/九游/支付配置说明)
+
+## 望舒快速接入（必接）
+
+[快速接入文档](/docs/开发者文档/入门指南/快速开始/Unity-初始化/快速开始)
+
+## 三方渠道接入说明（必读）
+
+[三方渠道接入说明](/docs/开发者文档/三方服务/三方接入说明)
+
+## SDK集成
+
+
+:::tip[版本说明]
+`version` 为 SDK 版本号（替换为实际版本号），最新版本请从 [更新日志](/docs/开发者文档/入门指南/更新日志/Android) 中查看。
+:::
+
+```groovy
+ implementation 'com.ruixue:rxsdk_4399:${version}'
+```
+
+## 参数说明
+
+| 参数 | 类型 | 说明 |
+| --- | --- | --- |
+| appid | String | initThirdSdk 接口传入 |
+
+## 配置说明
+
+在您的项目根目录中，打开 `your_app | Gradle Scripts | build.gradle (Project)` 并添加以下存储库：
+
+```groovy
+allprojects {
+ maven {
+ // 4399 SDK 开放仓库：正式
+ url 'https://mvn.4399doc.com/repository/maven-releases'
+ }
+ maven {
+ // 4399 SDK 开放仓库：快照
+ url 'https://mvn.4399doc.com/repository/maven-snapshots'
+ }
+}
+```
+
+## 三方 SDK 版本信息
+
+使用 `3.14.4` 版本
+
+## 初始化（必接）
+
+```java
+Map<String, Object> params = new HashMap<>();
+
+// 这里使用方填写自己的 appid 再测试
+params.put("appid", "");
+RuiXueSdk.getApi().initThirdSdk(this, params, new RXJSONCallback() {
+    @Override
+    public void onSuccess(@Nullable JSONObject jsonObject) {
+    Log.d(TAG, "init third sdk success");
+    }
+
+    @Override
+    public void onFailed(@NonNull JSONObject jsonObject) {
+    Log.d(TAG, "init third sdk failed " + jsonObject);
+    }
+});
+```
+
+## 登录（必接）
+
+参考 [Android 登录 API](/docs/开发者文档/登录-通行证/Android-登录API/快速接入)
+
+## 支付（必接）
+
+参考 [上报设备通讯录](/docs/开发者文档/数据分析/上报设备通讯录)
+
+## 登出
+
+```java
+RuiXueSdk.getApi().logout(new OnLogoutCallback() {
+    @Override
+    public void onSuccess(@Nullable String data) {
+    // 登出成功
+    }
+});
+```
+
+## 退出 (必须接入)
+
+当游戏退出前必须调用该方法，进行清理工作。如果游戏直接退出，而不调用该方法，可能会出现未知错误，导致程序崩溃。
+
+```java
+// 在游戏需要退出的地方调用该方法，如游戏主 Activity，中 onBackPressed() 应该需要调用此方法
+RuiXueSdk.getApi().exitApp(activity, new new OnAppExitCallback() {
+    @Override
+    public void onExitConfirm(@Nullable String res) {
+    // 退出成功
+    }
+});
+```
+
+## 切换账号和登出回调
+
+```java
+RuiXueSdk.setRuiXueSdkCallback(new RuiXueSdkCallback() {
+
+    // ... 省略了一些无关代码
+
+    @Override
+    public void onLogout(int code, String msg) {
+    // code 为 0 时，登录成功
+    }
+
+    /**
+    * 切换账号全局回调,如果有游戏内切换账号可关注此回调
+    * @param code 0
+    * @param data 三方数据
+    */
+    @Override
+    public boolean onSwitchAccount(int code, String data) {
+    // 调用方如果有要处理的逻辑放在此处
+    // 返回 true，望舒sdk，会执行 logout 操作
+    // 返回 false，望舒sdk 不执行任何操作
+    return true;
+    }
+});
+```
+
+## 附录
+
+接入渠道初始化报错，请参考[4399 官方链接](https://sdkftp.4399doc.com/external/operate/res/sdk_lint_helper.html#activity_size_mode)

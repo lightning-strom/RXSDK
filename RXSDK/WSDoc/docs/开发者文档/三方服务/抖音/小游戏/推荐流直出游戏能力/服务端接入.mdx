@@ -1,0 +1,98 @@
+---
+sidebar_position: 3
+title: 服务端接入
+description: "望舒SDK 三方服务 服务端接入 小游戏 接入文档，提供完整的接口调用说明与示例。"
+---
+
+## 推荐流消息透传
+
+> 类型：同步
+>
+> Action: dy-feed-notify
+>
+> **认证方式：** [CPSign](/docs/开发者文档/入门指南/服务端接入须知)
+
+### 请求参数
+
+| 字段 | 类型 | 是否必填 | 说明 |
+| --- | --- | --- | --- |
+| cp_user_id | String | 是 | 用户游戏 ID |
+| product_id | String | 是 | 产品 ID |
+| channel_id | String | 是 | 渠道 ID |
+
+### 请求案例
+
+```json
+{
+ "cp_user_id":"1002",
+ "product_id":"xxx"
+ "channel_id":"xxx"
+ }
+```
+
+### 响应参数
+
+| 字段 | 类型 | 是否必填 | 说明 |
+| --- | --- | --- | --- |
+| code | Number | 是 | 响应状态码 0 为正常，其他为异常 |
+| msg | String | 是 | 描述 |
+| data | Data | 是 | 响应抖音的数据 |
+
+#### Data
+
+| 字段 | 类型 | 是否必填 | 说明 |
+| --- | --- | --- | --- |
+| err_no | Number | 是 | 请求错误码 |
+| err_msg | String | 是 | err_no 非 0 时对应的错误信息文案提示，成功时为空字符串 |
+| data | DataObject | 是 | 响应体的业务数据字段 |
+
+#### DataObject
+
+| 字段 | 类型 | 是否必填 | 说明 |
+| --- | --- | --- | --- |
+| scenes | []Scene | 是 | 就绪状态的场景对象列表，场景值定义见下述 scene 结构章节 |
+
+#### Scene
+
+| 字段 | 类型 | 是否必填 | 说明 |
+| --- | --- | --- | --- |
+| scene | Number | 是 | 就绪的场景值： |
+
+1 ： 离线收益场景
+
+2 ： 体力恢复场景
+
+3 ： 重要事件掉落
+content_ids
+| []String | 是 | 就绪场景对应自定义文案 ID 列表，由开发者向平台申请生成，具体见下述文案使用方式章节 |
+| --- | --- | --- |
+| extra | String | 否 |
+| 开发者可为每个场景携带额外的信息，类型是字符串，要求字符串长度 &lt; 100 |  |  |
+
+#### 文案使用方式
+
+针对同一场景的不同内容，开发者可以在平台上自定义不同的文案描述，并生成对应的 content_id。
+
+![](https://haiqi-ruixue-test.oss-cn-beijing.aliyuncs.com/docOnline/image-1741699123819.png)
+
+### 响应案例
+
+```json
+{
+ "code":0,
+ "msg":"",
+ "data":{
+ "err_no": 0,
+ "err_msg": "",
+ "data": {
+ "scenes": [{
+ "scene": 1,
+ "content_ids": ["CONTENT27648287"],
+ "extra": ""
+ }]
+ }
+ }
+}
+```
+
+[推荐流直出游戏能力 OpenAPI 接入文档](https://developer.open-douyin.com/docs/resource/zh-CN/mini-game/develop/server/feed-game/open-api)

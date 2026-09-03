@@ -1,0 +1,215 @@
+---
+title: "开放平台对接"
+---
+
+渠道方文档地址: [https://gamedocs.izuiyou.com/sign](https://gamedocs.izuiyou.com/sign)
+
+## 业务数据上报（服务端）
+
+> **POST：** `/v1/thirdparty/api/channel_gateway/minigame_zuiyou/srv_data_report`
+> **认证方式：** [CPSign](/docs/v3.5/入门指南/服务端接入须知)
+
+### CURL 示例
+
+```bash
+curl --location --request POST '{{接口域名}}/v1/thirdparty/api/channel_gateway/minigame_zuiyou/srv_data_report' \
+--header 'ruixue-cpid: {{CPID}}' \
+--header 'ruixue-cpts: {{时间戳}}' \
+--header 'ruixue-traceid: {{TraceID}}' \
+--header 'ruixue-cpsign: {{请求签名}}' \
+```
+
+### 请求参数（POST）
+
+| <strong>字段</strong> | <strong>类型</strong> | <strong>是否必填</strong> | <strong>说明</strong>
+| --- | --- | ---- | --- | --- 
+| data\_type | string | 是 | 数据类型，见[事件数据定义](https://gamedocs.izuiyou.com/serverreport/businessdata#事件数据定义) | 
+| app | string |是  | 来源应用，`zuiyou` \- 最右，`zuiyou_lite` \- 皮皮 |
+| game\_id | string |  是| 平台侧游戏唯一标识 |
+| rx_openid | string | 是 |望舒openid|
+| time | string | 是 | 上报时间；格式`YYYY-MM-DD HH:ii:ss` |
+| user\_ip | string |  是| 用户 IP |
+| payload | string | 是 | 数据内容 JSON 序列化字符串；具体数据定义见：[事件数据定义](https://gamedocs.izuiyou.com/serverreport/businessdata#事件数据定义) |
+
+<strong>响应示例</strong>
+
+```json
+{
+        "code": 0,
+        "data": {
+            "code":0,
+            "message":"success"
+        }
+}
+```
+
+### 响应结构（JSON）
+
+| 字段名 | 类型 | 描述 |
+| --- | --- | --- |
+| code | Number | 望舒错误码 |
+| data.code | Number | 业务错误码 |
+| data.message | String | 业务信息 |
+
+<strong>返回示例</strong>
+
+```json
+{
+        "code": 0,
+        "data": {
+            "code":0,
+            "message":"success"
+        }
+}
+```
+
+## 获取游戏排行榜(望舒回调CP)
+
+当最右平台后台配置需要展示该游戏的游戏排行榜时，平均每隔五分钟触发此消息回调通知获取游戏排行榜信
+
+> 类型：异步
+> Action: channel-notify
+> **认证方式：** [CPSign](/docs/v3.5/入门指南/服务端接入须知)
+
+### 请求参数
+
+| <strong>字段</strong> | <strong>类型</strong> | <strong>是否必填</strong> | <strong>说明</strong> |
+| --- | --- | ---- | --- |
+| product_id | String | 是 | 望舒产品标识 |
+| channel_id | String | 是 | 望舒渠道表示 |
+| method| String | 是 | 最右默认 minigame_zuiyou |
+| channel_notify_type | String | 是 | 获取排行榜默认 RANK_LIST |
+| query | String | 否 | url参数 |
+| body | String | 否 | body请求体 |
+#### body字段参数说明
+
+| <strong>字段</strong> | <strong>类型</strong> | <strong>是否必填</strong> | <strong>说明</strong> |
+| --- | --- | ---- | --- |
+| game_id | String | 是 | 平台游戏标识，由平台方提供 |
+| app | String | 是 | 平台，最右：zuiyou, 皮皮搞笑：zuiyou_lite。需要返回对应平台的排行榜，如有疑问可以和平台运营同学沟通|
+| count| int | 是 | 数量，获取排行榜前 n 名，n = count，n 最大为 100 |
+
+#### 请求示例
+
+```json
+{
+        "product_id": "1002",
+        "channel_id": "100",
+        "method": "minigame_zuiyou",
+        "channel_notify_type": "RANK_LIST",
+        "query": "",
+        "body": ""app=zuiyou&count=3&game_id=testgame"
+}
+```
+
+#### 返回示例
+
+```json
+{
+"code": 0,
+"data":"{\"code\":\"success\",\"json\":\"[{\\\"rx_openid\\\":\\\"3dekrl1==\\\",\\\"nickname\\\":\\\"佚名\\\",\\\"avatar\\\":\\\"https://file.izuiyou.com/img/view/id/1110375480\\\",\\\"score\\\":0,\\\"score_unit\\\":\\\"分\\\",\\\"ranking\\\":1},{\\\"rx_openid\\\":\\\"3dekr22==\\\",\\\"nickname\\\":\\\"佚名\\\",\\\"avatar\\\":\\\"https://file.izuiyou.com/img/view/id/1110375480\\\",\\\"score\\\":0,\\\"score_unit\\\":\\\"分\\\",\\\"ranking\\\":2},{\\\"rx_openid\\\":\\\"3dekr33==\\\",\\\"nickname\\\":\\\"佚名\\\",\\\"avatar\\\":\\\"https://file.izuiyou.com/img/view/id/1110375480\\\",\\\"score\\\":0,\\\"score_unit\\\":\\\"分\\\",\\\"ranking\\\":3}]\"}"
+}
+```
+
+### 响应要求
+
+| <strong>字段</strong> | <strong>类型</strong> | <strong>说明</strong> |
+| --- | --- | --- |
+| code | Number | 0 成功 |
+| msg | String | 错误信息 |
+| data | String | 响应渠道方数据 |
+
+#### 响应data要求
+
+| <strong>字段</strong> | <strong>类型</strong> | <strong>说明</strong> |
+| --- | --- | --- |
+| code | String | 成功 success |
+| json | String | 响应参数 |
+#### 响应参数要求
+| <strong>字段</strong> | <strong>类型</strong> | <strong>说明</strong> |
+| --- | --- | --- |
+| rx_openid | string | 望舒openid |
+| nickname | string | 用户游戏内昵称，如果返回空值，则平台方会通过 uid 进行兜底 |
+| avatar | string | 用户游戏内头像，如果返回空值，则平台方会通过 uid 进行兜底 |
+| score | integer | 用户游戏内成绩，如多少分，多少楼等，如有疑问可以和平台运营同学沟通 |
+| score_unit | string | 用户游戏内成绩对应单位，如分，楼等，如有疑问可以和平台运营同学沟通 |
+| ranking | int | 游戏内排名 |
+## 获取游戏排行榜指定用户信息参数(望舒回调CP)
+
+当平台后台配置需要展示该游戏的游戏排行榜时，平均每隔五分钟触发此消息回调通知获取游戏排行榜指定用户信息
+
+> 类型：异步
+> Action: channel-notify
+> **认证方式：** [CPSign](/docs/v3.5/入门指南/服务端接入须知)
+
+### 请求参数
+
+| <strong>字段</strong> | <strong>类型</strong> | <strong>是否必填</strong> | <strong>说明</strong> |
+| --- | --- | ---- | --- |
+| product_id | String | 是 | 望舒产品标识 |
+| channel_id | String | 是 | 望舒渠道表示 |
+| method| String | 是 | 最右默认 minigame_zuiyou |
+| channel_notify_type | String | 是 | 获取排行榜默认 RANK_USER_INFO |
+| query | String | 否 | url参数 |
+| body | String | 否 | body请求体 |
+#### body字段参数说明
+
+| <strong>字段</strong> | <strong>类型</strong> | <strong>是否必填</strong> | <strong>说明</strong> |
+| --- | --- | ---- | --- |
+| game_id | String | 是 | 平台游戏标识，由平台方提供 |
+| app | String | 是 | 平台，最右：zuiyou, 皮皮搞笑：zuiyou_lite。需要返回对应平台的排行榜，如有疑问可以和平台运营同学沟通|
+| rx_openid| String | 是 | 望舒openid |
+|
+
+#### 请求示例
+
+```json
+{
+        "product_id": "1002",
+        "channel_id": "100",
+        "method": "minigame_zuiyou",
+        "channel_notify_type": "RANK_USER_INFO",
+        "query": "",
+        "body": "app=zuiyou&game_id=testgame&rx_openid=3dekrle%3D%3D&uid=3dekrle%3D%3D"
+}
+```
+
+#### 返回示例
+
+```json
+{
+"code": 0,
+"data":"{\"code\":\"success\",\"json\":\"{\\\"uid\\\":\\\"3dekrle==\\\",\\\"nickname\\\":\\\"佚名\\\",\\\"avatar\\\":\\\"https://file.izuiyou.com/img/view/id/1110375480\\\",\\\"score\\\":0,\\\"score_unit\\\":\\\"分\\\",\\\"ranking\\\":100}\"}"
+}
+```
+
+### 响应要求
+
+| <strong>字段</strong> | <strong>类型</strong> | <strong>说明</strong> |
+| --- | --- | --- |
+| code | Number | 0 成功 |
+| msg | String | 错误信息 |
+| data | String | 响应渠道方数据 |
+
+#### 响应data要求
+
+| <strong>字段</strong> | <strong>类型</strong> | <strong>说明</strong> |
+| --- | --- | --- |
+| code | String | 成功 success |
+| json | String | 响应参数 |
+#### 响应参数要求
+:::tip
+注意：如果请求过来的 rx_openid 在游戏 CP 方服务器没有数据，那么请返回兜底数据，兜底数据为：
+
+{'{'}\"uid\":\"请求过来的 uid\",\"nickname\":\"\",\"avatar\":\"\",\"score\":0,\"score_unit\":\"游戏 CP 这边的排行榜单位\",\"ranking\":0{'}'}
+
+既：nickname，avatar，score，ranking 返回空值。
+:::
+| <strong>字段</strong> | <strong>类型</strong> | <strong>说明</strong> |
+| --- | --- | --- |
+| rx_openid | string | 望舒openid |
+| nickname | string | 用户游戏内昵称，如果返回空值，则平台方会通过 uid 进行兜底 |
+| avatar | string | 用户游戏内头像，如果返回空值，则平台方会通过 uid 进行兜底 |
+| score | integer | 用户游戏内成绩，如多少分，多少楼等，如有疑问可以和平台运营同学沟通 |
+| score_unit | string | 用户游戏内成绩对应单位，如分，楼等，如有疑问可以和平台运营同学沟通 |
+| ranking | int | 游戏内排名 |

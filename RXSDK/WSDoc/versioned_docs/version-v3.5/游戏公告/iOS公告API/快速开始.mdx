@@ -1,0 +1,79 @@
+---
+title: "快速开始"
+---
+
+## 准备工作
+
+::: tip
+接入请前先做好准备工作。
+已经接入过**RXSDK_Pure**组件，无需重复接入，只需要更新到**3.5.26及以上版本**即可。
+未接入过，则可通过 **pod** 方式接入 **RXSDK_Pure** 组件，安装**3.5.26及以上版本**，并使用 **RXSDK_Pure** 公告相关功能。
+在需要使用功能的类中引用头文件 <code>#import </code>
+:::
+
+## SDK 集成
+
+- 编辑 Podfile 文件，添加如下配置，并注意安装**3.5.25及以上版本**：
+
+```objectivec
+pod 'RXSDK_Pure'
+```
+
+## 获取公告列表
+
+**接口原型**
+
+```objectivec
+/**
+ * 获取公告列表
+ * limit 返回公告条数，数量范围 1-100，超过100则只返回最近100条
+ */
+- (void)getAnnouncementWithLimit:(int)limit complete:(void(^)(NSDictionary * _Nullable response, RX_CommonRequestError * _Nullable error))complete;
+```
+
+**调用示例**
+
+```objectivec
+[[RXApiService sharedSDK] getAnnouncementWithLimit:10 complete:^(NSDictionary * _Nullable response, RX_CommonRequestError * _Nullable error) {
+            if (error == nil) {
+                NSLog(@"获取公告成功：%@",response);
+            }else{
+                NSLog(@"获取公告失败：%@",error.responesObject);
+            }
+}];
+```
+
+### 请求参数
+
+| **参数** | **类型**                                             | **备注** |
+| -------- | ---------------------------------------------------- | -------- |
+| limit     | Number                                               | 返回条数 最多100条， 按公告开始时间倒序 |
+
+### 响应结构(JSON)
+
+| **参数** | **类型**                                             | **备注** |
+| -------- | ---------------------------------------------------- | -------- |
+| code     | Number                                               | 0 为成功 |
+| msg      | String                                               | 失败信息 |
+| data     | [][Data](/docs/v3.5/入门指南/准备工作)            |          |
+
+##### data
+
+| **参数**   | **类型**  | **说明** |
+| ---------- | ----------| -------- |
+| id | Number    | 公告id|
+| type      | Number    | 1版本更新公告 3常规公告 |
+| timezone    | Number    | 时区|
+| start    | String    | 开始时间|
+| end    | Start    | 结束时间
+| content_type    | Number    | 1图文2图片|
+| is_popup    | Number    | 是否弹出 1是 2否|
+| title    | String    | 公告标题|
+| content    | String    | 图文时的内容|
+| images    |  [][Images](/docs/v3.5/入门指南/准备工作)     | 图片时的内容|
+
+##### images
+| **参数**   | **类型**  | **说明** |
+| ---------- | ----------| -------- |
+| image_url | String    | 图片url|
+| link_url      | String    | 跳转地址 |

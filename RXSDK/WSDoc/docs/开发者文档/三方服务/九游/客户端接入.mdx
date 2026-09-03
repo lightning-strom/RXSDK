@@ -1,0 +1,211 @@
+---
+sidebar_position: 1
+title: 客户端接入
+description: "望舒SDK 三方服务 客户端接入文档，提供详细的功能说明与接入指引。"
+unlisted: true
+---
+
+## 后台接入配置
+
+[登录配置说明](/docs/开发者文档/三方服务/银联/配置说明)
+
+[支付配置说明](/docs/开发者文档/三方服务/九游/支付配置说明)
+
+## 望舒快速接入（必接）
+
+[快速接入文档](/docs/开发者文档/入门指南/快速开始/Unity-初始化/快速开始)
+
+## 三方渠道接入说明（必读）
+
+[三方渠道接入说明](/docs/开发者文档/三方服务/三方接入说明)
+
+## 九游渠道 SDK 集成（必接）
+
+
+:::tip[版本说明]
+`version` 为 SDK 版本号（替换为实际版本号），最新版本请从 [更新日志](/docs/开发者文档/入门指南/更新日志/Android) 中查看。
+:::
+
+```groovy
+implementation 'com.ruixue:rxsdk_9game:${version}'
+```
+
+## 配置说明
+
+1、游戏包名称命名规范全新游戏包名使用".aligames"，仅需出一个游戏包，接入九游 SDK 即可，包于开放平台上传即可，已在九游上线过的游戏，保持原包名不改
+
+2、icon 图片游戏图标需增加九游角标，角标位置在接入包内“角标 logo 及使用说明”文件夹下，添加角标后在 AndroidManifest.xml 中指定。如 android:icon="@drawable/iconuc"。其中 iconuc 为在原游戏图标基础上制作的能表明九游渠道的图标文件。
+
+3、游戏包体在开放平台提审时，九游这边会对游戏包体进行重签名。游戏若有加固的，请改为支持修改游戏包，或不加固。
+
+ 游戏需支持 SDK 修改的地方：
+
+1 ）将游戏 META-INF 删除重签名
+
+2 ）修改游戏 assets 下 ucgamesdk 目录
+
+3 ） assets 下添加 UCGameConfig.ini 文件
+
+4 ） res 下替换 icon 文件
+
+4.【新增】更新/接入 SDK 的时候，请在 SDK 初始化之前，先弹出游戏自己的隐私协议
+
+---
+
+在 `src/mian/res/values/strings` 文件下
+
+```xml
+ <string name="uc_game_id" translatable="false">3098544string>
+```
+
+在 AndroidManifest.xml 配置
+
+```xml
+
+</application>
+ meta-data
+ android:name="uc_game_id"
+ android:value="@string/uc_game_id" />
+
+ activity
+ android:name="cn.uc.gamesdk.activity.PullupActivity"
+ android:excludeFromRecents="true"
+ android:exported="true"
+ android:label="PullupActivity"
+ android:launchMode="singleTop"
+ android:taskAffinity="游戏包名.diff"
+ android:theme="@android:style/Theme.Translucent"
+ tools:node="replace"
+ tools:replace="android:taskAffinity">
+
+</intent-filter>
+ <action android:name="android.intent.action.VIEW">
+
+ <category android:name="android.intent.category.DEFAULT">
+ <category android:name="android.intent.category.BROWSABLE">
+
+ <data android:scheme="ng3098544">
+</intent-filter>
+</activity>
+</application>
+```
+
+## 混淆说明
+
+在应用级根目录下打开混淆配置文件 `proguard-rules.pro` ，加入排除 SDK 的混淆配置
+
+```plaintext
+-printmapping 'mapping.txt'
+# this is very dangerous that cause bug
+-ignorewarnings
+-dontskipnonpubliclibraryclassmembers
+-dontshrink
+-dontoptimize
+-keepattributes Exceptions,InnerClasses,Signature,Deprecated,SourceFile,LineNumberTable,LocalVariable*Table,*Annotation*,Synthetic,EnclosingMethod
+-keepclasseswithmembers class * extends cn.gundam.sdk.shell.even.SDKEventReceiver
+-keep class cn.uc.**{
+;
+;
+}
+-keep class cn.gundam.**{
+;
+;
+}
+-keep class android.**{
+;
+;
+}
+-keep class org.json.**{
+;
+;
+}
+```
+
+## 初始化 SDK
+
+首先，您需要在程序开始的地方初始化，通过调用 initThirdSdk 方法初始化九游游戏 SDK。
+
+在初始化失败的状态下，游戏不应继续调用 SDK 的其余 API ，此方法必须在 UI 线程中调用。
+
+游戏启动后，非初始化失败或异常情况下，不允许多次调用初始化接口。
+
+```java
+Map<String,Object> thirdSdkParams=new HashMap<>();
+// 设置 SDK 屏幕方向
+// ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE 横屏（默认值）
+// ActivityInfo.SCREEN_ORIENTATION_PORTRAIT 竖屏
+thirdSdkParams.put("screen_orientation", ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
+
+// 如果游戏已经申请了权限，不想sdk主动请求权限，避免重复弹授权弹窗被拒
+// true 游戏已经弹了，SDK不需要弹出权限申请窗
+// false 游戏没有弹，SDK可以按需弹出权限申请窗(默认值)
+thirdSdkParams.put("had_req_permission", false)
+RuiXueSdk.getRXSdkApi().initThirdSdk(activity, thirdSdkParams, new RXRequestCallback() {
+    @Override
+    public void onResponse(JSONObject jsonObject) {
+    int code = jsonObject.optInt("code", -1);
+    if (code == 0) {
+    //todo 成功
+    }else {
+    //todo 失败
+    }
+    }
+});
+```
+
+## 登录 (必须接入)
+
+请参考 [Android 端登录 API](/docs/开发者文档/登录-通行证/Android-登录API/快速接入)
+
+## 支付 (开计费必须接入)
+
+请参考 [Android 端支付 API](/docs/开发者文档/支付/功能介绍)
+
+## 登出
+
+```java
+RuiXueSdk.getApi().logout(new OnLogoutCallback() {
+    @Override
+    public void onSuccess(@Nullable String data) {
+    // 登出成功
+    }
+});
+```
+
+## 退出 (必须接入)
+
+当游戏退出前必须调用该方法，进行清理工作。如果游戏直接退出，而不调用该方法，可能会出现未知错误，导致程序崩溃。
+
+```java
+// 在游戏需要退出的地方调用该方法，如游戏主 Activity，中 onBackPressed() 应该需要调用此方法
+RuiXueSdk.getApi().exitApp(activity, new new OnAppExitCallback() {
+    @Override
+    public void onExitConfirm(@Nullable String res) {
+    // 退出成功
+    }
+});
+```
+
+## 游戏账号切换
+
+参考代码
+
+```java
+RuiXueSdk.setRuiXueSdkCallback(new RuiXueSdkCallback() {
+
+    // ... 省略了一些无关代码
+
+    /**
+    * 切换账号全局回调,如果有游戏内切换账号可关注此回调
+    * @param code 0
+    * @param data 三方数据
+    */
+    @Override
+    public boolean onSwitchAccount(int code, String data) {
+    // 调用方如果有要处理的逻辑放在此处
+    // 返回 true，望舒sdk，会执行 logout 操作
+    // 返回 false，望舒sdk 不执行任何操作
+    return true;
+    }
+});
+```

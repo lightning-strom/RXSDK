@@ -1,0 +1,327 @@
+---
+sidebar_position: 1
+title: "服务端API"
+---
+
+## 基础信息
+> 从企业后台获取APPID、APPSecret、x-robot-schemas等参数
+
+![image.png](https://haiqi-ruixue-test.oss-cn-beijing.aliyuncs.com/docOnline/image-1732087296986.png)
+
+## 辱骂检测
+
+> **POST:**  `/v1/smarts/abuse/check`
+> **认证方式：** [CPSign](/docs/v3.5/入门指南/服务端接入须知)
+
+### CURL 示例
+
+```bash
+curl --location --request POST '{{接口域名}}/v1/smarts/abuse/check' \
+--header 'x-robot-schemas: {{机器人}}' \
+--header 'ruixue-language: {{语言}}' \
+--header 'ruixue-cpid: {{APPID}}' \
+--header 'ruixue-cpts: {{时间戳}}' \
+--header 'ruixue-traceid: {{TraceID}}' \
+--header 'ruixue-cpsign: {{签名}}' 
+```
+
+### 请求参数（JSON）
+
+| **字段** | **类型** | **是否必填** | **说明** | **示例** |
+| --- | --- | ---- | --- | --- |
+| message | String | 是 | 检测内容 |  |
+
+### 响应参数（JSON）
+
+**HTTP 状态码：**`200 OK`
+
+| **字段** | **类型** | **是否必填** | **说明** | **示例** |
+| --- | --- | ---- | --- | --- |
+| code | Number | 是 | 响应状态码，0为成功，非0表示出错 | 0 |
+| msg | String | 否 | 响应信息，仅在code为非0时不为空 |  |
+| data | Data | 否 | 响应内容 |  |
+
+#### Data
+
+| **字段** | **类型** | **是否必填** | **说明** | **示例** |
+| --- | --- | ---- | --- | --- |
+| is_abuse | string | 是 | 是否辱骂 |  |
+
+**响应示例**
+
+```json
+{
+    "code": 0,
+    "data": {
+        "is_abuse": true
+    },
+    "msg": "string"
+}
+```
+
+## 会话初始化
+
+> **POST:**  `/v1/smarts/session/init`
+> **认证方式：** [CPSign](/docs/v3.5/入门指南/服务端接入须知)
+
+### CURL 示例
+
+```bash
+curl --location --request POST '{{接口域名}}/v1/smarts/session/init' \
+--header 'x-robot-schemas: {{机器人}}' \
+--header 'ruixue-language: {{语言}}' \
+--header 'ruixue-cpid: {{APPID}}' \
+--header 'ruixue-cpts: {{时间戳}}' \
+--header 'ruixue-traceid: {{TraceID}}' \
+--header 'ruixue-cpsign: {{签名}}' 
+```
+
+### 请求参数（JSON）
+
+| **字段** | **类型** | **是否必填** | **说明** | **示例** |
+| --- | --- | ---- | --- | --- |
+| session_id | String | 是 | 会话 ID |  |
+| customer_id | String | 否 | 用户ID |  |
+| customer_name | String | 否 | 用户昵称 |  |
+| customer_avatar | String | 否 | 用户头像 |  |
+| platform_id | String | 否 | 平台 |  |
+| channel_id | String | 否 | 渠道 ID |  |
+| channel_name | String | 否 | 渠道名称 |  |
+| custom_tags |  Object | 否 | 自定义标签 | {'{'}"channel_id":"818"{'}'} |
+
+### 枚举值（platform_id）
+| **code**  | **说明** |
+| --- | --- |
+| pc | String | 
+| pc | 网站 | 
+| wap| wap| 
+| sdk| APP| 
+| wxpub| 微信公众号| 
+| wxmini| 微信小程序| 
+| weibo| 微博| 
+| wxwork| 企业微信| 
+| other| 其他| 
+
+### 响应参数（JSON）
+
+**HTTP 状态码：**`200 OK`
+
+| **字段** | **类型** | **是否必填** | **说明** | **示例** |
+| --- | --- | ---- | --- | --- |
+| code | Number | 是 | 响应状态码，0为成功，非0表示出错 | 0 |
+| msg | String | 否 | 响应信息，仅在code为非0时不为空 |  |
+| data | Data | 否 | 响应内容 |  |
+
+#### Data
+
+| **字段** | **类型** | **是否必填** | **说明** | **示例** |
+| --- | --- | ---- | --- | --- |
+| session_id | string | 是 | 会话 ID |  |
+| robot_id | string | 是 | 机器人 ID |  |
+| robot_name | string | 是 | 机器人名称 |  |
+| robot_avatar | string | 是 | 机器人头像 |  |
+| welcome_speech | string | 是 | 欢迎语 |  |
+| guide_like | string | 是 | 点赞回复语言 |  |
+| guide_not_like | string | 是 | 点踩回复语言 |  |
+| common_questions | []string | 是 | 常见问题列表 |  |
+
+**响应示例**
+
+```json
+{
+    "code": 0,
+    "data": {
+        "common_questions": [
+            "string"
+        ],
+        "guide_like": "string",
+        "guide_not_like": "string",
+        "robot_avatar": "string",
+        "robot_id": "string",
+        "robot_name": "string",
+        "session_id": "string",
+        "welcome_speech": "string"
+    },
+    "msg": "string"
+}
+```
+## 会话查询
+> **POST:**  `/v1/smarts/session/query`
+> **认证方式：** [CPSign](/docs/v3.5/入门指南/服务端接入须知)
+
+### CURL 示例
+
+```bash
+curl --location --request POST '{{接口域名}}/v1/smarts/session/query' \
+--header 'x-robot-schemas: {{机器人}}' \
+--header 'ruixue-language: {{语言}}' \
+--header 'ruixue-cpid: {{APPID}}' \
+--header 'ruixue-cpts: {{时间戳}}' \
+--header 'ruixue-traceid: {{TraceID}}' \
+--header 'ruixue-cpsign: {{签名}}' 
+```
+
+### 请求参数（JSON）
+
+| **字段** | **类型** | **是否必填** | **说明** | **示例** |
+| --- | --- | ---- | --- | --- |
+| session_id | String | 是 | 会话 ID |  |
+| question | String | 是 | 问题 |  |
+
+### 响应参数（JSON）
+
+**HTTP 状态码：**`200 OK`
+
+| **字段** | **类型** | **是否必填** | **说明** | **示例** |
+| --- | --- | ---- | --- | --- |
+| code | Number | 是 | 响应状态码，0为成功，非0表示出错 | 0 |
+| msg | String | 否 | 响应信息，仅在code为非0时不为空 |  |
+| data | Data | 否 | 响应内容 |  |
+
+#### Data
+
+| **字段** | **类型** | **是否必填** | **说明** | **示例** |
+| --- | --- | ---- | --- | --- |
+| session_id | string | 是 | 会话 ID |  |
+| question | string | 是 | 用户问题 |  |
+| question_type | string | 是 | 用户问题类型 | text |
+| msg_id | string | 是 | 消息ID |  |
+| msg_type | string | 是 | 消息类型 |  standard:标准问题 similar:相似问题 unknown:未知问题 recomend:推荐问题  |
+| turn_human | bool | 是 | 是否转人工 |  |
+| answer | []Answer | 是 | 标准问题回答 |  |
+| message | string | 是 | 响应消息 |  |
+| similar_question | []string | 是 | 相似问题 |  |
+
+#### Answer
+| **字段** | **类型** | **是否必填** | **说明** | **示例** |
+| --- | --- | ---- | --- | --- |
+| content | string | 是 | 内容 |  |
+| type | string | 是 | 类型 |text:文本 image:图片 video:视频  |
+
+**响应示例**
+
+```json
+{
+    "code": 0,
+    "data": {
+        "answer": [
+            {
+                "content": "string",
+                "type": "string"
+            }
+        ],
+        "human_reason": 0,
+        "message": "string",
+        "msg_id": "string",
+        "msg_type": "string",
+        "question": "string",
+        "question_type": "string",
+        "session_id": "string",
+        "similar_question": [
+            "string"
+        ],
+        "turn_human": true,
+    },
+    "msg": "string"
+}
+```
+## 会话关闭
+> **POST:**  `/v1/smarts/session/close`
+> **认证方式：** [CPSign](/docs/v3.5/入门指南/服务端接入须知)
+
+### CURL 示例
+
+```bash
+curl --location --request POST '{{接口域名}}/v1/smarts/session/close' \
+--header 'x-robot-schemas: {{机器人}}' \
+--header 'ruixue-language: {{语言}}' \
+--header 'ruixue-cpid: {{APPID}}' \
+--header 'ruixue-cpts: {{时间戳}}' \
+--header 'ruixue-traceid: {{TraceID}}' \
+--header 'ruixue-cpsign: {{签名}}' 
+```
+
+### 请求参数（JSON）
+
+| **字段** | **类型** | **是否必填** | **说明** | **示例** |
+| --- | --- | ---- | --- | --- |
+| session_id | String | 是 | 会话 ID |  |
+| human_reason | Number | 否 | 转人工原因 | 1是点击转人工;2是关键词转人工;3是无答案;4是负面情绪;5是重复提问;6无帮助转人工，注意reason为2时该值必填 |
+| reason | Number | 是 | 关闭原因 | 1是会话结束关闭;2是会话已转人工 |
+
+### 响应参数（JSON）
+
+**HTTP 状态码：**`200 OK`
+
+| **字段** | **类型** | **是否必填** | **说明** | **示例** |
+| --- | --- | ---- | --- | --- |
+| code | Number | 是 | 响应状态码，0为成功，非0表示出错 | 0 |
+| msg | String | 否 | 响应信息，仅在code为非0时不为空 |  |
+
+**响应示例**
+
+```json
+{
+    "code": 0,
+    "msg": "string"
+}
+```
+
+## 会话评价
+> **POST:**  `/v1/smarts/session/evaluate`
+> **认证方式：** [CPSign](/docs/v3.5/入门指南/服务端接入须知)
+
+### CURL 示例
+
+```bash
+curl --location --request POST '{{接口域名}}/v1/smarts/session/evaluate' \
+--header 'x-robot-schemas: {{机器人}}' \
+--header 'ruixue-language: {{语言}}' \
+--header 'ruixue-cpid: {{APPID}}' \
+--header 'ruixue-cpts: {{时间戳}}' \
+--header 'ruixue-traceid: {{TraceID}}' \
+--header 'ruixue-cpsign: {{签名}}' 
+```
+
+### 请求参数（JSON）
+
+| **字段** | **类型** | **是否必填** | **说明** | **示例** |
+| --- | --- | ---- | --- | --- |
+| session_id | String | 是 | 会话 ID |  |
+| msg_id | String | 是 | 消息 ID |  |
+| is_useful | Number | 是 | 是否点赞 | 0 无 1点赞 2点踩 |
+| not_like_reason | String | 是 | 点踩原因 |  |
+
+### 响应参数（JSON）
+
+**HTTP 状态码：**`200 OK`
+
+| **字段** | **类型** | **是否必填** | **说明** | **示例** |
+| --- | --- | ---- | --- | --- |
+| code | Number | 是 | 响应状态码，0为成功，非0表示出错 | 0 |
+| msg | String | 否 | 响应信息，仅在code为非0时不为空 |  |
+| data | Data | 否 |响应内容 |  |
+
+#### Data
+
+| **字段** | **类型** | **是否必填** | **说明** | **示例** |
+| --- | --- | ---- | --- | --- |
+| session_id | string | 是 | 会话 ID |  |
+| msg_id | string | 是 | 消息 ID |  |
+| turn_human | bool | 是 | 是否转人工 |  |
+| human_reason | Number | 是 | 转人工原因 |  |
+
+**响应示例**
+
+```json
+{
+    "code": 0,
+    "data": {
+        "human_reason": 0,
+        "msg_id": "string",
+        "session_id": "string",
+        "turn_human": true
+    },
+    "msg": "string"
+}
+```

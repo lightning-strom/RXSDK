@@ -1,0 +1,148 @@
+---
+sidebar_position: 4
+title: 小游戏
+description: "望舒SDK 小游戏文档，提供详细的功能说明与接入指引。"
+---
+
+## 设置区服角色信息
+
+**参数说明**
+
+| 字段 | 类型 | 是否必填 | 备注 |
+| --- | --- | --- | --- |
+| role_id | string | 是 | 游戏角色 ID |
+| region_tag | string | 是 | 区服标识 |
+
+**JS 调用示例**
+
+```js
+sdk.setGameInfo('test_role_id', 'test_region_tag')
+```
+
+**Unity 调用示例**
+
+```csharp
+using System;
+using System.Collections.Generic;
+using UnityEngine;
+using UnityEngine.UI;
+using RuiXue;
+
+#if UNITY_WEBGL
+using RuiXue.MiniGame.WeiXin;
+#endif
+
+public void OnSetGameInfo()
+{
+ RXMiniGameWeiXin.SetGameInfo("testrole", "restregion");
+}
+```
+
+## 查询角色信息
+
+**接口原型**
+
+**参数说明**
+
+| 字段 | 类型 | 是否必填 | 备注 |
+| --- | --- | --- | --- |
+| callback | IMethodParams | 是 | 回调函数集合 |
+
+> IMethodParams 说明
+
+| 字段 | 备注 |
+| --- | --- |
+| complete | (data) => void |
+
+complete ：为函数且必传， data 为结果数据
+
+**JS 调用示例**
+
+```js
+sdk.searchGameAccount({
+ complete(res) {
+ console.log('searchGameAccount', res)
+ }
+})
+```
+
+```csharp
+using System;
+using System.Collections.Generic;
+using UnityEngine;
+using UnityEngine.UI;
+using RuiXue;
+
+#if UNITY_WEBGL
+using RuiXue.MiniGame.WeiXin;
+#endif
+
+public void OnSearchGameAccount()
+{
+ RXMiniGameWeiXin.SearchGameAccount(OnResponse, OnError);
+}
+```
+
+### 响应参数（JSON）
+
+**HTTP 状态码：**`200 OK`
+
+| 字段 | 类型 | 是否必填 | 说明 |
+| --- | --- | --- | --- |
+| code | Number | 是 | 响应状态码， 0 为成功，非 0 表示出错 |
+| msg | String | 否 | 响应信息，仅在 code 为非 0 时不为空 |
+| data | Data | 否 | 响应内容 |
+
+#### Data
+
+| 字段 | 类型 | 是否必填 | 说明 |
+| --- | --- | --- | --- |
+| list | []Item | 是 | 角色列表 |
+
+#### Item
+
+| 字段 | 类型 | 是否必填 | 说明 |
+| --- | --- | --- | --- |
+| region_tag | String | 是 | 区服 |
+| cp_role_id | String | 是 | 角色 id |
+| extension | json | 否 | 扩展信息符合 json 格式的数据 |
+
+**响应示例**
+
+```json
+{
+ "data": {
+ "list": [
+ {
+ "rx_openid": "xxxasxxsasax",
+ "region_tag": "default",
+ "cp_role_id": "123",
+ "extension": {
+ "aaaa": "bbb"
+ },
+ "id": 187,
+ "cpid": 114,
+ "description": "sync",
+ "created_at": "2025-04-25T15:25:16+08:00",
+ "updated_at": "0001-01-01T00:00:00Z",
+ "deleted_at": "0001-01-01T00:00:00Z"
+ },
+ {
+ "rx_openid": "xxxasxxsasax",
+ "region_tag": "default",
+ "cp_role_id": "1234",
+ "extension": {
+ "aaaa": "bbb"
+ },
+ "id": 188,
+ "cpid": 114,
+ "description": "sync",
+ "created_at": "2025-04-25T15:25:28+08:00",
+ "updated_at": "0001-01-01T00:00:00Z",
+ "deleted_at": "0001-01-01T00:00:00Z"
+ }
+ ]
+ },
+ "code": 0
+}
+```

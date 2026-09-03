@@ -1,0 +1,69 @@
+---
+title: "iOS接入"
+---
+
+## 准备工作
+
+::: tip
+接入请前先做好准备工作。
+可通过 **pod** 方式接入 **RXTecentCloudDNSSDK** 组件，并使用 **RXTecentCloudDNSSDK** 相关功能。
+在需要使用功能的类中引用头文件 <code>#import </code>
+在 [腾讯云DNS文档中心](https://cloud.tencent.com/document/product/379) 中创建项目项目，并获取相关参数。
+:::
+
+## SDK 集成
+
+- 编辑 Podfile 文件，添加如下配置：
+
+```objectivec
+pod 'RXTecentCloudDNSSDK'
+```
+
+## 初始化 RXTecentCloudDNSSDK
+
+:::warning
+在 [SDK 初始化方法](/docs/v3.5/入门指南/快速开始/iOS初始化/快速开始) 之前调用。
+:::
+
+**接口原型**
+
+```objectivec
+/**
+ * 初始化方法
+ * appID app的Bundle ID
+ * dnsID appkey
+ * dnsKey 秘钥
+ * debug 调试日志模式，YES开启，NO关闭，默认NO
+ */
+- (void)initWithAppID:(NSString *)appID dnsID:(int)dnsID dnsKey:(NSString *)dnsKey debug:(BOOL)debug;
+```
+
+**调用示例**
+
+```objectivec
+- (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions {
+    
+    [[RXTecentCloudDNSSDKService sharedSDK] initWithAppID:@"your appID" dnsID:your dnsID dnsKey:@"your dnsKey" debug:YES];
+    
+    return YES;
+}
+```
+
+## 开启RXTecentCloudDNSSDK
+
+在调用初始化设置时，将**isUseDNS**设置为YES：
+```objectivec
+RXSdkInitConfig *config = [[RXSdkInitConfig alloc] init];
+config.productId = @"your product id";
+config.channelId = @"your channel id";
+config.cpId = @"your cpId";
+config.baseUrlList = @[@"your base url"];
+config.isUseDNS = YES;//打开DNS开关
+[[RXService sharedSDK] initWithConfig:config complete:^(NSDictionary * _Nullable response, RX_CommonRequestError * _Nullable error) {
+    if (!error) {
+        NSLog(@"初始化成功");
+    } else {
+        NSLog(@"初始化失败");
+    }
+}];
+```

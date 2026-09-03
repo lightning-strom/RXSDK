@@ -1,0 +1,117 @@
+---
+sidebar_position: 2
+title: "Unity Android 渠道接入说明"
+---
+
+## 渠道列表
+
+::: tip
+每个应用包内必须有且只能集成一个渠道。 (必接一个)
+:::
+
+| 名称         | 描述                                  |
+|------------|-------------------------------------|
+| 自运营        | rxsdk_weile 自运营渠道库                  |
+| 百度网讯       | rxsdk_baidu_wahngxun 百度游戏中心         |
+| YSDK 应用宝   | rxsdk_ysdk 用于应用宝应用商店上架              |
+| vivo       | rxsdk_vivo 用于vivo 应用商店上架            |
+| oppo       | rxsdk_oppo 用于oppo 应用商店上架            |
+| 华为         | rxsdk_huawei 用于华为 应用商店上架            |
+| 小米         | rxsdk_xiaomi 用于小米应用商店上架             |
+| 抖音         | rxsdk_douyin_gb 用于抖音联运              |
+| 快手         | rxsdk_kwaiallin 用于快手联运              |
+| taptap     | rxsdk_taptap 用于taptap 应用商店上架        |
+| googleplay | rxsdk_overseas 用于 googleplay 应用商店上架 |
+| qoo        | rxsdk_qoo 用于 qoo 应用商店上架    |
+| 雷电         | rxsdk_ld 用于 雷电 应用商店上架     |
+
+## 初始化渠道
+
+::: warning
+1. 由于部分渠道存在隐私限制，需要在用户同意《服务协议和隐私政策》后才能调用渠道初始化。
+2. 部分三方渠道要求使用三方退出提示，请实现 `exitApp`、`logout` 等接口。
+3. 三方渠道登录在冷启动app时，不建议使用 `login_openid` 进行二次登录，避免跳过三方授权审核被拒情况发生。
+4. `initThirdSdk` 调用尽量提前，不要和登录接口同步调用，部分三方渠道（如 vivo）初始化和登录同步调用会出现登录接口没有回调的问题。
+:::
+
+- **接口原型**
+
+```csharp
+
+/// <summary>
+/// 初始化三方渠道，会调用接入三方渠道的初始化接口
+/// </summary>
+/// 
+/// 
+/// 
+public static void InitThirdSdk(Dictionary map, RequestResponseDelegate onResponse, RequestErrorDelegate onError);
+
+/// <summary>
+/// //退出 app时，接入相应三方渠道组件会调用对应渠道退出接口
+/// </summary>
+/// 
+/// 
+public static void ExitApp(ExitConfirmDelegate onExitConfirm, ExitCancelDelegate onExitCancel);
+
+/// <summary>
+/// 退出登录，目前Android端逻辑
+/// </summary>
+/// 
+/// 
+public static void Logout(RequestResponseDelegate onResponse, RequestErrorDelegate onError);
+
+```
+
+- **参数说明**
+
+获取方式参照对应渠道参数表说明,用配置初始化的渠道 `map` 参数传 `null` 即可。
+
+- **示例**
+
+```java
+// 通知sdk已同意隐私协议
+private void OnSetPrivacyAgree()
+{
+    RuiXueSdk.SetPrivacyAgree(OnPrivacyAgree);
+}
+
+public void OnPrivacyAgree(bool userClick)
+{
+    LogUtil.Log("EventManager", $"userClick: {userClick}");
+}
+
+// 退出 app时
+public void ExitApp()
+{
+    RuiXueSdk.ExitApp(ExitConfirm, ExitCancel);
+}
+
+private void ExitConfirm(string res)
+{
+    LogUtil.Log("EventManager", $" ExitApp res: {res}");
+}
+
+private void ExitCancel()
+{
+    LogUtil.Log("EventManager", $" ExitCancel");
+}
+```
+
+## 查看各渠道参数
+
+::: tip
+一个包只能接入一个渠道库, 接入三方渠道时选择对应某个渠道库接入即可,不能再添加自运营渠道库。
+:::
+
+**自营运营渠道库**
+
+```json
+//渠道库
+  implementation 'com.ruixue:rxsdk_weile:${version}'
+```
+
+**三方联运渠道库**
+
+::: tip
+因三方参数均使用三方渠道标准 ，故三方参数大小写规范未统一，请注意文档中参数大小写。
+:::

@@ -1,0 +1,59 @@
+---
+sidebar_position: 40
+title: 海外 OPPO
+description: "望舒SDK 支付 海外 OPPO Android 接入文档，提供完整的接口调用说明与示例。"
+---
+
+import PayCommon from './_pay-common.mdx';
+
+#### 望舒支付配置
+
+[海外 OPPO 支付配置说明](/docs/开发者文档/三方服务/OPPO/海外OPPO接入/海外OPPO支付配置说明)
+
+### hq_type 值
+
+| hq_type 值 | 说明 |
+| --- | --- |
+| `gl_oppo` | 海外 OPPO 支付 |
+
+:::info[海外/渠道特有参数]
+| 字段 | 类型 | 是否必填 | 说明 |
+| --- | --- | --- | --- |
+| user_real_currency | string | 否 | 用户实际支付币种，如 `CNY` |
+| user_real_price | int | 否 | 用户实际支付金额（分） |
+:::
+
+:::info[game_info 字段]
+| 字段 | 类型 | 是否必填 | 备注 |
+| --- | --- | --- | --- |
+| cp_game_character_id | string | 否 | 角色 id |
+| cp_game_area_id | string | 否 | 区服 id |
+:::
+
+### 调用示例
+
+```java
+Activity activity;
+String goods_tag;
+String pay_type = "gl_oppo";
+Map<String, Object> extmap = new HashMap<>();
+
+PayParams.GameInfo gameInfo = new PayParams.GameInfo();
+gameInfo.setCpGameCharacterId("角色 id");
+gameInfo.setCpGameAreaId("区服 id");
+
+Map<String, Object> payParams = new HashMap<>();
+payParams.put("hq_type", pay_type);
+payParams.put("goods_tag", goods_tag);
+payParams.put("trade_no", "cp订单号");
+payParams.put("transmit_args", "cp透传参数，非必传");
+payParams.put("ext", extmap);
+payParams.put("game_info", gameInfo.toMap());
+payParams.put("indulge_auth", 1);
+payParams.put("user_real_currency", "CNY");
+payParams.put("user_real_price", 100);
+
+HQSdkWrapper.getInstance().doPay(activity, payParams, rxRequestCallback);
+```
+
+<PayCommon />

@@ -1,0 +1,93 @@
+---
+sidebar_position: 3
+title: 小游戏 iOS 虚拟币支付配置
+description: "望舒SDK 三方服务 小游戏 iOS 虚拟币支付配置 小游戏 接入文档，提供完整的接口调用说明与示例。"
+---
+
+https://cn-api-test.ruixueyun.com/v1/ke/minigame_alipay_virtual/callback
+
+## 准备工作
+
+支付宝开放平台地址：[https://open.alipay.com/](https://open.alipay.com/)
+
+望舒系统地址：[企业管理后台中获取望舒地址](/docs/开发者文档/入门指南/准备工作)。
+
+## 获取配置
+
+### 开通虚拟币支付
+
+登录 [支付宝开放平台](https://open.alipay.com/)。位置：**控制台 > 小游戏/移动应用 >可调用产品 > 私域 > 小游戏 > 小游戏平台虚拟币**。
+
+![](https://haiqi-ruixue-test.oss-cn-beijing.aliyuncs.com/docOnline/image-1765958560641.png)
+
+接入并配置通知/退款回调地址。
+
+支付/退款回调地址为同一个，格式为：**API 域名/v1/ke/minigame_alipay_virtual/callback**
+
+响应是否加签：否。请求编码为 UTF-8
+
+![](https://haiqi-ruixue-test.oss-cn-beijing.aliyuncs.com/docOnline/image-1765958802980.png)
+
+![](https://haiqi-ruixue-test.oss-cn-beijing.aliyuncs.com/docOnline/image-1765959171053.png)
+
+### 获取相关信息
+
+1.登录 [支付宝开放平台](https://open.alipay.com/)，获取相关应用内的 `App_ID`。位置：**控制台 > 小游戏/移动应用 > ID**。
+
+![](https://guanwangyun.oss-cn-beijing.aliyuncs.com/document/tripartite/alipay/minigame/appid.png)
+
+2.登录 [支付宝开放平台](https://open.alipay.com/)，获取相关应用内的 ` 应用私钥 ` ， ` 支付宝公钥 `。位置：**开发设置 > 开发信息 > 接口加签方式（密钥/证书） > 设置**。
+
+![](https://guanwangyun.oss-cn-beijing.aliyuncs.com/document/tripartite/alipay/minigame/secret.png)
+
+### 密钥配置流程
+
+1.设置加签方式，选择 密钥 > 下一步。
+
+![](https://guanwangyun.oss-cn-beijing.aliyuncs.com/document/tripartite/alipay/minigame/sha.jpg)
+
+2. 生成密钥文件。
+
+a. 下载并安装 [支付宝开放平台密钥工具](https://ideservice.alipay.com/ide/getPluginUrl.htm?clientType=assistant&platform=win&channelType=WEB)。
+
+b. 打开密钥工具，进入 生成密钥 功能。
+
+c. 加签方式选择 密钥，加签算法选择 RSA2。（开放平台支持 SM2 算法，但暂未公开配置，如有需要请联系支付宝技术支持）
+
+d. 点击 生成密钥，可以在结果页中看到生成的应用公钥、应用私钥。
+
+说明： RSA2 加密算法默认生成格式为 PKCS8 （ Java 适用），如需 PKCS1 格式（非 Java 适用），可使用 格式转换。
+
+e. 复制 应用公钥 字符串。
+
+f. 返回开放平台控制台中，点击 下一步。
+
+3. 上传应用公钥。粘贴复制的应用公钥字符串，点击 确认上传。此时需要输入短信验证码或支付密码，完成安全验证。
+
+4. 密钥配置完成。
+
+![](https://guanwangyun.oss-cn-beijing.aliyuncs.com/document/tripartite/alipay/minigame/rsa2.jpg)
+
+![](https://guanwangyun.oss-cn-beijing.aliyuncs.com/document/tripartite/alipay/minigame/private.jpg)
+
+![](https://guanwangyun.oss-cn-beijing.aliyuncs.com/document/tripartite/alipay/minigame/public.png)
+
+私钥文件在支付宝开放平台不保存，请妥善保管
+
+5.支付宝商家平台开通支付产品。在运营中心找到自己的小游戏进行虚拟支付开通。
+
+![](https://haiqi-ruixue-test.oss-cn-beijing.aliyuncs.com/docOnline/image-1727172479998.png)
+
+### 支付宝UID获取
+
+扫码获取支付宝测试填入的账号 UID
+
+![](https://haiqi-ruixue-test.oss-cn-beijing.aliyuncs.com/docOnline/img_v3_02k8_50e25523-21cf-4083-8195-421982bc306g-1741587369794.jpg)
+
+### 望舒系统中配置信息
+
+#### 支付配置
+
+通过获取到的 `App_ID`、` 支付宝公钥 `、` 应用私钥 `,复制到望舒系统。位置：**运维资源管理> 三方账号管理 > 支付账号管理 > 新建支付宝小游戏虚拟币支付账号**。
+
+![](https://haiqi-ruixue-test.oss-cn-beijing.aliyuncs.com/docOnline/image-1765959578847.png)

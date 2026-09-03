@@ -1,0 +1,2041 @@
+---
+sidebar_position: 2
+title: 小游戏视频广告接入
+description: "望舒SDK 广告 小游戏视频广告接入文档，提供详细的功能说明与接入指引。"
+---
+
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
+
+各渠道小游戏视频广告接入方式，按渠道选择对应配置。
+
+:::tip[渠道速查]
+点击下方标签页切换渠道。共 **24** 个渠道：
+
+| 渠道 | 渠道 | 渠道 | 渠道 | 渠道 |
+| --- | --- | --- | --- | --- |
+| 微信 | 抖音 | 快手 | 百度 | 哔哩哔哩 |
+| 好游快爆 | 美团 | 支付宝 | 华为 | 小米 |
+| vivo | OPPO | QQ | UC | 京东 |
+| 迅雷 | 淘宝 | 荣耀 | 群黑 | 哈啰 |
+| 最右 | 芒好玩 | 4399 | 4399H5 |  |
+:::
+<Tabs groupId="platform">
+<TabItem value="微信" label="微信">
+
+## 激励广告
+
+
+### JS
+
+### 参数说明
+
+| **字段** | **类型**      | **是否必填** | **备注**     |
+| ------------ | ----------------- | ---------------- | ---------------- |
+| params   | IAd           | 是           | 参数         |
+| callback | IMethodParams | 是           | 回调函数集合 |
+
+> IAd 说明
+
+| **字段** | **类型** | **是否必填** | **备注**                                                                                    |
+| ------------ | ------------ | ---------------- | ----------------------------------------------------------------------------------------------- |
+| func | string   | 否           | 埋点标记，可在望舒社交分享-广告管理工具配置，同一埋点只能关联一种广告类型，如需关联多种广告类型请使用[调度方式](https://doc.ruixueyun.com/main/#/view?viewPath=caa1a302-425a-42ae-b3df-cc8a4b97ec37&title=%E8%B0%83%E5%BA%A6%E5%88%86%E4%BA%AB(%E5%88%86%E4%BA%AB%E3%80%81%E5%B9%BF%E5%91%8A)&tab=&index=1)                                                                                  |
+| adUnitId | string   | 否           | 广告单元 id，若传则使用此id，若不传则取埋点对应配置广告单元id                                                                                 |
+| multiton  | boolean   | 否           | 是否启用多例模式                                                                                 |
+| destroyAd  | boolean   | 否           | 是否销毁当前广告（单例模式下销毁当前广告，相同广告位不能再次拉起）                                                                                 |
+| isCheck  | boolean  | 否           | 是否仅检测能否拉取广告, 而不显示`ture` 表示仅检测能否拉取广告，返回结果包含激励广告实例 |
+| custom_ext         | CustomExt   | 否           |自定义透传参数 |
+
+> `CustomExt  ` 字段说明
+
+| **字段**  | **类型** | **是否必填** | **备注** |
+| --------- | ------  | ----------- |---------|
+| bigdata_ext| object| 否             | 大数据预置事件透传参数                          |
+
+> IMethodParams 说明
+
+| **字段** | **备注**                                                  |
+| ------------ | ------------------------------------------------------------- |
+| complete | (data) => voidcomplete：为函数且必传，data 为结果数据 |
+| fail | (err) => void非必传，err为拉取广告失败结果数据1、传入adUnitId为错误的广告位id，调用rewardedVideoAd拉取广告失败，会走入该回调2、若未传入adUnitId，且func埋点对应的广告管理配置广告位id为空或为错误的，调用rewardedVideoAd拉取广告失败，会走入此回调3、若未传入adUnitId，调用流程错误，如func埋点对应当前调度为share，使用rewardedVideoAd拉取广告位id为空，则拉取广告失败，会走入该回调4、还有其他场景，拉取广告失败，会走入该回调 |
+
+**调用示例**
+```javascript
+sdk.rewardedVideoAd(
+  {
+    func: 'test',
+    adUnitId: "adunit-4de541945b96fxxx",
+    multiton: true,
+    destroyAd: true
+  },
+  {
+    complete: (data) => {
+      console.log(data);
+    },
+    fail: (err) => {
+      console.log(err);
+    },
+  }
+);
+```
+
+## 激励广告
+
+**响应示例**
+
+```text
+{
+    "code": 0,
+    "isEnded": false
+    "ad": {load: ƒ, show: ƒ, onClose: ƒ, offClose: ƒ, onError: ƒ, …},
+    "adUnitId": "81d0635de0cabb5dc47447a2cea353f3",
+    "isCheck": true
+}
+```
+
+### 响应结构
+
+| **字段** | **类型** | **备注** |
+| ------------ | --------------- | --------------------------------------------------------------------------------------------------------------------------------------- |
+| code | number | 0，表示成功 |
+| isEnded | boolean | 视频是否是在用户完整观看的情况下被关闭的，true 表示用户是在视频播放完以后关闭的视频，false 表示用户在视频播放过程中关闭了视频 |
+| ad | object | 激励视频广告组件 请参考 [微信小游戏激励视频广告 API ](https://developers.weixin.qq.com/minigame/dev/api/ad/RewardedVideoAd.html) |
+| adUnitId | string | 请求的参数，如果传了，原样返回，否则字段不存在 |
+| isCheck | boolean | 请求的参数，如果传了，原样返回，否则字段不存在 |
+
+
+### Unity
+
+## banner 广告
+
+**响应示例**
+
+```text
+{
+    "code": 0,
+    "ad": {load: ƒ, show: ƒ, onError: ƒ, …},
+    "adUnitId": "81d0635de0cabb5dc47447a2cea353f3",
+    "isCheck": true
+}
+```
+
+### 响应结构
+
+| **字段** | **类型** | **备注** |
+| --------------- | ------------ | -------------------------------------------------------------------------------------------------------------------------------- |
+| code | number | 0，表示成功 |
+| ad | object | Banner 广告组件 请参考 [微信小游戏 Banner 广告 API ](https://developers.weixin.qq.com/minigame/dev/api/ad/BannerAd.html) |
+| adUnitId | string | 请求的参数，如果传了，原样返回，否则字段不存在 |
+| isCheck | boolean | 请求的参数，如果传了，原样返回，否则字段不存在 |
+| adIntervals | number | 请求的参数，如果传了，原样返回，否则字段不存在 |
+| style | object | 请求的参数，如果传了，原样返回，否则字段不存在 |
+
+
+### Unity
+
+## 插屏广告
+
+**响应示例**
+
+```text
+{
+    "code": 0,
+    "ad": {load: ƒ, show: ƒ, onError: ƒ, …},
+    "adUnitId": "81d0635de0cabb5dc47447a2cea353f3",
+    "isCheck": true
+}
+```
+
+### 响应结构
+
+| **字段** | **类型** | **备注** |
+| ------------ | ------------ | ---------------------------------------------------------------------------------------------------------------------------------- |
+| code | number | 0，表示成功 |
+| ad | object | 插屏广告组件 请参考 [微信小游戏插屏广告 API ](https://developers.weixin.qq.com/minigame/dev/api/ad/InterstitialAd.html) |
+| adUnitId | string | 请求的参数，如果传了，原样返回，否则字段不存在 |
+| isCheck | boolean | 请求的参数，如果传了，原样返回，否则字段不存在 |
+
+ ## 原生模板广告
+
+
+### 响应结构
+
+| **字段** | **类型** | **备注** |
+| ------------ | --------------- | --------------------------------------------------------------------------------------------------------------------------------------- |
+| code | number | 0，表示成功 |
+| isEnded | boolean | 视频是否是在用户完整观看的情况下被关闭的，true 表示用户是在视频播放完以后关闭的视频，false 表示用户在视频播放过程中关闭了视频 |
+| ad | object | 激励视频广告组件 请参考 [微信小游戏激励视频广告 API ](https://developers.weixin.qq.com/minigame/dev/api/ad/RewardedVideoAd.html) |
+| adUnitId | string | 请求的参数，如果传了，原样返回，否则字段不存在 |
+| isCheck | boolean | 请求的参数，如果传了，原样返回，否则字段不存在 |
+
+## banner 广告
+
+**响应示例**
+
+```text
+{
+    "code": 0,
+    "ad": {load: ƒ, show: ƒ, onError: ƒ, …},
+    "adUnitId": "81d0635de0cabb5dc47447a2cea353f3",
+    "isCheck": true
+}
+```
+
+### 响应结构
+
+| **字段** | **类型** | **备注** |
+| --------------- | ------------ | -------------------------------------------------------------------------------------------------------------------------------- |
+| code | number | 0，表示成功 |
+| ad | object | 激励视频广告组件 |
+
+| **字段** | **类型** | **备注** |
+| ------------ | --------------- | --------------------------------------------------------------------------------------------------------------------------------------- |
+| code | number | 0，表示成功 |
+| isEnded | boolean | 视频是否是在用户完整观看的情况下被关闭的，true 表示用户是在视频播放完以后关闭的视频，false 表示用户在视频播放过程中关闭了视频 |
+| ad | object | 激励视频广告组件 请参考 [微信小游戏激励视频广告 API ](https://developers.weixin.qq.com/minigame/dev/api/ad/RewardedVideoAd.html) |
+| adUnitId | string | 请求的参数，如果传了，原样返回，否则字段不存在 |
+| isCheck | boolean | 请求的参数，如果传了，原样返回，否则字段不存在 |
+
+## banner 广告
+
+**响应示例**
+
+```text
+{
+    "code": 0,
+    "ad": {load: ƒ, show: ƒ, onError: ƒ, …},
+    "adUnitId": "81d0635de0cabb5dc47447a2cea353f3",
+    "isCheck": true
+}
+```
+
+### 响应结构
+
+| **字段** | **类型** | **备注** |
+| --------------- | ------------ | -------------------------------------------------------------------------------------------------------------------------------- |
+| code | number | 0，表示成功 |
+| ad | object | 激励视频广告组件 |
+
+| **字段** | **类型** | **备注** |
+| ------------ | --------------- | --------------------------------------------------------------------------------------------------------------------------------------- |
+| code | number | 0，表示成功 |
+| isEnded | boolean | 视频是否是在用户完整观看的情况下被关闭的，true 表示用户是在视频播放完以后关闭的视频，false 表示用户在视频播放过程中关闭了视频 |
+| ad | object | 激励视频广告组件 请参考 [微信小游戏激励视频广告 API ](https://developers.weixin.qq.com/minigame/dev/api/ad/RewardedVideoAd.html) |
+| adUnitId | string | 请求的参数，如果传了，原样返回，否则字段不存在 |
+| isCheck | boolean | 请求的参数，如果传了，原样返回，否则字段不存在 |
+
+## banner 广告
+
+**响应示例**
+
+```text
+{
+    "code": 0,
+    "ad": {load: ƒ, show: ƒ, onError: ƒ, …},
+    "adUnitId": "81d0635de0cabb5dc47447a2cea353f3",
+    "isCheck": true
+}
+```
+
+### 响应结构
+
+| **字段** | **类型** | **备注** |
+| --------------- | ------------ | -------------------------------------------------------------------------------------------------------------------------------- |
+| code | number | 0，表示成功 |
+| ad | object | Banner 广告组件 请参考 [微信小游戏 Banner 广告 API ](https://developers.weixin.qq.com/minigame/dev/api/ad/BannerAd.html) |
+
+
+**响应示例**
+
+```text
+{
+ "code": 0,
+ "ad": {load: ƒ, show: ƒ, onError: ƒ, …},
+ "adUnitId": "81d0635de0cabb5dc47447a2cea353f3",
+ "isCheck": true
+}
+```
+
+### 响应结构
+
+| 字段 | 类型 | 备注 |
+| --- | --- | --- |
+| code | number | 0 ，表示成功 |
+| ad | object | 插屏广告组件 请参考 [微信小游戏插屏广告 API ](https://developers.weixin.qq.com/minigame/dev/api/ad/InterstitialAd.html) |
+| adUnitId | string | 请求的参数，如果传了，原样返回，否则字段不存在 |
+| isCheck | boolean | 请求的参数，如果传了，原样返回，否则字段不存在 |
+
+## 原生模板广告
+
+
+### JS
+
+### 响应结构
+
+| **字段** | **类型** | **备注** |
+| ------------ | ------------ | ---------------------------------------------------------------------------------------------------------------------------------- |
+| code | number | 0，表示成功 |
+| ad | object | 插屏广告组件 请参考 [微信小游戏插屏广告 API ](https://developers.weixin.qq.com/minigame/dev/api/ad/InterstitialAd.html) |
+| adUnitId | string | 请求的参数，如果传了，原样返回，否则字段不存在 |
+| isCheck | boolean | 请求的参数，如果传了，原样返回，否则字段不存在 |
+
+ ## 原生模板广告
+
+
+## 常见错误码(第三方平台侧)
+
+| 错误 code | 说明 |
+| --- | --- |
+| **1000** | 后端接口调用失败 |
+| **1001** | 参数错误 |
+| **1002** | 广告单元无效 |
+| **1003** | 内部错误 |
+| **1004** | 无合适的广告 |
+| **1005** | 广告组件审核中 |
+| **1006** | 广告组件被驳回 |
+| **1007** | 广告组件被封禁 |
+| **1008** | 广告单元已关闭 |
+
+
+## 望舒后台配置广告管理
+
+[望舒后台广告管理配置](/docs/开发者文档/广告投放/广点通/原生接入)
+
+### js
+
+## 激励广告
+
+**响应示例**
+
+```text
+{
+    "code": 0,
+    "isEnded": false
+    "ad": {load: ƒ, show: ƒ, onClose: ƒ, offClose: ƒ, onError: ƒ, …},
+    "adUnitId": "81d0635de0cabb5dc47447a2cea353f3",
+    "isCheck": true
+}
+```
+
+### 响应结构
+
+| **字段** | **类型** | **备注** |
+| ------------ | --------------- | --------------------------------------------------------------------------------------------------------------------------------------- |
+| code | number | 0，表示成功 |
+| isEnded | boolean | 视频是否是在用户完整观看的情况下被关闭的，true 表示用户是在视频播放完以后关闭的视频，false 表示用户在视频播放过程中关闭了视频 |
+| ad | object | 激励视频广告组件 请参考 [微信小游戏激励视频广告 API ](https://developers.weixin.qq.com/minigame/dev/api/ad/RewardedVideoAd.html) |
+| adUnitId | string | 请求的参数，如果传了，原样返回，否则字段不存在 |
+| isCheck | boolean | 请求的参数，如果传了，原样返回，否则字段不存在 |
+
+
+### js
+
+## banner 广告
+
+**响应示例**
+
+```text
+{
+    "code": 0,
+    "ad": {load: ƒ, show: ƒ, onError: ƒ, …},
+    "adUnitId": "81d0635de0cabb5dc47447a2cea353f3",
+    "isCheck": true
+}
+```
+
+### 响应结构
+
+| **字段** | **类型** | **备注** |
+| --------------- | ------------ | -------------------------------------------------------------------------------------------------------------------------------- |
+| code | number | 0，表示成功 |
+| ad | object | Banner 广告组件 请参考 [微信小游戏 Banner 广告 API ](https://developers.weixin.qq.com/minigame/dev/api/ad/BannerAd.html) |
+| adUnitId | string | 请求的参数，如果传了，原样返回，否则字段不存在 |
+| isCheck | boolean | 请求的参数，如果传了，原样返回，否则字段不存在 |
+| adIntervals | number | 请求的参数，如果传了，原样返回，否则字段不存在 |
+| style | object | 请求的参数，如果传了，原样返回，否则字段不存在 |
+
+
+### js
+
+## 插屏广告
+
+**响应示例**
+
+```text
+{
+    "code": 0,
+    "ad": {load: ƒ, show: ƒ, onError: ƒ, …},
+    "adUnitId": "81d0635de0cabb5dc47447a2cea353f3",
+    "isCheck": true
+}
+```
+
+### 响应结构
+
+| **字段** | **类型** | **备注** |
+| ------------ | ------------ | ---------------------------------------------------------------------------------------------------------------------------------- |
+| code | number | 0，表示成功 |
+| ad | object | 插屏广告组件 请参考 [微信小游戏插屏广告 API ](https://developers.weixin.qq.com/minigame/dev/api/ad/InterstitialAd.html) |
+| adUnitId | string | 请求的参数，如果传了，原样返回，否则字段不存在 |
+| isCheck | boolean | 请求的参数，如果传了，原样返回，否则字段不存在 |
+
+ ## 原生模板广告
+
+
+### 响应结构
+
+| **字段** | **类型** | **备注** |
+| ------------ | --------------- | --------------------------------------------------------------------------------------------------------------------------------------- |
+| code | number | 0，表示成功 |
+| isEnded | boolean | 视频是否是在用户完整观看的情况下被关闭的，true 表示用户是在视频播放完以后关闭的视频，false 表示用户在视频播放过程中关闭了视频 |
+| ad | object | 激励视频广告组件 请参考 [微信小游戏激励视频广告 API ](https://developers.weixin.qq.com/minigame/dev/api/ad/RewardedVideoAd.html) |
+| adUnitId | string | 请求的参数，如果传了，原样返回，否则字段不存在 |
+| isCheck | boolean | 请求的参数，如果传了，原样返回，否则字段不存在 |
+
+## banner 广告
+
+**响应示例**
+
+```text
+{
+    "code": 0,
+    "ad": {load: ƒ, show: ƒ, onError: ƒ, …},
+    "adUnitId": "81d0635de0cabb5dc47447a2cea353f3",
+    "isCheck": true
+}
+```
+
+### 响应结构
+
+| **字段** | **类型** | **备注** |
+| --------------- | ------------ | -------------------------------------------------------------------------------------------------------------------------------- |
+| code | number | 0，表示成功 |
+| ad | object | Banner 广告组件 请参考 [微信小游戏 Banner 广告 API ](https://developers.weixin.qq.com/minigame/dev/api/ad/BannerAd.html) |
+
+
+### 响应结构
+
+| **字段** | **类型** | **备注** |
+| ------------ | --------------- | --------------------------------------------------------------------------------------------------------------------------------------- |
+| code | number | 0，表示成功 |
+| isEnded | boolean | 视频是否是在用户完整观看的情况下被关闭的，true 表示用户是在视频播放完以后关闭的视频，false 表示用户在视频播放过程中关闭了视频 |
+| ad | object | 激励视频广告组件 请参考 [微信小游戏激励视频广告 API ](https://developers.weixin.qq.com/minigame/dev/api/ad/RewardedVideoAd.html) |
+| adUnitId | string | 请求的参数，如果传了，原样返回，否则字段不存在 |
+| isCheck | boolean | 请求的参数，如果传了，原样返回，否则字段不存在 |
+
+## banner 广告
+
+**响应示例**
+
+```text
+{
+    "code": 0,
+    "ad": {load: ƒ, show: ƒ, onError: ƒ, …},
+    "adUnitId": "81d0635de0cabb5dc47447a2cea353f3",
+    "isCheck": true
+}
+```
+
+### 响应结构
+
+| **字段** | **类型** | **备注** |
+| --------------- | ------------ | -------------------------------------------------------------------------------------------------------------------------------- |
+| code | number | 0，表示成功 |
+| ad | object | Banner 广告组件 请参考 [微信小游戏 Banner 广告 API ](https://developers.weixin.qq.com/minigame/dev/api/ad/BannerAd.html) |
+
+
+### 响应结构
+
+| **字段** | **类型** | **备注** |
+| ------------ | --------------- | --------------------------------------------------------------------------------------------------------------------------------------- |
+| code | number | 0，表示成功 |
+| isEnded | boolean | 视频是否是在用户完整观看的情况下被关闭的，true 表示用户是在视频播放完以后关闭的视频，false 表示用户在视频播放过程中关闭了视频 |
+| ad | object | 激励视频广告组件 请参考 [微信小游戏激励视频广告 API ](https://developers.weixin.qq.com/minigame/dev/api/ad/RewardedVideoAd.html) |
+| adUnitId | string | 请求的参数，如果传了，原样返回，否则字段不存在 |
+| isCheck | boolean | 请求的参数，如果传了，原样返回，否则字段不存在 |
+
+## banner 广告
+
+**响应示例**
+
+```text
+{
+    "code": 0,
+    "ad": {load: ƒ, show: ƒ, onError: ƒ, …},
+    "adUnitId": "81d0635de0cabb5dc47447a2cea353f3",
+    "isCheck": true
+}
+```
+
+### 响应结构
+
+| **字段** | **类型** | **备注** |
+| --------------- | ------------ | -------------------------------------------------------------------------------------------------------------------------------- |
+| code | number | 0，表示成功 |
+| ad | object | Banner 广告组件 请参考 [微信小游戏 Banner 广告 API ](https://developers.weixin.qq.com/minigame/dev/api/ad/BannerAd.html) |
+
+</TabItem>
+
+<TabItem value="抖音" label="抖音">
+
+## 激励广告
+
+### 参数说明
+
+| 字段 | 类型 | 是否必填 | 备注 |
+| --- | --- | --- | --- |
+| params | IAd | 是 | 参数 |
+| callback | IMethodParams | 是 | 回调函数集合 |
+
+> IAd 说明
+
+| 字段 | 类型 | 是否必填 | 备注 |
+| --- | --- | --- | --- |
+| adUnitId | string | 否 | 广告单元 id ，若传则使用此 id ，若不传则取埋点对应配置广告单元 id |
+| func | string | 否 | 埋点标记，可在望舒社交分享-广告管理工具配置 |
+| isCheck | boolean | 否 | 是否仅检测能否拉取广告, 而不显示 |
+| destroyAd | boolean | 否 | 是否关闭广告时销毁广告组件 |
+
+`true` 表示仅检测能否拉取广告，返回结果包含激励广告实例
+
+`true` 表示销毁广告组件
+
+> IMethodParams 说明
+
+| 字段 | 备注 |
+| --- | --- |
+| complete | (data) => void |
+
+complete ：为函数且必传， data 为结果数据
+
+**调用示例**
+
+```javascript
+sdk.rewardedVideoAd(
+ {
+ adUnitId: "adUnitId-4de541945b96fxxx"
+ },
+ {
+ complete: (data) => {
+ console.log(data);
+ },
+ }
+);
+```
+
+**响应示例**
+
+```text
+{
+ "code": 0,
+ "isEnded": false
+ "ad": {load: ƒ, show: ƒ, onClose: ƒ, offClose: ƒ, onError: ƒ, …},
+ "adUnitId": "81d0635de0cabb5dc47447a2cea353f3",
+ "isCheck": true
+}
+```
+
+### 响应结构
+
+| 字段 | 类型 | 备注 |
+| --- | --- | --- |
+| code | number | 0 ，表示成功 |
+| isEnded | boolean | 视频是否是在用户完整观看的情况下被关闭的， true 表示用户是在视频播放完以后关闭的视频， false 表示用户在视频播放过程中关闭了视频 |
+| ad | object | 激励视频广告组件 请参考 [抖音小游戏激励视频广告 API ](https://developer.open-douyin.com/docs/resource/zh-CN/mini-game/develop/api/ads/rewarded-video-ad/rewarded-video-ad) |
+| adUnitId | string | 请求的参数，如果传了，原样返回，否则字段不存在 |
+| isCheck | boolean | 请求的参数，如果传了，原样返回，否则字段不存在 |
+
+## 常见错误码(第三方平台侧)
+
+| 错误 code | 说明 |
+| --- | --- |
+| **1000** | 后端接口调用失败 |
+| **1001** | 参数错误 |
+| **1002** | 广告单元无效 |
+| **1003** | 内部错误 |
+| **1004** | 无合适的广告 |
+| **1005** | 广告组件审核中 |
+| **1006** | 广告组件被驳回 |
+| **1007** | 广告能力被禁用 |
+| **1008** | 广告单元已关闭 |
+| **20002** | 不支持 banner 广告 API |
+| **120002** | 广告发送的次数已达当日上限 |
+
+
+## 望舒后台配置广告管理
+
+[望舒后台广告管理配置](/docs/开发者文档/广告投放/广点通/原生接入)
+
+</TabItem>
+
+<TabItem value="快手" label="快手">
+
+## 激励广告
+
+### 参数说明
+
+| 字段 | 类型 | 是否必填 | 备注 |
+| --- | --- | --- | --- |
+| params | IAd | 是 | 参数 |
+| callback | IMethodParams | 是 | 回调函数集合 |
+
+> IAd 说明
+
+| 字段 | 类型 | 是否必填 | 备注 |
+| --- | --- | --- | --- |
+| adUnitId | string | 否 | 广告单元 id ，若传则使用此 id ，若不传则取埋点对应配置广告单元 id |
+| func | string | 否 | 埋点标记，可在望舒社交分享-广告管理工具配置 |
+
+> IMethodParams 说明
+
+| 字段 | 备注 |
+| --- | --- |
+| complete | (data) => void |
+
+complete ：为函数且必传， data 为结果数据
+
+**调用示例**
+
+```javascript
+ sdk.rewardedVideoAd(
+ {
+ adUnitId: "adUnitId-4de541945b96fxxx",
+ },
+ {
+ complete: (data) => {
+ console.log(data);
+ },
+ }
+);
+```
+
+**响应示例**
+
+```javascript
+{
+ "code": 0,
+ "isEnded": false
+ "msg": "正常播放结束，可以下发游戏奖励"
+}
+```
+
+### 响应结构
+
+| 字段 | 类型 | 备注 |
+| --- | --- | --- |
+| code | number | 0 ，表示成功 |
+| isEnded | boolean | 视频是否是在用户完整观看的情况下被关闭的， true 表示用户是在视频播放完以后关闭的视频， false 表示用户在视频播放过程中关闭了视频 |
+| msg | string | 错误信息 |
+
+## 望舒后台配置广告管理
+
+[望舒后台广告管理配置](/docs/开发者文档/广告投放/广点通/原生接入)
+
+</TabItem>
+
+<TabItem value="百度" label="百度">
+
+## 激励广告
+
+### 参数说明
+
+| 字段 | 类型 | 是否必填 | 备注 |
+| --- | --- | --- | --- |
+| params | IAd | 是 | 参数 |
+| callback | IMethodParams | 是 | 回调函数集合 |
+
+> IAd 说明
+
+| 字段 | 类型 | 是否必填 | 备注 |
+| --- | --- | --- | --- |
+| func | string | 否 | 埋点标记，可在望舒社交分享-广告管理工具配置，同一埋点只能关联一种广告类型，如需关联多种广告类型请使用[调度方式](/docs/开发者文档/推送/服务端接入/服务端-API) |
+| adUnitId | string | 否 | 广告单元 id ，若传则使用此 id ，若不传则取埋点对应配置广告单元 id |
+| appSid | string | 是 | 应用 id |
+
+> IMethodParams 说明
+
+| 字段 | 备注 |
+| --- | --- |
+| complete | (data) => void |
+
+complete ：为函数且必传， data 为结果数据
+
+**调用示例**
+
+```javascript
+ sdk.rewardedVideoAd(
+ {
+ adUnitId: "adUnitId-4de541945b96fxxx",
+ appSid: "appSid-4de541945b96fxxx",
+ },
+ {
+ complete: (data) => {
+ console.log(data);
+ },
+ }
+);
+```
+
+**响应示例**
+
+```javascript
+{
+ "code": 0,
+ "isEnded": false，
+ "msg": "正常播放结束，可以下发游戏奖励"
+}
+```
+
+### 响应结构
+
+| 字段 | 类型 | 备注 |
+| --- | --- | --- |
+| code | number | 0 ，表示成功 |
+| isEnded | boolean | 视频是否是在用户完整观看的情况下被关闭的， true 表示用户是在视频播放完以后关闭的视频， false 表示用户在视频播放过程中关闭了视频 |
+
+## 百度平台获取广告位ID
+
+1.登录[百青藤平台](https://union.baidu.com/bqt/appco.html#/union/slot)。**菜单:应用合作>合作管理>网盟推广>代码位管理**。获取 ` 广告位 ID`,` 所属应用 ID`。
+
+如果没有应用需要先在平台建立应用。在创建广告位 ID 时进行关联。
+
+![](https://haiqi-ruixue-test.oss-cn-beijing.aliyuncs.com/docOnline/image-1737599541731.png)
+
+## 望舒后台配置广告管理
+
+[望舒后台广告管理配置](/docs/开发者文档/广告投放/广点通/原生接入)
+
+</TabItem>
+
+<TabItem value="哔哩哔哩" label="哔哩哔哩">
+
+## 激励广告
+
+### 参数说明
+
+| 字段 | 类型 | 是否必填 | 备注 |
+| --- | --- | --- | --- |
+| params | IAd | 是 | 参数 |
+| callback | IMethodParams | 是 | 回调函数集合 |
+
+> IAd 说明
+
+| 字段 | 类型 | 是否必填 | 备注 |
+| --- | --- | --- | --- |
+| adUnitId | string | 否 | 广告单元 id ，若传则使用此 id ，若不传则取埋点对应配置广告单元 id |
+| func | string | 否 | 埋点标记，可在望舒社交分享-广告管理工具配置 |
+
+> IMethodParams 说明
+
+| 字段 | 备注 |
+| --- | --- |
+| complete | (data) => void |
+
+complete ：为函数且必传， data 为结果数据
+
+**调用示例**
+
+```javascript
+ sdk.rewardedVideoAd(
+ {
+ adUnitId: "adUnitId-4de541945b96fxxx",
+ },
+ {
+ complete: (data) => {
+ console.log(data);
+ },
+ }
+);
+```
+
+**响应示例**
+
+```javascript
+{
+ "code": 0,
+ "isEnded": false
+ "msg": "正常播放结束，可以下发游戏奖励"
+}
+```
+
+### 响应结构
+
+| 字段 | 类型 | 备注 |
+| --- | --- | --- |
+| code | number | 0 ，表示成功 |
+| isEnded | boolean | 视频是否是在用户完整观看的情况下被关闭的， true 表示用户是在视频播放完以后关闭的视频， false 表示用户在视频播放过程中关闭了视频 |
+| msg | string | 错误信息 |
+
+## 望舒后台配置广告管理
+
+[望舒后台广告管理配置](/docs/开发者文档/广告投放/广点通/原生接入)
+
+</TabItem>
+
+<TabItem value="好游快爆" label="好游快爆">
+
+## 激励广告
+
+### 参数说明
+
+| 字段 | 类型 | 是否必填 | 备注 |
+| --- | --- | --- | --- |
+| callback | IMethodParams | 是 | 回调函数集合 |
+
+> IMethodParams 说明
+
+| 字段 | 备注 |
+| --- | --- |
+| complete | (data) => void |
+
+complete ：为函数且必传， data 为结果数据
+
+**调用示例**
+
+```javascript
+ sdk.rewardedVideoAd(
+ {
+ complete: (data) => {
+ console.log(data);
+ },
+ }
+);
+```
+
+**响应示例**
+
+```javascript
+{
+ "code": 0,
+ "isEnded": false
+ "msg": "正常播放结束，可以下发游戏奖励"
+}
+```
+
+### 响应结构
+
+| 字段 | 类型 | 备注 |
+| --- | --- | --- |
+| code | number | 0 ，表示成功 |
+| isEnded | boolean | 视频是否是在用户完整观看的情况下被关闭的， true 表示用户是在视频播放完以后关闭的视频， false 表示用户在视频播放过程中关闭了视频 |
+| msg | string | 错误信息 |
+
+## 望舒后台配置广告管理
+
+[望舒后台广告管理配置](/docs/开发者文档/广告投放/广点通/原生接入)
+
+</TabItem>
+
+<TabItem value="美团" label="美团">
+
+## 激励广告
+
+### 参数说明
+
+| 字段 | 类型 | 是否必填 | 备注 |
+| --- | --- | --- | --- |
+| params | IAd | 是 | 参数 |
+| callback | IMethodParams | 是 | 回调函数集合 |
+
+> IAd 说明
+
+| 字段 | 类型 | 是否必填 | 备注 |
+| --- | --- | --- | --- |
+| posId | string | 是 | 广告单元 id |
+| cid | string | 是 | 渠道 cid ，由渠道提供 |
+| bid | string | 是 | 渠道 bid ，由渠道提供 |
+
+> IMethodParams 说明
+
+| 字段 | 备注 |
+| --- | --- |
+| complete | (data) => void |
+
+complete ：为函数且必传， data 为结果数据
+
+**调用示例**
+
+```javascript
+sdk.advertisingVideo(
+ {
+ posId: "广告单元id",
+ cid: "渠道cid",
+ bid: "渠道bid"
+ },
+ {
+ complete: (data) => {
+ console.log(data);
+ },
+ }
+);
+```
+
+**响应示例**
+
+```javascript
+{
+ "code": 0,
+ "msg": "正常播放结束，可以下发游戏奖励",
+ "data": {},
+}
+```
+
+### 响应结构
+
+| 字段 | 类型 | 备注 |
+| --- | --- | --- |
+| code | number | 0 ，表示成功 |
+| msg | string | 返回信息描述 |
+| data | object | 返回相第三方平台侧相关信息,data 中包含 adType 并且 adType 等于 defaultLink 时，是兜底广告 |
+
+## 常见错误码(第三方平台侧)
+
+| 错误 code | 说明 |
+| --- | --- |
+| **-1** | 未知错误 |
+| **1002** | 广告单元失效或过期 |
+| **1003** | 三方 SDK 内部错误 |
+| **1004** | 广告已被销毁 |
+| **1005** | 广告无填充 |
+| **1006** | 广告位信息解析失败或限流 |
+| **1007** | 广告请求失败 |
+| **1008** | 广告数据转换失败 |
+| **1009** | 广告创建失败，参数错误 |
+| **1010** | 广告展示失败 |
+
+
+## 望舒后台配置广告管理
+
+[望舒后台广告管理配置](/docs/开发者文档/广告投放/广点通/原生接入)
+
+</TabItem>
+
+<TabItem value="支付宝" label="支付宝">
+
+## 激励广告
+
+### 参数说明
+
+| 字段 | 类型 | 是否必填 | 备注 |
+| --- | --- | --- | --- |
+| params | IAd | 是 | 参数 |
+| callback | IMethodParams | 是 | 回调函数集合 |
+
+> IAd 说明
+
+| 字段 | 类型 | 是否必填 | 备注 |
+| --- | --- | --- | --- |
+| adUnitId | string | 否 | 广告单元 id ，若传则使用此 id ，若不传则取埋点对应配置广告单元 id |
+| func | string | 否 | 埋点标记，可在望舒社交分享-广告管理工具配置 |
+
+> IMethodParams 说明
+
+| 字段 | 备注 |
+| --- | --- |
+| complete | (data) => void |
+
+complete ：为函数且必传， data 为结果数据
+
+**调用示例**
+
+```javascript
+ sdk.rewardedVideoAd(
+ {
+ adUnitId: "adUnitId-4de541945b96fxxx",
+ },
+ {
+ complete: (data) => {
+ console.log(data);
+ },
+ }
+);
+```
+
+**响应示例**
+
+```javascript
+{
+ "code": 0,
+ "isEnded": false
+ "adUnitId": "81d0635de0cabb5dc47447a2cea353f3"
+}
+```
+
+### 响应结构
+
+| 字段 | 类型 | 备注 |
+| --- | --- | --- |
+| code | number | 0 ，表示成功 |
+| isEnded | boolean | 视频是否是在用户完整观看的情况下被关闭的， true 表示用户是在视频播放完以后关闭的视频， false 表示用户在视频播放过程中关闭了视频 |
+| adUnitId | string | 请求的参数，如果传了，原样返回，否则字段不存在 |
+
+## 望舒后台配置广告管理
+
+[望舒后台广告管理配置](/docs/开发者文档/广告投放/广点通/原生接入)
+
+</TabItem>
+
+<TabItem value="华为" label="华为">
+
+## 激励广告
+
+### 参数说明
+
+| 字段 | 类型 | 是否必填 | 备注 |
+| --- | --- | --- | --- |
+| params | IAd | 是 | 参数 |
+| callback | IMethodParams | 是 | 回调函数集合 |
+
+> IAd 说明
+
+| 字段 | 类型 | 是否必填 | 备注 |
+| --- | --- | --- | --- |
+| adUnitId | string | 否 | 广告单元 id ，若传则使用此 id ，若不传则取埋点对应配置广告单元 id |
+| func | string | 否 | 埋点标记，可在望舒社交分享-广告管理工具配置 |
+
+> IMethodParams 说明
+
+| 字段 | 备注 |
+| --- | --- |
+| complete | (data) => void |
+
+complete ：为函数且必传， data 为结果数据
+
+**调用示例**
+
+```javascript
+ sdk.rewardedVideoAd(
+ {
+ adUnitId: "adUnitId-4de541945b96fxxx",
+ },
+ {
+ complete: (data) => {
+ console.log(data);
+ },
+ }
+);
+```
+
+**响应示例**
+
+```javascript
+{
+ "code": 0,
+ "isEnded": false
+ "adUnitId": "81d0635de0cabb5dc47447a2cea353f3"
+}
+```
+
+### 响应结构
+
+| 字段 | 类型 | 备注 |
+| --- | --- | --- |
+| code | number | 0 ，表示成功 |
+| isEnded | boolean | 视频是否是在用户完整观看的情况下被关闭的， true 表示用户是在视频播放完以后关闭的视频， false 表示用户在视频播放过程中关闭了视频 |
+
+## 常见错误码(第三方平台侧)
+
+| 错误 code | 说明 |
+| --- | --- |
+| **200** | 通用错误 |
+| **202** | 参数错误 |
+| **1001** | 无效的广告请求，如未设置广告位 ID、Banner 广告尺寸无效等 |
+| **1003** | 内部错误 |
+| **1004** | 广告请求成功，但是服务器没有返回可用的广告素材 |
+| **1100** | 广告正在请求中，不能重复发起请求 |
+| **1102** | API 版本不在广告服务支持范围内 |
+| **1104** | 由于网络连接错误导致广告请求失败 |
+| **2000** | HMS Core 版本过低，不支持设置 AppInfo |
+
+
+## 望舒后台配置广告管理
+
+[望舒后台广告管理配置](/docs/开发者文档/广告投放/广点通/原生接入)
+
+</TabItem>
+
+<TabItem value="小米" label="小米">
+
+## 激励广告
+
+### 参数说明
+
+| 字段 | 类型 | 是否必填 | 备注 |
+| --- | --- | --- | --- |
+| params | IAd | 是 | 参数 |
+| callback | IMethodParams | 是 | 回调函数集合 |
+
+> IAd 说明
+
+| 字段 | 类型 | 是否必填 | 备注 |
+| --- | --- | --- | --- |
+| adUnitId | string | 否 | 广告单元 id ，若传则使用此 id ，若不传则取埋点对应配置广告单元 id |
+| func | string | 否 | 埋点标记，可在望舒社交分享-广告管理工具配置 |
+| isCheck | boolean | 否 | 是否仅检测能否拉取广告, 而不显示 |
+
+`true` 表示仅检测能否拉取广告，返回结果包含激励广告实例
+
+> IMethodParams 说明
+
+| 字段 | 备注 |
+| --- | --- |
+| complete | (data) => void |
+
+complete ：为函数且必传， data 为结果数据
+
+**调用示例**
+
+```javascript
+sdk.rewardedVideoAd(
+ {
+ adUnitId: "adUnitId-4de541945b96fxxx",
+ },
+ {
+ complete: (data) => {
+ console.log(data);
+ },
+ }
+);
+```
+
+**响应示例**
+
+```javascript
+{
+ "code": 0,
+ "isEnded": false
+ "msg": 'error message',
+}
+```
+
+### 响应结构
+
+| 字段 | 类型 | 备注 |
+| --- | --- | --- |
+| code | number | 0 表示成功，-1 表示失败 |
+| isEnded | boolean | 视频是否是在用户完整观看的情况下被关闭的，true 表示用户是在视频播放完以后关闭的视频，false 表示用户在视频播放过程中关闭了视频 |
+| msg | string | 失败的原因 |
+
+## 望舒后台配置广告管理
+
+[望舒后台广告管理配置](/docs/开发者文档/广告投放/广点通/原生接入)
+
+</TabItem>
+
+<TabItem value="vivo" label="vivo">
+
+## 激励广告
+
+### 参数说明
+
+| 字段 | 类型 | 是否必填 | 备注 |
+| --- | --- | --- | --- |
+| params | IAd | 是 | 参数 |
+| callback | IMethodParams | 是 | 回调函数集合 |
+
+> IAd 说明
+
+| 字段 | 类型 | 是否必填 | 备注 |
+| --- | --- | --- | --- |
+| adUnitId | string | 否 | 广告单元 id ，若传则使用此 id ，若不传则取埋点对应配置广告单元 id |
+| func | string | 否 | 埋点标记，可在望舒社交分享-广告管理工具配置 |
+| isCheck | boolean | 否 | 是否仅检测能否拉取广告, 而不显示 |
+
+`true` 表示仅检测能否拉取广告，返回结果包含激励广告实例
+
+> IMethodParams 说明
+
+| 字段 | 备注 |
+| --- | --- |
+| complete | (data) => void |
+
+complete ：为函数且必传， data 为结果数据
+
+**调用示例**
+
+```javascript
+sdk.rewardedVideoAd(
+ {
+ adUnitId: "adUnitId-4de541945b96fxxx",
+ },
+ {
+ complete: (data) => {
+ console.log(data);
+ },
+ }
+);
+```
+
+**响应示例**
+
+```text
+{
+ "code": 0,
+ "isEnded": false
+ "ad": {load: ƒ, show: ƒ, onClose: ƒ, offClose: ƒ, onError: ƒ, …},
+ "adUnitId": "81d0635de0cabb5dc47447a2cea353f3",
+ "isCheck": true
+}
+```
+
+### 响应结构
+
+| 字段 | 类型 | 备注 |
+| --- | --- | --- |
+| code | number | 0 ，表示成功 |
+| isEnded | boolean | 视频是否是在用户完整观看的情况下被关闭的， true 表示用户是在视频播放完以后关闭的视频， false 表示用户在视频播放过程中关闭了视频 |
+| ad | object | 激励视频广告组件 请参考 [vivo 小游戏激励视频广告 API ](https://minigame.vivo.com.cn/documents/#/api/ad/incentive-video-ad) |
+| adUnitId | string | 请求的参数，如果传了，原样返回，否则字段不存在 |
+| isCheck | boolean | 请求的参数，如果传了，原样返回，否则字段不存在 |
+
+## 常见错误码(第三方平台侧)
+
+| 错误 code | 说明 |
+| --- | --- |
+| **-1** | 未知原因 |
+| **-2** | 外部 SDK 错误 |
+| **-3** | 广告拉取太频繁 广告拉取时间间隔建议在 1s 以上 |
+| **1** | 应用 id 或者广告位 id 配置信息不存在 |
+| **2** | 无效的广告位 id |
+| **3** | 广告位被冻结 |
+| **4** | 没有对应的广告 |
+
+
+## 望舒后台配置广告管理
+
+[望舒后台广告管理配置](/docs/开发者文档/广告投放/广点通/原生接入)
+
+</TabItem>
+
+<TabItem value="OPPO" label="OPPO">
+
+## 激励广告
+
+### 参数说明
+
+| 字段 | 类型 | 是否必填 | 备注 |
+| --- | --- | --- | --- |
+| params | IAd | 是 | 参数 |
+| callback | IMethodParams | 是 | 回调函数集合 |
+
+> IAd 说明
+
+| 字段 | 类型 | 是否必填 | 备注 |
+| --- | --- | --- | --- |
+| adUnitId | string | 否 | 广告单元 id ，若传则使用此 id ，若不传则取埋点对应配置广告单元 id |
+| func | string | 否 | 埋点标记，可在望舒社交分享-广告管理工具配置 |
+| isCheck | boolean | 否 | 是否仅检测能否拉取广告, 而不显示 |
+
+`true` 表示仅检测能否拉取广告，返回结果包含激励广告实例
+
+> IMethodParams 说明
+
+| 字段 | 备注 |
+| --- | --- |
+| complete | (data) => void |
+
+complete ：为函数且必传， data 为结果数据
+
+**调用示例**
+
+```javascript
+sdk.rewardedVideoAd(
+ {
+ adUnitId: "adUnitId-4de541945b96fxxx",
+ },
+ {
+ complete: (data) => {
+ console.log(data);
+ },
+ }
+);
+```
+
+**响应示例**
+
+```text
+{
+ "code": 0,
+ "isEnded": false
+ "ad": {load: ƒ, show: ƒ, onClose: ƒ, offClose: ƒ, onError: ƒ, …},
+ "adUnitId": "81d0635de0cabb5dc47447a2cea353f3",
+ "isCheck": true
+}
+```
+
+### 响应结构
+
+| 字段 | 类型 | 备注 |
+| --- | --- | --- |
+| code | number | 0 ，表示成功 |
+| isEnded | boolean | 视频是否是在用户完整观看的情况下被关闭的， true 表示用户是在视频播放完以后关闭的视频， false 表示用户在视频播放过程中关闭了视频 |
+| ad | object | 激励视频广告组件 请参考 [oppo 小游戏激励视频广告 API ](https://open.oppomobile.com/new/developmentDoc/info?id=12567) |
+| adUnitId | string | 请求的参数，如果传了，原样返回，否则字段不存在 |
+| isCheck | boolean | 请求的参数，如果传了，原样返回，否则字段不存在 |
+
+## 望舒后台配置广告管理
+
+[望舒后台广告管理配置](/docs/开发者文档/广告投放/广点通/原生接入)
+
+</TabItem>
+
+<TabItem value="QQ" label="QQ">
+
+## 激励广告
+
+### 参数说明
+
+| 字段 | 类型 | 是否必填 | 备注 |
+| --- | --- | --- | --- |
+| params | IAd | 是 | 参数 |
+| callback | IMethodParams | 是 | 回调函数集合 |
+
+> IAd 说明
+
+| 字段 | 类型 | 是否必填 | 备注 |
+| --- | --- | --- | --- |
+| adUnitId | string | 是 | 广告单元 id |
+| isCheck | boolean | 否 | 是否仅检测能否拉取广告, 而不显示 |
+
+`true` 表示仅检测能否拉取广告，返回结果包含激励广告实例
+
+> IMethodParams 说明
+
+| 字段 | 备注 |
+| --- | --- |
+| complete | (data) => void |
+
+complete ：为函数且必传， data 为结果数据
+
+**调用示例**
+
+```javascript
+sdk.rewardedVideoAd(
+ {
+ adUnitId: "adunit-4de541945b96fxxx",
+ },
+ {
+ complete: (data) => {
+ console.log(data);
+ },
+ }
+);
+```
+
+**响应示例**
+
+```text
+{
+ "code": 0,
+ "isEnded": false
+ "ad": {load: ƒ, show: ƒ, onClose: ƒ, offClose: ƒ, onError: ƒ, …},
+ "adUnitId": "81d0635de0cabb5dc47447a2cea353f3",
+ "isCheck": true
+}
+```
+
+### 响应结构
+
+| 字段 | 类型 | 备注 |
+| --- | --- | --- |
+| code | number | 0 ，表示成功 |
+| isEnded | boolean | 视频是否是在用户完整观看的情况下被关闭的， true 表示用户是在视频播放完以后关闭的视频， false 表示用户在视频播放过程中关闭了视频 |
+| ad | object | 激励视频广告组件 请参考 [QQ 小游戏激励视频广告 API ](https://q.qq.com/wiki/develop/game/API/ad/RewardedVideoAd.html) |
+| adUnitId | string | 请求的参数，如果传了，原样返回，否则字段不存在 |
+| isCheck | boolean | 请求的参数，如果传了，原样返回，否则字段不存在 |
+
+## banner 广告
+
+创建 banner 广告组件。首次调用需填写 left 和 top 值才能正确展示，如需改变位置可再动态调整。传入 adIntervals 可支持自动刷新。
+
+### 参数说明
+
+| 字段 | 类型 | 是否必填 | 备注 |
+| --- | --- | --- | --- |
+| params | IBannerAd | 是 | 参数 |
+| callback | IMethodParams | 是 | 回调函数集合 |
+
+> IBannerAd 说明
+
+| 字段 | 类型 | 是否必填 | 备注 |
+| --- | --- | --- | --- |
+| adUnitId | string | 是 | 广告单元 id |
+| style | object | 是 | Banner 广告组件的样式 |
+| adIntervals | number | 否 | 广告自动刷新的间隔时间，单位为秒，参数值必须大于等于 30 （该参数不传入时 Banner 广告不会自动刷新）。 |
+| isCheck | boolean | 否 | 是否仅检测能否拉取广告, 而不显示 |
+
+**适用于安卓端 8.6.0 及以上版本， IOS 端能力规划中**
+
+`true` 表示仅检测能否拉取广告，返回结果包含 banner 广告实例
+
+> style 说明
+
+| 字段 | 备注 |
+| --- | --- |
+| left | Banner 广告组件的左上角横坐标 |
+| top | Banner 广告组件的左上角纵坐标 |
+| width | Banner 广告组件的宽度（横屏情况下该宽度设置不能超过 1/2 屏幕宽度） |
+| height | Banner 广告组件的高度 |
+
+> IMethodParams 说明
+
+| 字段 | 备注 |
+| --- | --- |
+| complete | (data) => void |
+
+complete ：为函数且必传， data 为结果数据
+
+**调用示例**
+
+```javascript
+sdk.bannerAd(
+ {
+   adUnitId: 'adunit-4de541945b96fxxx',
+   style: {
+     height: 100,
+     left: 100,
+     top: 100,
+     width: 100
+   },
+   adIntervals: 31
+ },
+ {
+   complete: (data) => {
+     console.log(data)
+   }
+ }
+)
+```
+
+**响应示例**
+
+```text
+{
+ "code": 0,
+ "ad": {load: ƒ, show: ƒ, onError: ƒ, …},
+ "adUnitId": "81d0635de0cabb5dc47447a2cea353f3",
+ "isCheck": true
+}
+```
+
+### 响应结构
+
+| 字段 | 类型 | 备注 |
+| --- | --- | --- |
+| code | number | 0 ，表示成功 |
+| ad | object | Banner 广告组件 请参考 [QQ 小游戏 Banner 广告 API ](https://q.qq.com/wiki/develop/game/API/ad/BannerAd.html) |
+| adUnitId | string | 请求的参数，如果传了，原样返回，否则字段不存在 |
+| isCheck | boolean | 请求的参数，如果传了，原样返回，否则字段不存在 |
+| adIntervals | number | 请求的参数，如果传了，原样返回，否则字段不存在 |
+| style | object | 请求的参数，如果传了，原样返回，否则字段不存在 |
+
+
+## 常见错误码(第三方平台侧)
+
+| 错误 code | 说明 |
+| --- | --- |
+| **1000** | 后端接口调用失败 |
+| **1001** | 参数错误 |
+| **1002** | 广告单元无效 |
+| **1003** | 内部错误 |
+| **1004** | 无合适的广告 |
+| **1005** | 广告组件审核中 |
+| **1006** | 广告组件被驳回 |
+| **1007** | 广告组件被封禁 |
+| **1008** | 广告单元已关闭 |
+
+
+## 望舒后台配置广告管理
+
+[望舒后台广告管理配置](/docs/开发者文档/广告投放/广点通/原生接入)
+
+</TabItem>
+
+<TabItem value="UC" label="UC">
+
+## 激励广告
+
+### 参数说明
+
+| 字段 | 类型 | 是否必填 | 备注 |
+| --- | --- | --- | --- |
+| callback | IMethodParams | 是 | 回调函数集合 |
+
+> IMethodParams 说明
+
+| 字段 | 备注 |
+| --- | --- |
+| complete | (data) => void |
+
+complete ：为函数且必传， data 为结果数据
+
+**调用示例**
+
+```javascript
+ sdk.rewardedVideoAd(
+ {
+ complete: (data) => {
+ console.log(data);
+ },
+ }
+);
+```
+
+**响应示例**
+
+```javascript
+{
+ "code": 0,
+ "isEnded": false
+ "msg": "正常播放结束，可以下发游戏奖励"
+}
+```
+
+### 响应结构
+
+| 字段 | 类型 | 备注 |
+| --- | --- | --- |
+| code | number | 0 ，表示成功 |
+| isEnded | boolean | 视频是否是在用户完整观看的情况下被关闭的， true 表示用户是在视频播放完以后关闭的视频， false 表示用户在视频播放过程中关闭了视频 |
+| msg | string | 错误信息 |
+
+## 望舒后台配置广告管理
+
+[望舒后台广告管理配置](/docs/开发者文档/广告投放/广点通/原生接入)
+
+</TabItem>
+
+<TabItem value="京东" label="京东">
+
+## 激励广告
+
+### 参数说明
+
+| 字段 | 类型 | 是否必填 | 备注 |
+| --- | --- | --- | --- |
+| params | IAd | 是 | 参数 |
+| callback | IMethodParams | 是 | 回调函数集合 |
+
+> IAd 说明
+
+| 字段 | 类型 | 是否必填 | 备注 |
+| --- | --- | --- | --- |
+| func | string | 否 | 埋点标记，可在望舒社交分享-广告管理工具配置，同一埋点只能关联一种广告类型，如需关联多种广告类型请使用[调度方式](/docs/开发者文档/推送/服务端接入/服务端-API) |
+| adUnitId | string | 否 | 活动 id ，若传则使用此 id ，若不传则取埋点对应配置广告标识 |
+
+> IMethodParams 说明
+
+| 字段 | 备注 |
+| --- | --- |
+| complete | (data) => void |
+
+complete ：为函数且必传， data 为结果数据
+
+**调用示例**
+
+```javascript
+ sdk.rewardedVideoAd(
+ {
+ adUnitId: "adUnitId-4de541945b96fxxx",
+ },
+ {
+ complete: (data) => {
+ console.log(data);
+ },
+ }
+);
+```
+
+**响应示例**
+
+```javascript
+{
+ "code": 0,
+ "isEnded": false，
+ "msg": "正常播放结束，可以下发游戏奖励"
+}
+```
+
+### 响应结构
+
+| 字段 | 类型 | 备注 |
+| --- | --- | --- |
+| code | number | 0 ，表示成功 |
+| isEnded | boolean | 视频是否是在用户完整观看的情况下被关闭的， true 表示用户是在视频播放完以后关闭的视频， false 表示用户在视频播放过程中关闭了视频 |
+
+</TabItem>
+
+<TabItem value="迅雷" label="迅雷">
+
+## 激励广告
+
+### 参数说明
+
+| 字段 | 类型 | 是否必填 | 备注 |
+| --- | --- | --- | --- |
+| callback | IMethodParams | 是 | 回调函数集合 |
+
+> IMethodParams 说明
+
+| 字段 | 备注 |
+| --- | --- |
+| complete | (data) => void |
+
+complete ：为函数且必传， data 为结果数据
+
+**调用示例**
+
+```javascript
+ sdk.rewardedVideoAd(
+ {
+ complete: (data) => {
+ console.log(data);
+ },
+ }
+);
+```
+
+**响应示例**
+
+```javascript
+{
+ "code": 0,
+ "isEnded": false
+ "msg": "正常播放结束，可以下发游戏奖励"
+}
+```
+
+### 响应结构
+
+| 字段 | 类型 | 备注 |
+| --- | --- | --- |
+| code | number | 0 ，表示成功 |
+| isEnded | boolean | 视频是否是在用户完整观看的情况下被关闭的， true 表示用户是在视频播放完以后关闭的视频， false 表示用户在视频播放过程中关闭了视频 |
+| msg | string | 错误信息 |
+
+## 望舒后台配置广告管理
+
+[望舒后台广告管理配置](/docs/开发者文档/广告投放/广点通/原生接入)
+
+</TabItem>
+
+<TabItem value="淘宝" label="淘宝">
+
+## 激励广告
+
+### 参数说明
+
+| 字段 | 类型 | 是否必填 | 备注 |
+| --- | --- | --- | --- |
+| params | IAd | 是 | 参数 |
+| callback | IMethodParams | 是 | 回调函数集合 |
+
+> IAd 说明
+
+| 字段 | 类型 | 是否必填 | 备注 |
+| --- | --- | --- | --- |
+| adUnitId | string | 否 | 广告单元 id ，若传则使用此 id ，若不传则取埋点对应配置广告单元 id |
+| func | string | 否 | 埋点标记，可在望舒社交分享-广告管理工具配置 |
+
+> IMethodParams 说明
+
+| 字段 | 备注 |
+| --- | --- |
+| complete | (data) => void |
+
+complete ：为函数且必传， data 为结果数据
+
+**调用示例**
+
+```javascript
+ sdk.rewardedVideoAd(
+ {
+ adUnitId: "adUnitId-4de541945b96fxxx",
+ },
+ {
+ complete: (data) => {
+ console.log(data);
+ },
+ }
+);
+```
+
+**响应示例**
+
+```javascript
+{
+ "code": 0,
+ "isEnded": false
+ "adUnitId": "81d0635de0cabb5dc47447a2cea353f3"
+}
+```
+
+### 响应结构
+
+| 字段 | 类型 | 备注 |
+| --- | --- | --- |
+| code | number | 0 ，表示成功 |
+| isEnded | boolean | 视频是否是在用户完整观看的情况下被关闭的， true 表示用户是在视频播放完以后关闭的视频， false 表示用户在视频播放过程中关闭了视频 |
+| adUnitId | string | 请求的参数，如果传了，原样返回，否则字段不存在 |
+
+## 望舒后台配置广告管理
+
+[望舒后台广告管理配置](/docs/开发者文档/广告投放/广点通/原生接入)
+
+</TabItem>
+
+<TabItem value="荣耀" label="荣耀">
+
+## 激励广告
+
+### 参数说明
+
+| 字段 | 类型 | 是否必填 | 备注 |
+| --- | --- | --- | --- |
+| params | IAd | 是 | 参数 |
+| callback | IMethodParams | 是 | 回调函数集合 |
+
+> IAd 说明
+
+| 字段 | 类型 | 是否必填 | 备注 |
+| --- | --- | --- | --- |
+| func | string | 否 | 埋点标记，可在望舒社交分享-广告管理工具配置 |
+| adUnitId | string | 否 | 广告单元 id ，若传则使用此 id ，若不传则取埋点对应配置广告单元 id |
+
+> IMethodParams 说明
+
+| 字段 | 备注 |
+| --- | --- |
+| complete | (data) => void |
+
+complete ：为函数且必传， data 为结果数据
+
+**调用示例**
+
+```javascript
+ sdk.rewardedVideoAd(
+ {
+ adUnitId: "adUnitId-4de541945b96fxxx"
+ },
+ {
+ complete: (data) => {
+ console.log(data);
+ },
+ }
+);
+```
+
+**响应示例**
+
+```javascript
+{
+ "code": 0,
+ "isEnded": false，
+ "msg": "正常播放结束，可以下发游戏奖励"
+}
+```
+
+### 响应结构
+
+| 字段 | 类型 | 备注 |
+| --- | --- | --- |
+| code | number | 0 ，表示成功 |
+| isEnded | boolean | 视频是否是在用户完整观看的情况下被关闭的， true 表示用户是在视频播放完以后关闭的视频， false 表示用户在视频播放过程中关闭了视频 |
+
+### 荣耀后台获取广告位ID
+
+1.登录[荣耀广告联盟](https://developer.honor.com/alliance/index.html#/adUnitManagement).**菜单：流量>广告位>新建广告位**， ` 选择媒体 `,` 选择广告类型 `,` 配置广告样式 `,` 填写广告位名称 `
+
+![](https://haiqi-ruixue-test.oss-cn-beijing.aliyuncs.com/docOnline/image-1737598373319.png)
+
+2 已配置的广告位获取广告位 ID。可编辑创建好的广告位。
+
+![](https://haiqi-ruixue-test.oss-cn-beijing.aliyuncs.com/docOnline/image-1737598541631.png)
+
+### 望舒后台配置广告管理
+
+[望舒后台广告管理配置](/docs/开发者文档/广告投放/广点通/原生接入)
+
+</TabItem>
+
+<TabItem value="群黑" label="群黑">
+
+## 激励广告
+
+群黑小游戏只能监听到正常播放结束，监听不到播放中途退出
+
+### 参数说明
+
+| 字段 | 类型 | 是否必填 | 备注 |
+| --- | --- | --- | --- |
+| callback | IMethodParams | 是 | 回调函数集合 |
+
+> IMethodParams 说明
+
+| 字段 | 备注 |
+| --- | --- |
+| complete | (data) => void |
+
+complete ：为函数且必传， data 为结果数据
+
+**调用示例**
+
+```javascript
+ sdk.rewardedVideoAd(
+ {
+ complete: (data) => {
+ console.log(data);
+ },
+ }
+);
+```
+
+**响应示例**
+
+```javascript
+{
+ "code": 0,
+ "isEnded": false
+ "msg": "正常播放结束，可以下发游戏奖励"
+}
+```
+
+### 响应结构
+
+| 字段 | 类型 | 备注 |
+| --- | --- | --- |
+| code | number | 0 ，表示成功 |
+| isEnded | boolean | 视频是否是在用户完整观看的情况下被关闭的， true 表示用户是在视频播放完以后关闭的视频 |
+| msg | string | 错误信息 |
+
+## 望舒后台配置广告管理
+
+[望舒后台广告管理配置](/docs/开发者文档/广告投放/广点通/原生接入)
+
+</TabItem>
+
+<TabItem value="哈啰" label="哈啰">
+
+## 激励广告
+
+### 参数说明
+
+| 字段 | 类型 | 是否必填 | 备注 |
+| --- | --- | --- | --- |
+| callback | IMethodParams | 是 | 回调函数集合 |
+
+> IMethodParams 说明
+
+| 字段 | 备注 |
+| --- | --- |
+| complete | (data) => void |
+
+complete ：为函数且必传， data 为结果数据
+
+**调用示例**
+
+```javascript
+ sdk.startRewardVideo(
+ {
+ complete: (data) => {
+ console.log(data);
+ },
+ }
+);
+```
+
+**响应示例**
+
+```javascript
+{
+ "code": 0,
+ "isEnded": false
+ "msg": "正常播放结束，可以下发游戏奖励"
+}
+```
+
+### 响应结构
+
+| 字段 | 类型 | 备注 |
+| --- | --- | --- |
+| code | number | 0 ，表示成功 |
+| isEnded | boolean | 视频是否是在用户完整观看的情况下被关闭的， true 表示用户是在视频播放完以后关闭的视频， false 表示用户在视频播放过程中关闭了视频 |
+| msg | string | 错误信息 |
+
+## 望舒后台配置广告管理
+
+[望舒后台广告管理配置](/docs/开发者文档/广告投放/广点通/原生接入)
+
+</TabItem>
+
+<TabItem value="最右" label="最右">
+
+## 激励广告
+
+### 参数说明
+
+| 字段 | 类型 | 是否必填 | 备注 |
+| --- | --- | --- | --- |
+| callback | IMethodParams | 是 | 回调函数集合 |
+
+> IMethodParams 说明
+
+| 字段 | 备注 |
+| --- | --- |
+| complete | (data) => void |
+
+complete ：为函数且必传， data 为结果数据
+
+**调用示例**
+
+```javascript
+ sdk.rewardedVideoAd(
+ {
+ complete: (data) => {
+ console.log(data);
+ },
+ }
+);
+```
+
+**响应示例**
+
+```javascript
+{
+ "code": 0,
+ "isEnded": false
+ "msg": "正常播放结束，可以下发游戏奖励"
+}
+```
+
+### 响应结构
+
+| 字段 | 类型 | 备注 |
+| --- | --- | --- |
+| code | number | 0 ，表示成功 |
+| isEnded | boolean | 视频是否是在用户完整观看的情况下被关闭的， true 表示用户是在视频播放完以后关闭的视频， false 表示用户在视频播放过程中关闭了视频 |
+| msg | string | 错误信息 |
+
+## 望舒后台配置广告管理
+
+[望舒后台广告管理配置](/docs/开发者文档/广告投放/广点通/原生接入)
+
+</TabItem>
+
+<TabItem value="芒好玩" label="芒好玩">
+
+> 此文章暂无内容。
+
+</TabItem>
+
+<TabItem value="4399" label="4399">
+
+## 激励广告
+
+由于 4399 激励广告默认是打开后不可关闭，如果想要看广告时可提前关闭，需要联系 4399 对接人来修改，因为这个配置在 4399 自己的后台中，并没有暴露给开发者
+
+### 参数说明
+
+| 字段 | 类型 | 是否必填 | 备注 |
+| --- | --- | --- | --- |
+| callback | IMethodParams | 是 | 回调函数集合 |
+
+> IMethodParams 说明
+
+| 字段 | 备注 |
+| --- | --- |
+| complete | (data) => void |
+
+complete ：为函数且必传， data 为结果数据
+
+**调用示例**
+
+```javascript
+sdk.rewardedVideoAd(
+ {
+ complete: (data) => {
+ console.log(data);
+ },
+ }
+);
+```
+
+**响应示例**
+
+```javascript
+{
+ "code": 0,
+ "isEnded": false
+ "msg": 'error message',
+}
+```
+
+### 响应结构
+
+| 字段 | 类型 | 备注 |
+| --- | --- | --- |
+| code | number | 0 表示成功，-1 表示失败 |
+| isEnded | boolean | 视频是否是在用户完整观看的情况下被关闭的，true 表示用户是在视频播放完以后关闭的视频，false 表示用户在视频播放过程中关闭了视频 |
+| msg | string | 失败的原因 |
+
+## 望舒后台配置广告管理
+
+[望舒后台广告管理配置](/docs/开发者文档/广告投放/广点通/原生接入)
+
+</TabItem>
+
+<TabItem value="4399H5" label="4399H5">
+
+## 激励广告
+
+### 参数说明
+
+| 字段 | 类型 | 是否必填 | 备注 |
+| --- | --- | --- | --- |
+| callback | IMethodParams | 是 | 回调函数集合 |
+
+> IMethodParams 说明
+
+| 字段 | 备注 |
+| --- | --- |
+| complete | (data) => void |
+
+complete ：为函数且必传， data 为结果数据
+
+**调用示例**
+
+```javascript
+ sdk.rewardedVideoAd(
+ {
+ complete: (data) => {
+ console.log(data);
+ },
+ }
+);
+```
+
+**响应示例**
+
+```javascript
+{
+ "code": 0,
+ "isEnded": false
+ "msg": "正常播放结束，可以下发游戏奖励"
+}
+```
+
+### 响应结构
+
+| 字段 | 类型 | 备注 |
+| --- | --- | --- |
+| code | number | 0 ，表示成功 |
+| isEnded | boolean | 视频是否是在用户完整观看的情况下被关闭的， true 表示用户是在视频播放完以后关闭的视频， false 表示用户在视频播放过程中关闭了视频 |
+| msg | string | 错误信息 |
+
+## 望舒后台配置广告管理
+
+[望舒后台广告管理配置](/docs/开发者文档/广告投放/广点通/原生接入)
+
+</TabItem>
+
+</Tabs>

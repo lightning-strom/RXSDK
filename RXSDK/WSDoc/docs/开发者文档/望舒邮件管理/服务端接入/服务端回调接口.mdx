@@ -1,0 +1,156 @@
+---
+sidebar_position: 2
+title: 服务端回调接口
+description: "望舒SDK 邮件管理 服务端回调接口服务端文档，提供接口请求参数与响应说明。"
+---
+
+## 望舒邮件领取成功通知 CP 接口
+
+用户领取成功后，望舒服务会根据后台配置的 CP 发送道具地址，通知 CP 服务器邮件附件领取结果。
+
+> 类型：同步
+>
+> Action: send_awards
+>
+> **认证方式：** [CPSign](/docs/开发者文档/入门指南/服务端接入须知)
+
+### 请求参数
+
+| 字段 | 类型 | 是否必填 | 说明 |
+| --- | --- | --- | --- |
+| cp_user_id | String | 是 | 游戏用户 ID |
+| batch_id | String | 是 | 批次 ID ，毫秒时间戳和用户 ID 组成 |
+| received_mails | Arrary | 是 | 邮件领取详情 |
+| product_id | String | 是 | 产品 ID |
+| channel_id | String | 是 | 渠道 ID |
+
+**received_mails**
+
+| 字段 | 类型 | 是否必填 | 说明 |
+| --- | --- | --- | --- |
+| rx_mail_id | Number | 是 | 邮件 ID |
+| cp_user_id | String | 是 | 游戏用户 ID |
+| props | Arrary | 是 | 邮件附件列表 |
+
+**props**
+
+| 字段 | 类型 | 是否必填 | 说明 |
+| --- | --- | --- | --- |
+| tag | String | 是 | 道具唯一标识 |
+| count | Number | 是 | 道具数量 |
+| is_permanent | Number | 是 | 道具是否永久有效， 0 ：永久有效 1 ：非永久有效 |
+| time_limit | Number | 是 | 道具有效期，以天为单位 |
+
+```json
+{
+    "cp_user_id": "442099939",
+    "batch_id": "1723624460641u442099939",
+    "product_id":"xxx",
+ "channel_id":"xxx",
+    "received_mails": [{
+            "rx_mail_id": 1,
+            "cp_user_id": "442099939",
+            "props": [{
+                    "tag": "道具唯一标识",
+                    "count": 10,
+                    "is_permanent": 1,
+                    "time_limit": 5
+                },
+                {
+                    "tag": "道具唯一标识",
+                    "count": 10,
+                    "is_permanent": 0,
+                    "time_limit": 0
+                }
+            ]
+        },
+        {
+            "rx_mail_id": 2,
+            "cp_user_id": "442099939",
+            "props": [{
+                "tag": "道具唯一标识",
+                "count": 1,
+                "is_permanent": 1,
+                "time_limit": 1
+            }]
+        }
+    ]
+}
+```
+
+### 返回示例
+
+```json
+{
+ "code": 0 // 返回非0都代表CP处理失败,失败后会重试三次,如果均失败则会抛弃当前消息,并且邮件状态保持不变,不会变为已领.
+}
+```
+
+## 给用户发送邮件 + 奖励（游戏内置邮件）
+
+使用运营【违规封号处理】，奖励举报者时会调用此接口
+
+> 类型：同步
+>
+> Action: user-mail
+>
+> **认证方式：** [CPSign](/docs/开发者文档/入门指南/服务端接入须知)
+
+### 请求参数
+
+#### Mail 结构
+
+open_id 和 user_id ， CP 方自主选择用哪个，当选择全服时 user_id 会被设置为 ALL-USERS ；奖励和邮件 CP 方自定义需要怎么处理；
+
+| 参数 | 类型 | 备注 |
+| --- | --- | --- |
+| open_id | String | 望舒 OpenID |
+| user_id | String | 用户的 ID |
+| awards | []Award | 奖励的道具 |
+| title | String | 通知标题 |
+| content | String | 通知内容 |
+| uuid | Int64 | 邮件唯一标识(评价时使用该标识进行确认),不存在时不需要进行评价 |
+| remark | String | 备注信息 |
+
+
+##### Award 结构
+
+目前已知操作为奖励用户，警告用户（警告用户只有邮件信息）；
+
+| 参数 | 类型 | 备注 |
+| --- | --- | --- |
+| prop_tag | String | 奖励道具的标记 |
+| prop_count | Int | 奖励道具的数量 |
+
+
+### 请求示例
+
+```groovy
+[{
+ "open_id": "xxx",
+ "user_id": "user_123",
+ "awards": [
+ {
+ "prop_tag": "道具 tag",
+ "prop_count": 10000
+ }
+ ],
+ "title": "奖励提示的标题",
+ "content": "奖励提示的内容",
+ "uuid": 123,
+ "remark": "备注内容"
+},{
+ "open_id": "xxx2",
+ "user_id": "user_1234",
+ "awards": [
+ {
+ "prop_tag": "道具 tag",
+ "prop_count": 10000
+ }
+ ],
+ "title": "奖励提示的标题",
+ "content": "奖励提示的内容",
+ "uuid": 123,
+ "remark": "备注内容"
+}]
+```

@@ -1,0 +1,86 @@
+---
+sidebar_position: 1
+title: 快速开始
+description: "望舒SDK 性能分析 GPM iOS / Android 接入文档。"
+---
+
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
+
+可通过组件方式接入性能数据收集并上报的功能。
+
+## 准备工作
+
+**RXGPMSDK** 性能数据收集上报时间间隔需在望舒管理平台进行配置。
+
+需将 SDK 升级到大于等于以下版本：
+
+- RXSDK_Pure 3.5.25
+- RXGPMSDK 1.0.1
+
+## SDK 集成
+
+<Tabs groupId="platform">
+
+<TabItem value="ios" label="iOS">
+
+编辑 Podfile 文件，添加如下配置：
+
+```objectivec
+pod 'RXGPMSDK'
+```
+
+**RXGPMSDK** 成功安装后，SDK 会根据望舒管理平台下发的时间间隔，自动收集性能数据并上报。
+
+</TabItem>
+
+<TabItem value="android" label="Android">
+
+只需集成库，并且望舒管理后台相关开关开启，自动上报。
+
+:::tip[版本说明]
+`version` 为 SDK 版本号（替换为实际版本号），最新版本请从 [更新日志](/docs/开发者文档/入门指南/更新日志/Android) 中查看。
+:::
+
+```groovy
+implementation 'com.ruixue:rxsdk_performance:${version}'
+```
+
+由于 Android 机型众多，获取手机内存、温度等参数，某些机型可能需要用户手动授予运行时权限。
+
+</TabItem>
+
+</Tabs>
+
+## 初始化
+
+在SDK 初始化方法之前调用。
+
+<Tabs groupId="platform">
+
+<TabItem value="ios" label="iOS">
+
+**接口原型**
+
+```objectivec
+/**
+ * 初始化
+ */
+- (void)regist;
+```
+
+**调用示例**
+
+```objectivec
+[[RXGPMService sharedSDK] regist];
+```
+
+</TabItem>
+
+<TabItem value="android" label="Android">
+
+集成 SDK 后自动上报，无需额外初始化调用。
+
+</TabItem>
+
+</Tabs>

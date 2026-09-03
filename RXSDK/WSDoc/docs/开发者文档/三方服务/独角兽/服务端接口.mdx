@@ -1,0 +1,304 @@
+---
+sidebar_position: 1
+title: 服务端接口
+description: "望舒SDK 三方服务 服务端接口服务端文档，提供接口请求参数与响应说明。"
+---
+:::info[文档说明]
+本渠道当前仅提供配置说明，暂无独立的客户端 SDK 接入文档。
+如需了解各渠道覆盖能力，请查看 [渠道矩阵](/docs/开发者文档/三方服务/渠道矩阵)。
+:::
+
+
+
+## 数据上报
+
+> **POST：** /v1/thirdparty/unicorn/report
+
+### 服务端请求头
+
+| 参数名 | 说明 | 是否必须 | 示例 |
+| --- | --- | --- | --- |
+| ruixue-traceid | 本次请求唯一标识 |  |  |
+
+格式为 UUID v4 ，当接口出现错误时可将其提供给望舒团队对问题进行快速定位
+
+| 是 | 0e2971af-823a-4298-b7d8-3ef38094b500 |
+| --- | --- |
+| ruixue-cpid | 望舒 CPID |
+
+
+望舒为每个 CP 分配的一个唯一 ID ，从 7 位数 1000000 开始递增
+
+| 是 | 1000000 |
+| --- | --- |
+| ruixue-cpts | 时间戳 |
+
+
+CP 服务端发起请求时的毫秒时间戳
+
+| 是 | 1669619948739 |
+| --- | --- |
+| ruixue-language | 语言标识 |
+
+
+系统语言标识
+
+| 否 | zh-CN |
+| --- | --- |
+| ruixue-productid | 产品标识 |
+
+
+CP 望舒集群内部的产品 ID ，由各 CP 自行在后台创建，字符串类型
+
+| 是 | test |
+| --- | --- |
+| ruixue-region | 数据域标识 |
+
+
+CP 游戏服的分区信息
+
+| 否 | default |
+| --- | --- |
+| ruixue-cp-role-id | 数据域标识 |
+
+
+CP 游戏服的角色信息
+| 否 | default |
+| --- | --- |
+
+### 请求参数（JSON）
+
+| 字段 | 类型 | 是否必填 | 说明 | 示例 |
+| --- | --- | --- | --- | --- |
+| action | String | 是 | 上报动作 | 登录： login |
+
+创角： register
+
+支付： payment
+
+退出： login_out
+data
+| DataObject | 是 | 上报数据 |
+| --- | --- | --- |
+
+#### DataObject（action=login ）
+
+[链接文本](https://www.showdoc.com.cn/aliujunx/4108954101393461)
+
+
+| 字段 | 类型 | 是否必填 | 说明 |
+| --- | --- | --- | --- |
+| who | string | 是 | 用户角色 ID ：该 ID 由 CP 自定义 , 保证每个区的 who 为唯一值。 |
+| deviceid | string | 是 | 各渠道的 UID （用户身份标识）。 |
+| string | 是 | 各渠道的 UID （用户身份标识）。 | appid |
+| string | 是 | APPID ：该 ID 由独角兽在游戏接入前分配，是游戏的唯一标识。 | serverid |
+| 是 | APPID ：该 ID 由独角兽在游戏接入前分配，是游戏的唯一标识。 | serverid | string |
+| 区服 ID ：该 ID 由 CP 自定义，一般是指角色所在的区服标识。 | level | string | 是 |
+| channelid | string | 是 | 渠道 ID |
+| subchid | string | 是 | 子渠道 ID |
+| string | 是 | 子渠道 ID | system |
+| string | 是 | 操作系统 （ android ， ios ， pc ） | si |
+| 是 | 操作系统 （ android ， ios ， pc ） | si | string |
+| power | string | 是 | 战斗力数据（或其他等价数据） |
+| rolename | string | 是 | 角色昵称 |
+| string | 是 | 角色昵称 | server_name |
+| string | 否 | 区服 | vip |
+| 否 | 区服 | vip | string |
+| VIP 等级 | extInfo | string | 否 |
+
+
+**请求示例**
+
+```bash
+curl --location --request POST '{{接口域名}}/ /v1/thirdparty/unicorn/report' \
+--header 'ruixue-language: {{语言}}' \
+--header 'ruixue-cpid: {{CPID}}' \
+--header 'ruixue-productid: {{产品标识}}' \
+--header 'ruixue-cpts: {{时间戳}}' \
+--header 'ruixue-traceid: {{TraceID}}' \
+--header 'ruixue-devicecode: {{设备码}}' \
+--header 'ruixue-channelid: {{渠道标识}}' \
+--header 'ruixue-platformid: {{平台标识}}' \
+--header 'Content-Type: application/json' \
+--data-raw '{
+ "action":"login",
+ "data":{
+ "who": "xxx",
+ "deviceid": "xxx",
+ "appid" : "xxx",
+ "serverid" : "xxx",
+ "level" : "xxx",
+ "system": "xxx",
+ "power" : "xxx",
+ "rolename" : "xxx",
+ "server_name" : "xxx"
+ }
+}'
+```
+
+#### DataObject（action=register ）
+
+[链接文本](https://www.showdoc.com.cn/aliujunx/4108994129601459)
+
+
+| 字段 | 类型 | 是否必填 | 说明 |
+| --- | --- | --- | --- |
+| who | string | 是 | 用户角色 ID ：该 ID 由 CP 自定义 , 保证每个区的 who 为唯一值。 |
+| rolename | string | 否 | 角色昵称 |
+| deviceid | string | 是 | 各渠道的 UID （用户身份标识）。 |
+| appid | string | 是 | APPID ：该 ID 由独角兽在游戏接入前分配，是游戏的唯一标识。 |
+| serverid | string | 是 | 区服 ID ：该 ID 由 CP 自定义，一般是指角色所在的区服标识。 |
+| level | string | 是 | 角色等级：数据上报时的角色等级。 |
+| channelid | string | 是 | 渠道 ID |
+| subchid | string | 是 | 子渠道 ID |
+| system | string | 是 | 操作系统 （ android ， ios ， pc ） |
+| power | string | 是 | 战斗力数据（或其他等价数据） |
+| server_name | string | 是 | 区服 |
+| vip | string | 是 | VIP 等级 |
+| extInfo | string | 否 | 获取登录 url 上面 extInfo 透传参数，没有为“” |
+
+
+**请求示例**
+
+```bash
+curl --location --request POST '{{接口域名}}/ /v1/thirdparty/unicorn/report' \
+--header 'ruixue-language: {{语言}}' \
+--header 'ruixue-cpid: {{CPID}}' \
+--header 'ruixue-productid: {{产品标识}}' \
+--header 'ruixue-cpts: {{时间戳}}' \
+--header 'ruixue-traceid: {{TraceID}}' \
+--header 'ruixue-devicecode: {{设备码}}' \
+--header 'ruixue-channelid: {{渠道标识}}' \
+--header 'ruixue-platformid: {{平台标识}}' \
+--header 'Content-Type: application/json' \
+--data-raw '{
+ "action":"register",
+ "data":{
+ "who": "xxx",
+ "deviceid": "xxx",
+ "appid" : "xxx",
+ "serverid" : "xxx",
+ "level" : "xxx",
+ "system": "xxx",
+ "power" : "xxx",
+ "rolename" : "xxx",
+ "server_name" : "xxx"
+ }
+}'
+```
+
+#### DataObject（action=payment ）
+
+[链接文本](https://www.showdoc.com.cn/aliujunx/4109107729239952)
+
+
+| 字段 | 类型 | 是否必填 | 说明 |
+| --- | --- | --- | --- |
+| who | string | 是 | 用户角色 ID ：该 ID 由 CP 自定义 , 保证每个区的 who 为唯一值。 |
+| deviceid | string | 是 | 各渠道的 UID （用户身份标识）。 |
+| serverid | string | 是 | 区服 ID ：该 ID 由 CP 自定义，一般是指角色所在的区服标识。 |
+| appid | string | 是 | APPID ：该 ID 由独角兽在游戏接入前分配，是游戏的唯一标识。 |
+| level | string | 是 | 角色等级：数据上报时的角色等级。 |
+| transactionid | string | 是 | 发货订单号。 |
+| wid | string | 是 | 发货商品 ID ：该 ID 由接入时提供给独角兽运营的固定商品列表中的 wareid。 |
+| currencyamount | Number | 是 | 商品金额（单位：元） |
+| virtualcoinamount | Number | 是 | 商品对应游戏币获得数量 |
+| channelid | string | 是 | 渠道 ID |
+| subchid | string | 是 | 子渠道 ID |
+| system | string | 是 | 操作系统 （ android ， ios ， pc ） |
+| power | string | 否 | 战斗力数据（或其他等价数据） |
+
+
+**请求示例**
+
+```bash
+curl --location --request POST '{{接口域名}}/ /v1/thirdparty/unicorn/report' \
+--header 'ruixue-language: {{语言}}' \
+--header 'ruixue-cpid: {{CPID}}' \
+--header 'ruixue-productid: {{产品标识}}' \
+--header 'ruixue-cpts: {{时间戳}}' \
+--header 'ruixue-traceid: {{TraceID}}' \
+--header 'ruixue-devicecode: {{设备码}}' \
+--header 'ruixue-channelid: {{渠道标识}}' \
+--header 'ruixue-platformid: {{平台标识}}' \
+--header 'Content-Type: application/json' \
+--data-raw '{
+ "action":"payment",
+ "data":{
+ "who": "xxx",
+ "deviceid": "xxx",
+ "serverid" : "xxx",
+ "level" : "xxx",
+ "transactionid" : "xxx",
+ "wid" : "xxx",
+ "currencyamount" : "xxx",
+ "virtualcoinamount" : "xxx",
+ "channelid": "xxx",
+ "subchid" : "xxx"
+ }
+}'
+```
+
+#### DataObject（action=login_out ）
+
+[链接文本](https://www.showdoc.com.cn/aliujunx/6934525229208936)
+
+
+| 字段 | 类型 | 是否必填 | 说明 |
+| --- | --- | --- | --- |
+| who | string | 是 | 用户角色 ID ：该 ID 由 CP 自定义 , 保证每个区的 who 为唯一值。 |
+| appid | string | 是 | APPID ：该 ID 由独角兽在游戏接入前分配，是游戏的唯一标识。 |
+| rolename | string | 否 | 角色昵称 |
+| deviceid | string | 否 | 各渠道的 UID （用户身份标识）。 |
+| serverid | string | 是 | 区服 ID ：该 ID 由 CP 自定义，一般是指角色所在的区服标识。 |
+| level | string | 否 | 角色等级：数据上报时的角色等级。 |
+| channelid | string | 是 | 渠道 ID |
+| ip | string | 否 | 客户端 ip 地址 |
+
+
+**请求示例**
+
+```bash
+curl --location --request POST '{{接口域名}}/ /v1/thirdparty/unicorn/report' \
+--header 'ruixue-language: {{语言}}' \
+--header 'ruixue-cpid: {{CPID}}' \
+--header 'ruixue-productid: {{产品标识}}' \
+--header 'ruixue-cpts: {{时间戳}}' \
+--header 'ruixue-traceid: {{TraceID}}' \
+--header 'ruixue-devicecode: {{设备码}}' \
+--header 'ruixue-channelid: {{渠道标识}}' \
+--header 'ruixue-platformid: {{平台标识}}' \
+--header 'Content-Type: application/json' \
+--data-raw '{
+ "action":"login_out",
+ "data":{
+ "who": "xxx",
+ "rolename" : "xxx",
+ "deviceid": "xxx",
+ "serverid" : "xxx",
+ "level" : "xxx",
+ "channelid": "xxx",
+ "ip" : "xxx",
+ }
+}'
+```
+
+### 响应参数（JSON)
+
+**HTTP 状态码：**`200 OK`
+
+| 字段 | 类型 | 是否必填 | 说明 | 示例 |
+| --- | --- | --- | --- | --- |
+| code | Number | 是 | 响应状态码， 0 为成功，非 0 表示出错 | 0 |
+| msg | String | 否 | 响应信息，仅在 code 为非 0 时不为空 |  |
+
+**响应示例**
+
+```json
+{
+ "msg":"",
+ "code": 0
+}
+```
+
+---

@@ -1,0 +1,86 @@
+---
+sidebar_position: 1
+title: 客户端接入
+description: Reddit iOS / Android 端原生接入指南，包含 SDK 集成、配置说明及接口调用示例。
+---
+
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
+
+在 [Reddit 开发者](https://www.reddit.com/prefs/apps) 中创建项目，并获取相关参数。
+
+## SDK 集成
+
+<Tabs groupId="platform">
+
+<TabItem value="ios" label="iOS">
+
+可通过 **pod** 方式接入 **RXRedditSDK** 组件。在需要使用功能的类中引用头文件 `#import <RXRedditSDK/RXRedditSDK.h>`
+
+```objectivec
+pod 'RXRedditKit'
+```
+
+</TabItem>
+
+<TabItem value="android" label="Android">
+
+:::tip[版本说明]
+`version` 为 SDK 版本号（替换为实际版本号），最新版本请从 [更新日志](/docs/开发者文档/入门指南/更新日志/Android) 中查看。
+:::
+
+```groovy
+// 海外渠道引用此库
+implementation 'com.ruixue:rxsdk_reddit:${version}'
+```
+
+### 参数说明
+
+| 参数 | 类型 | 说明 |
+| --- | --- | --- |
+| reddit_clientid | String | Reddit 后台获取 |
+| reddit_redirecturi | String | Reddit 后台获取 |
+
+</TabItem>
+
+</Tabs>
+
+## 注册 Reddit
+
+<Tabs groupId="platform">
+
+<TabItem value="ios" label="iOS">
+
+**接口原型**
+
+```objectivec
+/**
+ * 注册 Reddit
+ * @param clientID 应用ID
+ * @param redirectURI 应用重定向网址
+ */
+- (void)initWithClientID:(NSString *)clientID redirectURI:(NSString *)redirectURI;
+```
+
+**调用示例**
+
+```objectivec
+- (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions {
+ [[RXRedditService sharedSDK] initWithClientID:@"clientid" redirectURI:@"redirectURI"];
+ return YES;
+}
+```
+
+</TabItem>
+
+<TabItem value="android" label="Android">
+
+集成 SDK 并配置参数后自动完成注册。
+
+</TabItem>
+
+</Tabs>
+
+## 登录
+
+登录结果通过 [登录 API](/docs/开发者文档/登录-通行证/服务端接入/服务端-API) 统一登录回调返回。

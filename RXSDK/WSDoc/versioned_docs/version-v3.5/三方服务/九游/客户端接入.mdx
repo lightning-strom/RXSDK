@@ -1,0 +1,170 @@
+---
+title: "客户端接入"
+---
+
+## 后台接入配置
+- [登录配置说明](/docs/v3.5/三方服务/九游/客户端接入)
+- [支付配置说明](/docs/v3.5/三方服务/九游/客户端接入)
+
+## 望舒快速接入（必接）
+- [快速接入文档](/docs/v3.5/登录（通行证）/Android 登录API/快速接入)
+
+## 三方渠道接入说明（必读）
+- [三方渠道接入说明](/docs/v3.5/入门指南/快速开始/Android初始化/快速接入)
+
+## 九游渠道 SDK 集成（必接）
+```grovvy
+implementation 'com.ruixue:rxsdk_9game:${version}'
+```
+
+## 配置说明
+- 1、游戏包名称命名规范全新游戏包名使用".aligames"，仅需出一个游戏包，接入九游SDK即可，包于开放平台上传即可，已在九游上线过的游戏，保持原包名不改
+- 2、icon图片游戏图标需增加九游角标，角标位置在接入包内“角标logo及使用说明”文件夹下，添加角标后在AndroidManifest.xml中指定。如android:icon="@drawable/iconuc"。其中iconuc为在原游戏图标基础上制作的能表明九游渠道的图标文件。
+- 3、游戏包体在开放平台提审时，九游这边会对游戏包体进行重签名。游戏若有加固的，请改为支持修改游戏包，或不加固。
+        游戏需支持SDK修改的地方： 
+
+      1）将游戏META-INF删除重签名  
+
+        2）修改游戏assets下ucgamesdk目录  
+
+        3）assets下添加UCGameConfig.ini文件  
+
+        4）res下替换icon文件  
+
+   
+- 4.【新增】更新/接入SDK的时候，请在SDK初始化之前，先弹出游戏自己的隐私协议
+
+---
+
+- 在 `src/mian/res/values/strings` 文件下
+```xml
+    3098544
+```
+- 在 AndroidManifest.xml 配置
+```xml
+<!-- application 标签如果需要增加 android:allowBackup="true", 那么需要增加 tools:replace="android:allowBackup"，如果不增加这个标签则不需要设置 tools:replace的值如果有多个则用逗号分隔 形如 tools:replace="android:networkSecurityConfig,android:allowBackup"-->
+
+    
+
+    <!-- 增加app拉起相关cn.uc.gamesdk.activity.PullupActivity的声明 -->
+    
+
+        
+            
+
+            
+            
+            <!-- 这里的格式为 ng + gameId -->
+            
+        
+    
+
+```
+## 混淆说明
+在应用级根目录下打开混淆配置文件`proguard-rules.pro`，加入排除SDK的混淆配置
+```
+-printmapping 'mapping.txt'
+# this is very dangerous that cause bug
+-ignorewarnings
+-dontskipnonpubliclibraryclassmembers
+-dontshrink
+-dontoptimize
+-keepattributes Exceptions,InnerClasses,Signature,Deprecated,SourceFile,LineNumberTable,LocalVariable*Table,*Annotation*,Synthetic,EnclosingMethod
+-keepclasseswithmembers class * extends cn.gundam.sdk.shell.even.SDKEventReceiver
+-keep class cn.uc.**{
+;
+;
+}
+-keep class cn.gundam.**{
+;
+;
+}
+-keep class android.**{
+;
+;
+}
+-keep class org.json.**{
+;
+;
+}
+```
+
+## 初始化 SDK
+首先，您需要在程序开始的地方初始化，通过调用initThirdSdk方法初始化九游游戏SDK。
+在初始化失败的状态下，游戏不应继续调用SDK的其余API，此方法必须在UI线程中调用。
+游戏启动后，非初始化失败或异常情况下，不允许多次调用初始化接口。
+
+```java
+Map thirdSdkParams=new HashMap<>();
+// 设置 SDK 屏幕方向
+// ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE 横屏（默认值）
+// ActivityInfo.SCREEN_ORIENTATION_PORTRAIT 竖屏
+thirdSdkParams.put("screen_orientation", ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
+
+// 如果游戏已经申请了权限，不想sdk主动请求权限，避免重复弹授权弹窗被拒
+// true 游戏已经弹了，SDK不需要弹出权限申请窗
+// false 游戏没有弹，SDK可以按需弹出权限申请窗(默认值)
+thirdSdkParams.put("had_req_permission", false)
+RuiXueSdk.getRXSdkApi().initThirdSdk(activity, thirdSdkParams, new RXRequestCallback() {
+    @Override
+    public void onResponse(JSONObject jsonObject) {
+        int code = jsonObject.optInt("code", -1);
+        if (code == 0) {
+            //todo 成功
+        }else {
+            //todo 失败
+        }
+    }
+});
+```
+
+## 登录 (必须接入)
+请参考 [Android端登录API](/docs/v3.5/登录（通行证）/Android 登录API/快速接入)
+
+## 支付 (开计费必须接入)
+请参考 [Android端支付API](/docs/v3.5/三方服务/九游/客户端接入)
+
+## 登出
+```java
+RuiXueSdk.getApi().logout(new OnLogoutCallback() {
+    @Override
+    public void onSuccess(@Nullable String data) {
+        // 登出成功
+    }
+});
+```
+
+## 退出 (必须接入)
+当游戏退出前必须调用该方法，进行清理工作。如果游戏直接退出，而不调用该方法，可能会出现未知错误，导致程序崩溃。
+
+```java
+// 在游戏需要退出的地方调用该方法，如游戏主 Activity，中 onBackPressed() 应该需要调用此方法
+RuiXueSdk.getApi().exitApp(activity, new new OnAppExitCallback() {
+    @Override
+    public void onExitConfirm(@Nullable String res) {
+        // 退出成功
+    }
+});
+```
+
+## 游戏账号切换
+参考代码
+```java 
+RuiXueSdk.setRuiXueSdkCallback(new RuiXueSdkCallback() {
+    
+    // ... 省略了一些无关代码
+
+    /**
+     * 切换账号全局回调,如果有游戏内切换账号可关注此回调
+     * @param code 0
+     * @param data 三方数据
+     */
+    @Override
+    public boolean onSwitchAccount(int code, String data) {
+        // 调用方如果有要处理的逻辑放在此处
+        // 返回 true，望舒sdk，会执行 logout 操作
+        // 返回 false，望舒sdk 不执行任何操作
+        return true;
+    }
+});
+```

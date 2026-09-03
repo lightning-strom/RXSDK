@@ -1,0 +1,86 @@
+---
+title: "快速开始"
+---
+
+前往 [Adjust 官方文档](https://help.adjust.com/zh/article/get-started-ios-sdk)。
+
+## 准备工作
+
+::: tip
+接入请前先做好准备工作。
+可通过 pod 方式接入 RXAdjustSDK 组件，并使用 RXAdjustSDK 相关功能。
+在需要使用功能的类中引用头文件#import 
+前往 [Adjust平台](https://www.adjust.com) 申请相关配置权限。
+:::
+
+## SDK 集成
+
+- 编辑 Podfile 文件，添加如下配置：
+
+```objectivec
+pod 'RXAdjustSDK'
+```
+
+## 添加 iOS 框架
+
+在应用中添加特定 iOS 框架后，Adjust SDK 就能获取额外信息。添加框架并将其标记为 **optional​** (可选)，即可在 Adjust SDK 中启用额外的功能。
+
+| **框架** | **描述** | **注意事项** |
+| -------- | -------- | ------------ |
+| AdSupport.framework | 如果您希望 SDK 能访问 IDFA 值和 (iOS 14 以前的) LAT 信息，请添加该框架。 | 如果您的应用属于 "儿童" (Kids) 类别，请不要安装该框架。           |
+| AdServices.framework   | 该框架对于处理 Apple Search Ads 是必要的。 |            |
+| StoreKit.framework | 如果您希望访问 SKAdNetwork 框架，同时让 Adjust SDK 在 iOS 14 或未来版本的 iOS 中自动处理与该框架的通讯，请添加该框架。| 
+| AppTrackingTransparency.framework | 如果您希望 SDK 能在 iOS 14 或未来版本的 iOS 中包装用户的跟踪许可对话框，并访问用户的许可响应，请添加该框架。| 如果您的应用属于 "儿童" (Kids) 类别，请不要安装该框架。|
+| WebKit.framework | 该框架允许您在应用程序中使用网络视图 (web view)。 | 只有在应用使用 web view 的时候才有必要。|
+
+## 初始化SDK
+
+安装所有必需的框架后，您就可以初始化应用程序中的 RXAdjust SDK 了。要进行 SDK 初始化，请使用应用识别码及您希望应用程序运行的环境来初始化 RXADJConfig 对象。
+
+:::warning
+在 [SDK 初始化方法](/docs/v3.5/入门指南/快速开始/iOS初始化/快速开始) 之前调用。
+:::
+
+**接口原型**
+
+```objectivec
+/**
+ * 初始化
+ * @param adjustConfig 初始化配置
+ */
+- (void)appDidLaunch:(RXADJConfig *)adjustConfig;
+```
+
+**调用示例**
+
+```objectivec
+NSString *yourAppToken = @"{YourAppToken}";
+NSString *environment = RXADJEnvironmentProduction;
+RXADJConfig *adjustConfig = [RXADJConfig configWithAppToken:yourAppToken
+                                  environment:environment];
+
+[[RXAdjust sharedSDK] appDidLaunch:config];
+```
+
+## 设置日志
+:::tip
+如果要禁用所有日志，请在 RXADJConfig 实例中将 allowSuppressLogLevel 设为 true，然后用值 RXADJLogLevelSuppress 调用 setLogLevel 方法。
+:::
+
+要设置日志的输出级别，请在 ADJConfig 实例中使用 logLevel 属性。您需要在调用 appDidLaunch 之前这么做，才能设置级别。
+
+**接口原型**
+
+```objectivec
+/**
+ * 设置日志
+ * @param logLevel 日志等级
+ */
+- (void)setLogLevel:(RXADJLogLevel)logLevel;
+```
+
+**调用示例**
+
+```objectivec
+[[RXAdjust sharedSDK] setLogLevel:RXADJLogLevelVerbose];
+```

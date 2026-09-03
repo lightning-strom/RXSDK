@@ -1,0 +1,29 @@
+---
+sidebar_position: 2
+title: "支付合规调整"
+---
+
+由于渠道审核政策逐渐严格（主要为 **苹果、谷歌**），SDK 针对相关政策进行内部优化和调整，移除了支付相关的注释，并将 **pay** 字段改为 **hq** 或 **iap**，原有的支付 **pay_type（支付类型）** 全部进行调整。
+
+:::tip
+已接入SDK 的客户端在更新版本后会有报错，请按照支付文档重新接入。
+
+注意：
+- iOS 会在编译阶段报错；
+- Android 在编译阶段不会报错，在支付时报错，由于 Android 支付渠道较多并且 **pay_type（支付类型）** SDK 不兼容原有的类型，请自行做好版本兼容；
+:::
+
+**支付类型映射**
+| 混淆类型 | 备注 |
+| --- | --- |
+| ht | ruixue_h5_trade（望舒收银台） |
+| pm | payermax |
+| jh | jdjh（京东支付） |
+| aph | alipayh5（支付宝h5） |
+| up | unipin |
+| as | aums（银联） |
+| wch | wechath5（微信 h5） |
+| ap | alipay（支付宝原生） |
+| xsa | xsolla_inapp（xsolla 应用内支付） |
+| co | checkout |
+| iap | appstore（苹果支付） |

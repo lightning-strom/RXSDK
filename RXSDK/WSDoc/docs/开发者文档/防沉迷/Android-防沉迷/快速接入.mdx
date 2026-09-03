@@ -1,0 +1,65 @@
+---
+sidebar_position: 1
+title: 快速接入
+description: "望舒SDK 防沉迷 快速接入 Android 接入文档，提供完整的接口调用说明与示例。"
+---
+
+## 实名认证
+
+调用防沉迷弹框前，必需接入实名认证 [国内](/docs/开发者文档/登录-通行证/Android-登录API/快速接入) [国外](/docs/开发者文档/登录-通行证/实名认证奖励道具/实名认证配置)
+
+### 实名认证效果
+
+![](https://guanwangyun.oss-cn-beijing.aliyuncs.com/document/passportUI/EqUpbAcX4oLppCxVjmucUDhXnbf.png)
+
+![](https://guanwangyun.oss-cn-beijing.aliyuncs.com/document/passportUI/DQnIbSsRboq8Cmx67JLcSK4vnCd.png)
+
+### 调用接口
+
+客户端调用**实名认证接口**
+
+[国内](/docs/开发者文档/登录-通行证/Android-登录API/快速接入)
+
+[国外](/docs/开发者文档/登录-通行证/实名认证奖励道具/实名认证配置)
+
+## 防沉迷弹框
+
+望舒提供了防沉迷弹框，如何调用参考 [国内](/docs/开发者文档/登录-通行证/Android-登录API/快速接入) [国外](/docs/开发者文档/登录-通行证/实名认证奖励道具/实名认证配置)；
+
+### 弹窗效果
+
+![](https://guanwangyun.oss-cn-beijing.aliyuncs.com/document/passportUI/ME2WbRltPolLxnx0bSMcsZpcnlb.png)
+
+### 调用接口
+
+客户端调用 **防沉迷弹窗接口**
+
+[国内](/docs/开发者文档/登录-通行证/Android-登录API/快速接入)
+
+[国外](/docs/开发者文档/登录-通行证/实名认证奖励道具/实名认证配置)
+
+## 获取玩家年龄
+
+登录成功后，返回结构体中包含玩家年龄信息。参数： `age` ，返回用户年龄，根据实名信息计算的。
+
+| 字段 | 类型 | 说明 |
+| --- | --- | --- |
+| age | number | 用户年龄，根据实名信息获取。 |
+
+客户端调用[登录通行证接口](/docs/开发者文档/登录-通行证/Android-登录API/快速接入)；
+
+## 获取剩余时长（单位：秒）
+
+登录成功后，返回结构体中包含玩家游戏剩余时长。参数： `aas` ，说明用户剩余游戏时长 xx 秒。
+
+| 字段 | 类型 | 说明 |
+| --- | --- | --- |
+| aas | number | 当 flag 有防沉迷标记时，表示用户剩余游戏时间（秒）。 |
+
+客户端调用[登录通行证接口](/docs/开发者文档/登录-通行证/Android-登录API/快速接入)；
+
+## 消费限制
+
+调用瑞需下单支付接口时，参数 `indulge_auth = 1` （防沉迷支付验证开启）。返回错误码为 `302412` 时，说明用户触发防沉迷充值机制不可充值！！！
+
+客户端调用 参考 ` 下单支付接口 ` ；

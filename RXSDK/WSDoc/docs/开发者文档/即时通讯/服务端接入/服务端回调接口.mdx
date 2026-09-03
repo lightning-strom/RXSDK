@@ -1,0 +1,369 @@
+---
+sidebar_position: 5
+title: 服务端回调接口
+description: "望舒SDK 即时通讯 服务端回调接口服务端文档，提供接口请求参数与响应说明。"
+---
+
+## 用户连接/断开通知
+
+当用户连入或断开 IMS 服务后，由 IMS 向 CP 发送的通知请求
+
+> 类型：同步
+>
+> **Action：`ims-userconn`**
+>
+> **认证方式：** [CPSign](/docs/开发者文档/入门指南/服务端接入须知)
+
+### 请求参数（JSON）
+
+
+| 字段 | 类型 | 是否必填 | 说明 |
+| --- | --- | --- | --- |
+| cpid | Number | 是 | CPID |
+| client_type | Number | 是 | 客户端类型，其是一个位运算结果值，[参考](/docs/开发者文档/即时通讯/服务端接入/数据约束) |
+| product_id | String | 是 | 产品 ID |
+| channel_id | String | 是 | 渠道 ID |
+| device_code | String | 否 | 客户端设备码 |
+| option | Number | 否 | 用户连入传入选项 |
+| milli_ts | Number | 是 | 用户连入、断开时的毫秒时间戳 |
+| user_id | String | 是 | UserID ，[参考](/docs/开发者文档/即时通讯/服务端接入/数据约束) |
+| language | String | 是 | 客户端语言标记 |
+| ext | Map[String]String | 否 | 客户端连接时传入的扩展字段 |
+| event | Number | 是 | 1 ：连入； 2 ：断开； |
+
+
+**请求示例**
+
+```json
+{
+ "cpid": 1000000,
+ "client_type": 262657,
+ "product_id": "test",
+ "channel_id": "test",
+ "device_code": "",
+ "option": 0,
+ "milli_ts": 1659061339059,
+ "user_id": "a",
+ "language": "zh-CN",
+ "ext": null,
+ "event": 1
+}
+```
+
+### 响应参数（JSON）
+
+**HTTP 状态码：**`200 OK`
+
+| 字段 | 类型 | 是否必填 | 说明 | 示例 |
+| --- | --- | --- | --- | --- |
+| code | Number | 是 | 响应状态码， 0 为成功，非 0 表示出错 | 0 |
+| msg | String | 否 | 响应信息，仅在 code 非 0 时返回 |  |
+
+---
+
+## 用户发送消息回调
+
+> 用户发送消息前的回调事件，CP 服务端可通过实现该接口对用户发送的消息进行审核、替换或转发等功能。
+
+注意：服务端发送的消息不会进行回调。
+
+> 类型：同步
+>
+> **Action：`ims-sendmsg`**
+>
+> **认证方式：** [CPSign](/docs/开发者文档/入门指南/服务端接入须知)
+
+### 请求参数（JSON）
+
+
+| 字段 | 类型 | 是否必填 | 说明 |
+| --- | --- | --- | --- |
+| milli_ts | Number | 是 | 消息发送毫秒时间戳 |
+| option | Number | 否 | [消息选项](/docs/开发者文档/即时通讯/服务端接入/消息定义)（位运算组合） |
+| client_type | Number | 是 | [客户端类型](/docs/开发者文档/即时通讯/服务端接入/数据约束)，其是一个位运算结果值， |
+| type | Number | 是 | 消息类型 |
+| sub_type | Number | 否 | 消息子类型，当 type 为 [CP 自定义消息](/docs/开发者文档/即时通讯/服务端接入/消息定义)时有效 |
+| uuid | String | 是 | 消息发送者在发送时生成的唯一 ID ，用于去重 |
+| sender | String | 是 | 发送人 UserID |
+| receivers | []String | 否 | 接收人列表，单聊必须为空；群聊表示 @ 用户列表；自定义单聊表示实际接收人 UserID 清单； |
+| conversation_id | String | 是 | [会话 ID](/docs/开发者文档/即时通讯/服务端接入/数据约束) |
+| conv_type | Number | 是 | [会话类型](/docs/开发者文档/即时通讯/服务端接入/数据约束)，即会话 ID 两个 $ 中间的值 |
+| content | String | 是 | [消息内容](/docs/开发者文档/即时通讯/服务端接入/消息定义) JSON 字符串 |
+| product_id | String | 是 | 产品 ID |
+| channel_id | String | 是 | 渠道 ID |
+| ext | Map[String]String | 否 | CP 扩展字段 |
+
+
+**请求示例**
+
+```json
+{
+ "option": 3,
+ "client_type": 262657,
+ "type": 2,
+ "uuid": "91a5ca77-ab9d-4dee-b5a6-ac440da22c4b",
+ "sender": "a",
+ "conversation_id": "$1$a:b",
+ "conv_type": 1,
+ "product_id": "test",
+ "channel_id": "test",
+ "content": "{\"text\":\"hahaha\"}",
+ "ext": null
+}
+```
+
+### 响应参数（JSON）
+
+**HTTP 状态码：**`200 OK`
+
+
+| 字段 | 类型 | 是否必填 | 说明 |
+| --- | --- | --- | --- |
+| code | Number | 是 | 响应状态码， 0 为成功，非 0 表示出错 |
+| msg | String | 否 | 响应信息，仅在 code 非 0 时返回 |
+| allow | Bool | 是 | 是否允许发送该消息， true 为允许， false 为拒绝 |
+| content | String | 是 | 不为空时将对原消息内容进行覆盖，注意其内容要与消息类型对应 |
+| receivers | []String | 否 | 不为空时表示对针对自定义单聊消息的接收列表进行修改 |
+| ext | Map[String]String | 否 | 不为空时表示对消息扩展信息进行修改 |
+
+
+**响应示例**
+
+```json
+{"code": 0, "allow": true}
+```
+
+---
+
+## 用户发送消息通知
+
+> 当用户成功发送消息后，IMS 会向 CP 服务端进行通知，以此可实现一些后续行为；
+>
+> 另外，由于 IMS 当前尚未继承 App 消息推送，当用户不在线时并不能立即通知到用户，CP 可通过该接口自行实现 App 推送通知。
+
+注意：服务端发送的消息不会进行通知。
+
+> 类型：同步
+>
+> **Action：`ims-sentmsg`**
+>
+> **认证方式：** [CPSign](/docs/开发者文档/入门指南/服务端接入须知)
+
+### 请求参数（JSON）
+
+| 字段 | 类型 | 是否必填 | 说明 | 示例 |
+| --- | --- | --- | --- | --- |
+| msg | Message | 是 | 消息内容实体 | receivers |
+| Map[String]Receiver | 是 | 接收者发送结果对象，键名为 UserID |  |  |
+
+#### message
+
+
+| 字段 | 类型 | 是否必填 | 说明 |
+| --- | --- | --- | --- |
+| milli_ts | Number | 是 | 消息发送毫秒时间戳 |
+| option | Number | 否 | 消息选项（位运算组合） |
+| client_type | Number | 是 | 客户端类型，其是一个位运算结果值 |
+| type | Number | 是 | 消息类型 |
+| sub_type | Number | 否 | 消息子类型，当 type 为 CP 自定义消息时有效 |
+| uuid | String | 是 | 消息发送者在发送时生成的唯一 ID ，用于去重 |
+| sender | String | 是 | 发送人 UserID |
+| receivers | []String | 否 | 接收人列表，单聊必须为空；群聊表示 @ 用户列表；自定义单聊表示实际接收人 UserID 清单； |
+| conversation_id | String | 是 | 会话 ID |
+| conv_type | Number | 是 | 会话类型，即会话 ID 两个 $ 中间的值 |
+| content | String | 是 | 消息内容 JSON 字符串 |
+| product_id | String | 是 | 产品 ID |
+| channel_id | String | 是 | 渠道 ID |
+| ext | Map[String]String | 否 | CP 扩展字段 |
+
+
+##### receiver
+
+
+| 字段 | 类型 | 是否必填 | 说明 |
+| --- | --- | --- | --- |
+| logined_platform | Number | 是 | 该用户登录过的平台 |
+| success_platform | Number | 否 | 本消息成功在线投递到的平台，可通过该值与 logined_platform 判断用户是否需要进行 APP 推送 |
+
+
+**请求示例**
+
+```json
+{
+ "msg": {
+ "option": 3,
+ "client_type": 262657,
+ "type": 2,
+ "uuid": "91a5ca77-ab9d-4dee-b5a6-ac440da22c4b",
+ "sender": "a",
+ "conversation_id": "$1$a:b",
+ "conv_type": 1,
+ "product_id": "test",
+ "channel_id": "test",
+ "content": "{\"text\":\"hahaha\"}",
+ "ext": null
+ },
+ "receivers": {
+ "b": {
+ "logined_platform": 1,
+ "success_platform": 1
+ }
+ }
+}
+```
+
+### 响应参数（JSON）
+
+**HTTP 状态码：**`200 OK`
+
+| 字段 | 类型 | 是否必填 | 说明 | 示例 |
+| --- | --- | --- | --- | --- |
+| code | Number | 是 | 响应状态码， 0 为成功，非 0 表示出错 | 0 |
+| msg | String | 否 | 响应信息，仅在 code 非 0 时返回 |  |
+
+---
+
+## 会话创建回调
+
+客户端在创建会话时的回调事件， CP 服务端可对该操作进行审核，控制是否允许执行。
+
+> 类型：同步
+>
+> **Action：`ims-createconv`**
+>
+> **认证方式：** [CPSign](/docs/开发者文档/入门指南/服务端接入须知)
+
+### 请求参数（JSON）
+
+
+| 字段 | 类型 | 是否必填 | 说明 |
+| --- | --- | --- | --- |
+| conversation_id | String | 是 | 会话 ID |
+| option | Number | 否 | 会话选项 |
+| conv_type | Number | 是 | 会话类型 |
+| Number | 是 | 会话类型 | creator |
+| 否 | 会话创建者 UserID ，非频道聊天会话时必填 | members | []String |
+| 会话为群聊时，加入群聊的用户列表 | ext | Map[String]String | 否 |
+| ims_ext | Map[String]String | 否 | IMS 扩展字段 |
+
+
+**请求示例**
+
+```json
+{
+ "conversation_id": "$2$testgroup",
+ "option": 0,
+ "conv_type": 2,
+ "creator": "a",
+ "ext": null,
+ "ims_ext": null,
+ "members": [ "userA", "userB" ]
+}
+```
+
+### 响应参数（JSON）
+
+**HTTP 状态码：**`200 OK`
+
+
+| 字段 | 类型 | 是否必填 | 说明 |
+| --- | --- | --- | --- |
+| code | Number | 是 | 响应状态码， 0 为成功，非 0 表示出错 |
+| msg | String | 否 | 响应信息，仅在 code 非 0 时返回 |
+| allow | Bool | 是 | 是否允许该操作， true 为允许， false 为拒绝 |
+| Bool | 是 | 是否允许该操作， true 为允许， false 为拒绝 |  |
+
+
+**响应示例**
+
+```json
+{"code": 0, "allow": true}
+```
+
+---
+
+## 会话删除回调
+
+客户端在删除会话时的回调事件， CP 服务端可对该操作进行审核，控制是否允许执行。
+
+> 类型：同步
+>
+> **Action：`ims-deleteconv`**
+>
+> **认证方式：** [CPSign](/docs/开发者文档/入门指南/服务端接入须知)
+
+### 请求参数（JSON）
+
+| 字段 | 类型 | 是否必填 | 说明 | 示例 |
+| --- | --- | --- | --- | --- |
+| conversation_id | String | 是 | 会话 ID | $2$testgroup |
+| user_id | String | 否 | 操作人 UserID ，非频道聊天会话时必填 |  |
+
+**请求示例**
+
+```json
+{"conversation_id": "$2$testgroup", "user_id": "a"}
+```
+
+### 响应参数（JSON）
+
+**HTTP 状态码：**`200 OK`
+
+
+| 字段 | 类型 | 是否必填 | 说明 |
+| --- | --- | --- | --- |
+| code | Number | 是 | 响应状态码， 0 为成功，非 0 表示出错 |
+| msg | String | 否 | 响应信息，仅在 code 非 0 时返回 |
+| allow | Bool | 是 | 是否允许该操作， true 为允许， false 为拒绝 |
+| Bool | 是 | 是否允许该操作， true 为允许， false 为拒绝 |  |
+
+
+**响应示例**
+
+```json
+{"code": 0, "allow": true}
+```
+
+---
+
+## 加入会话回调
+
+客户端在加入会话时的回调事件， CP 服务端可对该操作进行审核，控制是否允许执行。
+
+> 类型：同步
+>
+> **Action：`ims-joinconv`**
+>
+> **认证方式：** [CPSign](/docs/开发者文档/入门指南/服务端接入须知)
+
+### 请求参数（JSON）
+
+| 字段 | 类型 | 是否必填 | 说明 | 示例 |
+| --- | --- | --- | --- | --- |
+| conversation_id | String | 是 | 会话 ID | $2$testgroup |
+| members | []String | 否 | 会话为群聊时，加入群聊的用户列表 |  |
+
+**请求示例**
+
+```json
+{"conversation_id": "$2$testgroup", "members": [ "userA", "userB" ]}
+```
+
+### 响应参数（JSON）
+
+**HTTP 状态码：**`200 OK`
+
+
+| 字段 | 类型 | 是否必填 | 说明 |
+| --- | --- | --- | --- |
+| code | Number | 是 | 响应状态码， 0 为成功，非 0 表示出错 |
+| msg | String | 否 | 响应信息，仅在 code 非 0 时返回 |
+| allow | Bool | 是 | 是否允许该操作， true 为允许， false 为拒绝 |
+| Bool | 是 | 是否允许该操作， true 为允许， false 为拒绝 |  |
+
+
+**响应示例**
+
+```json
+{"code": 0, "allow": true}
+```

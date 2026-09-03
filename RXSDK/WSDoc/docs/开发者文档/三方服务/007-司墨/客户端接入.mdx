@@ -1,0 +1,234 @@
+---
+sidebar_position: 1
+title: 客户端接入
+description: "望舒SDK 三方服务 客户端接入文档，提供详细的功能说明与接入指引。"
+---
+
+## 后台接入配置
+
+[登录配置说明](/docs/开发者文档/三方服务/司墨/登录配置说明)
+
+[支付配置说明](/docs/开发者文档/三方服务/司墨/支付配置说明)
+
+## 望舒快速接入（必接）
+
+-[快速接入文档](/docs/开发者文档/入门指南/快速开始/Unity-初始化/快速开始)
+
+## 三方渠道接入说明（必读）
+
+[三方渠道接入说明](/docs/开发者文档/三方服务/三方接入说明)
+
+## 007 SDK 集成
+
+
+:::tip[版本说明]
+`version` 为 SDK 版本号（替换为实际版本号），最新版本请从 [更新日志](/docs/开发者文档/入门指南/更新日志/Android) 中查看。
+:::
+
+```groovy
+implementation 'com.ruixue:rxsdk_007:${version}'
+```
+
+## 配置说明
+
+在 `src/main/assets` 文件夹下添加 jsq007_config.json 文件
+
+jsq007_config.json 中的 agentId 默认值为 0、channelId 默认值为 7001、appId 即为 gameId, 根据自己申请的 gameId 填写，文件内容例子如下:
+
+```json
+{
+ "appId": "1010631",
+ "agentId": "0",
+ "channelId": "7001"
+}
+```
+
+在 `src/main/AndroidManifest.xml` 中配置 application 节点下增加 `android:networkSecurityConfig` 属性
+
+```xml
+
+manifest xmlns:android="http://schemas.android.com/apk/res/android"
+ xmlns:tools="http://schemas.android.com/tools"
+ <package="游戏包名">
+ ...
+ <application android:networkSecurityConfig="@xml/network_security_config">
+
+</application>
+</manifest>
+```
+
+在 `src/main/res/xml` 中添加 `network_security_config.xml`, 内容如下
+
+```xml
+
+</network-security-config>
+ <base-config cleartextTrafficPermitted="true">
+</network-security-config>
+```
+
+角标闪屏资源 [下载链接](https://suf.oss-cn-hangzhou.aliyuncs.com/and/007%E8%A7%92%E6%A0%87%E9%97%AA%E5%B1%8F.zip)
+
+游戏方根据自己的情况，下载上面资源处理闪屏和 APP 图标，避免审核被拒。
+
+**为了防止变形，设置闪屏 android:scaleType="centerCrop"保证中间区域不变形即可**
+
+在 `app/build.gradle` 中 做如下配置
+
+```groovy
+android {
+ ...
+ compileOptions {
+ sourceCompatibility JavaVersion.VERSION_1_8
+ targetCompatibility JavaVersion.VERSION_1_8
+ }
+}
+
+```
+
+Application 配置 参考 [这里](/docs/开发者文档/入门指南/快速开始/Unity-初始化/快速开始)
+
+并在 游戏的 Application 中额外增加如下初始化代码
+
+```java
+@Override
+public void onCreate() {
+    super.onCreate();
+    M007SdkHelper.getInstance().applicationCreate(this);
+}
+
+@Override
+protected void attachBaseContext(Context base) {
+    super.attachBaseContext(base);
+    M007SdkHelper.getInstance().applicationAttachBaseContext(base, this);
+}
+
+@Override
+public void onConfigurationChanged(@NonNull Configuration newConfig) {
+    super.onConfigurationChanged(newConfig);
+    M007SdkHelper.getInstance().applicationConfigurationChanged(newConfig);
+}
+```
+
+## 初始化 SDK（必接）
+
+首先，您需要在程序开始的地方初始化，通过调用 initThirdSdk 方法初始化游戏 SDK。
+
+在初始化失败的状态下，游戏不应继续调用 SDK 的其余 API ，此方法必须在 UI 线程中调用。
+
+```java
+Map<String,Object> thirdSdkParams=new HashMap<>();
+RuiXueSdk.getApi().initThirdSdk(activity, thirdSdkParams, new RXRequestCallback() {
+    @Override
+    public void onResponse(JSONObject jsonObject) {
+    int code = jsonObject.optInt("code", -1);
+    if (code == 0) {
+    //todo 成功
+    }else {
+    //todo 失败
+    }
+    }
+});
+```
+
+## 登录 (必须接入) 请一定确保要初始化成功再调用登录
+
+请参考 [Android 端登录 API](/docs/开发者文档/登录-通行证/Android-登录API/快速接入)
+
+参考代码
+
+```java
+String username = null;
+String loginType = LoginMethod.M007;
+String password = null;
+String captchaCode = null;
+String loginOpenId = null;
+Map<String, Object> ext = null;
+String[] signFields = null;
+Object migrateArgs = null;
+RuiXueSdk.getApi().login(M007DemoActivity.this, loginType, username, password, captchaCode, loginOpenId, ext, signFields, migrateArgs, new RXJSONCallback() {
+    @Override
+    public void onSuccess(@Nullable JSONObject data) {
+    Toast.makeText(M007DemoActivity.this, "登录成功", Toast.LENGTH_SHORT).show();
+    }
+
+    @Override
+    public void onFailed(@NonNull JSONObject cause) {
+    Toast.makeText(M007DemoActivity.this, "登录失败", Toast.LENGTH_SHORT).show();
+    }
+});
+```
+
+## 支付 (必须接入)
+
+请参考 [Android 端支付 API](/docs/开发者文档/支付/功能介绍)
+
+## 退出 (必须接入)
+
+参考代码
+
+```java
+    RuiXueSdk.exitApp(this, new OnAppExitCallback() {
+    @Override
+    public void onExitConfirm(@Nullable String res) {
+    Toast.makeText(M007DemoActivity.this, "退出游戏成功", Toast.LENGTH_SHORT).show();
+    }
+
+    @Override
+    public void onExitCancel() {
+    Toast.makeText(M007DemoActivity.this, "退出游戏取消", Toast.LENGTH_SHORT).show();
+    }
+});
+```
+
+## 游戏角色上报(必须接入)
+
+注意: 登录成功后必须调用这个 API 上报角色信息，否则调用支付会失败
+
+参考代码
+
+```java
+HashMap<String, String> map = new HashMap<>();
+map.put("server_id", "123"); //区服IDd
+map.put("server_name", "测试1区"); //区服名称
+map.put("role_id", "651324"); //角色ID
+map.put("role_name", "德云于谦"); //角色名称
+map.put("role_level", "80"); //角色等级
+map.put("combat_number", "8000"); //默认传0
+map.put("channelExt", ""); //额外参数
+map.put("role_action", "3"); // 1 首次创键角色， 2 角色进入游戏 3：角色升级
+M007SdkHelper.getInstance().setRoleInfo(map);
+```
+
+## 游戏账号切换 和 logout 监听
+
+参考代码 `RuiXueSdk.setRuiXueSdkCallback 和上面 logout 监听是一个方法，切勿写成两次调用 `
+
+```java
+RuiXueSdk.setRuiXueSdkCallback(new RuiXueSdkCallback() {
+
+    // ... 省略了一些无关代码
+
+    /**
+    * 切换账号全局回调,如果有游戏内切换账号可关注此回调
+    * @param code 0
+    * @param data 三方数据
+    */
+    @Override
+    public boolean onSwitchAccount(int code, String data) {
+    // 调用方如果有要处理的逻辑放在此处
+    // 返回 true，望舒sdk，会执行 logout 操作
+    // 返回 false，望舒sdk 不执行任何操作
+    return true;
+    }
+
+    @Override
+    public void onLogout(int code, String msg) {
+    // code 0: 登出成功
+    // 当成功时 msg 为 "1" 为成功
+    // 当成功时 msg 为 "3" 为sdk内部切换小号
+
+    // code -1: 登录出失败
+    RXLogger.d(TAG, "onLogout code = " + code + " msg = " + msg);
+    }
+});
+```

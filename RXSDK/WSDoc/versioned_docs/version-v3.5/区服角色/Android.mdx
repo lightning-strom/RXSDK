@@ -1,0 +1,108 @@
+---
+sidebar_position: 3
+title: "Android"
+---
+
+## 上报区服角色
+
+**接口原型**
+
+```java
+/**
+ * 上报区服角色
+ */
+void setGameInfo(String roleId, String regionTag);
+```
+
+**调用示例**
+
+```java
+RuiXueSdk.getApi().setGameInfo("游戏角色 ID", "区服标识");
+```
+
+## 查询角色信息
+:::tip
+登录后调用
+:::
+
+**接口原型**
+
+```java
+/**
+ * 查询游戏角色信息
+ */
+void searchGameAccount(RXRequestCallback callback);
+```
+
+**调用示例**
+
+```java
+RuiXueSdk.getApi().searchGameAccount(new RXRequestCallback() {
+    @Override
+    public void onResponse(JSONObject jsonObject) {
+        ToastUtils.showToast(MainActivity.this, jsonObject.toString());
+    }
+});
+```
+
+### 响应参数（JSON）
+
+**HTTP 状态码：**`200 OK`
+
+| **字段** | **类型** | **是否必填** | **说明** | **示例** |
+| --- | --- | ---- | --- | --- |
+| code | Number | 是 | 响应状态码，0为成功，非0表示出错 | 0 |
+| msg | String | 否 | 响应信息，仅在code为非0时不为空 |  |
+| data | Data | 否 | 响应内容 |  |
+
+#### Data
+| **字段** | **类型** | **是否必填** | **说明** | **示例** |
+| --- | --- | ---- | --- | --- |
+| list | []Item | 是 | 角色列表|  |
+
+#### Item
+| **字段** | **类型** | **是否必填** | **说明** | **示例** |~~~~
+| --- | --- | ---- | --- | --- |
+| region_tag | String | 是 | 区服 |  |
+| cp_role_id | String | 是 | 角色id|  |
+| extension | json | 否 | 扩展信息符合json格式的数据 |  
+
+**响应示例**
+
+```json
+{
+    "data": {
+        "list": [
+            {
+                "rx_openid": "xxxasxxsasax",
+                "region_tag": "default",
+                "cp_role_id": "123",
+                "extension": {
+                    "aaaa": "bbb"
+                },
+                "id": 187,
+                "cpid": 114,
+                "description": "sync",
+                "created_at": "2025-04-25T15:25:16+08:00",
+                "updated_at": "0001-01-01T00:00:00Z",
+                "deleted_at": "0001-01-01T00:00:00Z"
+            },
+            {
+                "rx_openid": "xxxasxxsasax",
+                "region_tag": "default",
+                "cp_role_id": "1234",
+                "extension": {
+                    "aaaa": "bbb"
+                },
+                "id": 188,
+                "cpid": 114,
+                "description": "sync",
+                "created_at": "2025-04-25T15:25:28+08:00",
+                "updated_at": "0001-01-01T00:00:00Z",
+                "deleted_at": "0001-01-01T00:00:00Z"
+            }
+        ]
+    },
+    "code": 0
+}
+```

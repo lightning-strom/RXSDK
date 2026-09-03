@@ -1,0 +1,151 @@
+---
+title: "快速接入-团结版"
+---
+
+## 产品包版本检查（通用）
+
+**接口原型**
+
+```csharp
+/**
+ * @param version  客户端版本号，3段或4段
+ * @param region   地区码
+ * @param queryMap type 脚本类型 默认json， 可选 lua， u3d
+ * @param callback
+ */
+void CheckUpdateApp(string version, int region, string type, Dictionary queryMap, Action callback)
+```
+
+### 参数说明
+
+| **字段** | **类型** | **是否必填** | **说明**                          |
+| -------- | -------- | ------------ | --------------------------------- |
+| type     | int      | 否           | 脚本类型 默认 js， 可选 lua， u3d |
+
+**调用示例**
+
+```csharp
+string version="1.0.1";
+string region="150000";
+RuiXueSdk.CheckUpdateApp(version,region, null,callback);
+```
+
+### 响应结构
+
+请参考[产品包版本检查（通用）](/docs/v3.5/版本检查/功能介绍) 响应结构。
+
+## 产品包版本检查（自定义）
+
+**接口原型**
+
+```csharp
+/**
+ * @param version  客户端版本号， 3段或4段
+ * @param region   地区码， 默认0
+ * @param type     脚本类型 默认js， 可选lua， u3d
+ * @param queryMap games {"games:{"游戏id": 客户端游戏版本}"}
+ *                 activities {"activities":{"活动别名": 客户端活动版本}}
+ * @param callback 回调函数
+ */
+ void CheckUpdateApp(string version, int region, string type, Dictionary queryMap, Action callback, string method)
+```
+
+### 参数说明
+
+| **字段**   | **类型**           | **是否必填** | **说明**                      |
+| ---------- | ------------------ | ------------ | ----------------------------- |
+| activities | Dictionary | 否           | key 客户端活动别名 value 版本 |
+| games      | Dictionary | 否           | key 客户端游戏 id value 版本  |
+
+**调用示例**
+
+```charp
+string version="1.0.1";
+string region="150000";
+string method="POST";
+
+Dictionary queryMap=new ();
+Dictionary games=new ();
+games.Add("mjgame",1);
+Dictionary activities=new ();
+activities.Add("aac",1);
+queryMap.Add("games",games);
+queryMap.Add("activities",activities);
+RuiXueSdk.CheckUpdateApp(version,region,"js" ,queryMap,callback);
+```
+
+### 响应结构
+
+请参考 [APP 更新检查（自定义）API](/docs/v3.5/版本检查/功能介绍) 响应结构。
+
+## 游戏更新检查
+
+**接口原型**
+
+```charp
+/**
+ * 游戏版本检查
+ *
+ * @param gameId           游戏id
+ * @param gameVersion      客户端版本号
+ * @param gameCheckVersion 优先获取版本号,优先检查这个版本，没用再返回最新版本
+ * @param queryMap         type 脚本类型 默认json， 可选 lua， u3d
+ * @param callback         callback
+ */
+void CheckUpdateGame(int gameId, int gameVersion, int gameCheckVersion, Dictionary queryMap, Action callback)
+```
+
+### 参数说明
+
+| **字段** | **类型** | **是否必填** | **说明**                          |
+| -------- | -------- | ------------ | --------------------------------- |
+| type     | int      | 否           | 脚本类型 默认 lua， 可选 js， u3d |
+
+**调用示例**
+
+```charp
+string gameId="1041697";
+string gamecheckversion="0";
+RuiXueSdk.CheckUpdateGame(gameId,gamecheckversion,null, callback);
+```
+
+### 响应结构
+
+请参考 [游戏更新检查 API](/docs/v3.5/版本检查/功能介绍) 响应结构。
+
+## 活动更新检查
+
+**接口原型**
+
+```charp
+/**
+ * 活动版本检查
+ *
+ * @param activityShortname    活动别名
+ * @param activityVersion      客户端版本号
+ * @param activityCheckVersion 优先检查这个版本，没用再返回最新版本
+ * @param queryMap             type 脚本类型 默认json， 可选 lua， u3d
+ *                             format 输出文件后缀，默认json，可选lua
+ * @param callback             callback
+ */
+void CheckUpdateActivity(string activityShortname, int activityVersion, int activityCheckVersion, Dictionary queryMap, Action callback)
+```
+
+### 参数说明
+
+| 名称 | 类型   | 是否必须 | 备注     | 其他信息 |
+| ---- | ------ | -------- | -------- | -------- |
+| url  | string | 否       | 更新地址 |          |
+
+**调用示例**
+
+```charp
+string activityshortname="xxx";
+string activityversion="1";
+string activityCheckVersion="0";
+RuiXueSdk.CheckUpdateActivity(activityShortname,activityversion,activityCheckVersion, callback);
+```
+
+### 响应结构
+
+请参考 [活动更新检查 API](/docs/v3.5/版本检查/功能介绍) 响应结构。

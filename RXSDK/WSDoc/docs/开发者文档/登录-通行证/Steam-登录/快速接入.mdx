@@ -1,0 +1,620 @@
+---
+sidebar_position: 1
+title: 快速接入
+description: "望舒SDK 登录通行证 快速接入 Steam 接入文档，提供完整的接口调用说明与示例。"
+---
+
+## 望舒通行证API
+
+### 注册
+
+**接口原型**
+
+```csharp
+void Register(RegisterArgs args, Actionint, object, string> callback)
+```
+
+**参数说明**
+
+| 字段 | 类型 | 是否必填 | 说明 |
+| --- | --- | --- | --- |
+| username | string | 是 | 用户名 |
+| password | string | 是 | 密码 |
+| nickname | string | 否 | 昵称 |
+| captcha_code | string | 否 | 使用 `sendCaptcha` 接口获取 |
+| avatarUrl | string | 否 | 头像地址 |
+| user_attrs | object | 否 | 设置大数据用户属性，仅对本次登录新注册的用户有效 |
+| sex | integer | 否 | 性别,1:男,0:女 |
+| migrate_args | 任意合法的 json 类型, 比如 string, number, array, object | 否 | 账号迁移用的参数, 调用 CP account-query 及 account-queryandbind 接口时透传给 CP. |
+
+**调用示例**
+
+```csharp
+ RegisterArgs registerArgs = new()
+ {
+ type = AccountType.Phone,//手机号类型
+ username = usernameFiled.text,// 用户名
+ password = passwordFiled.text,//密码
+ };
+
+ RuiXueSdk.Register(registerArgs, (code, data, msg) =>
+ {
+ if (data != null)
+ {
+ Debug.Log("data= " + data);
+ mText.text = data.Tostring();
+ }
+ else
+ {
+ Debug.Log("code:" + code + ", msg:" + msg);
+ mText.text = "code:" + code + ", msg:" + msg;
+ }
+ });
+```
+
+#### 响应结构
+
+
+| 字段 | 类型 | 是否必填 | 说明 |
+| --- | --- | --- | --- |
+| captcha_code | String | 否 | 发送到"username"字段所指地址的，用于注册的验证码。 |
+| sex | Number | 否 | 0 表示女性， 1 表示男性 |
+| distinct_id | String | 是 | 客户端随机生成的 ID ，在用户注册前作为这个用户的唯一标识。 |
+| username | String | 是 | 用户名，可以是手机号，邮箱地址，或者任意其他形式的用户名。 |
+| password | String | 否 | 密码，客户端传的密码，可以是用户输入的密码本身，或者将其经过特定步骤转化的结构。为保护用户隐私，建议将用户输入的密码原文进行 hash 运算后作为 password 参数的值。该值将作为登录接口 password 参数的值。 |
+| nickname | String | 否 | 昵称。 |
+| avatarUrl | String | 否 | 头像地址。 |
+| device | [Device](/docs/开发者文档/性能分析/GPM-SDK接入/快速开始) | 是 | 客户端设备信息。具体结构参考下文 device 结构说明。 |
+| activate | [Activate](/docs/开发者文档/性能分析/GPM-SDK接入/快速开始) | 否 | 激活相关信息，一个设备仅需在第一次调用登录或注册接口需要传递 |
+| user_attrs | Map[String]Any | 否 | 设置大数据用户属性 |
+| user_source | [UserSource](/docs/开发者文档/性能分析/GPM-SDK接入/快速开始) | 否 | 用户推广来源。具体结构参考下文 user_soruce 结构说明。 |
+| migrate_args | 任意合法的 json 类型, 比如 String, Number 等 | 否 | 账号迁移用的参数, 调用 CP account-query 及 account-queryandbind 接口时透传给 CP. |
+| user_transmits | 任意合法的 json 类型, 比如 String, Number 等 | 否 | 透传参数，如果有需要透传给 cp 侧的数据，放到里面，望舒侧在响应时透传给 cp 侧 |
+
+
+**Device**
+
+
+| 字段 | 类型 | 是否必填 | 说明 |
+| --- | --- | --- | --- |
+| idfa | String | 否 | 仅用于 iOS 设备。目前 iOS 系统主流的广告获取设备标识符方式。用户可开启、关闭，每次切换会改变为新的取值。10 以下的版本关闭时也能取到唯一值, >=10 的 iOS 版本关闭时取到的值为 00000000000 ；系统大版本升级（如 11 到 12 ） IDFA 也会发生变化。 |
+| android_id | String | 否 | 仅用于 Android 设备。Android 版本 = 8.0 ，应用签名、用户（即系统上的用户账号）和设备的每个组合都具有唯一的 ANDROID_ID 值，即使系统升级也不变。 |
+| imei | String | 否 | 仅用于 Android 设备。Android 版本 &lt; 6.0 ，只需要 READ_PHONE_STATE 静态权限（安装 App 时即可获取到该权限），即可通过系统 API TelephonyManager#getDeviceId API 获取准确值； 6.0 &lt;= Android 版本 &lt;= 9.0 ， READ_PHONE_STATE 升级为动态权限，安装 App 时不会获得该权限，需要在 App 运行时用户在弹窗确认授权后才可以获取； Android 版本 >= 10.0 ，设备不可变 ID 的隐私保护得到进一步升级，需要 READ_PRIVILEGED_PHONE_STATE 权限才可以获取 IMEI ，而该权限只有系统级别的应用才可以获得，因此一般 App 无法获取到 IMEI。 |
+| oaid | String | 否 | 仅用于 Android 设备。移动安全联盟（简称 MSA ）制定的匿名设备标识符。可用于 android 系统的补充设备标示，通常 android10 以上的国内主流设备都可以获取。具体 OAID 介绍以及最新覆盖厂商范围请详见 MSA 官网：[https://msa-alliance.cn](https://msa-alliance.cn)。 |
+| mac | String | 否 | 仅用于 Android 设备。设备 Mac 地址。 |
+| user_agent | String | 否 | 一种方式获取的 user_agent ，若为空，则取 user-agent header 的值 |
+| user_agent1 | String | 否 | 其他方式获取的 user_agent |
+| user_agent2 | String | 否 | 其他方式获取的 user_agent |
+| ipv4 | String | 否 | 客户端检测到的自身外网 IPv4 地址，如果客户端调用本激活接口时是使用 IPv4 ，则激活接口服务端自动检测客户端的 IPv4 地址用于归因，否则使用此字段传的值。 |
+| ipv6 | String | 否 | 客户端检测到的自身外网 IPv6 地址，如果客户端调用本激活接口时是使用 IPv6 ，则激活接口服务端自动检测客户端的 IPv6 地址用于归因，否则使用此字段传的值。 |
+
+
+**Activate**
+
+| 字段 | 类型 | 是否必填 | 说明 | 示例 |
+| --- | --- | --- | --- | --- |
+| result | Object | 否 | 若调用激活接口成功，则传激活接口返回的 json 信息中的 data 部分。若调用激活接口超时，则传 null 或不传此字段 | args |
+| [SourceAd](/docs/开发者文档/性能分析/GPM-SDK接入/快速开始) | 否 | 若调用激活接口失败，则在此传递激活相关的参数。source_ad 结构参考激活接口文档。 |  |  |
+
+**SourceAd**
+
+| 字段 | 类型 | 是否必填 | 说明 | 示例 |
+| --- | --- | --- | --- | --- |
+| click_id | String | 否 | *若客户端调用激活接口失败，则通过此字段传递用户激活的参数* |  |
+
+**UserSource**
+
+| 字段 | 类型 | 是否必填 | 说明 | 示例 |
+| --- | --- | --- | --- | --- |
+| share | [Share](/docs/开发者文档/性能分析/GPM-SDK接入/快速开始) | 否 | 分享来源信息，仅当是分享用户时才传递这个字段。具体结构参考下文 share 结构说明。 | guide |
+| [Guide](/docs/开发者文档/性能分析/GPM-SDK接入/快速开始) | 否 | 导量来源信息，仅当是导量用户时才传递这个字段。具体结构参考下文 guide 结构说明。 | sub_package | [SubPackage](/docs/开发者文档/性能分析/GPM-SDK接入/快速开始) |
+| 否 | 用户自定义子包标识主要用于 android 分包。 |  |  |  |
+
+**Share**
+
+
+| 字段 | 类型 | 是否必填 | 说明 |
+| --- | --- | --- | --- |
+| landing_id | String | 否 | 广告推广来源信息。具体结构参考下文 ad 结构说明。 |
+| trigger_id | String | 否 | 埋点 ID。 |
+| trigger_tag | String | 是 | 埋点唯一标识。 |
+| trigger_type | String | 是 | 埋点类型。 |
+| material_type | String | 是 | 分享素材类型。 |
+| material_id | String | 是 | 分享素材类型。 |
+| strategy_type | String | 是 | 策略类型。 |
+| strategy_id | String | 是 | 策略唯一 ID。 |
+| share_time | String | 是 | 分享时间。 |
+| share_type | String | 是 | 游戏客户端自定义的分享类型。 |
+| inviter_region | String | 否 | 分享者所在地区编码。 |
+| inviter_openid | String | 是 | 分享者的望舒 openid。 |
+| inviter_productid | String | 否 | 分享者的产品 ID, 若为空, 则通行证通过 inviter_openid 获取关联信息 |
+| inviter_channelid | String | 否 | 分享者的渠道 ID, 若为空, 则通行证通过 inviter_openid 获取关联信息 |
+| inviter_subchannelid | String | 否 | 分享者的子渠道 ID, 若为空, 则通行证通过 inviter_openid 获取关联信息 |
+
+
+**Guide**
+
+
+| 字段 | 类型 | 是否必填 | 说明 |
+| --- | --- | --- | --- |
+| guide_platform | String | 否 | 导量来源游戏平台。 |
+| guide_app | String | 否 | 导量来源游戏 app 标识。 |
+
+
+**响应示例**
+
+```json
+{
+ "code": 0,
+ "data": {
+ "id": 2031,
+ "openid": "rxuIR2c1N1EdU9s/gkE8I8bEQ=="
+ }
+}
+```
+| **字段** | **类型** | **是否必填** | **说明** | **示例** |
+| -------------- | -------- | ------------ | ----------------------- | -------- |
+| sub_channel_id | String | 否 | 子渠道标识 | |
+
+**响应示例**
+
+```json
+{
+
+ "sub_channel_id": "1235"
+
+}
+```
+
+### 登录
+
+**接口原型**
+
+```csharp
+/// summary>
+/// 登录
+/// summary>
+/// param name="method">登录方式param>
+/// param name="keyValuePairs">登录参数param>
+/// param name="callback">回调param>
+void Login(LoginMethod method, Dictionarystring, object> keyValuePairs, Actionint, LoginData, string> callback)
+```
+
+#### 参数说明
+
+| 字段 | 类型 | 是否必填 | 说明 |
+| --- | --- | --- | --- |
+| method | string | 否 | 登录方式 |
+| login_openid | string | 否 | 上次登录返回的 login_openid 数据，同时 method 也要使用上次登录获取 login_openid 时使用的登录方式 |
+| user_attrs | object | 否 | 设置大数据用户属性，仅对本次登录新注册的用户有效 |
+| sign_fields | []string | 否 | 指定对登录成功后返回的特定字段, 使用 CPKEY 计算签名. CP 服务器可重新计算签名并与登录返回的签名比对, 作为对望舒登录数据的校验. 支持的字段包括: nickname, avatar, openid, region, sex, age, 计算签名的逻辑会对指定字段进行排序, 此处传参与顺序无关. |
+| migrate_args | 任意合法的 json 类型, 比如 string, number, array, object | 否 | 账号迁移用的参数, 调用 CP account-query 及 account-queryandbind 接口时透传给 CP. |
+
+**调用示例**
+
+```plaintext
+string method="steam";
+Dictionary parm = new()
+{
+ {"sign_fields",new string[]{"openid"}}
+};
+RuiXueSdk.Login(method, parm, (code, data, msg) =>
+{
+ if (data != null)
+ {
+ Debug.Log("data= " + data.ToJson());
+ mText.text = data.ToJson();
+ }
+ else
+ {
+ Debug.Log("code:" + code + ", msg:" + msg);
+ mText.text = "code:" + code + ", msg:" + msg;
+ }
+});
+
+```
+
+### 获取验证码（发送验证码）
+
+注： steam 暂不支持滑块验证
+
+**接口原型**
+
+```csharp
+void SendCaptcha(SendCaptchaArgs args, Actionint, object, string> callback)
+```
+
+#### 参数说明
+
+| 字段 | 类型 | 是否必填 | 备注 |
+| --- | --- | --- | --- |
+| email | string | 否 | 接收验证码的邮箱地址，邮箱手机号二选一 |
+| phone | string | 否 | 接收验证码的手机号，邮箱手机号二选一 |
+| purpose | string | 是 | 验证码的用途 |
+
+> `purpose` 字段值 验证码用途说明
+
+| 字段 | 备注 |
+| --- | --- |
+| register | 注册 |
+| bindphone | 绑定手机 |
+| unbindphone | 解绑手机 |
+| resetpwd | 重置密码 |
+| bindemail | 绑定邮箱 |
+| unbindemail | 解绑邮箱 |
+| login | 登录 |
+| setpwd | 设置密码 |
+
+
+**调用示例**
+
+```csharp
+data = new SendCaptchaArgs()
+{
+ phone = "1395xxxxxxx",
+ purpose = "xxxxxx"
+
+};
+RuiXueSdk.SendCaptcha(data, callback);
+```
+
+#### 响应结构
+
+```json
+{
+ "code": 0,
+ "data": {
+ "interval": 60,
+ "surplus": 60
+ }
+}
+```
+
+### 校验验证码
+
+用途和手机号或邮箱需要和调用发送验证码时一致。
+
+**接口原型**
+
+```csharp
+
+void VerifyCaptcha(VerifyCaptchaArgs args, Actionint, object, string> callback)
+```
+
+#### 参数说明
+
+| 字段 | 类型 | 是否必填 | 备注 |
+| --- | --- | --- | --- |
+| phone | string | 是 | 接收验证码的邮箱地址，邮箱手机号二选一 |
+| email | string | 是 | 接收验证码的邮箱地址，邮箱手机号二选一 |
+| purpose | string | 是 | 验证码的用途 |
+| captcha_code | string | 是 | 验证码 |
+
+> `purpose` 字段值 验证码用途说明
+
+| 字段 | 备注 |
+| --- | --- |
+| register | 注册 |
+| bindphone | 绑定手机 |
+| unbindphone | 解绑手机 |
+| resetpwd | 重置密码 |
+| bindemail | 绑定邮箱 |
+| unbindemail | 解绑邮箱 |
+| login | 登录 |
+| setpwd | 设置密码 |
+
+
+**调用示例**
+
+```csharp
+ data = new VerifyCaptchaArgs()
+{
+ phone = phone1,
+ purpose = pru,
+ captcha_code = phone1.Substring(phone1.Length - 4),
+};
+RuiXueSdk.VerifyCaptcha(data,callback);
+```
+
+#### 响应结构
+
+不返回 data 信息，验证码不正确会直接返回相应的错误。
+
+```json
+{
+ "code": 0
+}
+```
+
+### 绑定邮箱
+
+**接口原型**
+
+```csharp
+void BindEmail(BindEmailArgs args, Actionint, object, string> callback)
+```
+
+#### 参数说明
+
+| 字段 | 类型 | 是否必填 | 备注 |
+| --- | --- | --- | --- |
+| captcha_code | string | 是 | 使用 `sendCaptcha` 接口获取 |
+| password | string | 是 | 邮箱账号的密码 |
+| email | string | 是 | 邮箱账号 |
+| migrate_args | 任意合法的 json 类型 | 否 | 账号迁移用的参数, 调用 CP account-query 及 account-queryandbind 接口时透传给 CP. |
+
+**调用示例**
+
+```csharp
+data = new BindEmailArgs()
+{
+ email = "lipeng@jixiang.cn",
+ password = "111111",
+ captcha_code = "0001",
+};
+RuiXueSdk.bindEmail(data, callback);
+```
+
+#### 响应结构
+
+```json
+{
+ "code": 0
+}
+```
+
+### 绑定手机号
+
+**接口原型**
+
+```csharp
+void BindPhone(BindPhoneArgs args, Actionint, object, string> callback)
+```
+
+#### 参数说明
+
+| 字段 | 类型 | 是否必填 | 说明 |
+| --- | --- | --- | --- |
+| phone | string | 是 | 手机号码 |
+| password | string | 是 | 密码 |
+| captcha_code | string | 是 | 使用 `SendCaptcha` 接口获取 |
+| migrate_args | 任意合法的 json 类型, 比如 string, number, array, object | 否 | 账号迁移用的参数, 调用 CP account-query 及 account-queryandbind 接口时透传给 CP. |
+
+**调用示例**
+
+```csharp
+data = new BindPhoneArgs()
+{
+ phone = phone1,
+ password = "111111",
+ captcha_code = "0001",
+};
+RuiXueSdk.BindPhone(data, callback);
+```
+
+#### 响应结构
+
+```json
+{
+ "code": 0
+}
+```
+
+### 修改手机号
+
+**接口原型**
+
+```csharp
+void ChangeBindPhone(ChangePasswordArgs args, Actionint, object, string> callback)
+```
+
+#### 参数说明
+
+| 字段 | 类型 | 是否必****填 | 说明 |
+| --- | --- | --- | --- |
+| oldphone_captcha | string | 当前登录的手机号的 purpose =`unbindphone` 验证码。 | 使用 `sendCaptcha` 接口获取 |
+| newphone | string | 新的手机号。 | 手机号码 |
+| newphone_captcha | string | 新手机号的 purpose=`bindphone` 验证码。 | 使用 `sendCaptcha` 接口获取 |
+| migrate_args | 任意合法的 json 类型 | 账号迁移用的参数, 调用 CP account-query 及 account-queryandbind 接口时透传给 CP. |  |
+
+**调用示例**
+
+```csharp
+data = new ChangePhoneArgs()
+{
+ oldphone_captcha = phone1,
+ newphone = phone2,
+ newphone_captcha ="1234",
+};
+RuiXueSdk.ChangePhone(data, callback);
+```
+
+#### 响应结构
+
+```json
+{
+ "code": 0
+}
+```
+
+### 获取用户信息
+
+接口原型
+
+```csharp
+void GetUserInfo(Actionint, object, string> callback)
+```
+
+**调用示例**
+
+```csharp
+RuiXueSdk.GetUserInfo(callback);
+```
+
+#### 响应结构
+
+```json
+{
+ "code": 0,
+ "data": {
+ "avatarurl": "",
+ "mobile_phone": "159****7520",
+ "nickname": "rssllyn",
+ "openid": "rxuWFnlHRbTZ5ED5TkwAG5XVQ==",
+ "sex": 0,
+ "user_state": 0,
+ "attr": 0
+ }
+}
+```
+
+### 修改用户信息
+
+**接口原型**
+
+```csharp
+void UpdateUserInfo(UpdateUserInfoArgs args, Actionint, object, string> callback)
+```
+
+**参数说明**
+
+| 字段 | 类型 | 是否必****填 | 说明 |
+| --- | --- | --- | --- |
+| avatarurl | string | 否 | 头像 |
+| nickname | string | 否 | 用户昵称 |
+| sex | number | 否 | 性别 1 男 0 女，无改动传-1 ，不传会默认修改为女性 |
+| wechat_avatarurl | string | 否 | 微信原始头像 |
+
+**调用示例**
+
+```csharp
+data = new UpdateUserInfoArgs()
+{
+ avatarurl = "https://pics5.baidu.com/feed/f9198618367adab4ae93d01f4d2fd5158601e435.jpeg?token=dc16fc242c33735fa67c32567ce5fc0c",
+ sex = -1,
+ wechat_avatarurl = "https://thirdwx.qlogo.cn/mmopen/vi_32/Q0j4TwGTfTK7I2LkIqgwO1cunedHjwesjdRYn3rlJvib9ovibCGG30nibnLI6TCYxjVnuunFw4ZtrRLjf6uuW8L7w/132",
+ nickname = "你的神"
+};
+RuiXueSdk.UpdateUserInfo(data, callback);
+```
+
+#### 响应结构
+
+```json
+{
+ "nickname":"小吉",
+ "avatarurl":"图片地址",
+ "region":"220122",
+ "sex":0
+}
+```
+
+### 修改密码
+
+**接口原型**
+
+```csharp
+void ChangePassword(ChangePasswordArgs args, Actionint, object, string> callback)
+```
+
+#### 参数说明
+
+| 字段 | 类型 | 是否必****填 | 说明 |
+| --- | --- | --- | --- |
+| old_password | string | 是 | 旧密码 |
+| new_password | string | 是 | 新密码 |
+
+**调用示例**
+
+```csharp
+data = new ChangePasswordArgs()
+{
+ old_password = "111111",
+ new_password = "222222",
+};
+RuiXueSdk.ChangePassword(data, callback);
+```
+
+#### 响应结构
+
+```json
+{
+ "code": 0
+}
+```
+
+### 重置密码
+
+**接口原型**
+
+```csharp
+void ResetPassword(ResetPasswordArgs args, Actionint, object, string> callback)
+```
+
+**参数说明**
+
+| 字段 | 类型 | 是否必****填 | 说明 |
+| --- | --- | --- | --- |
+| username | string | 是 | 已经注册过账号的手机号或者邮箱地址用户名。 |
+| password | string | 是 | 新密码编码规则与注册账号时传递的密码编码规则相同。 |
+| captcha_code | string | 是 | 使用 `sendCaptcha` 接口获取用于重置密码的验证码， |
+
+**调用示例**
+
+```csharp
+ data = new ResetPasswordArgs()
+{
+ username = phone1,
+ password = "222222",
+ captcha_code = phone1.Substring(phone1.Length - 4),
+};
+
+RuiXueSdk.ResetPassword(data, callback);
+```
+
+#### 响应结构
+
+```json
+{
+ "code": 0
+}
+```
+
+## 合规
+
+### 实名认证
+
+**接口原型**
+
+```csharp
+void RealAuth(RealAuthArgs args, Actionint, object, string> callback)
+```
+
+#### 参数说明
+
+| 字段 | 类型 | 是否必****填 | 说明 |
+| --- | --- | --- | --- |
+| realname | string | 是 | 真实姓名 |
+| idcard | string | 是 | 身份证号码 |
+
+**调用示例**
+
+```csharp
+data = new RealAuthArgs
+{
+ idcard = "130532197901235712",
+ realname = "乐淳雅"
+};
+RuiXueSdk.RealAuth(data, callback);
+```
+
+#### 响应结构
+
+```json
+{
+ "code": 0,
+ "data": {
+ "age": 18
+ }
+}
+```

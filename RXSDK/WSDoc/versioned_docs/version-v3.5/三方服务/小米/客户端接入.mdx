@@ -1,0 +1,226 @@
+---
+title: "客户端接入"
+---
+
+## 后台接入配置
+- [登录配置说明](/docs/v3.5/三方服务/小米/客户端接入)
+- [支付配置说明](/docs/v3.5/三方服务/小米/客户端接入)
+- [推送配置说明](/docs/v3.5/三方服务/小米/客户端接入)
+
+## 望舒快速接入（必接）
+- [快速接入文档](/docs/v3.5/登录（通行证）/Android 登录API/快速接入)
+
+## 三方渠道接入说明（必读）
+- [三方渠道接入说明](/docs/v3.5/入门指南/快速开始/Android初始化/快速接入)
+
+## 三方渠道官方说明 
+- [快速入口](https://dev.mi.com/platform/appstore)
+---
+## SDK集成
+
+```json
+implementation 'com.ruixue:rxsdk_xiaomi:${version}'
+```
+
+## 参数说明
+
+| 参数   | 类型   | 说明          |
+| ------ | ------ | ------------- |
+| appid  | String | MI_APP_ID 值  |
+| appkey | String | MI_APP_KEY 值 |
+
+## 配置说明
+
+- 在您的项目中，打开 `your_app | Gradle Scripts | build.gradle (Module: app)` 并将以下语句添加到 `defaultConfig{}` 部分：
+
+```groovy
+manifestPlaceholders = [
+    MI_APP_ID    : "xxxxxxx"
+    MI_APP_KEY    : "xxxxxxx"
+]
+```
+
+- 在您的项目根目录中，打开 `your_app | Gradle Scripts | build.gradle (Project)` 并添加以下存储库：
+
+```groovy
+//增加小米游戏SDK的Maven仓库地址
+    maven {
+        url "https://repos.xiaomi.com/maven"
+        credentials {
+            username 'mi-gamesdk'
+            password '<REDACTED>'
+        }
+    }
+```
+
+## 混淆配置
+
+[参考链接](https://dev.mi.com/distribute/doc/details?pId=1420)
+在应用级根目录下打开混淆配置文件`proguard-rules.pro`，加入排除SDK的混淆配置
+
+```
+#小米SDK
+-keep class com.xiaomi.** {*;}
+-keep class com.wali.** {*;}
+-keep class cn.com.wali.** {*;}
+-keep class com.miui.**{*;}
+
+#支付宝SDK
+-keep class com.alipay.android.app.IAlixPay{*;}
+-keep class com.alipay.android.app.IAlixPay$Stub{*;}
+-keep class com.alipay.android.app.IRemoteServiceCallback{*;}
+-keep class com.alipay.android.app.IRemoteServiceCallback$Stub{*;}
+-keep class com.alipay.sdk.app.PayTask{ public *;}
+-keep class com.alipay.sdk.app.AuthTask{ public *;}
+-keep class com.alipay.sdk.app.H5PayCallback {
+    ;
+    ;
+}
+-keep class com.alipay.android.phone.mrpc.core.** { *; }
+-keep class com.alipay.apmobilesecuritysdk.** { *; }
+-keep class com.alipay.mobile.framework.service.annotation.** { *; }
+-keep class com.alipay.mobilesecuritysdk.face.** { *; }
+-keep class com.alipay.tscenter.biz.rpc.** { *; }
+-keep class org.json.alipay.** { *; }
+-keep class com.alipay.tscenter.** { *; }
+-keep class com.ta.utdid2.** { *;}
+-keep class com.ut.device.** { *;}
+
+-dontwarn com.ta.utdid2.**
+-dontwarn com.ut.device.**
+
+-dontwarn com.alipay.mobilesecuritysdk.**
+-dontwarn com.alipay.security.**
+
+-dontwarn android.net.SSLCertificateSocketFactory
+```
+
+## 初始化
+[参考这里](/docs/v3.5/入门指南/快速开始/Android初始化/快速接入)
+
+## 登录 (必须接入)
+请参考 [Android端登录API](/docs/v3.5/登录（通行证）/Android 登录API/快速接入)
+```java
+String username = null;
+String loginType = LoginMethod.MI;
+String captchaCode = null;
+String loginOpenId = null;
+Map ext = null;
+String[] signFields = null;
+Object migrateArgs = null;
+RuiXueSdk.getApi().login(DemoActivity.this, loginType, username, password, captchaCode, loginOpenId, ext, signFields, migrateArgs, new RXJSONCallback() {
+    @Override
+    public void onSuccess(@Nullable JSONObject data) {
+        Toast.makeText(DemoActivity.this, "登录成功", Toast.LENGTH_SHORT).show();
+    }
+
+    @Override
+    public void onFailed(@NonNull JSONObject cause) {
+        Toast.makeText(DemoActivity.this, "登录失败", Toast.LENGTH_SHORT).show();
+    }
+});
+```
+
+## 支付 (开计费必须接入)
+请参考 [Android端支付API](/docs/v3.5/三方服务/小米/客户端接入)
+
+## 三方 SDK 版本信息
+
+使用 `3.3.0.6` 版本
+## 三方SDK错误
+[小米接入SDK错误码](https://dev.mi.com/distribute/doc/details?pId=1105)
+**出现一些小米官方文档缺失的错误码如下，可以根据错误码对应的变量值检查错误信息：**
+```
+public static final int MI_XIAOMI_PAYMENT_SUCCESS = 0;
+public static final int MI_XIAOMI_GAMECENTER_SUCCESS = 0;
+public static final int MI_XIAOMI_PAYMENT_ERROR_CANCEL = -12;
+public static final int MI_XIAOMI_GAMECENTER_ERROR_CANCEL = -12;
+public static final int MI_XIAOMI_PAYMENT_ERROR_RE_LOGIN_WECHAT = -15;
+public static final int MI_XIAOMI_PAYMENT_ERROR_RE_LOGIN_WEIBO = -16;
+public static final int MI_XIAOMI_PAYMENT_ERROR_RE_LOGIN_QQ = -17;
+public static final int MI_XIAOMI_PAYMENT_ERROR_API_FAILED_TO_EXECUTE = -107;
+public static final int MI_XIAOMI_GAMECENTER_ERROR_API_FAILED_TO_EXECUTE = -107;
+public static final int MI_XIAOMI_PAYMENT_ERROR_MITALK_API_EXCEPTION = -108;
+public static final int MI_XIAOMI_PAYMENT_ERROR_CALL_API_REPEATED = -109;
+public static final int MI_XIAOMI_PAYMENT_ERROR_PAY_FAILURE = -18003;
+public static final int MI_XIAOMI_GAMECENTER_ERROR_PAY_FAILURE = -18003;
+public static final int MI_XIAOMI_PAYMENT_ERROR_PAY_CANCEL = -18004;
+public static final int MI_XIAOMI_GAMECENTER_ERROR_PAY_CANCEL = -18004;
+public static final int MI_XIAOMI_PAYMENT_ERROR_PAY_REPEAT = -18005;
+public static final int MI_XIAOMI_GAMECENTER_ERROR_PAY_REPEAT = -18005;
+public static final int MI_XIAOMI_PAYMENT_ERROR_ACTION_EXECUTED = -18006;
+public static final int MI_XIAOMI_GAMECENTER_ERROR_ACTION_EXECUTED = -18006;
+public static final int MI_XIAOMI_ERROR_NETWORK_ERROR = -18008;
+public static final int MI_XIAOMI_PAYMENT_ERROR_PAY_ASYN_SMS_SENT = -6004;
+public static final int MI_XIAOMI_GAMECENTER_ERROR_PAY_ASYN_SMS_SENT = -6004;
+public static final int MI_XIAOMI_PAYMENT_ERROR_PAY_REQUEST_SUBMITTED = -4004;
+public static final int MI_XIAOMI_GAMECENTER_ERROR_PAY_REQUEST_SUBMITTED = -4004;
+public static final int MI_XIAOMI_PAYMENT_ERROR_UNEXIST_ORDER = -19032;
+public static final int MI_XIAOMI_GAMECENTER_ERROR_UNEXIST_ORDER = -19032;
+public static final int MI_XIAOMI_PAYMENT_ERROR_USER_SWITCH_ACCOUNT = -50;
+public static final int MI_XIAOMI_GAMECENTER_ERROR_USER_SWITCH_ACCOUNT = -50;
+public static final int MI_XIAOMI_PAYMENT_ERROR_USER_RESTART = -51;
+public static final int MI_XIAOMI_GAMECENTER_ERROR_USER_RESTART = -51;
+public static final int MI_XIAOMI_PAYMENT_ERROR_ACCOUNT_NOT_EXIST = -103;
+public static final int MI_XIAOMI_GAMECENTER_ERROR_ACCOUNT_NOT_EXIST = -103;
+public static final int MI_XIAOMI_PAYMENT_ERROR_ACCOUNT_PASSWORD_ERROR = -104;
+public static final int MI_XIAOMI_GAMECENTER_ERROR_ACCOUNT_PASSWORD_ERROR = -104;
+public static final int MI_XIAOMI_PAYMENT_ERROR_ACCOUNT_UNACTIVE_ERROR = -105;
+public static final int MI_XIAOMI_GAMECENTER_ERROR_ACCOUNT_UNACTIVE_ERROR = -105;
+public static final int MI_XIAOMI_PAYMENT_ERROR_ACCOUNT_USE_GAME_ACCOUNT = -106;
+public static final int MI_XIAOMI_GAMECENTER_ERROR_ACCOUNT_USE_GAME_ACCOUNT = -106;
+public static final int MI_XIAOMI_PAYMENT_ERROR_CLIENT_APP_ID_INVALID = -6;
+public static final int MI_XIAOMI_GAMECENTER_ERROR_CLIENT_APP_ID_INVALID = -6;
+public static final int MI_XIAOMI_PAYMENT_ERROR_APP_ID_INVALID = -13001;
+public static final int MI_XIAOMI_GAMECENTER_ERROR_APP_ID_INVALID = -13001;
+public static final int MI_XIAOMI_PAYMENT_ERROR_APP_KEY_INVALID = -8;
+public static final int MI_XIAOMI_GAMECENTER_ERROR_APP_KEY_INVALID = -8;
+public static final int MI_XIAOMI_PAYMENT_ERROR_CLIENT_INVALID = -20;
+public static final int MI_XIAOMI_GAMECENTER_ERROR_CLIENT_INVALID = -20;
+public static final int MI_XIAOMI_PAYMENT_ERROR_GOODS_ID_INVALID = -23004;
+public static final int MI_XIAOMI_GAMECENTER_ERROR_GOODS_ID_INVALID = -23004;
+public static final int MI_XIAOMI_PAYMENT_ERROR_HAS_NOT_LOGIN = -11;
+public static final int MI_XIAOMI_GAMECENTER_ERROR_HAS_NOT_LOGIN = -11;
+public static final int MI_XIAOMI_PAYMENT_ERROR_LOGIN_FAIL = -102;
+public static final int MI_XIAOMI_GAMECENTER_ERROR_LOGIN_FAIL = -102;
+public static final int MI_XIAOMI_PAYMENT_ERROR_LOGINOUT_FAIL = -103;
+public static final int MI_XIAOMI_GAMECENTER_ERROR_LOGINOUT_FAIL = -103;
+public static final int MI_XIAOMI_PAYMENT_ERROR_LOGINOUT_SUCCESS = -104;
+public static final int MI_XIAOMI_GAMECENTER_ERROR_LOGINOUT_SUCCESS = -104;
+public static final int MI_XIAOMI_PAYMENT_ERROR_NO_SIM = -9;
+public static final int MI_XIAOMI_GAMECENTER_ERROR_NO_SIM = -9;
+public static final int MI_XIAOMI_PAYMENT_ERROR_SERVER_RETURN_ERROR = -10;
+public static final int MI_XIAOMI_GAMECENTER_ERROR_SERVER_RETURN_ERROR = -10;
+public static final int MI_XIAOMI_PAYMENT_ERROR_PAYFORCARD_FAILE = -20000;
+public static final int MI_XIAOMI_GAMECENTER_ERROR_PAYFORCARD_FAILE = -20000;
+public static final int MI_XIAOMI_PAYMENT_ERROR_CARDNUMERROR = -20001;
+public static final int MI_XIAOMI_GAMECENTER_ERROR_CARDNUMERROR = -20001;
+public static final int MI_XIAOMI_PAYMENT_ERROR_CARDPASSERROR = -20002;
+public static final int MI_XIAOMI_GAMECENTER_ERROR_CARDPASSERROR = -20002;
+public static final int MI_XIAOMI_PAYMENT_ERROR_CARDCARRISNULL = -20003;
+public static final int MI_XIAOMI_GAMECENTER_ERROR_CARDCARRISNULL = -20003;
+public static final int MI_XIAOMI_PAYMENT_ERROR_CARDNUMORPASSERROR = -20004;
+public static final int MI_XIAOMI_GAMECENTER_ERROR_CARDNUMORPASSERROR = -20004;
+public static final int MI_XIAOMI_PAYMENT_ERROR_CARDMONEYERROR = -20005;
+public static final int MI_XIAOMI_GAMECENTER_ERROR_CARDMONEYERROR = -20005;
+public static final int MI_XIAOMI_PAYMENT_ERROR_CREATEORDERFAIL = -20006;
+public static final int MI_XIAOMI_GAMECENTER_ERROR_CREATEORDERFAIL = -20006;
+public static final int MI_XIAOMI_PAYMENT_ERROR_CHARGE_FAIL = -20010;
+public static final int MI_XIAOMI_GAMECENTER_ERROR_CHARGE_FAIL = -20010;
+public static final int MI_XIAOMI_PAYMENT_ERROR_CHARGE_CANCEL = -20011;
+public static final int MI_XIAOMI_GAMECENTER_ERROR_CHARGE_CANCEL = -20011;
+public static final int MI_XIAOMI_PAYMENT_ERROR_CARDNOENOUGHMONY = 20012;
+public static final int MI_XIAOMI_GAMECENTER_ERROR_CARDNOENOUGHMONY = 20012;
+public static final int MI_XIAOMI_EXIT = 10001;
+public static final int MI_XIAOMI_AUTO_LOGIN = 30001;
+public static final int MI_XIAOMI_CHANGE_ACCOUNT_CLOSE = -116;
+public static final int MI_XIAOMI_CHANGE_LOCAL_ACCOUNT = 30002;
+public static final int MI_XIAOMI_SELECT_ACCOUNT_MI = 40001;
+public static final int MI_XIAOMI_SELECT_ACCOUNT_QQ = 40002;
+public static final int MI_XIAOMI_SELECT_ACCOUNT_WX = 40003;
+public static final int MI_XIAOMI_SELECT_ACCOUNT_WB = 40004;
+public static final int MI_XIAOMI_SELECT_ACCOUNT_QQ_WITH_RE_LOGIN = 50002;
+public static final int MI_XIAOMI_SELECT_ACCOUNT_WX_WITH_RE_LOGIN = 50003;
+public static final int MI_XIAOMI_SELECT_ACCOUNT_WB_WITH_RE_LOGIN = 50004;
+public static final int MI_QUERY_ORDER_ERROR = 600001;
+```

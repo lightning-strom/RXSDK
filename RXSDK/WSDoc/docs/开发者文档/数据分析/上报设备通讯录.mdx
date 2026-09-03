@@ -1,0 +1,75 @@
+---
+sidebar_position: 11
+title: 上报设备通讯录
+description: 接入 RXAddressBookSDK / rxsdk_contacts 后，登录成功且用户授权通讯录权限后自动上报设备通讯录。
+---
+
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
+
+接入 SDK 组件后无需客户端操作，登录成功后 SDK 自动获取通讯录权限，用户同意授权后进行上报。
+
+使用了上报通讯录功能，在隐私协议中也要添加使用说明，望舒收集通讯录信息不做具体用途，实际的使用方式由项目方决定。
+
+<Tabs groupId="platform">
+
+<TabItem value="ios" label="iOS">
+
+## SDK 集成
+
+RXSDK_Pure 版本要高于 3.4.38。
+
+编辑 Podfile 文件，添加如下配置：
+
+```objectivec
+pod 'RXAddressBookSDK'
+```
+
+### 工程配置
+
+Info.plist 添加获取通讯录权限 **Privacy - Contacts Usage Description** App 需要您的同意才能访问通讯录，用于获取同玩游戏的好友信息。
+
+![](https://guanwangyun.oss-cn-beijing.aliyuncs.com/document/dataAnalysis/addressbook1.png)
+
+## 初始化
+
+在 [SDK 初始化方法](/docs/开发者文档/性能分析/GPM-SDK接入/快速开始) 之前调用。
+
+**接口原型**
+
+```objectivec
+/**
+ * 初始化
+ */
+- (void)regist;
+```
+
+**调用示例**
+
+```objectivec
+[[RXAddressBookService sharedSDK] regist];
+```
+
+</TabItem>
+
+<TabItem value="android" label="Android">
+
+## SDK 集成
+
+配置 SDK 依赖：在 `app/build.gradle` 文件的 `dependencies` 块中引用 sdk。
+
+:::tip[版本说明]
+`version` 为 SDK 版本号（替换为实际版本号），最新版本请从 [更新日志](/docs/开发者文档/入门指南/更新日志/Android) 中查看。
+:::
+
+```groovy
+implementation 'com.ruixue:rxsdk_contacts:${version}'
+```
+
+:::info[初始化时机]
+在 [Android 瑞雪 SDK 初始化](/docs/开发者文档/入门指南/快速开始/Android初始化/快速接入) 之前完成上述集成；接入后登录成功且用户授权后即自动上报，无需额外客户端调用。
+:::
+
+</TabItem>
+
+</Tabs>

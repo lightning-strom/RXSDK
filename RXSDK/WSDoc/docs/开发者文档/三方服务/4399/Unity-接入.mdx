@@ -1,0 +1,55 @@
+---
+sidebar_position: 3
+title: Unity 接入
+description: "望舒SDK 三方服务 Unity 接入文档，提供详细的功能说明与接入指引。"
+---
+
+## SDK集成
+
+打开 mainTemplate.gradle 文件，在 dependencies 中新增：
+
+
+:::tip[版本说明]
+`version` 为 SDK 版本号（替换为实际版本号），最新版本请从 [更新日志](/docs/开发者文档/入门指南/更新日志/Unity) 中查看。
+:::
+
+```groovy
+ //4399，渠道库必接一个
+ implementation 'com.ruixue:rxsdk_4399:${version}'
+```
+
+## 配置说明
+
+打开 `settingsTemplate.gradle` 文件，在 `dependencyResolutionManagement` 的 `repositories` 块中新增：
+
+```groovy
+ maven {
+ // 4399 SDK 开放仓库：正式
+ url 'https://mvn.4399doc.com/repository/maven-releases'
+ }
+ maven {
+ // 4399 SDK 开放仓库：快照
+ url 'https://mvn.4399doc.com/repository/maven-snapshots'
+ }
+```
+
+初始化第三方渠道
+
+```csharp
+
+ Dictionarystring, object> map = new();
+
+ map.Add("appid", "134794");
+
+ RuiXueSdk.InitThirdSdk(map, InitThirdSdkResponseDelegate, InitThirdSdkErrorDelegate);
+
+ public void InitThirdSdkResponseDelegate(string data)
+ {
+ LogUtil.Log("EventManager", $"RequestResponseDelegate: {data}");
+ }
+ public void InitThirdSdkErrorDelegate(string data)
+ {
+ LogUtil.Log("EventManager", $"RequestErrorDelegate: {data}");
+ }
+
+```

@@ -1,0 +1,383 @@
+---
+sidebar_position: 1
+title: SDK 接入
+description: "望舒SDK 三方服务 SDK 接入文档，提供详细的功能说明与接入指引。"
+---
+
+# 支付宝 IIFAA 实名认证接入文档
+
+本文档说明如何接入SDK 支付宝 IIFAA 实名认证能力，适用于 Android、iOS、Unity 项目。
+
+## 版本要求
+
+| 平台 | 最低版本 | 说明 |
+| --- | --- | --- |
+| Unity SDK | 1.6.24 | Unity 侧生成和接入 IIFAA 实名流程 |
+| Android SDK | 4.0.9 | 提供 IIFAA 授权地址和结果查询接口和实名认证 UI |
+| iOS RXSDK_Pure | 4.0.3 | 提供 IIFAA 授权地址和结果查询接口 |
+| iOS RXUIKit | 4.0.4 | 仅使用望舒实名认证 UI 时需要 |
+
+
+版本过低时请先升级依赖：
+
+Unity ：更新 `Packages/manifest.json` 中 `com.ruixue.unitysdk.*` 版本。
+
+Android ：更新 Gradle 中 `com.ruixue:*` 依赖版本。
+
+iOS ：更新 `Podfile` 后执行 `pod update RXSDK_Pure RXUIKit`。
+
+## 接入方式选择
+
+接入前请先确认是否使用望舒实名认证 UI ：
+
+使用望舒实名认证 UI ：由 SDK UI 组件完成实名界面、支付宝跳转、回前台查询结果等流程。
+
+不使用望舒实名认证 UI ： CP 自行触发授权跳转，并在 App 回到前台后调用结果查询接口。
+
+## 关键流程
+
+非 UI 模式必须按以下流程接入：
+
+调用获取 IIFAA 支付宝授权跳转地址接口。
+
+从返回数据中读取 `data["url"]`。
+
+通过 scheme 打开 `url` 跳转到支付宝。
+
+设置实名流程标记，例如 `isIifaaRealAuthInProgress = true`。
+
+监听 App 回到前台。
+
+只有 `isIifaaRealAuthInProgress == true` 时，调用查询 IIFAA 认证结果接口。
+
+查询结果接口 `retryCount` 固定传 `3`。
+
+查询成功后清除流程标记。
+
+> 注意：不要在非实名流程的前台恢复事件中查询 IIFAA 结果。
+
+## Android 接入
+
+### 使用望舒实名认证 UI
+
+依赖要求：
+
+```groovy
+implementation "com.ruixue:rxsdk_base:4.0.9"
+implementation "com.ruixue:rxsdk_base_ui:4.0.9"
+```
+
+调用示例：
+
+```java
+boolean cancelable = false;
+
+RXSdkUI.getInstance().realAuthUI(activity, cancelable, new RXJSONCallback() {
+    @Override
+    public void onSuccess(JSONObject data) {
+    Log.d("RXSDK", "实名认证成功: " + data);
+    }
+
+    @Override
+    public void onFailed(JSONObject cause) {
+    Log.e("RXSDK", "实名认证失败: " + cause);
+    }
+
+    @Override
+    public void onError(RXException e) {
+    Log.e("RXSDK", "实名认证错误: " + e.getMessage());
+    }
+}).show();
+```
+
+### 不使用望舒实名认证 UI
+
+调用示例：
+
+```java
+private boolean isIifaaRealAuthInProgress = false;
+
+private void startIifaaRealAuth(Activity activity) {
+    String appName = "游戏名称";
+    String thirdPartSchema = "yourapp://";
+
+    RXSdkApi.getInstance().getIIFAARedirectURL(appName, thirdPartSchema, new RXRequestCallback() {
+    @Override
+    public void onResponse(JSONObject jsonObject) {
+    int code = jsonObject.optInt("code", -1);
+    if (code != 0) {
+    Log.e("RXSDK", "获取 IIFAA 授权地址失败: " + jsonObject.optString("msg"));
+    return;
+    }
+
+    JSONObject data = jsonObject.optJSONObject("data");
+    String url = data == null ? "" : data.optString("url");
+    if (TextUtils.isEmpty(url)) {
+    Log.e("RXSDK", "IIFAA 授权地址为空: " + jsonObject);
+    return;
+    }
+
+    isIifaaRealAuthInProgress = true;
+    activity.startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(url)));
+    }
+    });
+}
+
+@Override
+protected void onResume() {
+    super.onResume();
+    if (!isIifaaRealAuthInProgress) {
+    return;
+    }
+
+    queryIifaaResult();
+}
+
+private void queryIifaaResult() {
+    RXSdkApi.getInstance().getIIFAAResultWithRetryCount(3, new RXRequestCallback() {
+    @Override
+    public void onResponse(JSONObject jsonObject) {
+    int code = jsonObject.optInt("code", -1);
+    if (code == 0) {
+    isIifaaRealAuthInProgress = false;
+    Log.d("RXSDK", "IIFAA 认证成功: " + jsonObject);
+    } else {
+    Log.e("RXSDK", "IIFAA 认证结果查询失败: " + jsonObject.optString("msg"));
+    }
+    }
+    });
+}
+```
+
+## iOS 接入
+
+### 使用望舒实名认证 UI
+
+Pod 版本要求：
+
+```ruby
+pod 'RXSDK_Pure', '4.0.3'
+pod 'RXUIKit', '4.0.4'
+```
+
+调用示例：
+
+```objectivec
+#import RXUIKit/RXUIKitService.h>
+
+BOOL canClose = NO;
+
+[[RXUIKitService sharedSDK] setRealauthViewWithCanClose:canClose
+ complete:^(NSDictionary *response, RX_CommonRequestError *error) {
+ if (error) {
+ NSLog(@"实名认证失败: %@", error.responesObject);
+ } else {
+ NSLog(@"实名认证成功: %@", response);
+ }
+}];
+```
+
+### 不使用望舒实名认证 UI
+
+调用示例：
+
+```objectivec
+#import RXSDK_Pure/RXSDK_Pure.h>
+#import UIKit/UIKit.h>
+
+@interface IifaaRealAuthHandler : NSObject
+@property (nonatomic, assign) BOOL isIifaaRealAuthInProgress;
+@end
+
+@implementation IifaaRealAuthHandler
+
+- (instancetype)init {
+ self = [super init];
+ if (self) {
+ [[NSNotificationCenter defaultCenter] addObserver:self
+ selector:@selector(applicationDidBecomeActive)
+ name:UIApplicationDidBecomeActiveNotification
+ object:nil];
+ }
+ return self;
+}
+
+- (void)startIifaaRealAuth {
+ NSString *appName = @"游戏名称";
+ NSString *scheme = @"yourapp://";
+
+ [[RXSDK sharedSDK] getIIFAARedirectURLWithAppName:appName
+ thirdPartSchema:scheme
+ complete:^(NSDictionary *response, RX_CommonRequestError *error) {
+ if (error) {
+ NSLog(@"获取 IIFAA 授权地址失败: %@", error.responesObject);
+ return;
+ }
+
+ NSString *url = response[@"data"][@"url"];
+ if (![url isKindOfClass:[NSString class]] || url.length 0) {
+ NSLog(@"IIFAA 授权地址为空: %@", response);
+ return;
+ }
+
+ self.isIifaaRealAuthInProgress = YES;
+ NSURL *openURL = [NSURL URLWithString:url];
+ if (@available(iOS 10.0, *)) {
+ [[UIApplication sharedApplication] openURL:openURL options:@{} completionHandler:nil];
+ } else {
+ [[UIApplication sharedApplication] openURL:openURL];
+ }
+ }];
+}
+
+- (void)applicationDidBecomeActive {
+ if (!self.isIifaaRealAuthInProgress) {
+ return;
+ }
+
+ [self queryIifaaResult];
+}
+
+- (void)queryIifaaResult {
+ [[RXSDK sharedSDK] getIIFAAResultWithRetryCount:3
+ complete:^(NSDictionary *response, RX_CommonRequestError *error) {
+ if (error) {
+ NSLog(@"IIFAA 认证结果查询失败: %@", error.responesObject);
+ } else {
+ self.isIifaaRealAuthInProgress = NO;
+ NSLog(@"IIFAA 认证成功: %@", response);
+ }
+ }];
+}
+
+@end
+```
+
+## Unity 接入
+
+### 使用望舒实名认证 UI
+
+UPM 版本要求：
+
+```groovy
+{
+ "dependencies": {
+ "com.ruixue.unitysdk.base": "1.6.25",
+ "com.ruixue.unitysdk.login": "1.6.25",
+ "com.ruixue.unitysdk.ui": "1.6.25"
+ }
+}
+```
+
+调用示例：
+
+```csharp
+using RuiXue.LoginUI;
+using UnityEngine;
+
+private void ShowRealAuthUI()
+{
+ RXLoginUI.RealAuthUI(
+ data => Debug.Log("实名认证 UI 成功: " + data),
+ error => Debug.LogError("实名认证 UI 失败: " + error)
+ );
+}
+```
+
+### 不使用望舒实名认证 UI
+
+Unity 自定义 UI 场景可直接调用 `RuiXueSdk` 的 IIFAA 接口。核心逻辑如下：
+
+```csharp
+using RuiXue;
+using RuiXueLitJson;
+using UnityEngine;
+
+public class RuiXueIifaaRealAuth : MonoBehaviour
+{
+ private bool isIifaaRealAuthInProgress;
+
+ public void StartIifaaRealAuth(string appName, string scheme)
+ {
+ RuiXueSdk.GetIIFAARedirectURL(
+ appName,
+ scheme,
+ data =>
+ {
+ string url = GetUrlFromIifaaResponse(data);
+ if (string.IsNullOrEmpty(url))
+ {
+ Debug.LogError("IIFAA 授权地址为空: " + data);
+ return;
+ }
+
+ isIifaaRealAuthInProgress = true;
+ Application.OpenURL(url);
+ },
+ error => Debug.LogError("获取 IIFAA 授权地址失败: " + error)
+ );
+ }
+
+ private void OnApplicationFocus(bool hasFocus)
+ {
+ if (!hasFocus || !isIifaaRealAuthInProgress)
+ {
+ return;
+ }
+
+ QueryIifaaResult();
+ }
+
+ private void QueryIifaaResult()
+ {
+ RuiXueSdk.GetIIFAAResultWithRetryCount(
+ 3,
+ data =>
+ {
+ isIifaaRealAuthInProgress = false;
+ Debug.Log("IIFAA 认证成功: " + data);
+ },
+ error =>
+ {
+ isIifaaRealAuthInProgress = false;
+ Debug.LogError("IIFAA 认证结果查询失败: " + error);
+ }
+ );
+ }
+
+ private static string GetUrlFromIifaaResponse(string json)
+ {
+ JsonData root = JsonMapper.ToObject(json);
+ JsonData data = root.ContainsKey("data") ? root["data"] : root;
+ return data.ContainsKey("url") ? data["url"].ToString() : "";
+ }
+}
+```
+
+## 常见问题
+
+### 1. 获取到的授权地址为空
+
+检查以下配置：
+
+`appName` 是否为空。
+
+`thirdPartSchema` 是否与应用 URL Scheme 配置一致。
+
+望舒后台 / 渠道配置中 IIFAA scheme 是否正确。
+
+SDK 版本是否满足最低版本要求。
+
+### 2. 回到 App 后没有查询认证结果
+
+检查以下逻辑：
+
+跳转前是否设置 `isIifaaRealAuthInProgress = true`。
+
+是否正确监听 `onResume` / `UIApplicationDidBecomeActiveNotification` / `OnApplicationFocus(true)`。
+
+是否只在实名流程中查询结果。
+
+### 3. 查询结果一直失败
+
+确认查询接口传入 `retryCount = 3`。如仍失败，请记录服务端返回的 `code/msg/trace_id` 供排查。

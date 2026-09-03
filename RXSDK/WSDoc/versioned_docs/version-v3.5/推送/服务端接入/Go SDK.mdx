@@ -1,0 +1,168 @@
+---
+title: "Go SDK"
+---
+
+---
+Go SDK
+---
+## 发送推送消息
+
+<strong>接口原型</strong>
+
+```go
+func PusherPush(req *PusherPushReq, productID, channelID string)
+```
+
+### 参数说明
+
+| <strong>字段</strong>
+ | <strong>类型</strong>
+ | <strong>是否必填</strong>
+ | <strong>备注</strong>
+ |
+| ------------------------- | ------------------------- | ----------------------------- | ------------------------- |
+| req
+                   | *[PusherPushReq](/docs/v3.5/推送/服务端接入/服务端 API)
+        | 是
+                        | 推送结构体
+            |
+| productID
+             | string
+                | 是
+                        | 望舒产品 ID
+           |
+| channelID
+             | string
+                | 是
+                        | 望舒渠道 ID
+           |
+
+##### PusherPushReq
+
+| <strong>字段</strong>
+ | <strong>类型</strong>
+ | <strong>是否必填</strong>
+ | <strong>说明</strong>
+ | <strong>示例</strong>
+ |
+| ------------------------- | ------------------------- | ----------------------------- | ------------------------- | ------------------------- |
+| Target
+                | [Target](/docs/v3.5/推送/服务端接入/服务端 API)
+                | 是
+                        | 推送目标信息
+          | 
+                      |
+| PushInfo
+              | [PushInfo](/docs/v3.5/推送/服务端接入/服务端 API)
+              | 是
+                        | 推送内容
+              | 
+                      |
+| TargetUserType| Number| 否| 消息通道 0 正式通道 1 测试通道（华为、vivo、荣耀、苹果支持）|
+
+##### Target
+
+| <strong>字段</strong>
+ | <strong>类型</strong>
+ | <strong>是否必填</strong>
+ | <strong>说明</strong>
+                                                                                                                                     | <strong>示例</strong>
+             |
+| ------------------------- | ------------------------- | ----------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------- |
+| type
+                  | uint8
+                 | 是
+                        | 推送目标类型可选值有：
+0：向全部用户推送
+1：以一个用户望舒 openid 作为身份标识向单个用户推送
+2：以一群用户望舒 openid 作为身份标识向一群用户推送
+ | 0
+                                 |
+| openid
+                | []string
+              | 否
+                        | 望舒 openid，target.type = 1/2 时
+                                                                                                                         | ["openid1"]/["openid1","openid2"]
+ |
+
+##### PushInfo
+
+| <strong>字段</strong>
+ | <strong>类型</strong>
+ | <strong>是否必填</strong>
+ | <strong>说明</strong>
+                                                                                                                                   | <strong>示例</strong>
+                                           |
+| ------------------------- | ------------------------- | ----------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------- |
+| title
+                 | string
+                | 是
+                        | 推送消息的标题
+                                                                                                                                          | "有人抱走了你的猫咪"
+                                            |
+| content
+               | string
+                | 是
+                        | 推送消息的内容
+                                                                                                                                          | "球球被别人抱走了，快去领回来吧"
+                                |
+| action
+
+            | uint8
+                 | 是
+                        | 推送消息点击后的动作：
+0：打开 APP 首页
+1：打开网页
+2：带参数打开 APP
+                                                                          | 0
+                                                               |
+| payload
+               | string
+                | 否
+                        | 推送消息的参数
+根据 push_info.action 的值，填写对应参数
+push_info.action =1 时填写 打开网页的 url 地址
+push_info.action =2 时填写 所携带的参数
+ | "[http://www.4399.com](http://www.4399.com)"
+"roomid=333245"
+ |
+| classification
+        | uint8
+                 | 是
+                        | 消息类型
+0 营销类消息
+1 系统类消息
+                                                                                                                | 0
+                                                               |
+
+<strong>调用示例</strong>
+
+```go
+err := ruixuego.GetDefaultClient().PusherPush(&ruixuego.PusherPushReq{
+   PushInfo: ruixuego.PusherPushReqInfo{
+      Title:          "你的猫咪完成了一次五杀", // 推送标题
+      Content:        "点击观看击杀回放",    // 推送内容
+      Classification: 0,             // 0 营销广告类消息  1 系统类消息
+      Action:         0,             // 0 打开app 1 打开url 2 打开自定义页面
+      Payload:        "",            // action=1 时 传url链接 action=2 传自定义页面IntentURI
+   },
+   Target: ruixuego.PusherPushReqTarget{
+      Type:   2, // 推送目标类型 0 全部设备 1 openid 2 openid列表
+      Openid: []string{"rxuLny_OrLeNDRWUdQLgtVbrKLTL3vBWD4A1b25-", "rxuLny_OrLeNDRWUdQLgtVbrKLTL3vBWD4A1b25-", "rxuLny_OrLeNDRWUdQLgtVbrKLTL3vBWD4A1b25-"},
+   },
+}, "422", "205") //"264", "204")
+```
+
+### 响应结构
+
+| <strong>字段</strong>
+ | <strong>类型</strong>
+ | <strong>是否必填</strong>
+ | <strong>备注</strong>
+   |
+| ------------------------- | ------------------------- | ----------------------------- | --------------------------- |
+| err
+                   | error
+                 | 是
+                        | 成功时 nil,  其他为错误
+ |

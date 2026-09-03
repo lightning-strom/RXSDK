@@ -1,0 +1,215 @@
+---
+title: "iOS"
+---
+
+## 获取意见反馈类型
+
+**接口原型**
+
+```objectivec
+/**
+ * 获取意见反馈类型
+ */
+- (void)getFeedbackKindListWithComplete:(RequestComplete)complete;
+```
+
+**调用示例**
+
+```objectivec
+[[RXFeedbackService sharedSDK] getFeedbackKindListWithComplete:^(NSDictionary * _Nullable response, RX_CommonRequestError * _Nullable error) {
+
+}];
+```
+### 响应结构
+**响应参数（****JSON****）**
+
+**HTTP 状态码：**`200 OK`
+
+| **字段** | **类型**                               | **是否必填** | **说明** | **示例** |
+|--------|--------------------------------------| --- | --- | --- |
+| code   | Number                               | 是   | 响应状态码，0为成功，非0表示出错 | 0   |
+| msg    | String                               | 否   | 响应信息，仅在status为非0时不为空 |     |
+| data | [PageData](/docs/v3.5/意见反馈/客户端接入/iOS) | 否   | 结果  |     |
+
+##### PageData
+
+| **字段** | **类型**                         | **是否必填** | **说明** | **示例** |
+| --- |--------------------------------| --- |--------| --- |
+| page | Number                         | 是   | 第几页    |     |
+| size | Number                         | 是   | 每页大小   |     |
+| total | Number                         | 是   | 总数量    |     |
+| list | [][Kind](/docs/v3.5/意见反馈/客户端接入/iOS) | 是   | 意见反馈数据 |     |
+
+##### Kind
+| **字段** | **类型**                         | **是否必填** | **说明** | **示例** |
+| --- |--------------------------------| --- |--------| --- |
+| id | Number                         | 是   | 唯一ID   |     |
+| name | string                         | 是   | 意见反馈类型 |     |
+| email_reply | Number                         | 是   | 是否邮件回复 |     |
+| is_accident | Number                         | 是   | 是否产生事故 |     |
+| kind_desc | Number                         | 是   | 描述     |     |
+
+**响应示例**
+
+```json
+{ 
+    "code": 0,
+    "data" : {
+      "page": 1,
+      "size" : 10000,
+      "total" : 1,
+      "list" : [
+        { 
+          "id" :  1,
+          "name" : "类型名",
+          "email_reply" : 1,
+          "is_accident" : 0,
+          "kind_desc" : "描述"
+        }
+      ]
+    }
+}
+```
+
+## 创建意见反馈
+
+**接口原型**
+
+```objectivec
+/**
+ * 创建意见反馈
+ * @note params 说明
+ - game_id:游戏ID    #NSInteger
+ - kind_id:意见反馈ID    #NSInteger
+ - kind_name:"意见反馈类型"    #NSString
+ - priority:紧急程度 1:紧急 2:不紧急    #NSInteger
+ - content:"反馈内容"    #NSString
+ - picture:"图片url"    #NSString
+ - player_gameid:"玩家游戏id"    #NSString
+ - send_voided_mails:作废是否发邮件 1:发 2:不发    #NSInteger
+ */
+- (void)createFeedbackWithParams:(NSDictionary *)params
+                        complete:(RequestComplete)complete;
+```
+
+### 参数说明
+
+| **字段**  | **类型**     | **是否必填** | **备注**                                                                           |
+| --------- | ------------ | ------------ | ---------------------------------------------------------------------------------- |
+| game_id      | NSInteger      | 是           | 游戏ID                                                                          |
+| kind_id      | NSInteger      | 是           | 意见反馈ID                                                                         |
+| kind_name    | NSString       | 是           | 意见反馈类型                                                                      |
+| priority     | NSInteger      | 是           | 紧急程度 1:紧急 2:不紧急 |
+| content      | NSString       | 是           | 反馈内容                |
+| picture      | NSString       | 是           | 图片url                  |
+| player_gameid | NSString      | 是           | 玩家游戏id                  |
+| send_voided_mails | NSInteger | 是           | 作废是否发邮件 1:发 2:不发              |
+
+**调用示例**
+
+```objectivec
+NSDictionary *dic = @{
+                      @"game_id": @"(游戏 ID)",
+                      @"kind_id": @(1000000012),
+                      @"kind_name": @"土豆土豆",
+                      @"priority": @(1),
+                      @"content": @"我是从接口来的",
+                      @"picture": @"pic1,pic2,pic3",
+                      @"player_gameid": @"123456"
+};
+[[RXFeedbackService sharedSDK] createFeedbackWithParams:dic complete:^(NSDictionary * _Nullable response, RX_CommonRequestError * _Nullable error) {
+
+}];
+```
+### 响应结构
+**响应参数（****JSON****）**
+
+**HTTP 状态码：**`200 OK`
+
+| **字段** | **类型** | **是否必填** | **说明** | **示例** |
+| --- | --- | --- | --- | --- |
+| code | Number | 是   | 响应状态码，0为成功，非0表示出错 | 0   |
+| msg | String | 否   | 响应信息，仅在status为非0时不为空 |     |
+
+**响应示例**
+
+```json
+{"code": 0}
+```
+## 满意度评价
+
+**接口原型**
+
+```objectivec
+/**
+ * 满意度评价
+ * @note params 说明
+ - key_number:创建意见反馈的ID    #NSInteger
+ - pleased_status:满意度 1:满意 2:不满意    #NSInteger
+ - reason:"理由"    #NSString
+ */
+- (void)satisfactionEvaluationWithParams:(NSDictionary *)params
+                                complete:(RequestComplete)complete;
+```
+
+### 参数说明
+
+| **字段**  | **类型**     | **是否必填** | **备注**                                                                           |
+| --------- | ------------ | ------------ | ---------------------------------------------------------------------------------- |
+| key_number     | NSInteger      | 是           | 创建意见反馈的ID                                                                     |
+| pleased_status | NSInteger      | 是           | 满意度 1:满意 2:不满意                                     |
+| reason         | NSString       | 是           | 理由                                         |
+
+**调用示例**
+
+```objectivec
+NSDictionary *dic1 = @{
+                      @"key_number": @(10),
+                      @"pleased_status": @(1),
+                      @"reason": @"good"
+};
+[[RXFeedbackService sharedSDK] satisfactionEvaluationWithParams:dic1 complete:^(NSDictionary * _Nullable response, RX_CommonRequestError * _Nullable error) {
+
+}];
+```
+### 响应结构
+**响应参数（****JSON****）**
+
+**HTTP 状态码：**`200 OK`
+
+| **字段** | **类型** | **是否必填** | **说明** | **示例** |
+| --- | --- | --- | --- | --- |
+| code | Number | 是   | 响应状态码，0为成功，非0表示出错 | 0   |
+| msg | String | 否   | 响应信息，仅在status为非0时不为空 |     |
+
+**响应示例**
+
+```json
+{"code": 0}
+```
+
+## 上报反馈日志
+
+:::tip
+需要在全局通用回调中监听上报时机[全局通用回调接入说明](/docs/v3.5/入门指南/快速开始/Android初始化/快速接入)。
+:::
+
+**接口原型**
+
+```objectivec
+/**
+ * 上报反馈日志
+ * @note 客服后台创建反馈时生效
+ * @param data 文件二进制
+ */
+- (void)reportFeedbackLogWithData:(NSData *)data
+                         complete:(RequestComplete)complete;
+```
+
+**调用示例**
+
+```objectivec
+[[RXFeedbackService sharedSDK] reportFeedbackLogWithData:data complete:^(NSDictionary * _Nullable response, RX_CommonRequestError * _Nullable error) {
+
+}];
+```

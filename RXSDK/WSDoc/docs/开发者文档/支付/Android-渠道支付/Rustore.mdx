@@ -1,0 +1,62 @@
+---
+sidebar_position: 12
+title: Rustore
+description: "望舒SDK 支付 Rustore Android 接入文档，提供完整的接口调用说明与示例。"
+---
+
+import PayCommon from './_pay-common.mdx';
+
+## 望舒支付配置
+
+## SDK集成
+
+
+:::tip[版本说明]
+`version` 为 SDK 版本号（替换为实际版本号），最新版本请从 [更新日志](/docs/开发者文档/入门指南/更新日志/Android) 中查看。
+:::
+
+```groovy
+implementation 'com.ruixue:rxsdk_rustore:${version}'
+```
+
+### 参数配置
+
+AndroidManifest 配置
+
+宿主 manifest 必须声明以下两项，否则 SDK 在 init / purchase 时抛出 `RuStorePayInvalidConsoleAppId` / `ApplicationSchemeWasNotProvided` ：
+
+```xml
+meta-data
+ android:name="console_app_id_value"
+ android:value="${RUSTORE_CONSOLE_APP_ID你的 RuStore 应用 ID}" />
+
+meta-data
+ android:name="sdk_pay_scheme_value"
+ android:value="${RUSTORE_APP_SCHEME 你的 Deeplink Scheme}" />
+```
+
+宿主 Activity 配置
+
+支付承载 Activity 需声明 `launchMode="singleTop"` 并添加 deeplink `intent-filter` ：
+
+```xml
+activity
+ android:name=".MainActivity"
+ android:launchMode="singleTop">
+</intent-filter>
+ <action android:name="android.intent.action.VIEW">
+ <category android:name="android.intent.category.DEFAULT">
+ <category android:name="android.intent.category.BROWSABLE">
+ <data android:scheme="${RUSTORE_APP_SCHEME 你的 Deeplink Scheme}">
+</intent-filter>
+</activity>
+```
+
+
+### hq_type 值
+
+| hq_type 值 | 说明 |
+| --- | --- |
+| `rustore` | Rustore 支付 |
+
+<PayCommon />

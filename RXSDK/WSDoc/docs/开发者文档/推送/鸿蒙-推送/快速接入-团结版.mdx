@@ -1,0 +1,80 @@
+---
+sidebar_position: 2
+title: 快速接入-团结版
+description: "望舒SDK 消息推送 快速接入-团结版 鸿蒙 接入文档，提供完整的接口调用说明与示例。"
+---
+
+## 推送配置
+
+在团结鸿蒙原生工程，继承自 `UIAbility` 的 ` Ability` 类文件 `onCreate、onNewWant` 函数中添加推送点击统计代码
+
+```plaintext
+tuanjie.TuanjieSendMessage("RuiXueSdk", "OnWant", JSON.stringify(want.parameters));
+```
+
+示例
+
+```csharp
+onCreate(want, launchParam): void {
+ TuanjieLog.info('%{public}s', 'TuanjiePlayerAbility onCreate, bundleCodeDir:' + this.context.bundleCodeDir);
+ if (this.context.resourceManager.getNumber($r('app.integer.ShowStaticSplashScreen'))) {
+ globalThis.showStaticSplashScreen = true;
+ }
+
+ tuanjie.nativeOnCreate(/*this.context.resourceManager*/);
+ TuanjieMainWorker.getInstance().postMessage({
+ type: 'SetGlobalThisContext', data: this.context
+ });
+ globalThis.AbilityContext = this.context;
+ DisplayInfoManager.getInstance().initialize();
+ //推送通知统计
+ TuanjieLog.info('rxsdk onNewWant Get message data successfully: %{public}s', JSON.stringify(want.parameters));
+
+ //新增代码
+ tuanjie.TuanjieSendMessage("RuiXueSdk", "OnWant", JSON.stringify(want.parameters));
+ }
+
+onNewWant(want): void {
+
+ TuanjieLog.info('rxsdk onNewWant Get message data successfully: %{public}s', JSON.stringify(want.parameters));
+
+ //新增代码
+ tuanjie.TuanjieSendMessage("RuiXueSdk", "OnWant", JSON.stringify(want.parameters));
+ }
+```
+
+**接口原型**
+
+```csharp
+
+/**
+ * 注册望舒推送服务（建议望舒登录成功后调用一次，不切换账号不用重复调用）
+ 由于registerToken和望舒账号关联绑定，所以请不要在登录前调用
+ */
+void RegisterToken(Actionint, object, string> callback);
+
+/**
+ * 反注册望舒推送服务（建议在登出账号时调用）
+ */
+void UnRegisterToken(Actionint, object, string> callback);
+
+/**
+ * @return 服务器生成的推送 token/regId
+ */
+string DeivceToken { get; }
+
+/**
+ * 开发者可以为指定用户设置别名，然后给这个别名推送消息，效果等同于给RegId推送消息。
+ * @param alias 要绑定的别名
+ */
+ void BindAlias(string alias);
+
+```
+
+**调用示例**
+
+```plaintext
+
+RuiXueSdk.PushAPI.RegisterToken(RXCallback);
+
+```

@@ -1,0 +1,268 @@
+---
+sidebar_position: 1
+title: 客户端接入
+description: Google iOS / Android 端原生接入指南，包含 SDK 集成、配置说明及接口调用示例。
+---
+
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
+
+在 [Google 开发者](https://play.google.com/) 中创建项目，并获取相关参数。
+
+## 后台接入配置
+
+- [登录配置说明](/docs/开发者文档/三方服务/Google/登录配置说明)
+- [支付配置说明](/docs/开发者文档/三方服务/Google/支付配置说明)
+- [推送配置说明](/docs/开发者文档/三方服务/Google/推送配置说明)
+
+## 望舒快速接入（必接）
+
+[快速接入文档](/docs/开发者文档/入门指南/快速开始/Unity-初始化/快速开始)
+
+## 三方渠道接入说明（必读）
+
+[三方渠道接入说明](/docs/开发者文档/三方服务/三方接入说明)
+
+Google 渠道自动集成 Facebook，Facebook 配置参考：[Facebook 接入说明](/docs/开发者文档/三方服务/Facebook/原生接入)
+
+## SDK 集成
+
+<Tabs groupId="platform">
+
+<TabItem value="ios" label="iOS">
+
+```objectivec
+pod 'RXGoogleSDK'
+```
+
+如需禁止 GoogleSignIn-GoogleSignIn 签名，在 podfile 中添加：
+
+```objectivec
+post_install do |installer|
+  installer.pods_project.targets.each do |target|
+    target.build_configurations.each do |config|
+      if target.respond_to?(:product_type) and target.product_type == "com.apple.product-type.bundle"
+        target.build_configurations.each do |config|
+          config.build_settings['CODE_SIGNING_ALLOWED'] = 'NO'
+        end
+      end
+    end
+  end
+end
+```
+
+### 工程配置
+
+info.plist 中添加 **GIDClientID**，value 为 Google 开发后台凭据中的**客户端 ID**。
+
+![](https://guanwangyun.oss-cn-beijing.aliyuncs.com/document/%E4%B8%89%E6%96%B9/Ow7NbV1wKojoNdxFajBcE6nMngf.png)
+
+URL Types 中添加 Google 后台凭据中的 **iOS 网址架构**。
+
+![](https://guanwangyun.oss-cn-beijing.aliyuncs.com/document/%E4%B8%89%E6%96%B9/Cqqdb3lOBojoI7x2srDcnYbMnUe.png)
+
+</TabItem>
+
+<TabItem value="android" label="Android">
+
+使用 Google `gaid` 时请先调用 `initThirdSdk` 初始化 Google 服务再初始化望舒，否则可能影响激活时 gaid 采集成功率。
+
+:::tip[版本说明]
+`version` 为 SDK 版本号（替换为实际版本号），最新版本请从 [更新日志](/docs/开发者文档/入门指南/更新日志/Android) 中查看。
+:::
+
+```groovy
+// 海外渠道引用此库
+implementation 'com.ruixue:rxsdk_overseas:${version}'
+// 其他渠道使用 Google 登录的，直接引用此库
+implementation 'com.ruixue:rxsdk_google:${version}'
+```
+
+### google-services.json 配置
+
+下载 google-services.json 文件并保存到项目根目录下。
+
+在 build.gradle (Project) 中添加：
+
+```groovy
+dependencies {
+    classpath 'com.google.gms:google-services:4.1.0'
+}
+```
+
+在 build.gradle (Module: app) 中添加：
+
+```groovy
+apply plugin: 'com.google.gms.google-services'
+```
+
+### 参数说明
+
+| 参数 | 类型 | 说明 |
+| --- | --- | --- |
+| clientId | String | initThirdSdk 传入，您的 Google Web 客户端 ID |
+
+### 三方 SDK 版本信息
+
+使用 `1.10.3` 版本
+
+### 依赖信息（aar 接入方式）
+
+```groovy
+api 'com.android.billingclient:billing:4.1.0'
+api 'com.google.android.gms:play-services-auth:20.1.0'
+api 'com.google.android.play:core:1.10.3'
+```
+
+</TabItem>
+
+</Tabs>
+
+## 初始化
+
+<Tabs groupId="platform">
+
+<TabItem value="ios" label="iOS">
+
+```objectivec
+[[RXGoogleService sharedSDK] regist];
+```
+
+### 跳转 openURL
+
+```objectivec
+- (BOOL)application:(UIApplication *)app openURL:(NSURL *)url options:(NSDictionary<NSString *, id> *)options {
+    [[RXSDK sharedSDK] application:app openURL:url options:options];
+    return YES;
+}
+```
+
+</TabItem>
+
+<TabItem value="android" label="Android">
+
+```java
+Map<String, Object> map = new HashMap<>();
+map.put("clientId", "自己的 clientId");
+RuiXueSdk.getRXSdkApi().initThirdSdk(this, map, new RXJSONCallback() {
+    @Override
+    public void onSuccess(@Nullable JSONObject jsonObject) {
+        Log.d(TAG, "init third sdk success");
+    }
+
+    @Override
+    public void onFailed(@NonNull JSONObject jsonObject) {
+        Log.d(TAG, "init third sdk failed " + jsonObject);
+    }
+});
+```
+
+</TabItem>
+
+</Tabs>
+
+## Google 登录
+
+<Tabs groupId="platform">
+
+<TabItem value="ios" label="iOS">
+
+登录结果通过登录 API 统一登录回调返回。
+
+**接口原型**
+
+```objectivec
+/**
+ * Google 登录
+ * @param migrate_args 账号迁移用的参数，非必须
+ * @param sign_fields 指定对登录成功后返回的特定字段使用 CPKEY 计算签名，非必须
+ */
+- (void)GLoginInWithMigrate_args:(id _Nullable)migrate_args
+                     sign_fields:(NSArray * _Nullable)sign_fields;
+```
+
+**调用示例**
+
+```objectivec
+[[RXGoogleService sharedSDK] GLoginInWithMigrate_args:nil sign_fields:@[@"xxx", @"xxx"]];
+```
+
+### 恢复登录
+
+```objectivec
+[[RXGoogleService sharedSDK] GRestorePreviousSignInWithMigrate_args:nil sign_fields:nil];
+```
+
+### 退出登录
+
+Google 退出登录后会清除本地缓存，退出后将无法调用 Google 分享等功能。
+
+```objectivec
+[[RXGoogleService sharedSDK] GLogout];
+```
+
+</TabItem>
+
+<TabItem value="android" label="Android">
+
+请参考 [Android 端登录 API](/docs/开发者文档/登录-通行证/Android-登录API/快速接入)
+
+</TabItem>
+
+</Tabs>
+
+## 支付（开计费必须接入）
+
+请参考 [Android 端支付 API](/docs/开发者文档/支付/功能介绍)
+
+## Google 商品详情查询
+
+<Tabs groupId="platform">
+
+<TabItem value="android" label="Android">
+
+**接口原型**
+
+```java
+void queryProductDetailsAsync(@NonNull List<String> skusList, @NonNull RXStringCallback callback)
+```
+
+**调用示例**
+
+```java
+GoogleSdkWrapper.getInstance().queryProductDetailsAsync(productIdList, new RXStringCallback() {
+    @Override
+    public void onSuccess(@Nullable String data) {
+        RXLogger.i("product info: " + data);
+    }
+
+    @Override
+    public void onFailed(int code, String msg, @Nullable String traceId) {
+        // 处理失败
+    }
+});
+```
+
+**响应示例**
+
+```json
+[
+  {
+    "productId": "com.weile.bombchicken.1001",
+    "type": "inapp",
+    "title": "Diamonds * 10 (Bomb Chick)",
+    "price": "US$0.99",
+    "price_currency_code": "USD"
+  }
+]
+```
+
+</TabItem>
+
+<TabItem value="ios" label="iOS">
+
+iOS 端商品查询请参考 [iOS 支付 API](/docs/开发者文档/支付/功能介绍)。
+
+</TabItem>
+
+</Tabs>

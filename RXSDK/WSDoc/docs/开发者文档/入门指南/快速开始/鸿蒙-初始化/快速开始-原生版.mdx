@@ -1,0 +1,190 @@
+---
+sidebar_position: 1
+title: 快速开始-原生版
+description: "望舒SDK 快速开始-原生版 鸿蒙 接入文档，提供完整的接口调用说明与示例。"
+---
+
+## 准备工作
+
+请登录望舒系统初始化相关服务，如果还没有望舒账号请[查看准备工作说明](/docs/开发者文档/入门指南/准备工作)。
+
+望舒系统地址，可登录企业管理后台 > 已部署项目中查看。
+
+## 环境要求
+
+[DevEco Studio 下载](https://developer.huawei.com/consumer/cn/download/)
+
+[鸿蒙版本SDK 下载](https://pan.jiaxianghudong.com/s/RmAwUrbm4hM)
+
+DevEco Studio ` 5.0.1 Release` 或以上版本
+
+Harmony API 12
+
+## SDK 集成
+
+在工程目录 `oh-package.json5` 文件中添加依赖
+
+```groovy
+"dependencies": {
+ "hmssdk": "file:./libs/arm64-v8a/hmssdk.har"
+ }
+```
+
+## DevEco HarmonyOS 证书配置
+
+**参考链接**
+
+[https://developer.huawei.com/consumer/cn/doc/harmonyos-faqs-V5/faqs-compiling-and-building-54-V5 ](https://developer.huawei.com/consumer/cn/doc/harmonyos-faqs-V5/faqs-compiling-and-building-54-V5)
+
+[https://developer.huawei.com/consumer/cn/doc/harmonyos-guides-V5/ide-signing-V5#section297715173233](https://developer.huawei.com/consumer/cn/doc/harmonyos-guides-V5/ide-signing-V5#section297715173233)
+
+[https://developer.huawei.com/consumer/cn/doc/app/agc-help-debug-app-0000001914423098](https://developer.huawei.com/consumer/cn/doc/app/agc-help-debug-app-0000001914423098)
+
+## SDK 初始化
+
+点击 `File->Build Settings->` Platform 中选择 `OpenHarmony` ，点击 `Export` 导出鸿蒙 DevEco 工程。打开 DevEco 工程，在 `entry` 模块 `src/module.json5` 文件, `metadata` 中添加。
+
+```groovy
+metadata": [
+ {
+ "name": "app_id",
+ "value": "华为AGC后台，鸿蒙应用APP ID"
+ },
+ {
+ "name": "client_id",
+ "value": "华为AGC后台，鸿蒙应用 Client ID"
+ }
+]
+```
+
+调用下方接口初始化SDK
+
+```typescript
+ let config ={
+ desc: "114",
+ cpId: "114",
+ productId: "1002",
+ channelId: "100",
+ baseUrls: ["https://cn-api-test.ruixueyun.com"],
+ privacyEnable: true,
+ // privacy: this.privacy
+ }
+
+ try {
+ Logger.d(`开始初始化API: ${this.config.cpId}`);
+
+ // 使用await代替then链，使代码更清晰
+ const resp = await RXApi.getInstance().init(this.config, this.getUIContext());
+
+ Logger.d("初始化成功:", resp);
+
+ // 统一处理成功提示
+ this.handleSuccessResponse(resp);
+
+ } catch (error) {
+ // 统一错误处理逻辑
+ this.handleApiError(error, `初始化${this.config.cpId}失败`);
+ }
+
+```
+
+## 接入功能
+
+SDK 提供了众多功能。请在初始化 SDK 后，根据项目需要，参考相应功能的文档，接入相应功能。 绝大多数游戏都会接入望舒登录，所以我们推荐从这一功能开始。
+
+### 接入望舒登录
+
+微信登录新增 `wx_appid` 配置
+
+在 entry 工程中 `src/module.json5` 文件, `metadata` 中添加
+
+```groovy
+metadata": [
+ {
+ "name": "wx_appid",
+ "value": "微信开放平台微信应用appid"
+ }
+]
+```
+
+根据开发者指南，[登录（通行证）](/docs/开发者文档/登录-通行证/鸿蒙登录/快速接入-原生版) 完成接入。
+
+### 接入望舒鸿蒙支付
+
+请根据开发者指南，[支付（鸿蒙支付）](/docs/开发者文档/支付/鸿蒙支付/快速接入-原生版) 完成操作。
+
+## DevEco 项目配置
+
+在工程根目录中 `build-profile.json5` 文件, products 数组对象中中添加下面注释中 useNormalizedOHMUrl 配置。
+
+```groovy
+"products": [
+ {
+ "name": "default",
+ "signingConfig": "default",
+ "compatibleSdkVersion": "5.0.0(12)",
+ "runtimeOS": "HarmonyOS",
+
+ //新增配置项
+ "buildOption": {
+ "strictMode": {
+ "useNormalizedOHMUrl": true
+ },
+ }
+ },
+```
+
+在工程中 `entry ->src->main->ets->ability->TuanjiePlayerAbility.ets` 文件添加。
+
+```typescript
+onCreate(want: Want, launchParam: AbilityConstant.LaunchParam): void {
+ ... 原有函数
+ super.onCreate(want, launchParam);
+ RXApi.getInstance().onCreate(want, launchParam)//rxsdkv2.4.0新增代码
+ }
+onNewWant(want: Want, launchParam: AbilityConstant.LaunchParam): void {
+ super.onNewWant(want, launchParam);
+ RXApi.getInstance().onNewWant(want, launchParam)//rxsdkv2.4.0新增代码
+ }
+
+```
+
+## 应用权限配置
+
+应用在申请权限时，需要在项目的配置文件中，逐个声明需要的权限，否则应用将无法获取授权。
+
+### 在配置文件中声明权限
+
+应用需要在 module.json5 配置文件的 requestPermissions 标签中声明权限。详细配置说明[参考华为文档](https://developer.huawei.com/consumer/cn/doc/harmonyos-guides-V13/declare-permissions-V13)
+
+受限权限需要弹窗给用户手动授权，为了提升用户体验，建议自行提前申请。[受限权限列表](https://developer.huawei.com/consumer/cn/doc/harmonyos-guides-V5/restricted-permissions-V5) 详细使用 [参考华为文档](https://developer.huawei.com/consumer/cn/doc/harmonyos-references-V13/js-apis-abilityaccessctrl-V13#checkaccesstokensync10)
+
+```json
+{
+ "module" : {
+ // ...
+ "requestPermissions":[
+ {
+ "name" : "ohos.permission.APP_TRACKING_CONSENT",
+ "reason": "$string:广告标识符权限说明",
+ "usedScene": {
+ "abilities": [
+ "游戏的Ability"
+ ],
+ "when":"inuse"
+ }
+ } ,
+ {
+ "name" : "ohos.permission.READ_PASTEBOARD",
+ "reason": "$string:剪贴板权限用途说明",
+ "usedScene": {
+ "abilities": [
+ "游戏的Ability"
+ ],
+ "when":"inuse"
+ }
+ }
+ ]
+ }
+}
+```

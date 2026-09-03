@@ -1,0 +1,256 @@
+---
+sidebar_position: 1
+title: Android
+description: mumu模拟器 Android 端接入指南，包含 SDK 集成、配置说明及接口调用示例。
+---
+
+## 后台接入配置
+
+[登录配置说明](/docs/开发者文档/三方服务/九游/登录配置说明)
+
+[支付配置说明](/docs/开发者文档/三方服务/九游/支付配置说明)
+
+## 望舒快速接入（必接）
+
+[快速接入文档](/docs/开发者文档/入门指南/快速开始/Unity-初始化/快速开始)
+
+## 三方渠道接入说明（必读）
+
+[三方渠道接入说明](/docs/开发者文档/三方服务/三方接入说明)
+
+---
+
+## 项目根目录增加 maven 库依赖
+
+在项目根目录的 build.gradle 中对应位置添加如下配置
+
+```groovy
+allprojects {
+ repositories {
+ // 新增如下一行
+ maven { url "https://maven-release.webapp.163.com/repository/maven-releases/" }
+ }
+}
+```
+
+## SDK集成
+
+
+:::tip[版本说明]
+`version` 为 SDK 版本号（替换为实际版本号），最新版本请从 [更新日志](/docs/开发者文档/入门指南/更新日志/Android) 中查看。
+:::
+
+```groovy
+ implementation 'com.ruixue:rxsdk_yofun:${version}'
+```
+
+## 包名要求
+
+望舒 3.7.4 更新 mumu 2.0.0 包名信息从 .yofun 修改成 .yofun.mumu
+
+Yofun 要求包名以 .yofun.mumu 结尾，如 com.xxx.xxx.yofun.mumu
+
+## 处理用于角标
+
+[角标资源链接地址](https://oss.ruixueyun.com/upload/20250428/ic_launcher_cover.zip)
+
+## 初始化配置
+
+在 app/build.gradle 中填入网易 Yofun 提供的游戏参数。
+
+```xml
+manifestPlaceholders = [
+ "app_id": "${这里替换为从网易Yofun获取的APP_ID}"
+]
+```
+
+在 app/AndroidManifest.xml 中 application 节点 内配置一个占位节点。
+
+```xml
+meta-data
+ android:name="YOFUN_APP_ID"
+ android:value="${app_id}" />
+```
+
+## 初始化
+
+在 applicaiton 中新增
+
+```java
+    @Override
+    protected void attachBaseContext(Context base) {
+    super.attachBaseContext(base);
+    YofunSdkHelper.install(base);
+    YofunSdkHelper.applicationAttach(this);
+    }
+
+    @Override
+    public void onCreate() {
+    super.onCreate();
+    YofunSdkHelper.applicationCreate(this);
+    }
+```
+
+## 闪屏
+
+闪屏接入方式，在游戏主界面(一般为 MainActivity ，每个游戏可能不一样） onCreate 增加如下方法
+
+```java
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+    super.onCreate(savedInstanceState);
+
+    ... 初始化SDK 代码
+
+    // MUMU SDK 内置了3种类型实现的闪屏（0,1,2）可以自测效果选择调用。
+    int type = 0;
+    YofunSdkHelper.displayChannelLogo(this, type, new Runnable() {
+    @Override
+    public void run() {
+    RXLogger.d("闪屏已显示"); // 闪屏结束回调。
+    }
+    });
+    }
+```
+
+## 监听渠道UI是否展示（保活功能）
+
+```java
+    RuiXueSdk.setRuiXueSdkCallback(new RuiXueSdkCallback() {
+    @Override
+    public void onLogout(int code, String msg) {
+    Log.d("mumu", "退出登录");
+    }
+
+    @Override
+    public void rxPublicCallback(int type, Map<String, Object> map) {
+    super.rxPublicCallback(type, map);
+    // 游戏需要做的就是当收到生命周期UI隐藏的时候（测试MuMu的弹框正在显示），游戏的界面是正常运行的即可（游戏不能暂停，NPC或者角色是可以移动的）
+    if (type == 1) {
+    Log.d("mumu", "UI 展示");
+    // 如果游戏暂停了的话，在这里恢复, Unity 调用示例
+    // 调用 UnityPlayer.resume();
+    }else {
+    Log.d("mumu", "UI 隐藏");
+    }
+    }
+    });
+```
+
+## 登录 (必须接入)
+
+请参考 [Android 端登录 API](/docs/开发者文档/登录-通行证/Android-登录API/快速接入)
+
+```java
+String username = null;
+String loginType = LoginMethod.MUMU;
+String captchaCode = null;
+String loginOpenId = null;
+Map<String, Object> ext = null;
+String[] signFields = null;
+Object migrateArgs = null;
+RuiXueSdk.getApi().login(DemoActivity.this, loginType, username, password, captchaCode, loginOpenId, ext, signFields, migrateArgs, new RXJSONCallback() {
+    @Override
+    public void onSuccess(@Nullable JSONObject data) {
+    Toast.makeText(DemoActivity.this, "登录成功", Toast.LENGTH_SHORT).show();
+    }
+
+    @Override
+    public void onFailed(@NonNull JSONObject cause) {
+    Toast.makeText(DemoActivity.this, "登录失败", Toast.LENGTH_SHORT).show();
+    }
+});
+```
+
+## 支付 (开计费必须接入)
+
+请参考 [Android 端支付 API](/docs/开发者文档/支付/功能介绍)
+
+## 测试模式
+
+网易 Yofun 允许在测试中查看日志信息，在正式发版时，请勿打开测试模式！
+
+**调用示例**
+
+```java
+    YofunSdkHelper.setDebugMode(true);
+```
+
+## 上传游戏事件（必接）
+
+```java
+/**
+    * GameEventInfo 具体字段请根据实际情况填写
+    * roleId: String 角色id (必填)
+    * roleName: String 角色名称 (必填)
+    * serverId: String 区服id (必填)
+    * serverName: String 区服名字 (必填)
+    * roleLevel: long 角色等级 (选填)
+    * roleType: String 角色职业、类型 (选填)
+    * partyName: String 工会名称 (选填)
+    * powerNum: long 战力数值 (选填)
+    * gameVipLevel: long 游戏vip等级 (选填)
+    * gameMoney: long 游戏货币数量 (选填)
+    * GameEventType
+    * LOGIN_SUCCESS
+    * ROLE_CREATE_SUCCESS
+    * ROLE_UPGRADE;
+    */
+YofunSdkHelper.uploadGameEventInfo(Activity activity, GameEventInfo gameInfo, GameEventType gameEventType)
+```
+
+## 混淆配置
+
+```java
+# yofun
+-keep class com.netease.yofun.external.**{*;}
+-keep class com.netease.yofun.network.ServerUrl {*;}
+-keep class com.netease.yofun.network.request.** {*;}
+-keep class com.netease.yofun.network.annotation.** {*;}
+-keep class com.netease.yofun.network.data.**{ *; }
+-keep class com.netease.yofun.wrapper.**{ *; }
+-keep class android.support.**{ *; }
+
+# mumusdk
+-keep class com.mumu.services.** {*;}
+-dontwarn com.mumu.services.external.**
+-keep class android.support.** {*;}
+
+# wechatpay
+-keep class com.tencent.a.** { *; }
+-keep class com.tencent.mm.** { *; }
+-keep class com.tencent.wxop.** { *; }
+-keep class com.tencent.mobileqq.openpay.** { *; }
+
+# alipay
+-dontwarn com.alipay.**
+-keep class com.alipay.android.app.IAlixPay{*;}
+-keep class com.alipay.android.app.IAlixPay$Stub{*;}
+-keep class com.alipay.android.app.IRemoteServiceCallback{*;}
+-keep class com.alipay.android.app.IRemoteServiceCallback$Stub{*;}
+-keep class com.alipay.sdk.app.PayTask{ public *;}
+-keep class com.alipay.sdk.app.AuthTask{ public *;}
+-keep class com.ta.**
+-keep class com.ut.**
+-keep class org.json.alipay.**
+
+# sensorsdata
+-dontwarn com.universal.sensorsdata.analytics.android.**
+-keep class com.universal.sensorsdata.analytics.android.** {
+*;
+}
+```
+
+## 望舒 3.7.4 以下版本更新后修改（新接入无需关注这里）
+
+项目根目录增加 maven 库依赖，看上面文档
+
+包名要求，看上面文档
+
+角标处理，看上面文档
+
+闪屏处理，在游戏主界面按照上面文档增加代码即可，原接入的代码删除掉，否则编译报错
+
+上报游戏事件，字段有必填和选填之分，以前都是必填，注意一下
+
+混淆配置修改，看上面文档

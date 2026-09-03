@@ -1,0 +1,66 @@
+---
+title: "iOS"
+---
+
+## 获取通路配置
+
+**接口原型**
+
+```objectivec
+/**
+ * 获取通路配置
+ */
+- (void)getSharePlatformsWithComplete:(RequestComplete)complete;
+```
+
+**调用示例**
+
+```objectivec
+[[RXShareService sharedSDK] getSharePlatformsWithComplete:^(NSDictionary * _Nullable response, RX_CommonRequestError * _Nullable error) {
+
+}];
+```
+  
+### 响应结构（JSON）
+
+| **字段** | **类型**   | **说明** |
+| ------- | --------- | -------- |
+| code     | Number     | 状态码 0 为成功  |
+| msg      | String     | 失败时的错误信息  |
+| data     | Map[String][Data](/docs/v3.5/分享/功能介绍) | 返回信息, key 为平台名， 例如 wechat 值参考 [API](/docs/v3.5/分享/功能介绍) |
+
+##### 通路配置Data
+
+| **字段**    | **类型** | **说明**                                                                                                         |
+| ----------- | -------- | ---------------------------------------------------------------------------------------------------------------- |
+| lure        | Number   | 诱导类 值参考 [API](/docs/v3.5/分享/功能介绍)   |
+| achievement | Number   | 成就类 值参考 [API](/docs/v3.5/分享/功能介绍)   |
+| special     | Number   | 返回信息 值参考 [API](/docs/v3.5/分享/功能介绍) |
+
+##### 各平台配置
+
+| **平台**  | **值**                                                                      |
+| --------- | --------------- |
+| wechat    | 1:好友 2:朋友圈 -1:不限制                                                   |
+| facebook  | 128 动态 -1:不限制                                                          |
+| qq        | 4:QQ通讯录 8: 快速转发列表 16:QQ空间 32: 微信好友 64: 微信朋友圈 -1: 不限制 |
+| messenger | 1:好友 -1:不限制                                                            |
+| line      | 1:好友                                                                      |
+| tiktok    | 1:好友                                                                      |
+| twitter   | 128:动态                                                                    |
+| system    | -1: 不限制      
+
+**响应示例**
+
+```json
+{
+    "data": {               // 值为-1时表示不限制，值使用 | 运算 为将来扩展做准备
+        "wechat": {         // 微信配置
+            "lure": -1,         // 诱导类
+            "achievement": 1,   // 成就类
+            "special": 2        // 特殊类
+        }
+    },
+     "code": 0
+}
+```

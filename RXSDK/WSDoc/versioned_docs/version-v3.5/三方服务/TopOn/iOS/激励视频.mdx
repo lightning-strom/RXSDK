@@ -1,0 +1,372 @@
+---
+title: "激励视频"
+---
+
+## 手动广告加载
+### 集成建议
+
+1.加载广告：
+在开屏广告展示后，通过提前调用 loadADWithPlacementID 来执行加载广告，以便展示的时候减少用户等待时间。
+
+2.场景统计：
+建议进入展示广告的场景后调用 entryRewardedVideoScenarioWithPlacementID 统计当前广告位的使用场景次数，具体的统计说明可查看广告场景区分不同业务场景的数据。
+
+3.展示广告：
+展示前调用 rewardedVideoReadyForPlacementID 判断广告是否准备好
+YES：即可调用 showRewardedVideoWithPlacementID 进行广告展示；
+NO：需要根据你们的需求决定是否放弃该次展示，预加载下一次广告，还是重新加载广告，等待成功后展示。
+
+4.下一次广告预加载：
+广告展示后，可以在开始播放回调 rewardedVideoDidStartPlayingForPlacementID 或关闭回调 rewardedVideoDidCloseForPlacementID 的回调中调用 loadADWithPlacementID 进行预加载。
+可参考自动请求广告，开启自动请求广告，若已实现上方展示后预加载逻辑，则自动请求不用开启，反之亦然。
+
+5.建议配置预置策略：
+提高首次冷启动的广告加载效果，具体说明和接入教程见[SDK预置策略使用说明](https://help.toponad.com/cn/docs/vkNd2V)
+
+### 注意事项
+1.禁止在 didFailToLoadADWithPlacementID 回调中执行广告加载的方法，否则会引起很多无用请求且可能会导致应用卡顿
+
+2.在加载方法中的 extra 传入的userId，extraData只对下次及之后的激励视频加载生效，对已缓存的激励视频广告不生效
+
+3.避免在 didFinishLoadingADWithPlacementID 回调中直接展示激励视频，若后台开启自动请求广告则SDK会在广告展示后自动请求广告，开发者无法精准控制激励视频展示时机
+
+4.不推荐App处于后台的情况下加载广告，避免系统回收资源引起的不必要的异常
+
+### 加载广告
+
+**接口原型**
+
+```objectivec
+/**
+ * 加载视频广告
+ * @param placementID 需全自动加载广告位Id
+ * @param extra 本地参数
+ */
+- (void)loadADWithPlacementID:(NSString *)placementID
+                        extra:(NSDictionary *)extra;
+```
+
+**调用示例**
+
+```objectivec
+// 加载广告
+- (void)loadAd {
+    // 以下extra中的几个key参数适用于广告平台的服务端激励验证，如果使用将被透传，没有此需要可以不传extra
+    /*
+    NSDictionary *extra = @{
+        kATAdLoadingExtraMediaExtraKey:@"media_val",
+        kATAdLoadingExtraUserIDKey:@"rv_test_user_id",
+        kATAdLoadingExtraRewardNameKey:@"reward_Name",
+        kATAdLoadingExtraRewardAmountKey:@(3),
+        
+        /// 仅游可赢平台可用，当前准备展示广告的rootVC
+//        kATExtraInfoRootViewControllerKey:self,
+        /// 仅游可赢平台可用， 触发的激励类型，1：复活；2：签到；3：道具；4：虚拟货币；5：其他；不设置，则默认为5
+//        kATRewardedVideoKlevinRewardTriggerKey : @1,
+        /// 仅游可赢平台可用， 激励卡秒时长
+//        kATRewardedVideoKlevinRewardTimeKey : @3,
+    };
+    */
+    [[RXTopOnATAdManager sharedSDK] loadADWithPlacementID:self.placementID extra:@{}];
+    [RXTopOnATAdManager sharedSDK].loadingDelegate = self;
+    [RXTopOnATAdManager sharedSDK].rewardDelegate = self;
+}
+```
+
+### 检查广告是否准备完成
+**接口原型**
+
+```objectivec
+/**
+ * 判断当前是否存在可展示的广告
+ */
+- (BOOL)rewardedVideoReadyForPlacementID:(NSString *)placementID;
+```
+
+**调用示例**
+
+```objectivec
+- (void)checkAd {
+    BOOL isready = [[RXTopOnATAdManager sharedSDK] rewardedVideoReadyForPlacementID:self.placementID];
+    if (isready) {
+        NSLog(@"广告准备好了");
+    }else{
+        NSLog(@"广告未准备好");
+    }
+}
+```
+
+### 到达场景统计
+关于统计用户到达场景的相关信息，可前往[广告场景](https://help.toponad.com/cn/docs/ctWq9Q)进行了解。
+
+统计用户到达该场景的几率，呈现在后台的数据 [数据报表 -> 漏斗分析报表 -> 到达广告场景](https://portal.toponad.com/m/report/funnel)
+
+一般在广告场景展示前调用此API。
+
+**接口原型**
+
+```objectivec
+/**
+ * 对应广告位进入业务场景缓存状态统计
+ * @param placementID 广告位Id
+ * @param scene 广告展示场景，可从后台创建场景参数和使用请参考 业务场景缓存状态统计
+ */
+- (void)entryRewardedVideoScenarioWithPlacementID:(NSString *)placementID
+                                            scene:(NSString *)scene;
+```
+
+**调用示例**
+
+```objectivec
+- (void)entryAdScenario {
+    [[RXTopOnATAdManager sharedSDK] entryRewardedVideoScenarioWithPlacementID:self.placementID scene:"your scene id"];
+}
+```
+
+### 展示广告
+
+**接口原型**
+
+```objectivec
+/**
+ * 展示该广告位激励视频广告
+ * @param placementID 需展示的广告位Id
+ * @param scene 场景id
+ * @param viewController 展示广告的viewController
+ */
+- (void)showRewardedVideoWithPlacementID:(NSString *)placementID
+                                   scene:(NSString *)scene
+                        inViewController:(UIViewController*)viewController;
+```
+
+**调用示例**
+
+```objectivec
+- (void)showRewardVideoAd {
+    // 到达场景
+    [self entryAdScenario];
+
+    if ([[RXTopOnATAdManager sharedSDK] rewardedVideoReadyForPlacementID:self.placementID]) {
+        [[RXTopOnATAdManager sharedSDK] showRewardedVideoWithPlacementID:self.placementID scene:"your scene id" inViewController:self];
+    } else {
+//            reload Ads
+        [self loadAd];
+    }
+}
+```
+
+### 加载与展示广告的代理方法
+**遵循协议**
+```objectivec
+@interface RewardViewController ()
+
+@end
+```
+
+**实现代理方法**
+```objectivec
+#pragma mark - delegate
+- (void)didFailBiddingADSourceWithPlacementID:(NSString *)placementID extra:(NSDictionary *)extra error:(NSError *)error { 
+    
+}
+
+- (void)didFailToLoadADSourceWithPlacementID:(NSString *)placementID extra:(NSDictionary *)extra error:(NSError *)error { 
+    
+}
+
+- (void)didFailToLoadADWithPlacementID:(NSString *)placementID error:(NSError *)error { 
+    
+}
+
+- (void)didFinishBiddingADSourceWithPlacementID:(NSString *)placementID extra:(NSDictionary *)extra { 
+    
+}
+
+- (void)didFinishLoadingADSourceWithPlacementID:(NSString *)placementID extra:(NSDictionary *)extra { 
+    
+}
+
+- (void)didFinishLoadingADWithPlacementID:(NSString *)placementID { 
+    
+}
+
+- (void)didStartBiddingADSourceWithPlacementID:(NSString *)placementID extra:(NSDictionary *)extra { 
+    
+}
+
+- (void)didStartLoadingADSourceWithPlacementID:(NSString *)placementID extra:(NSDictionary *)extra { 
+    
+}
+
+- (void)rewardedVideoDidClickForPlacementID:(NSString *)placementID extra:(NSDictionary *)extra { 
+    
+}
+
+- (void)rewardedVideoDidCloseForPlacementID:(NSString *)placementID rewarded:(BOOL)rewarded extra:(NSDictionary *)extra { 
+    
+}
+
+- (void)rewardedVideoDidDeepLinkOrJumpForPlacementID:(NSString *)placementID extra:(NSDictionary *)extra result:(BOOL)success { 
+    
+}
+
+- (void)rewardedVideoDidEndPlayingForPlacementID:(NSString *)placementID extra:(NSDictionary *)extra { 
+    
+}
+
+- (void)rewardedVideoDidFailToPlayForPlacementID:(NSString *)placementID error:(NSError *)error extra:(NSDictionary *)extra { 
+    
+}
+
+- (void)rewardedVideoDidRewardSuccessForPlacemenID:(NSString *)placementID extra:(NSDictionary *)extra { 
+    
+}
+
+- (void)rewardedVideoDidStartPlayingForPlacementID:(NSString *)placementID extra:(NSDictionary *)extra { 
+    
+}
+
+```
+
+## 全自动加载广告
+**介绍**
+
+全自动加载模式，是TopOn推出的一站式请求维护方案，开发者只需要关注调用加载和展示的时机，减少接入时间的成本。
+
+### 集成建议
+
+1.加载广告：
+建议在开屏广告展示后调用 addAutoLoadAdPlacementIDArray 进行全自动激励视频广告的加载，如需设置代理和传入localExtra，请在调用自动加载方法调用前设置。
+
+2.场景统计：
+建议进入展示广告场景后调用 entryAdScenarioWithPlacementID 统计当前广告位的缓存状态，具体的统计说明可查看广告场景区分不同业务场景的数据。
+
+3.展示广告：
+展示前需先调用 autoLoadRewardedVideoReadyForPlacementID 判断广告是否准备好
+YES：即可直接调用 showAutoLoadRewardedVideoWithPlacementID 进行广告展示。
+NO：则跳过这次展示的机会，SDK会加载该广告来填充。
+
+4.服务器回调参数：
+如需支持服务器回调传入userId、extraData，请在具体添加广告位进入自动加载模式前及广告加载 didFinishLoadingADWithPlacementID 回调中调用 setLocalExtra 方法传入自定义参数，可参考示例代码。
+
+### 全自动加载广告
+**接口原型**
+
+```objectivec
+/**
+ * 添加需全自动加载广告位
+ * @param placementIDArray 需全自动加载广告位Id数组
+ */
+- (void)addAutoLoadAdPlacementIDArray:(NSArray  *)placementIDArray;
+```
+
+**调用示例**
+
+```objectivec
+// 全自动加载广告
+- (void)loadAd {
+    [RXTopOnATAdManager sharedSDK].loadingDelegate = self;
+    [RXTopOnATAdManager sharedSDK].rewardDelegate = self;
+    [[RXTopOnATAdManager sharedSDK] addAutoLoadAdPlacementIDArray:@[self.placementID]];
+}
+```
+
+### 全自动加载广告位移除
+**接口原型**
+
+```objectivec
+/**
+ * 移除无需全自动加载广告位
+ * @param placementIDArray 无需全自动加载广告位Id数组
+ */
+- (void)removeAutoLoadAdPlacementIDArray:(NSArray *)placementIDArray;
+```
+
+**调用示例**
+
+```objectivec
+[[RXTopOnATAdManager sharedSDK] removeAutoLoadAdPlacementIDArray:@[self.placementID]];
+```
+
+### 全自动检查广告是否准备完成
+**接口原型**
+
+```objectivec
+/**
+ * 判断该广告位是否存在可展示的广告
+ * @param placementID 需查询的广告位Id
+ */
+- (BOOL)autoLoadRewardedVideoReadyForPlacementID:(NSString *)placementID;
+```
+
+**调用示例**
+
+```objectivec
+- (void)checkAd {
+    BOOL isready = [[RXTopOnATAdManager sharedSDK] autoLoadRewardedVideoReadyForPlacementID:self.placementID];
+    if (isready) {
+            NSLog(@"广告准备好了");
+        }else{
+            NSLog(@"广告未准备好");
+        }
+}
+```
+
+### 全自动到达场景统计
+关于统计用户到达场景的相关信息，可前往[广告场景](https://help.toponad.com/cn/docs/ctWq9Q)进行了解。
+
+统计用户到达该场景的几率，呈现在后台的数据 [数据报表 -> 漏斗分析报表 -> 到达广告场景](https://portal.toponad.com/m/report/funnel)
+
+一般在广告场景展示前调用此API。
+
+**接口原型**
+
+```objectivec
+/**
+ * 对应广告位进入业务场景缓存状态统计
+ * @param placementID 广告位Id
+ * @param scenarioID 广告展示场景，可从后台创建场景参数和使用请参考 业务场景缓存状态统计
+ */
+- (void)entryAdScenarioWithPlacementID:(NSString *)placementID scenarioID:(NSString *)scenarioID;
+```
+
+**调用示例**
+
+```objectivec
+- (void)entryAdScenario {
+    [[RXTopOnATAdManager sharedSDK] entryAdScenarioWithPlacementID:self.placementID scenarioID:"your scene id"];
+}
+```
+
+### 全自动展示广告
+
+**接口原型**
+
+```objectivec
+/**
+ * 展示该广告位激励视频广告
+ * @param placementID 需展示的广告位Id
+ * @param scene 场景id
+ * @param viewController 展示广告的viewController
+ */
+- (void)showAutoLoadRewardedVideoWithPlacementID:(NSString*)placementID scene:( NSString* _Nullable )scene inViewController:(UIViewController*)viewController;
+```
+
+**调用示例**
+
+```objectivec
+- (void)showRewardVideoAd {
+    // 到达场景
+    [self entryAdScenario];
+
+    if ([[RXTopOnATAdManager sharedSDK] autoLoadRewardedVideoReadyForPlacementID:self.placementID]) {
+        [[RXTopOnATAdManager sharedSDK] showAutoLoadRewardedVideoWithPlacementID:self.placementID scene:"your scene id"  inViewController:self];
+    }else{
+        [self loadAd];
+    }
+}
+
+```
+
+### 全自动加载与展示广告的代理方法
+与 [激励视频代理方法](/docs/v3.5/三方服务/TopOn/iOS/激励视频) 相同。

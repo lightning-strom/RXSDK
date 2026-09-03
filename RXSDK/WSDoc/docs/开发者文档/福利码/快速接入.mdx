@@ -1,0 +1,188 @@
+---
+sidebar_position: 2
+title: 快速接入
+description: "望舒SDK 福利码 iOS / Android 接入文档，获取与兑换福利码。"
+---
+
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
+
+## SDK 集成
+
+<Tabs groupId="platform">
+
+<TabItem value="ios" label="iOS">
+
+已经接入过 **RXSDK_Pure** 组件，无需重复接入，只需要更新到 **3.5.25 及以上版本** 即可。
+
+未接入过，则可通过 pod 方式接入，安装 **3.5.25 及以上版本**：
+
+```objectivec
+pod 'RXSDK_Pure'
+```
+
+在需要使用功能的类中引用头文件 `#import <RXSDK_Pure/RXSDK_Pure.h>`
+
+</TabItem>
+
+<TabItem value="android" label="Android">
+
+编辑 build.gradle 文件，并注意安装 **3.5.25 及以上版本**：
+
+:::tip[版本说明]
+`version` 为 SDK 版本号（替换为实际版本号），最新版本请从 [更新日志](/docs/开发者文档/入门指南/更新日志/Android) 中查看。
+:::
+
+```groovy
+implementation 'com.ruixue:rxsdk_base:${version}'
+```
+
+</TabItem>
+
+</Tabs>
+
+## 获取福利码
+
+<Tabs groupId="platform">
+
+<TabItem value="ios" label="iOS">
+
+**接口原型**
+
+```objectivec
+/**
+ * 请求福利码
+ * autoRefresh 是否自动刷新，YES自动刷新并返回福利码，NO不自动刷新
+ */
+- (void)getPromoDisplayKeyWithAutoRefresh:(BOOL)autoRefresh complete:(void(^)(NSDictionary * _Nullable response, RX_CommonRequestError * _Nullable error))complete;
+```
+
+**调用示例**
+
+```objectivec
+[[RXSDK sharedSDK] getPromoDisplayKeyWithAutoRefresh:NO complete:^(NSDictionary * _Nullable response, RX_CommonRequestError * _Nullable error) {
+ if (error == nil) {
+ NSLog(@"福利码结果：%@", response);
+ } else {
+ NSLog(@"福利码失败结果：%@", error.responesObject);
+ }
+}];
+```
+
+</TabItem>
+
+<TabItem value="android" label="Android">
+
+**接口原型**
+
+```java
+void getPromoDisplayKEY(boolean authRefresh, RXRequestCallback callback);
+```
+
+**调用示例**
+
+```java
+RXSDK.getInstance().getPromoDisplayKEY(false, new RXRequestCallback() {
+    @Override
+    public void onResponse(JSONObject jsonObject) {
+        int code = jsonObject.optInt("code", -1);
+        if (code == 0) {
+            // 成功
+        }
+    }
+});
+```
+
+</TabItem>
+
+</Tabs>
+
+### 响应结构（JSON）
+
+| 参数 | 类型 | 备注 |
+| --- | --- | --- |
+| code | Number | 0 为成功 |
+| msg | String | 失败信息 |
+| data | Object | 福利码数据 |
+
+#### data
+
+| 参数 | 类型 | 说明 |
+| --- | --- | --- |
+| refresh_period | Number | 刷新周期 单位分钟 |
+| promo_name | String | 福利码名称 |
+| gift_name | String | 礼包名称 |
+| promo_valid_start | String | 福利码创建时间 |
+| promo_valid_end | String | 福利码有效期结束时间 |
+| promo_code | String | 游戏内显示福利码 |
+| refresh_period_exp | Number | 刷新周期过期时间，小于 1 时轮询 |
+| polling | Number | 轮询间隔时间 秒 |
+
+## 兑换福利码
+
+<Tabs groupId="platform">
+
+<TabItem value="ios" label="iOS">
+
+**接口原型**
+
+```objectivec
+/**
+ * 兑换福利码
+ * cdkey 福利码
+ */
+- (void)exchangePromoCDKEY:(NSString *)cdkey complete:(void(^)(NSDictionary * _Nullable response, RX_CommonRequestError * _Nullable error))complete;
+```
+
+**调用示例**
+
+```objectivec
+[[RXSDK sharedSDK] exchangePromoCDKEY:@"your promo_code" complete:^(NSDictionary * _Nullable response, RX_CommonRequestError * _Nullable error) {
+ if (error == nil) {
+ NSLog(@"兑换结果：%@", response);
+ } else {
+ NSLog(@"兑换失败：%@", error.responesObject);
+ }
+}];
+```
+
+</TabItem>
+
+<TabItem value="android" label="Android">
+
+**接口原型**
+
+```java
+void exchangePromoCDKEY(String cdKey, RXRequestCallback callback);
+```
+
+**调用示例**
+
+```java
+RXSDK.getInstance().exchangePromoCDKEY(code, new RXRequestCallback() {
+    @Override
+    public void onResponse(JSONObject jsonObject) {
+        // 处理兑换结果
+    }
+});
+```
+
+</TabItem>
+
+</Tabs>
+
+### 响应结构（JSON）
+
+| 参数 | 类型 | 备注 |
+| --- | --- | --- |
+| code | Number | 0 为成功 |
+| msg | String | 失败信息 |
+| data | Object | 兑换结果 |
+
+#### data
+
+| 参数 | 类型 | 说明 |
+| --- | --- | --- |
+| prop_id | String | 道具标识 |
+| prop_name | String | 道具名称 |
+| prop_num | String | 道具数量 |

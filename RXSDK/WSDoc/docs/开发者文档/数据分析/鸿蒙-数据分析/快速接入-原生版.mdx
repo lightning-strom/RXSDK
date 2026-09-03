@@ -1,0 +1,70 @@
+---
+sidebar_position: 2
+title: 快速接入-原生版
+description: "望舒SDK 数据分析 快速接入-原生版 鸿蒙 接入文档，提供完整的接口调用说明与示例。"
+---
+
+## 上报事件
+
+可使用此功能将事件上报到望舒大数据后台中。
+
+需要在 SDK 初始化后调用！！！ SDK 只支持上报事件属性，用户属性请使用 [Go SDK](/docs/开发者文档/数据分析/服务端接入/Go-SDK) 进行上报
+
+**接口原型**
+
+```typescript
+/**
+ * 埋点数据上报接口，用于收集用户行为和业务数据
+ * @param data - 埋点数据
+ * @param data.event_name - 事件名称（必填）
+ * 建议使用小写字母和下划线组合（如 "user_login"）
+ * @param data.properties - 事件属性（必填）
+ * 包含事件的详细信息，如 { page: "home", button: "buy" }
+ * @param data.distinct_id - 用户唯一标识（可选）
+ * 用于标识具体用户，未提供时使用默认标识
+ * @returns 返回上报结果（同步）
+ * true - 数据已成功加入上报队列
+ * false - 数据格式错误，未进行上报
+ */
+trackData(data: TrackData): boolean
+
+```
+
+**调用示例**
+
+```typescript
+RXApi.getInstance().trackData({
+ event_name: "test",
+ properties: { now: Date.now() }
+})
+
+```
+
+## 用户行为统计
+
+SDK 会自动收集从 初始化->登录-> 实名认证 产生的用户行为，可在大数据中查看具体行为数据 [用户行为统计](https://nctpoatgf0.feishu.cn/wiki/SqKswRM22ipDKOkvLxCc7jQ5nhb)，客户端可以在望舒预置事件中插入游戏行为统计。
+
+**接口原型**
+
+```typescript
+/**
+ * 用户行为统计
+ */
+trackUserAction(properties: Recordstring, Any>)
+
+/**
+ * 终止用户行为统计
+ */
+stopTrackUserAction()
+```
+
+**调用示例**
+
+```typescript
+// 插入行为统计
+
+RXApi.getInstance().trackUserAction(自定义用户行为字典数据);
+
+// 终止行为统计
+RXApi.getInstance().stopTrackUserAction();
+```

@@ -1,0 +1,53 @@
+---
+sidebar_position: 2
+title: 小游戏支付配置
+description: "望舒SDK 三方服务 小游戏支付配置文档，提供详细的功能说明与接入指引。"
+---
+:::info[文档说明]
+本渠道当前仅提供配置说明，暂无独立的客户端 SDK 接入文档。
+如需了解各渠道覆盖能力，请查看 [渠道矩阵](/docs/开发者文档/三方服务/渠道矩阵)。
+:::
+
+
+
+## 准备工作
+
+淘宝开放平台地址：[https://open.taobao.com/](https://open.taobao.com/)望舒系统地址：[企业管理后台中获取望舒地址](/docs/开发者文档/入门指南/准备工作)。
+
+## 获取配置
+
+登录 [淘宝开放平台](https://open.alipay.com/)，获取相关应用内的参数 `AppSecret`。位置：**开发 > 应用列表> 选中应用 > 概览**。
+
+![](https://guanwangyun.oss-cn-beijing.aliyuncs.com/document/tripartite/taobao/minigame/secret.jpg)
+
+### 望舒系统中配置信息
+
+#### 支付配置
+
+通过获取到的 `AppSecret`,复制到望舒系统的 secret 中。位置：**企业管理后台 > 商务管理> 三方账号管理 > 支付账号管理 > 新建支付账号**。
+
+![](https://guanwangyun.oss-cn-beijing.aliyuncs.com/document/tripartite/taobao/minigame/pay.jpg)
+
+## 配置回调地址
+
+1.淘宝后台-我的应用-点击应用管理-API 服务提供-点击支付相关接口进行测试
+
+![](https://haiqi-ruixue-test.oss-cn-beijing.aliyuncs.com/image-1722934141024.png)
+
+![](https://haiqi-ruixue-test.oss-cn-beijing.aliyuncs.com/image-1722934213694.png)
+
+![](https://haiqi-ruixue-test.oss-cn-beijing.aliyuncs.com/image-1722934323007.png)
+
+![](https://haiqi-ruixue-test.oss-cn-beijing.aliyuncs.com/image-1722934367199.png)
+
+2.填写测试参数:tbOrderSnap 字段填写`{"outOrderId":"望舒订单号"}`， sum 填写订单的金额 元。通过后填写到正式地址。
+
+![](https://haiqi-ruixue-test.oss-cn-beijing.aliyuncs.com/img_v3_02dg_67dae6fb-7433-4d64-8458-6761ac3dcf4g-1722935258757.jpg)
+
+3.回调地址格式：
+
+API 域名/v1/ke/callback/产品 ID@渠道 ID/minigame_taobao 或者 API 域名/v1/ke/callback/f_channel/产品 ID/渠道 ID/minigame_taobao
+
+或直接从望舒游戏发行平台首页中选择对应的渠道包，点击复制参数，获取信息以及回调地址
+
+![](https://haiqi-ruixue-test.oss-cn-beijing.aliyuncs.com/docOnline/image-1727138752019.png)

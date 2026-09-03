@@ -1,0 +1,40 @@
+---
+title: "iOS"
+---
+
+接入 SDK 组件后无需客户端操作，登录成功后 SDK 自动获取通讯录权限，用户同意授权后进行上报。
+
+:::tip
+使用了上报通讯录功能，在隐私协议中也要添加使用说明，望舒收集通讯录信息不做具体用途，实际的使用方式由项目方决定。
+:::
+
+- RXSDK_Pure 版本要高于 3.4.38；
+- 编辑 Podfile 文件，添加如下配置：
+
+```objectivec
+pod 'RXAddressBookSDK'
+```
+
+**工程配置**
+- Info.plist 添加获取通讯录权限 **Privacy - Contacts Usage Description** App需要您的同意才能访问通讯录，用于获取同玩游戏的好友信息。
+![](http://guanwangyun.oss-cn-beijing.aliyuncs.com/document/dataAnalysis/addressbook1.png)
+
+## 初始化
+:::warning
+在 [SDK 初始化方法](/docs/v3.5/入门指南/快速开始/iOS初始化/快速开始) 之前调用。
+:::
+
+**接口原型**
+
+```objectivec
+/**
+ * 初始化
+ */
+- (void)regist;
+```
+
+**调用示例**
+
+```objectivec
+[[RXAddressBookService sharedSDK] regist];
+```

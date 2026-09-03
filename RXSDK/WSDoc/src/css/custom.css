@@ -1,0 +1,299 @@
+/**
+ * Any CSS included here will be global. The classic template
+ * bundles Infima by default. Infima is a CSS framework designed to
+ * work well for content-centric websites.
+ */
+
+/* 望舒 Quiet Earth · 米杏主题（对齐 ai-main soft-oat） */
+:root {
+  /* 主色：沙金橙棕 primary-6 ~ primary-10 */
+  --ifm-color-primary: #b75400;
+  --ifm-color-primary-dark: #954200;
+  --ifm-color-primary-darker: #743100;
+  --ifm-color-primary-darkest: #552100;
+  --ifm-color-primary-light: #d7926b;
+  --ifm-color-primary-lighter: #eab89c;
+  --ifm-color-primary-lightest: #f5d7c7;
+
+  /* 背景：暖白 / 米杏 */
+  --ifm-background-color: #fcf9f8;
+  --ifm-background-surface-color: #f7f4f3;
+
+  /* 正文：深棕 */
+  --ifm-font-color-base: #211914;
+  --ifm-font-color-secondary: #534b47;
+  --ifm-color-emphasis-700: #534b47;
+  --ifm-color-emphasis-600: #7f7975;
+  --ifm-color-emphasis-500: #a39d99;
+  --ifm-color-emphasis-400: #a39d99;
+  --ifm-color-emphasis-300: #dbd6d4;
+  --ifm-color-emphasis-200: #e5e0de;
+  --ifm-color-emphasis-100: #f0ecea;
+
+  /* 边框：暖灰 */
+  --ifm-toc-border-color: #e5e0de;
+  --ifm-hr-border-color: #e5e0de;
+  --ifm-table-border-color: #e5e0de;
+
+  /* 链接 */
+  --ifm-link-color: #b75400;
+  --ifm-link-hover-color: #954200;
+
+  /* Navbar */
+  --ifm-navbar-background-color: #f7f4f3;
+  --ifm-navbar-link-color: #211914;
+  --ifm-navbar-link-hover-color: #b75400;
+  --ifm-navbar-shadow: 0 1px 0 #e5e0de;
+
+  /* 侧栏 / 菜单 */
+  --ifm-menu-color: #211914;
+  --ifm-menu-color-active: #b75400;
+  --ifm-menu-color-background-active: rgba(183, 84, 0, 0.08);
+  --ifm-menu-color-background-hover: rgba(183, 84, 0, 0.05);
+
+  /* 代码高亮行 */
+  --ifm-code-font-size: 95%;
+  --ifm-code-background: #f0ecea;
+  --ifm-pre-background: #f7f4f3;
+  --docusaurus-highlighted-code-line-bg: rgba(183, 84, 0, 0.08);
+
+  /* 侧栏分层 */
+  --ifm-menu-color-background: #f7f4f3;
+
+  /* 搜索弹窗 */
+  --search-local-modal-background: #f7f4f3;
+  --search-local-muted-color: #7f7975;
+  --search-local-hit-background: #fcf9f8;
+  --search-local-hit-color: #534b47;
+  --search-local-highlight-color: #b75400;
+
+  /* 望舒 token（首页等模块复用） */
+  --rx-primary: #b75400;
+  --rx-primary-rgb: 183, 84, 0;
+  --rx-primary-dark: #954200;
+  --rx-primary-darker: #743100;
+  --rx-surface-1: #fcf9f8;
+  --rx-surface-2: #f7f4f3;
+  --rx-surface-3: #f0ecea;
+  --rx-primary-tint: #eab89c;
+  --rx-primary-soft: #f5d7c7;
+  --rx-primary-wash: #fbf3ef;
+
+  /* 文档标题：略小于 Docusaurus 默认（页内 H1 3rem / H2 2rem 偏大） */
+  --ifm-h1-font-size: 1.5rem;
+  --ifm-h2-font-size: 1.25rem;
+  --ifm-h3-font-size: 1.125rem;
+}
+
+/* 侧栏字重与颜色：默认与正文一致，当前页用主色 */
+.menu__list-item .menu__link,
+.menu__link--sublist {
+  font-weight: 400;
+  color: var(--ifm-font-color-base);
+}
+.menu__link--active:not(.menu__link--sublist) {
+  font-weight: 400;
+  color: var(--ifm-menu-color-active);
+}
+.menu__list-item .menu__link:hover:not(.menu__link--active),
+.menu__link--sublist:hover:not(.menu__link--active) {
+  color: var(--ifm-font-color-base);
+}
+
+/* 文档页标题（frontmatter title）：覆盖 Infima .markdown h1:first-child 的 3rem */
+.markdown h1:first-child {
+  --ifm-h1-font-size: 1.5rem;
+  font-size: var(--ifm-h1-font-size);
+  font-weight: 600;
+  margin-bottom: 1rem;
+}
+
+.markdown > h2 {
+  --ifm-h2-font-size: 1.375rem;
+}
+
+.markdown > h3 {
+  --ifm-h3-font-size: 1.125rem;
+}
+
+/* Admonition：亮色下去掉 Infima 默认冷色 */
+.alert--info {
+  --ifm-alert-background-color: var(--rx-surface-3);
+  --ifm-alert-border-color: var(--ifm-color-emphasis-300);
+  --ifm-alert-foreground-color: var(--rx-primary-darker);
+}
+.alert--secondary {
+  --ifm-alert-background-color: var(--rx-surface-2);
+  --ifm-alert-border-color: var(--ifm-color-emphasis-300);
+  --ifm-alert-foreground-color: var(--ifm-font-color-base);
+}
+/* :::tip 使用 alert--success，覆盖默认绿色 */
+.alert--success {
+  --ifm-alert-background-color: var(--rx-primary-wash);
+  --ifm-alert-background-color-highlight: rgba(var(--rx-primary-rgb), 0.12);
+  --ifm-alert-border-color: var(--rx-primary);
+  --ifm-alert-foreground-color: var(--ifm-font-color-base);
+}
+.alert--success a {
+  color: var(--rx-primary);
+  text-decoration: underline;
+}
+.alert--success a:hover {
+  color: var(--rx-primary-dark);
+}
+
+/* Footer：暖黑底（替代默认冷蓝 dark footer） */
+.footer--dark {
+  --ifm-footer-background-color: #1d1a18;
+  --ifm-footer-color: #b5b0ad;
+  --ifm-footer-link-color: #f08e54;
+  --ifm-footer-link-hover-color: #f4a872;
+  --ifm-footer-title-color: #ffffff;
+}
+
+/* 暗夜主题 dark-night */
+[data-theme='dark'] {
+  --ifm-color-primary: #f08e54;
+  --ifm-color-primary-dark: #cc7b4b;
+  --ifm-color-primary-darker: #a96841;
+  --ifm-color-primary-darkest: #824f32;
+  --ifm-color-primary-light: #f4a872;
+  --ifm-color-primary-lighter: #f7bc96;
+  --ifm-color-primary-lightest: #fad0ba;
+
+  --ifm-background-color: #14110f;
+  --ifm-background-surface-color: #1d1a18;
+
+  --ifm-font-color-base: #ffffff;
+  --ifm-font-color-secondary: #b5b0ad;
+  --ifm-color-emphasis-700: #b5b0ad;
+  --ifm-color-emphasis-600: #7e7976;
+  --ifm-color-emphasis-500: #5c5754;
+  --ifm-color-emphasis-400: #5c5754;
+  --ifm-color-emphasis-300: #413c39;
+  --ifm-color-emphasis-200: #312d2a;
+  --ifm-color-emphasis-100: #272321;
+
+  --ifm-toc-border-color: #312d2a;
+  --ifm-hr-border-color: #312d2a;
+  --ifm-table-border-color: #413c39;
+
+  --ifm-link-color: #f08e54;
+  --ifm-link-hover-color: #f4a872;
+
+  --ifm-navbar-background-color: #1d1a18;
+  --ifm-navbar-link-color: #ffffff;
+  --ifm-navbar-link-hover-color: #f08e54;
+  --ifm-navbar-shadow: 0 1px 0 #312d2a;
+
+  --ifm-menu-color: #ffffff;
+  --ifm-menu-color-active: #f08e54;
+  --ifm-menu-color-background-active: rgba(240, 142, 84, 0.12);
+  --ifm-menu-color-background-hover: rgba(240, 142, 84, 0.08);
+
+  --docusaurus-highlighted-code-line-bg: rgba(240, 142, 84, 0.15);
+
+  /* 代码块 */
+  --ifm-code-background: #272321;
+  --ifm-pre-background: #1d1a18;
+
+  /* 侧栏分层 */
+  --ifm-menu-color-background: #1d1a18;
+
+  /* 表格 */
+  --ifm-table-stripe-background: rgba(255, 255, 255, 0.03);
+  --ifm-table-head-background: #272321;
+
+  /* info Admonition：去掉默认青蓝 */
+  --ifm-color-info-contrast-background: #272321;
+  --ifm-color-info-contrast-foreground: #f7bc96;
+  --ifm-color-info-dark: #cc7b4b;
+
+  /* 搜索弹窗 */
+  --search-local-modal-background: #1d1a18;
+  --search-local-muted-color: #7e7976;
+  --search-local-hit-background: #272321;
+  --search-local-hit-color: #b5b0ad;
+  --search-local-hit-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.45);
+  --search-local-highlight-color: #f08e54;
+
+  /* 望舒 token（暗色） */
+  --rx-primary: #f08e54;
+  --rx-primary-rgb: 240, 142, 84;
+  --rx-primary-dark: #f4a872;
+  --rx-primary-darker: #f7bc96;
+  --rx-surface-1: #14110f;
+  --rx-surface-2: #1d1a18;
+  --rx-surface-3: #272321;
+  --rx-primary-tint: #925837;
+  --rx-primary-soft: #3d302a;
+  --rx-primary-wash: #291508;
+}
+
+[data-theme='dark'] .alert--info {
+  --ifm-alert-background-color: #272321;
+  --ifm-alert-border-color: #413c39;
+  --ifm-alert-foreground-color: #f7bc96;
+}
+
+[data-theme='dark'] .alert--success {
+  --ifm-alert-background-color: color-mix(in srgb, var(--rx-primary-wash) 55%, var(--rx-surface-2));
+  --ifm-alert-background-color-highlight: rgba(var(--rx-primary-rgb), 0.18);
+  --ifm-alert-border-color: var(--rx-primary);
+  --ifm-alert-foreground-color: var(--ifm-font-color-base);
+}
+
+[data-theme='dark'] .alert--success a {
+  color: var(--rx-primary);
+}
+
+[data-theme='dark'] .alert--success a:hover {
+  color: var(--rx-primary-dark);
+}
+
+[data-theme='dark'] .menu__list-item .menu__link,
+[data-theme='dark'] .menu__link--sublist {
+  color: var(--ifm-font-color-base);
+}
+
+[data-theme='dark'] .menu__link--active:not(.menu__link--sublist) {
+  color: var(--ifm-menu-color-active);
+}
+
+[data-theme='dark'] .menu__list-item .menu__link:hover:not(.menu__link--active),
+[data-theme='dark'] .menu__link--sublist:hover:not(.menu__link--active) {
+  color: var(--ifm-font-color-base);
+}
+
+[data-theme='dark'] .footer--dark {
+  --ifm-footer-background-color: #14110f;
+  --ifm-footer-color: #b5b0ad;
+  --ifm-footer-link-color: #f08e54;
+  --ifm-footer-link-hover-color: #f4a872;
+  --ifm-footer-title-color: #ffffff;
+}
+
+/* Mermaid：暗夜下图表容器与页面背景融合 */
+[data-theme='dark'] .docusaurus-mermaid-container {
+  background: #1d1a18;
+  border: 1px solid #312d2a;
+  border-radius: 8px;
+  padding: 0.75rem;
+}
+
+.docusaurus-mermaid-container {
+  background: var(--rx-surface-2);
+  border: 1px solid var(--ifm-color-emphasis-200);
+  border-radius: 8px;
+  padding: 0.75rem;
+}
+
+/* category doc link 已承载 index 页时，隐藏侧栏重复条目 */
+.theme-doc-sidebar-item-link.hidden,
+.menu__link.hidden {
+  display: none !important;
+}
+
+.menu__list-item:has(> .menu__link.hidden) {
+  display: none !important;
+}

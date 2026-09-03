@@ -1,0 +1,740 @@
+---
+sidebar_position: 1
+title: 快速接入
+description: "望舒SDK 登录通行证 快速接入 iOS 接入文档，提供完整的接口调用说明与示例。"
+---
+
+## 准备工作
+
+## SDK 集成
+
+接入请前先做好准备工作。
+
+可通过 pod 方式接入通行证 UIKit 组件，并使用通行证 UIKit 相关功能。
+
+在需要使用功能的类中引用头文件#import &lt;RXUIKit_OS/RXUIKit_OS.h>
+
+编辑 Podfile 文件，添加如下配置：
+
+```objectivec
+pod 'RXOSUIKit'
+```
+
+## 初始化
+
+在 [SDK 初始化方法](/docs/开发者文档/性能分析/GPM-SDK接入/快速开始) 之前调用。
+
+**接口原型**
+
+```objectivec tab={"label":"接口原型"}
+/**
+ * 初始化
+ */
+- (void)regist;
+```
+
+```objectivec tab={"label":"调用示例"}
+[[RXOSUIKitService sharedSDK] regist];
+```
+## 登录
+
+"非法注册（限制代码 1 ）" code : 312232 为 注册 ip 限制，默认开启，同一 ip 默认 1 小时注册账号不能超过 2 个，如有需求请联系商务添加 ip 白名单或调整限制条件。"非法注册（限制代码 2 ）" code : 312232 为 注册设备限制，默认关闭，同一设备 x 小时注册账号不能超过 x 个，如有需求请联系商务开启。
+
+### 登录弹窗
+
+设置为登录后强制实名认证时登录成功的数据将在实名认证后返回，并且不会返回实名认证的结果，只会在 UI 上体现实名认证成功。如需要获取实名认证回调数据，请关闭登录后强制实名认证设置，并单独调用实名认证 UI。
+
+**Logo 参考设计稿：**
+
+[微乐通行证 ai](https://guanwangyun.oss-cn-beijing.aliyuncs.com/document/passport/%E5%BE%AE%E4%B9%90%E9%80%9A%E8%A1%8C%E8%AF%81logo1.ai)
+
+[微乐通行证 psd](https://guanwangyun.oss-cn-beijing.aliyuncs.com/document/passport/%E5%BE%AE%E4%B9%90%E9%80%9A%E8%A1%8C%E8%AF%81logo1.psd)
+
+**UI 示例**
+
+![](https://guanwangyun.oss-cn-beijing.aliyuncs.com/document/passportOS/MQhlb7TRnoDW21xIdrmcyQuSnae.png)
+
+![](https://guanwangyun.oss-cn-beijing.aliyuncs.com/document/passportOS/GLipbP55LowCroxKuekc7LGPnOe.png)
+
+**接口原型**
+
+```objectivec
+/**
+ * 调用登录弹窗
+ * @param config 登录页基础配置，默认读取后台配置，优先读取代码配置
+ * @param complete 登录结果
+ */
+- (void)setLoginViewWithConfig:(RXOSUILoginConfig *)config
+ complete:(void(^)(NSDictionary *response, RX_CommonRequestError *error))complete;
+```
+
+#### 参数说明
+
+> RXOSUILoginConfig 结构说明
+
+| 字段 | 类型 | 是否必填 | 备注 |
+| --- | --- | --- | --- |
+| loginTypes | NSArray | 否 | 登录方式，默认读取望舒后台配置，没配置则需要手动传入 |
+| privacies | NSArray | 否 | 协议地址，顺序 0 为用户协议， 1 为隐私协议。默认读取望舒后台配置，没配置则需要手动传入 |
+| privacieTitles | NSArray | 否 | 协议显示名称，顺序为 0 为用户协议， 1 为隐私协议。默认读取望舒后台配置，没配置则需要手动传入 |
+| logoImage | UIImage | 否 | 登录显示的 logo ，不配置显示默认 logo。 **Logo 参考设计稿：**[微乐通行证 ai](https://guanwangyun.oss-cn-beijing.aliyuncs.com/document/passport/%E5%BE%AE%E4%B9%90%E9%80%9A%E8%A1%8C%E8%AF%81logo1.ai)[微乐通行证 psd](https://guanwangyun.oss-cn-beijing.aliyuncs.com/document/passport/%E5%BE%AE%E4%B9%90%E9%80%9A%E8%A1%8C%E8%AF%81logo1.psd) |
+| keyboardType | NSInteger | 否 | 账号密码登录方式键盘类型。1 全键盘 2 数字键盘 3 邮箱键盘 默认全键盘。 |
+| isHistoryViewEnable | BOOL | 否 | 是否展示登录历史弹窗， YES 展示， NO 不展示，默认 YES。 注： SDK 会记录已登录的账号记录，下次调用会展示登录历史弹窗 |
+| needRealAuth | BOOL | 否 | 未实名用户登录成功后是否需要强制实名认证，默认强制。 注：强制实名后登录数据将在实名认证成功后返回。 |
+| canCloseRealAuth | BOOL | 否 | 实名认证是否可关闭，默认不可关闭。 |
+| realAuthRegion | BOOL | 否 | 海外根据不同地区展示不同样式的实名认证 UI ，默认 姓名+身份证样式，目前支持 VN （越南地区样式）。 |
+| setFirstNeedSetPassword | BOOL | 否 | 验证码登录的新用户是否弹出设置密码，默认不弹出。注：弹出设置密码后登录数据将在设置成功或关闭设置页面后返回。 |
+| setQuickButtonBarVisible | BOOL | 否 | 是否显示底部快速登录按钮，默认显示。 |
+| setDeregisterShow | BOOL | 否 | 处于注销中的用户登录后是否显示注销窗口，默认不显示 |
+| setLoginContinue | BOOL | 否 | 如果账号在注销中是继续登录还是退出登录, YES 继续登录， NO 退出登录，默认 NO |
+| setCustomParams | NSDictionary | 否 | 自定义参数 |
+| permissionsArray | NSArray | 否 | FaceBook、Line 登录权限数组 |
+| setShowPrivacy | BOOL | 否 | 设置隐私协议是否显示开关， YES 显示 NO 不显示，默认 YES |
+| isAudit | BOOL | 否 | 是否为审核模式，审核模式只展示苹果登录，且和正常样式不同， YES 开启 NO 关闭，默认 NO |
+| setCustomExt | NSDictionary | 否 | 自定义透传参数 |
+
+> setCustomExt 结构说明
+
+| 字段 | 类型 | 是否必填 | 备注 |
+| --- | --- | --- | --- |
+| bigdata_ext | NSDictionary | 否 | 大数据预置事件透传参数 |
+
+> loginTypes 结构说明
+
+| 字段 | 备注 |
+| --- | --- |
+| guest | 游客登录 |
+| username | 账号登录 |
+| captchacode | 验证码登录 |
+| apple | 苹果登录 |
+| google | 谷歌登录，需要先接入 Google 配置，请参考 [Google 接入](/docs/开发者文档/三方服务/Google/原生接入) |
+| facebook | facebook 登录，需要先接入 Facebook 配置，请参考 [Facebook 接入](/docs/开发者文档/三方服务/Facebook/原生接入) |
+| line | line 登录，需要先接入 Line 配置，请参考 [Line 接入](/docs/开发者文档/三方服务/Line/原生接入) |
+| zalo | zalo 登录，需要先接入 Zalo 配置，请参考 [Zalo 接入](/docs/开发者文档/三方服务/Zalo/原生接入) |
+| instagram | instagram 登录，需要先接入 Instagram 配置，请参考 [Instagram 接入](/docs/开发者文档/三方服务/Instagram/原生接入) |
+| tiktok | tiktok 登录，需要先接入 Tiktok 配置，请参考 [Tiktok 接入](/docs/开发者文档/三方服务/TikTok/原生接入) |
+| reddit | reddit ，需要先接入 Reddit 配置，请参考 [Reddit 接入](/docs/开发者文档/三方服务/Reddit/原生接入) |
+
+**调用示例**
+
+```objectivec
+RXOSUILoginConfig *loginConfig = [[RXOSUILoginConfig alloc] init];
+loginConfig.loginMethods = @[@"apple", @"username", @"guest", @"wechat", @"captchacode", @"quickphone"];
+loginConfig.privacies = @[@"https://xxx.com", @"https://xxx.com"];
+loginConfig.privacieTitles = @[@"用户协议", @"隐私政策"];
+
+// 【可选】大数据预置事件透传参数
+// config.setCustomExt = @{@"bigdata_ext" : @{@"a" : @"b"}};
+[[RXOSUIKitService sharedSDK] setLoginViewWithConfig:loginConfig complete:^(NSDictionary * _Nonnull response, RX_CommonRequestError * _Nonnull error) {
+ if (!error) {
+ NSLog(@"%@",response);
+ }else{
+ NSLog(@"%@",error.responesObject);
+ }
+}];
+```
+
+### 登录回调
+
+登录结果通过 **delegate** 或 **block** 方式进行回调，两种方式数据结构一致，推荐使用 **block** 方式。
+
+注意：指定了 delegate 必须要实现，否则会引起闪退问题，不指定则不用实现。
+
+**delegate** 方式实现如下：
+
+在需要接收回调的类中添加代理，并指定接受者实现代理方法。
+
+`<RXOSUILoginDelegate>`
+
+**接口原型**
+
+```objectivec tab={"label":"接口原型"}
+/**
+ * 登录回调
+ * @param response 返回数据，登录失败返回nil
+ * @param error 错误返回，登录成功返回nil
+ */
+- (void)rxu_LoginCallBackWithResponse:(NSDictionary * _Nullable)response error:(RX_CommonRequestError *)error;
+```
+
+```objectivec tab={"label":"调用示例"}
+- (void)rxu_LoginCallBackWithResponse:(NSDictionary *)response error:(RX_CommonRequestError *)error
+{
+ if (!error) {
+ NSLog(@"%@",response);
+ }else{
+ NSLog(@"%@",error.responesObject);
+ }
+}
+```
+#### 响应结构
+
+请参考 [服务端登录 API](/docs/开发者文档/用户信息/获取指定用户信息)响应结构
+
+### 同步账号记录
+
+用于同步非望舒的账号密码登录记录，需要在调用登录 UI 前调用同步。
+
+**接口原型**
+
+```objectivec tab={"label":"接口原型"}
+/**
+ * 同步账号登录记录
+ * @param accounts 账号数组
+ * ！accounts结构说明:
+ * @[@{@"username" : @"", @"password" : @""}]
+ */
+- (void)syncAccounts:(NSArray NSDictionary *> *)accounts;
+```
+
+```objectivec tab={"label":"调用示例"}
+// value 仅为示例
+[[RXOSUIKitService sharedSDK] syncAccounts:@[@{@"username" : @"用户名1", @"password" : @"密码1"}, @{@"username" : @"用户名2", @"password" : @"密码2"}]];
+```
+#### 参数说明
+
+> accounts 结构说明
+
+| 字段 | 备注 |
+| --- | --- |
+| username | 账号 |
+| password | 密码 |
+
+### 忘记密码
+
+**UI 示例**
+
+![](https://guanwangyun.oss-cn-beijing.aliyuncs.com/document/passportUI/CVzcb8xSJoaLLexU7xjcttPpnGK.png)
+
+**接口原型**
+
+==使用扩展方式请注意， requestParams 为 retrun block ， params 会将手机号或邮箱，密码等参数返回，由客户端处理业务逻辑， SDK 会根据 return 的 needBreak 参数决定是否继续执行。
+
+详情请参考调用示例。==
+
+```objectivec
+
+/**
+ * 忘记密码
+ */
+- (void)getBackPasswordWithComplete:(void(^)(NSDictionary *response, RX_CommonRequestError *error))complete;
+
+/**
+ * 忘记密码 扩展方式
+ * @param params 页面配置信息
+ * ！username 默认填充的账号 #NSString类型
+ * ！account_type 账号类型提示 （1-通用提示 ，2-手机号提示，3-邮箱提示 [可选 默认 2]） #NSInteger类型
+ * ！password_hint 输入密码提示文本 #NSString类型
+ * @param requestParams 回调函数
+ * ！params 会将手机号或邮箱，密码等参数返回，由客户端处理业务逻辑，SDK会根据 return 的 needBreak 参数决定是否继续执行
+ * 详情请参考文档示例
+ */
+- (void)getBackPasswordWithParams:(NSDictionary *)params
+ requestParams:(NSMutableDictionary *(^)(NSMutableDictionary *params))requestParams
+ complete:(void(^)(NSDictionary *response, RX_CommonRequestError *error))complete;
+```
+
+#### 参数说明
+
+> params 结构说明
+
+| 字段 | 类型 | 是否必填 | 备注 |
+| --- | --- | --- | --- |
+| username | NSString | 否 | 默认填充的账号。 |
+| account_type | int | 否 | 账号类型提示 （ 1-通用提示 ， 2-手机号提示， 3-邮箱提示 [默认 2]）。 |
+| password_hint | NSString | 否 | 输入密码提示文本。海外需要自行处理国际化。 |
+
+**调用示例**
+
+```objectivec tab={"label":"接口原型"}
+[[RXOSUIKitService sharedSDK] getBackPasswordWithComplete:^(NSDictionary * _Nonnull response, RX_CommonRequestError * _Nonnull error) {
+ if (!error) {
+ NSLog(@"%@",response);
+ }else{
+ NSLog(@"%@",error.responesObject);
+ }
+}];
+
+// 扩展方式
+NSDictionary *dic = @{@"username" : @"",
+ @"account_type" : @(1),
+ @"password_hint" : @"请输入密码"};
+[[RXOSUIKitService sharedSDK] getBackPasswordWithParams:dic requestParams:^NSMutableDictionary * _Nonnull(NSMutableDictionary * _Nonnull params) {
+ NSLog(@"params = %@", params);
+ NSMutableDictionary *dic = [NSMutableDictionary dictionaryWithDictionary:params];
+ // 会将手机号或邮箱，密码等参数返回，由客户端处理业务逻辑，SDK会根据 return 的 needBreak 参数决定是否继续执行
+ // needBreak = YES 为 不继续执行
+ // needBreak = NO或不传 为 继续执行
+ // [dic setValue:@YES forKey:@"needBreak"];
+ return dic;
+} complete:^(NSDictionary * _Nonnull response, RX_CommonRequestError * _Nonnull error) {
+ if (!error) {
+ NSLog(@"%@",response);
+ }else{
+ NSLog(@"%@",error.responesObject);
+ }
+}];
+```
+
+```json tab={"label":"响应示例"}
+{
+ "code": 0
+}
+```
+### 撤销账号注销
+
+因翻译问题海外版暂不支持自定义按钮文案，可根据调用接口设置的文案和 complete 回调中的文案对比。
+
+**UI 示例**
+
+![](https://guanwangyun.oss-cn-beijing.aliyuncs.com/document/passportUI/TZtrbxGwNo9cR3x9Z05cZshdnvk.png)
+
+**接口原型**
+
+```objectivec
+/**
+ * 撤销注销 自定义非撤销注销按钮文案
+ * @param btnTitle 按钮标题
+ * @param complete 点击回调
+ * @note 回调统一为 {"code":0, "data":{"btn_title":"xxx", "btn_type":0}} 结构；btn_title 为“撤销注销”时 btn_type = 1，否则为 0
+ */
+- (void)destroyAccountStatusUIWithBtnTitle:(NSString *)btnTitle
+ complete:(void(^)(NSDictionary *response, RX_CommonRequestError *error))complete;
+```
+
+#### 参数说明
+
+| 字段 | 备注 |
+| --- | --- |
+| btnTitle | 右侧按钮文案 |
+
+**调用示例**
+
+```objectivec
+[[RXOSUIKitService sharedSDK] destroyAccountStatusUIWithBtnTitle:@"123" complete:^(NSDictionary * _Nonnull response, RX_CommonRequestError * _Nonnull error) {
+
+}];
+```
+
+#### 响应结构
+
+> complete 结构说明
+
+| 字段 | 备注 |
+| --- | --- |
+| btn_title | 设置的按钮文案 |
+| DestroyClickType_logout | 退出登录。 |
+
+```json
+{
+ "code": 0,
+ "data": {
+ "btn_title": "设置的按钮文案",
+ }
+}
+```
+
+## 合规
+
+### 协议声明
+
+**UI 示例**
+
+![](https://guanwangyun.oss-cn-beijing.aliyuncs.com/document/login/feishu-protocol.jpeg)
+
+**接口原型**
+
+```objectivec
+
+/**
+ * 协议声明
+ * @note 全屏H5样式
+ * @param key 默认展示的条款key
+ * @param keyList 要展示的协议列表
+ */
+- (void)setProtocolViewWithKey:(NSString *)key
+ keyList:(NSArray *)keyList;
+
+```
+
+#### 参数说明
+
+> key 说明
+
+| key | 备注 |
+| --- | --- |
+| 00001 | 用户服务协议 |
+| 00002 | 隐私保护指引 |
+| 00003 | 第三方 SDK 目录 |
+| 00004 | 健康游戏公告 |
+| 00005 | 适龄提示 |
+| 00006 | 绿色游戏公告 |
+| 00007 | 版号信息 |
+| 00008 | 游戏账号注销条件 |
+| 00009 | 游戏账号注销协议 |
+| 00010 | 其他 |
+
+**调用示例**
+
+```objectivec
+
+[[RXOSUIKitService sharedSDK]setProtocolViewWithKey:@"00002" keyList:@[@"00001", @"00002", @"00003"]];
+
+```
+
+### 实名认证
+
+越南地区仅支持全屏模式。
+
+**UI 示例**
+
+**窗口模式**
+
+![](https://guanwangyun.oss-cn-beijing.aliyuncs.com/document/passportUI/EqUpbAcX4oLppCxVjmucUDhXnbf.png)
+
+![](https://guanwangyun.oss-cn-beijing.aliyuncs.com/document/passportUI/DQnIbSsRboq8Cmx67JLcSK4vnCd.png)
+
+**全屏模式**
+
+**通用样式**
+
+![](https://guanwangyun.oss-cn-beijing.aliyuncs.com/document/login/authendoc.png)
+
+**越南样式**
+
+![](https://guanwangyun.oss-cn-beijing.aliyuncs.com/document/login/authvndoc.png)
+
+**接口原型**
+
+```objectivec
+/**
+ * 实名认证窗口模式
+ * @param canClose 是否展示关闭按钮
+ */
+- (void)setRealauthViewWithCanClose:(BOOL)canClose
+ complete:(void(^)(NSDictionary *response, RX_CommonRequestError *error))complete;
+
+/**
+ * 实名认证全屏模式
+ * @note 不同地区的实名认证样式不同
+ * @param region 地区
+ * @param canClose 是否展示关闭按钮，默认不展示
+ */
+- (void)setRealauthViewH5WithRegion:(NSString *)region
+ canClose:(BOOL)canClose
+ complete:(void(^)(NSDictionary *response, RX_CommonRequestError *error))complete;
+```
+
+#### 参数说明
+
+| 字段 | 类型 | 备注 |
+| --- | --- | --- |
+| canClose | BOOL | 是否展示关闭按钮 |
+
+**调用示例**
+
+```objectivec
+// 窗口模式
+[[RXOSUIKitService sharedSDK] setRealauthViewWithCanClose:NO complete:^(NSDictionary * _Nonnull response, RX_CommonRequestError * _Nonnull error) {
+ if (!error) {
+ NSLog(@"%@",response);
+ }else{
+ NSLog(@"%@",error.responesObject);
+ }
+}];
+
+// 全屏模式
+[[RXOSUIKitService sharedSDK] setRealauthViewH5WithRegion:@"VN" canClose:YES complete:^(NSDictionary * _Nonnull response, RX_CommonRequestError * _Nonnull error) {
+if (!error) {
+ NSLog(@"%@",response);
+ }else{
+ NSLog(@"%@",error.responesObject);
+ }
+}];
+```
+
+#### 响应结构（JSON）
+
+data 中字段可能为空。
+
+| 字段 | 类型 | 说明 |
+| --- | --- | --- |
+| age | Number | 从实名信息中提取的年龄信息 |
+| limit | bool | 防沉迷开关 :true 开启 false 未开启 |
+| aas | Number | 剩余时间（秒） |
+
+**响应示例**
+
+```json
+{
+ "code": 0,
+ "data": {
+ "age": 18,
+ "limit" : true,
+ "aas" : 3600
+ }
+}
+```
+
+### 防沉迷
+
+不支持多语言自动翻译，调用时需要传入对应语言的文本内容。
+
+**UI 示例**
+
+![](https://guanwangyun.oss-cn-beijing.aliyuncs.com/document/passportUI/ME2WbRltPolLxnx0bSMcsZpcnlb.png)
+
+**接口原型**
+
+```objectivec
+/**
+ * 防沉迷
+ * @param title 标题
+ * @param des 内容
+ * @param btnTitle 按钮标题，点击后block回调
+ */
+- (void)setAntiAdditionViewWithTitle:(NSString *)title
+ des:(NSString *)des
+ btnTitle:(NSString *)btnTitle
+ complete:(void(^)(void))complete;
+```
+
+#### 参数说明
+
+| 字段 | 类型 | 备注 |
+| --- | --- | --- |
+| title | NSString | 标题 |
+| des | NSString | 内容 |
+| btnTitle | NSString | 按钮标题，点击后 block 回调 |
+
+**调用示例**
+
+```objectivec
+// 不支持多语言自动翻译，调用时需要传入对应语言的文本内容。
+[[RXOSUIKitService sharedSDK] setAntiAdditionViewWithTitle:@"提示" des:@"根据国家最新法规规定，未进行实名认证的用户不能体验任何游戏内容，请尽快完成实名。当前账号未进行实名认证，游戏累计时间超过1小时将强制下线休息，且无法进行充值操作。请合理安排游戏时间，做适当的身体活动。" btnTitle:@"test" complete:^{
+
+}];
+```
+
+## 用户中心
+
+在操作的结果页产生事件时会通过回调不同的 type ，具体说明请参考响应结构。
+
+### 展示用户信息
+
+**UI 示例**
+
+![](https://haiqi-ruixue-test.oss-cn-beijing.aliyuncs.com/docOnline/image-1724034283236.png)
+
+**绑定手机号码**
+
+![](https://haiqi-ruixue-test.oss-cn-beijing.aliyuncs.com/docOnline/image-1724034312170.png)
+
+**绑定邮箱**
+
+![](https://haiqi-ruixue-test.oss-cn-beijing.aliyuncs.com/docOnline/image-1724034345536.png)
+
+**接口原型**
+
+```objectivec
+/**
+ * 用户中心
+ * @param config 基础配置
+ */
+- (void)userCenterWithConfig:(RXOSUserCenterConfig *)config
+ complete:(void(^)(NSDictionary *response, RX_CommonRequestError *error))complete;
+
+/**
+ * 关闭用户中心
+ */
+- (void)closeUserCenter;
+```
+
+#### 参数说明
+
+> RXOSUserCenterConfig 结构说明
+
+| 字段 | 类型 | 备注 |
+| --- | --- | --- |
+| logoImage | UIImage | 显示的 logo ，没配置则读取调用登录 UI 时的 logoImage |
+| transmit_args | NSString | 透传数据，使用 jsonString 形式 |
+| game_user_id | NSString | 用户的游戏 id ，不传在望舒后台不会账号注销页面不显示游戏侧的用户 id |
+| nickname | NSString | 用户昵称 |
+| head_img_url | NSString | 用户头像 |
+| queue_name | NSString | 在望舒客服系统设置的接入点名称 不填写默认为 default |
+| setConfigParams | NSDictionary | 用户中心配置，默认读取望舒后台配置 |
+| setSyncInfoEnable | BOOL | 用户中心是否展示同步信息按钮， YES 为展示， NO 为不展示，默认不展示，用于同步三方信息 |
+
+> setConfigParams 说明
+
+| 字段 | 类型 | 备注 |
+| --- | --- | --- |
+| btns | NSArray | 配置用户中心入口 |
+
+> btns 说明
+
+| 字段 | 备注 |
+| --- | --- |
+| real_name | 实名认证 |
+| privacy_policy | 隐私政策 |
+| binding_phone | 绑定手机 |
+| binding_email | 绑定邮箱 |
+| acount_cancel | 账号注销 |
+| change_pwd | 修改密码 |
+
+**调用示例**
+
+```objectivec
+RXOSUserCenterConfig *config = [[RXOSUserCenterConfig alloc] init];
+config.game_user_id = @"游戏 id";
+config.nickname = @"游戏昵称";
+config.queue_name = @"客服接入节点";
+config.setConfigParams = @{@"btns" : @[
+ @"real_name",
+ @"privacy_policy",
+ @"acount_cancel",
+ @"phone_management",
+ @"change_pwd"
+]};
+[[RXOSUIKitService sharedSDK] userCenterWithConfig:config complete:^(NSDictionary * _Nonnull response, RX_CommonRequestError * _Nonnull error) {
+ if (!error) {
+ NSLog(@"%@",response);
+ }else{
+ NSLog(@"%@",error.responesObject);
+ }
+}];
+
+// 关闭用户中心
+[[RXOSUIKitService sharedSDK] closeUserCenter];
+```
+
+#### 响应结构
+
+> type 回调说明
+
+| 字段 | 备注 |
+| --- | --- |
+| switch_user | 切换账号 |
+| underegister | 撤销注销 |
+| binding_phone | 绑定手机 |
+| change_phone | 换绑手机 |
+| binding_email | 绑定邮箱 |
+| change_email | 换绑邮箱 |
+| real_auth | 实名认证 |
+| resetpwd | 修改密码 |
+| logBackIn | 重新登陆 |
+
+**响应示例**
+
+```json
+{
+ "code" : 0,
+ "data" : {
+ "type" : "switch_user"
+ }
+}
+```
+
+### 申请账号注销
+
+显示注销申请 webview 窗口，如已处于注销中显示撤销注销。
+
+**UI 示例**
+
+![](https://guanwangyun.oss-cn-beijing.aliyuncs.com/document/passportUI/NRyTbGtGHopzrFxn0jEcXbDinAc.png)
+
+**接口原型**
+
+```objectivec
+/**
+ * 申请注销
+ */
+- (void)applyForDeregisterWithConfig:(RXUserCenterConfig *)config
+ complete:(void(^)(NSDictionary *response))complete;
+```
+
+#### 参数说明
+
+> RXUserCenterConfig 结构说明
+
+| 字段 | 备注 |
+| --- | --- |
+| transmit_args | 透传数据，使用 jsonString 形式 |
+| game_user_id | 用户的游戏 id ，不传在望舒后台不会账号注销页面不显示游戏侧的用户 id |
+| nickname | 用户昵称 |
+| head_img_url | 用户头像 |
+| queue_name | 在望舒客服系统设置的接入点名称 不填写默认为 default |
+
+**调用示例**
+
+```objectivec
+RXOSUserCenterConfig *config = [[RXOSUserCenterConfig alloc] init];
+config.game_user_id = @"游戏 id";
+config.nickname = @"游戏昵称";
+[[RXOSUIKitService sharedSDK] applyForDeregisterWithConfig:config complete:^(NSDictionary * _Nonnull response) {
+ if (!error) {
+ NSLog(@"%@",response);
+ }else{
+ NSLog(@"%@",error.responesObject);
+ }
+}];
+```
+
+### 绑定手机/换绑手机
+
+当前登录用户未绑定手机时，跳转到绑定页面，正常展示绑定手机页面，如当前用户已绑定过手机，则自动进入换绑手机页面
+
+**UI 示例**
+
+![](https://haiqi-ruixue-test.oss-cn-beijing.aliyuncs.com/docOnline/image-1724034746779.png)
+
+**接口原型**
+
+```objectivec tab={"label":"接口原型"}
+/**
+ * 绑定手机，如果已绑定手机会跳转到换绑页面
+ * @param complete 绑定或换绑手机操作完成后，无论成功或失败，均执行此block
+ */
+- (void)bindPhoneWithComplete:(void(^)(NSDictionary *response, RX_CommonRequestError *error))complete;
+```
+
+```javascript tab={"label":"调用示例"}
+[[RXOSUIKitService sharedSDK] bindPhoneWithComplete:^(NSDictionary * _Nonnull response, RX_CommonRequestError * _Nonnull error) {
+ if (error) {
+ NSLog(@"绑定失败:%@",error.responesObject[@"msg"]);
+ }else{
+ NSLog(@"绑定成功：%@",response);
+ }
+ }];
+```
+### 绑定邮箱/换绑邮箱
+
+当前登录用户未绑定邮箱时，跳转到绑定页面，正常展示绑定邮箱页面，如当前用户已绑定过邮箱，则自动进入换绑邮箱页面
+
+**UI 示例**
+
+![](https://haiqi-ruixue-test.oss-cn-beijing.aliyuncs.com/docOnline/image-1724034345536.png)
+
+**换绑邮箱**
+
+![](https://haiqi-ruixue-test.oss-cn-beijing.aliyuncs.com/docOnline/image-1724034843352.png)
+
+**接口原型**
+
+```objectivec tab={"label":"接口原型"}
+/**
+ * 绑定邮箱，如果已绑定邮箱会跳转到换绑页面
+ * @param complete 绑定或换绑邮箱操作完成后，无论成功或失败，均执行此block
+ */
+- (void)bindEmailWithComplete:(void(^)(NSDictionary *response, RX_CommonRequestError *error))complete;
+```
+
+```javascript tab={"label":"调用示例"}
+[[RXOSUIKitService sharedSDK] bindEmailWithComplete:^(NSDictionary * _Nonnull response, RX_CommonRequestError * _Nonnull error) {
+ if (error) {
+ NSLog(@"绑定失败:%@",error.responesObject[@"msg"]);
+ }else{
+ NSLog(@"绑定成功：%@",response);
+ }
+ }];
+```
