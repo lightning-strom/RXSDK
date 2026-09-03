@@ -1,0 +1,20 @@
+{
+  "moduleInfo": {
+    "content": "import preferences from \"@ohos:data.preferences\";\nimport { Logger } from \"@normalized:N&&&hmssdk/src/main/ets/utils/Logger&4.0.0\";\nconst TAG: string = 'rxsdk';\nconst PREFERENCES_NAME: string = 'rxsdk_prefs';\nclass PreferencesUtils {\n    private mPreferences: preferences.Preferences | undefined = undefined;\n    async lazyInit(context: any) {\n        if (this.mPreferences === undefined && context) {\n            this.mPreferences = await preferences.getPreferences(context, PREFERENCES_NAME);\n        }\n    }\n    async get(key: string, context?: any) {\n        await this.lazyInit(context);\n        if (this.mPreferences) {\n            return await this.mPreferences.get(key, null);\n        }\n        else {\n            return Promise.reject(\"preferences not init\");\n        }\n    }\n    async put(key: string, value: string, context?: any) {\n        Logger.info(TAG, `set ${key}`);\n        await this.lazyInit(context);\n        if (this.mPreferences) {\n            await this.mPreferences.put(key, value);\n            await this.mPreferences.flush();\n            Logger.debug(TAG, `put  end` + value);\n        }\n        else {\n            return Promise.reject(\"preferences not init\");\n        }\n    }\n}\nexport default new PreferencesUtils();\n",
+    "buildFilePath": "/Users/chenhan/Desktop/Git/RXSDK/RXSDK-Harmony-Native/HmsSdk/build/default/cache/default/default@HarCompileArkTS/esmodule/release/hmssdk/src/main/ets/utils/PreferencesUtils.ts",
+    "relativeSourceFilePath": "HmsSdk/src/main/ets/utils/PreferencesUtils.ts",
+    "originSourceFilePath": "/Users/chenhan/Desktop/Git/RXSDK/RXSDK-Harmony-Native/HmsSdk/src/main/ets/utils/PreferencesUtils.ts",
+    "rollupModuleId": "/Users/chenhan/Desktop/Git/RXSDK/RXSDK-Harmony-Native/HmsSdk/src/main/ets/utils/PreferencesUtils.ts"
+  },
+  "previousStageSourceMap": {
+    "version": 3,
+    "file": "PreferencesUtils.ts",
+    "sourceRoot": "",
+    "sources": [
+      "HmsSdk/src/main/ets/utils/PreferencesUtils.ts"
+    ],
+    "names": [],
+    "mappings": "OAcO,WAAW;OACX,EAAE,MAAM,EAAE;AAEjB,MAAM,GAAG,EAAE,MAAM,GAAG,OAAO,CAAA;AAC3B,MAAM,gBAAgB,EAAE,MAAM,GAAG,aAAa,CAAA;AAE9C,MAAM,gBAAgB;IACpB,OAAO,CAAC,YAAY,EAAE,WAAW,CAAC,WAAW,GAAG,SAAS,GAAG,SAAS,CAAA;IAErE,KAAK,CAAC,QAAQ,CAAC,OAAO,EAAE,GAAG;QACzB,IAAI,IAAI,CAAC,YAAY,KAAK,SAAS,IAAI,OAAO,EAAE;YAC9C,IAAI,CAAC,YAAY,GAAG,MAAM,WAAW,CAAC,cAAc,CAAC,OAAO,EAAE,gBAAgB,CAAC,CAAA;SAChF;IACH,CAAC;IAED,KAAK,CAAC,GAAG,CAAC,GAAG,EAAE,MAAM,EAAE,OAAO,CAAC,EAAE,GAAG;QAClC,MAAM,IAAI,CAAC,QAAQ,CAAC,OAAO,CAAC,CAAA;QAC5B,IAAI,IAAI,CAAC,YAAY,EAAE;YACrB,OAAO,MAAM,IAAI,CAAC,YAAY,CAAC,GAAG,CAAC,GAAG,EAAE,IAAI,CAAC,CAAA;SAC9C;aAAM;YACL,OAAO,OAAO,CAAC,MAAM,CAAC,sBAAsB,CAAC,CAAA;SAC9C;IACH,CAAC;IAED,KAAK,CAAC,GAAG,CAAC,GAAG,EAAE,MAAM,EAAE,KAAK,EAAE,MAAM,EAAE,OAAO,CAAC,EAAE,GAAG;QACjD,MAAM,CAAC,IAAI,CAAC,GAAG,EAAE,OAAO,GAAG,EAAE,CAAC,CAAA;QAC9B,MAAM,IAAI,CAAC,QAAQ,CAAC,OAAO,CAAC,CAAA;QAC5B,IAAI,IAAI,CAAC,YAAY,EAAE;YACrB,MAAM,IAAI,CAAC,YAAY,CAAC,GAAG,CAAC,GAAG,EAAE,KAAK,CAAC,CAAA;YACvC,MAAM,IAAI,CAAC,YAAY,CAAC,KAAK,EAAE,CAAA;YAC/B,MAAM,CAAC,KAAK,CAAC,GAAG,EAAE,UAAU,GAAG,KAAK,CAAC,CAAA;SACtC;aAAM;YACL,OAAO,OAAO,CAAC,MAAM,CAAC,sBAAsB,CAAC,CAAA;SAC9C;IACH,CAAC;CACF;AAED,eAAe,IAAI,gBAAgB,EAAE,CAAA",
+    "entry-package-info": "hmssdk|4.0.0"
+  }
+}

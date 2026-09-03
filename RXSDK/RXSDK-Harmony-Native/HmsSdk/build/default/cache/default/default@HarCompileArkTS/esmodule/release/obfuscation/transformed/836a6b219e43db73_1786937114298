@@ -1,0 +1,20 @@
+{
+  "moduleInfo": {
+    "content": "import { RXErrorCode } from \"@normalized:N&&&hmssdk/src/main/ets/types/Index&4.0.0\";\nimport type { RCallback, RXResult } from \"@normalized:N&&&hmssdk/src/main/ets/types/Index&4.0.0\";\nimport { ComponentContent } from \"@ohos:arkui.node\";\nimport { BaseDialog } from \"@normalized:N&&&hmssdk/src/main/ets/pages/BaseDialog&4.0.0\";\nimport { feedbackListBuilder, FeedbackListParams } from \"@normalized:N&&&hmssdk/src/main/ets/pages/FeedbackListBuilder&4.0.0\";\nimport { FeedbackDetailDialog } from \"@normalized:N&&&hmssdk/src/main/ets/pages/FeedbackDetailDialog&4.0.0\";\nlet Instance: FeedbackListDialog;\nexport class FeedbackListDialog extends BaseDialog<FeedbackListParams, object> {\n    page: number = 1;\n    size: number = 20;\n    public static getInstance(uiContext: UIContext) {\n        if (Instance == null) {\n            Instance = new FeedbackListDialog(uiContext);\n        }\n        return Instance;\n    }\n    async show(callback?: RCallback) {\n        let args = new FeedbackListParams(() => {\n            this.close();\n            callback?.({ code: RXErrorCode.UI_CLOSE } as RXResult<object>);\n        });\n        args.onItemClick = (item) => {\n            FeedbackDetailDialog.getInstance(this.uiContext).setId(item.id).show();\n        };\n        if (this.contentNode) {\n            this.contentNode.update(args);\n        }\n        else {\n            this.contentNode = new ComponentContent(this.uiContext, wrapBuilder(feedbackListBuilder), args);\n        }\n        this._show(this.contentNode);\n        return this;\n    }\n}\n",
+    "buildFilePath": "/Users/chenhan/Desktop/Git/RXSDK/RXSDK-Harmony-Native/HmsSdk/build/default/cache/default/default@HarCompileArkTS/esmodule/release/hmssdk/src/main/ets/pages/FeedbackListDialog.ts",
+    "relativeSourceFilePath": "HmsSdk/src/main/ets/pages/FeedbackListDialog.ets",
+    "originSourceFilePath": "/Users/chenhan/Desktop/Git/RXSDK/RXSDK-Harmony-Native/HmsSdk/src/main/ets/pages/FeedbackListDialog.ets",
+    "rollupModuleId": "/Users/chenhan/Desktop/Git/RXSDK/RXSDK-Harmony-Native/HmsSdk/src/main/ets/pages/FeedbackListDialog.ets"
+  },
+  "previousStageSourceMap": {
+    "version": 3,
+    "file": "FeedbackListDialog.ets",
+    "sourceRoot": "",
+    "sources": [
+      "HmsSdk/src/main/ets/pages/FeedbackListDialog.ets"
+    ],
+    "names": [],
+    "mappings": "OAAO,EAAyB,WAAW,EAAY;cAA9C,SAAS,EAA2B,QAAQ;OAC5C,EAAA,gBAAgB,EAAA;OAClB,EAAE,UAAU,EAAE;OAGd,EAAE,mBAAmB,EAAE,kBAAkB,EAAE;OAC3C,EAAE,oBAAoB,EAAE;AAE/B,IAAI,QAAQ,EAAE,kBAAkB,CAAC;AAEjC,MAAM,OAAO,kBAAmB,SAAQ,UAAU,CAAC,kBAAkB,EAAE,MAAM,CAAC;IAC5E,IAAI,EAAE,MAAM,GAAG,CAAC,CAAA;IAChB,IAAI,EAAE,MAAM,GAAG,EAAE,CAAA;IAEjB,MAAM,CAAC,MAAM,CAAC,WAAW,CAAC,SAAS,EAAE,SAAS;QAC5C,IAAI,QAAQ,IAAI,IAAI,EAAE;YACpB,QAAQ,GAAG,IAAI,kBAAkB,CAAC,SAAS,CAAC,CAAC;SAC9C;QACD,OAAO,QAAQ,CAAC;IAClB,CAAC;IAGD,KAAK,CAAC,IAAI,CAAC,QAAQ,CAAC,EAAE,SAAS;QAC7B,IAAI,IAAI,GAAG,IAAI,kBAAkB,CAAC,GAAG,EAAE;YACrC,IAAI,CAAC,KAAK,EAAE,CAAA;YACZ,QAAQ,EAAE,CAAC,EAAE,IAAI,EAAE,WAAW,CAAC,QAAQ,EAAE,IAAI,QAAQ,CAAC,MAAM,CAAC,CAAC,CAAA;QAChE,CAAC,CAAC,CAAA;QACF,IAAI,CAAC,WAAW,GAAG,CAAC,IAAI,EAAE,EAAE;YAC1B,oBAAoB,CAAC,WAAW,CAAC,IAAI,CAAC,SAAS,CAAC,CAAC,KAAK,CAAC,IAAI,CAAC,EAAE,CAAC,CAAC,IAAI,EAAE,CAAA;QACxE,CAAC,CAAA;QAED,IAAI,IAAI,CAAC,WAAW,EAAE;YACpB,IAAI,CAAC,WAAW,CAAC,MAAM,CAAC,IAAI,CAAC,CAAA;SAC9B;aAAM;YACL,IAAI,CAAC,WAAW,GAAG,IAAI,gBAAgB,CAAC,IAAI,CAAC,SAAS,EAAE,WAAW,CAAC,mBAAmB,CAAC,EAAE,IAAI,CAAC,CAAC;SACjG;QACD,IAAI,CAAC,KAAK,CAAC,IAAI,CAAC,WAAW,CAAC,CAAA;QAC5B,OAAO,IAAI,CAAA;IAEb,CAAC;CACF",
+    "entry-package-info": "hmssdk|4.0.0"
+  }
+}

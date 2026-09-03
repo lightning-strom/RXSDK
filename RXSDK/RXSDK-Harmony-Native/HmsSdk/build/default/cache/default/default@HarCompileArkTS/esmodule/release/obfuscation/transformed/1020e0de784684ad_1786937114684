@@ -1,0 +1,20 @@
+{
+  "moduleInfo": {
+    "content": "import type { ShareParams } from \"../types/Index\";\nimport type { IShareTarget } from \"./ISharableTarget\";\nimport type common from \"@ohos:app.ability.common\";\nimport type { Context } from \"@ohos:abilityAccessCtrl\";\nimport systemShare from \"@hms:collaboration.systemShare\";\nimport { ShareObject } from \"@normalized:N&&&hmssdk/src/main/ets/share/ShareObject&4.0.0\";\nexport default class SystemShare implements IShareTarget {\n    async doShare(params: ShareParams, context: Context): Promise<void> {\n        let data = await new ShareObject(params).toSystemShareData();\n        let controller: systemShare.ShareController = new systemShare.ShareController(data);\n        let options: systemShare.ShareControllerOptions = {\n            previewMode: systemShare.SharePreviewMode.DETAIL,\n            selectionMode: systemShare.SelectionMode.SINGLE\n        };\n        // data.addRecord({\n        //      utd: utd.UniformDataType.PNG,\n        //      uri: 'file://.../test.png'\n        //    });\n        //     systemShare.getWant(data)\n        //      .then((want) => {\n        //        console.info('want = ', JSON.stringify(want));\n        //        session!.terminateSelfWithResult({\n        //          resultCode: 2,\n        //          want: want\n        //        })\n        //      })\n        //      .catch((error: BusinessError) => {\n        //        console.error(`Failed to getWant. Code: ${error.code}, message: ${error.message}`);\n        //      });\n        //    配置预览模式\n        //    systemShare.getWant(data,options)\n        //      .then((want) => {\n        //        console.info('want = ', JSON.stringify(want));\n        //        session!.terminateSelfWithResult({\n        //          resultCode: 2,\n        //          want: want\n        //        })\n        //      })\n        //      .catch((error: BusinessError) => {\n        //        console.error(`Failed to getWant. Code: ${error.code}, message: ${error.message}`);\n        //      });\n        return controller.show(context as common.UIAbilityContext, {\n            selectionMode: systemShare.SelectionMode.SINGLE,\n            previewMode: systemShare.SharePreviewMode.DEFAULT,\n        });\n    }\n}\n",
+    "buildFilePath": "/Users/chenhan/Desktop/Git/RXSDK/RXSDK-Harmony-Native/HmsSdk/build/default/cache/default/default@HarCompileArkTS/esmodule/release/hmssdk/src/main/ets/share/SystemShare.ts",
+    "relativeSourceFilePath": "HmsSdk/src/main/ets/share/SystemShare.ts",
+    "originSourceFilePath": "/Users/chenhan/Desktop/Git/RXSDK/RXSDK-Harmony-Native/HmsSdk/src/main/ets/share/SystemShare.ts",
+    "rollupModuleId": "/Users/chenhan/Desktop/Git/RXSDK/RXSDK-Harmony-Native/HmsSdk/src/main/ets/share/SystemShare.ts"
+  },
+  "previousStageSourceMap": {
+    "version": 3,
+    "file": "SystemShare.ts",
+    "sourceRoot": "",
+    "sources": [
+      "HmsSdk/src/main/ets/share/SystemShare.ts"
+    ],
+    "names": [],
+    "mappings": "cAAS,WAAW,QAAQ,gBAAgB;cACnC,YAAY,QAAQ,mBAAmB;YACvC,MAAM;cAAE,OAAO;OACf,WAAW;OACb,EAAE,WAAW,EAAE;AAGtB,MAAM,CAAC,OAAO,OAAO,WAAY,YAAW,YAAY;IACtD,KAAK,CAAC,OAAO,CAAC,MAAM,EAAE,WAAW,EAAE,OAAO,EAAE,OAAO,GAAG,OAAO,CAAC,IAAI,CAAC;QACjE,IAAI,IAAI,GAAG,MAAM,IAAI,WAAW,CAAC,MAAM,CAAC,CAAC,iBAAiB,EAAE,CAAA;QAC5D,IAAI,UAAU,EAAE,WAAW,CAAC,eAAe,GAAG,IAAI,WAAW,CAAC,eAAe,CAAC,IAAI,CAAC,CAAC;QAEnF,IAAI,OAAO,EAAG,WAAW,CAAC,sBAAsB,GAAG;YAClD,WAAW,EAAE,WAAW,CAAC,gBAAgB,CAAC,MAAM;YAChD,aAAa,EAAE,WAAW,CAAC,aAAa,CAAC,MAAM;SAChD,CAAC;QAEL,mBAAmB;QACnB,qCAAqC;QACrC,kCAAkC;QAClC,SAAS;QACT,gCAAgC;QAChC,yBAAyB;QACzB,wDAAwD;QACxD,4CAA4C;QAC5C,0BAA0B;QAC1B,sBAAsB;QACtB,YAAY;QACZ,UAAU;QACV,0CAA0C;QAC1C,6FAA6F;QAC7F,WAAW;QACX,YAAY;QACZ,uCAAuC;QACvC,yBAAyB;QACzB,wDAAwD;QACxD,4CAA4C;QAC5C,0BAA0B;QAC1B,sBAAsB;QACtB,YAAY;QACZ,UAAU;QACV,0CAA0C;QAC1C,6FAA6F;QAC7F,WAAW;QAER,OAAO,UAAU,CAAC,IAAI,CAAC,OAAO,IAAI,MAAM,CAAC,gBAAgB,EAAE;YACzD,aAAa,EAAE,WAAW,CAAC,aAAa,CAAC,MAAM;YAC/C,WAAW,EAAE,WAAW,CAAC,gBAAgB,CAAC,OAAO;SAClD,CAAC,CAAA;IACJ,CAAC;CACF",
+    "entry-package-info": "hmssdk|4.0.0"
+  }
+}

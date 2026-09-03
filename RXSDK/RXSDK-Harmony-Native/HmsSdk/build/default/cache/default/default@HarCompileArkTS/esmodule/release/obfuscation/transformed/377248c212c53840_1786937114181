@@ -1,0 +1,20 @@
+{
+  "moduleInfo": {
+    "content": "import { CryptoUtil } from \"@normalized:N&&&hmssdk/src/main/ets/utils/CryptoUtil&4.0.0\";\nimport { OssClient } from \"@normalized:N&&&hmssdk/src/main/ets/oss/OssClient&4.0.0\";\nimport type { OssConfigBean } from \"@normalized:N&&&hmssdk/src/main/ets/oss/OssClient&4.0.0\";\nexport default class OssClientAli extends OssClient {\n    generateOSSHeaders(c: OssConfigBean, objectKey: string, data: ArrayBuffer): Record<string, string> {\n        let bucket = c.bucket;\n        let contentType = \"application/octet-stream\";\n        let contentMd5 = \"\";\n        let date = new Date().toUTCString();\n        // 构造资源路径\n        let resource = `/${bucket}/${objectKey}`;\n        // 获取临时 token 和构造 x-oss-security-token\n        let token = c.credentials.security_token;\n        let xossHeader = `x-oss-security-token:${token}\\n`;\n        // 构造 StringToSign\n        let stringToSign = `${this.method}\\n${contentMd5}\\n${contentType}\\n${date}\\n${xossHeader}${resource}`;\n        // 使用 AccessKeySecret 生成签名\n        let secret = c.credentials.access_key_secret;\n        // Logger.d(stringToSign)\n        // Logger.d(\"secret:\" + secret)\n        const signature = CryptoUtil.hmacSha1StringSync(stringToSign, secret, 'base64');\n        // Logger.d(\"signature:\" + (signature))\n        // 生成 Authorization\n        const keyId = c.credentials.access_key_id;\n        const authorization = `OSS ${keyId}:${signature}`;\n        // 构造请求头\n        const headers: Record<string, string> = {\n            Authorization: authorization,\n            \"Content-Type\": contentType,\n            \"x-oss-security-token\": token,\n            Date: date,\n        };\n        return headers;\n    }\n}\n",
+    "buildFilePath": "/Users/chenhan/Desktop/Git/RXSDK/RXSDK-Harmony-Native/HmsSdk/build/default/cache/default/default@HarCompileArkTS/esmodule/release/hmssdk/src/main/ets/oss/OssClientAli.ts",
+    "relativeSourceFilePath": "HmsSdk/src/main/ets/oss/OssClientAli.ts",
+    "originSourceFilePath": "/Users/chenhan/Desktop/Git/RXSDK/RXSDK-Harmony-Native/HmsSdk/src/main/ets/oss/OssClientAli.ts",
+    "rollupModuleId": "/Users/chenhan/Desktop/Git/RXSDK/RXSDK-Harmony-Native/HmsSdk/src/main/ets/oss/OssClientAli.ts"
+  },
+  "previousStageSourceMap": {
+    "version": 3,
+    "file": "OssClientAli.ts",
+    "sourceRoot": "",
+    "sources": [
+      "HmsSdk/src/main/ets/oss/OssClientAli.ts"
+    ],
+    "names": [],
+    "mappings": "OAIO,EAAE,UAAU,EAAE;OACd,EAAmB,SAAS,EAAiB;cAAf,aAAa;AAKlD,MAAM,CAAC,OAAO,OAAO,YAAa,SAAQ,SAAS;IACjD,kBAAkB,CAAC,CAAC,EAAE,aAAa,EAAE,SAAS,EAAE,MAAM,EAAE,IAAI,EAAE,WAAW,GAAG,MAAM,CAAC,MAAM,EAAE,MAAM,CAAC;QAChG,IAAI,MAAM,GAAG,CAAC,CAAC,MAAM,CAAC;QACtB,IAAI,WAAW,GAAG,0BAA0B,CAAC;QAC7C,IAAI,UAAU,GAAG,EAAE,CAAC;QACpB,IAAI,IAAI,GAAG,IAAI,IAAI,EAAE,CAAC,WAAW,EAAE,CAAC;QAEpC,SAAS;QACT,IAAI,QAAQ,GAAG,IAAI,MAAM,IAAI,SAAS,EAAE,CAAC;QAEzC,sCAAsC;QACtC,IAAI,KAAK,GAAG,CAAC,CAAC,WAAW,CAAC,cAAc,CAAC;QACzC,IAAI,UAAU,GAAG,wBAAwB,KAAK,IAAI,CAAC;QAEnD,kBAAkB;QAClB,IAAI,YAAY,GAAG,GAAG,IAAI,CAAC,MAAM,KAAK,UAAU,KAAK,WAAW,KAAK,IAAI,KAAK,UAAU,GAAG,QAAQ,EAAE,CAAC;QAEtG,0BAA0B;QAC1B,IAAI,MAAM,GAAG,CAAC,CAAC,WAAW,CAAC,iBAAiB,CAAC;QAE7C,yBAAyB;QACzB,+BAA+B;QAC/B,MAAM,SAAS,GAAG,UAAU,CAAC,kBAAkB,CAAC,YAAY,EAAE,MAAM,EAAE,QAAQ,CAAC,CAAC;QAChF,uCAAuC;QACvC,mBAAmB;QACnB,MAAM,KAAK,GAAG,CAAC,CAAC,WAAW,CAAC,aAAa,CAAC;QAC1C,MAAM,aAAa,GAAG,OAAO,KAAK,IAAI,SAAS,EAAE,CAAC;QAElD,QAAQ;QACR,MAAM,OAAO,EAAE,MAAM,CAAC,MAAM,EAAE,MAAM,CAAC,GAAG;YACtC,aAAa,EAAE,aAAa;YAC5B,cAAc,EAAE,WAAW;YAC3B,sBAAsB,EAAE,KAAK;YAC7B,IAAI,EAAE,IAAI;SACX,CAAC;QACF,OAAO,OAAO,CAAC;IACjB,CAAC;CACF",
+    "entry-package-info": "hmssdk|4.0.0"
+  }
+}

@@ -1,0 +1,20 @@
+{
+  "moduleInfo": {
+    "content": "import util from \"@ohos:util\";\nimport { Logger } from \"@normalized:N&&&hmssdk/src/main/ets/utils/Logger&4.0.0\";\nconst centerLineRegex: RegExp = new RegExp('-', 'g');\nconst underLineRegex: RegExp = new RegExp('_', 'g');\nconst textDecoder = util.TextDecoder.create(\"utf-8\", { ignoreBOM: true });\nconst base64 = new util.Base64Helper();\nconst TAG: string = 'TextUtil';\nconst BASE64_PAD_MOD = 4;\nconst BASE64_PAD_INVALID = 1;\nexport class JWTUtil {\n    private static base64Decode(input: string): string {\n        return textDecoder.decodeWithStream(base64.decodeSync(input));\n    }\n    private static base64UrlDecode(input: string): string {\n        input = input.replace(centerLineRegex, '+').replace(underLineRegex, '/');\n        const pad = input.length % BASE64_PAD_MOD;\n        if (pad) {\n            if (pad === BASE64_PAD_INVALID) {\n                throw new Error('InvalidLengthError: Input base64url string is the wrong length to determine padding');\n            }\n            input += new Array(5 - pad).join('=');\n        }\n        return this.base64Decode(input);\n    }\n    public static decodeJwtObj(data: string): string {\n        let jwt: string[] = data.split('.');\n        let result: string = '';\n        if (jwt.length < 3) {\n            return result;\n        }\n        try {\n            result = JWTUtil.base64UrlDecode(jwt[1]);\n        }\n        catch (err) {\n            Logger.error(TAG, `decodeJwtObj parse err: ${JSON.stringify(err)}`);\n        }\n        return result;\n    }\n}\n",
+    "buildFilePath": "/Users/chenhan/Desktop/Git/RXSDK/RXSDK-Harmony-Native/HmsSdk/build/default/cache/default/default@HarCompileArkTS/esmodule/release/hmssdk/src/main/ets/utils/JWTUtil.ts",
+    "relativeSourceFilePath": "HmsSdk/src/main/ets/utils/JWTUtil.ts",
+    "originSourceFilePath": "/Users/chenhan/Desktop/Git/RXSDK/RXSDK-Harmony-Native/HmsSdk/src/main/ets/utils/JWTUtil.ts",
+    "rollupModuleId": "/Users/chenhan/Desktop/Git/RXSDK/RXSDK-Harmony-Native/HmsSdk/src/main/ets/utils/JWTUtil.ts"
+  },
+  "previousStageSourceMap": {
+    "version": 3,
+    "file": "JWTUtil.ts",
+    "sourceRoot": "",
+    "sources": [
+      "HmsSdk/src/main/ets/utils/JWTUtil.ts"
+    ],
+    "names": [],
+    "mappings": "OAGS,IAAI;OACN,EAAE,MAAM,EAAE;AAEjB,MAAM,eAAe,EAAE,MAAM,GAAG,IAAI,MAAM,CAAC,GAAG,EAAE,GAAG,CAAC,CAAC;AACrD,MAAM,cAAc,EAAE,MAAM,GAAG,IAAI,MAAM,CAAC,GAAG,EAAE,GAAG,CAAC,CAAC;AACpD,MAAM,WAAW,GAAG,IAAI,CAAC,WAAW,CAAC,MAAM,CAAC,OAAO,EAAE,EAAE,SAAS,EAAE,IAAI,EAAE,CAAC,CAAC;AAC1E,MAAM,MAAM,GAAG,IAAI,IAAI,CAAC,YAAY,EAAE,CAAC;AACvC,MAAM,GAAG,EAAE,MAAM,GAAG,UAAU,CAAC;AAE/B,MAAM,cAAc,GAAG,CAAC,CAAC;AACzB,MAAM,kBAAkB,GAAG,CAAC,CAAC;AAE7B,MAAM,OAAO,OAAO;IAClB,OAAO,CAAC,MAAM,CAAC,YAAY,CAAC,KAAK,EAAE,MAAM,GAAG,MAAM;QAChD,OAAO,WAAW,CAAC,gBAAgB,CAAC,MAAM,CAAC,UAAU,CAAC,KAAK,CAAC,CAAC,CAAC;IAChE,CAAC;IAED,OAAO,CAAC,MAAM,CAAC,eAAe,CAAC,KAAK,EAAE,MAAM,GAAG,MAAM;QACnD,KAAK,GAAG,KAAK,CAAC,OAAO,CAAC,eAAe,EAAE,GAAG,CAAC,CAAC,OAAO,CAAC,cAAc,EAAE,GAAG,CAAC,CAAC;QACzE,MAAM,GAAG,GAAG,KAAK,CAAC,MAAM,GAAG,cAAc,CAAC;QAC1C,IAAI,GAAG,EAAE;YACP,IAAI,GAAG,KAAK,kBAAkB,EAAE;gBAC9B,MAAM,IAAI,KAAK,CAAC,qFAAqF,CAAC,CAAC;aACxG;YACD,KAAK,IAAI,IAAI,KAAK,CAAC,CAAC,GAAG,GAAG,CAAC,CAAC,IAAI,CAAC,GAAG,CAAC,CAAC;SACvC;QACD,OAAO,IAAI,CAAC,YAAY,CAAC,KAAK,CAAC,CAAC;IAClC,CAAC;IAED,MAAM,CAAC,MAAM,CAAC,YAAY,CAAC,IAAI,EAAE,MAAM,GAAG,MAAM;QAC9C,IAAI,GAAG,EAAE,MAAM,EAAE,GAAG,IAAI,CAAC,KAAK,CAAC,GAAG,CAAC,CAAC;QACpC,IAAI,MAAM,EAAE,MAAM,GAAG,EAAE,CAAC;QACxB,IAAI,GAAG,CAAC,MAAM,GAAG,CAAC,EAAE;YAClB,OAAO,MAAM,CAAC;SACf;QACD,IAAI;YACF,MAAM,GAAG,OAAO,CAAC,eAAe,CAAC,GAAG,CAAC,CAAC,CAAC,CAAC,CAAC;SAC1C;QAAC,OAAO,GAAG,EAAE;YACZ,MAAM,CAAC,KAAK,CAAC,GAAG,EAAE,2BAA2B,IAAI,CAAC,SAAS,CAAC,GAAG,CAAC,EAAE,CAAC,CAAC;SACrE;QACD,OAAO,MAAM,CAAC;IAChB,CAAC;CACF",
+    "entry-package-info": "hmssdk|4.0.0"
+  }
+}

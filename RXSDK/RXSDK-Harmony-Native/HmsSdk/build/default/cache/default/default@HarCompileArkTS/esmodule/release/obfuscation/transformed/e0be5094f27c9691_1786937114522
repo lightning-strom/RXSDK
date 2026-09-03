@@ -1,0 +1,20 @@
+{
+  "moduleInfo": {
+    "content": "import { RXErrorCode } from \"@normalized:N&&&hmssdk/src/main/ets/types/Index&4.0.0\";\nimport type { RCallback, RXResult } from \"@normalized:N&&&hmssdk/src/main/ets/types/Index&4.0.0\";\nimport { ComponentContent } from \"@ohos:arkui.node\";\nimport { BaseDialog } from \"@normalized:N&&&hmssdk/src/main/ets/pages/BaseDialog&4.0.0\";\nimport { successTipsBuilder, SuccessTipsParams } from \"@normalized:N&&&hmssdk/src/main/ets/pages/SuccessTipsBuilder&4.0.0\";\nlet Instance: SuccessTipsDialog;\nexport class SuccessTipsDialog extends BaseDialog<SuccessTipsParams> {\n    private _content?: string | undefined;\n    public setContent(value: string | undefined) {\n        if (value) {\n            this._content = value;\n        }\n        return this;\n    }\n    public static getInstance(uiContext: UIContext) {\n        if (Instance == null) {\n            Instance = new SuccessTipsDialog(uiContext);\n        }\n        return Instance;\n    }\n    show(callback?: RCallback) {\n        let args = new SuccessTipsParams((e) => {\n            let ret = {\n                code: RXErrorCode.OK,\n                message: \"确定\"\n            } as RXResult;\n            callback?.(ret);\n            this.onCallback?.(ret as RXResult);\n            this.close();\n        });\n        if (this._content) {\n            args.description = this._content;\n        }\n        if (this.contentNode) {\n            this.contentNode.update(args);\n        }\n        else {\n            this.contentNode = new ComponentContent(this.uiContext, wrapBuilder(successTipsBuilder), args);\n        }\n        this._show(this.contentNode);\n        return this;\n    }\n}\n",
+    "buildFilePath": "/Users/chenhan/Desktop/Git/RXSDK/RXSDK-Harmony-Native/HmsSdk/build/default/cache/default/default@HarCompileArkTS/esmodule/release/hmssdk/src/main/ets/pages/SuccessTipsDialog.ts",
+    "relativeSourceFilePath": "HmsSdk/src/main/ets/pages/SuccessTipsDialog.ets",
+    "originSourceFilePath": "/Users/chenhan/Desktop/Git/RXSDK/RXSDK-Harmony-Native/HmsSdk/src/main/ets/pages/SuccessTipsDialog.ets",
+    "rollupModuleId": "/Users/chenhan/Desktop/Git/RXSDK/RXSDK-Harmony-Native/HmsSdk/src/main/ets/pages/SuccessTipsDialog.ets"
+  },
+  "previousStageSourceMap": {
+    "version": 3,
+    "file": "SuccessTipsDialog.ets",
+    "sourceRoot": "",
+    "sources": [
+      "HmsSdk/src/main/ets/pages/SuccessTipsDialog.ets"
+    ],
+    "names": [],
+    "mappings": "OAAO,EAAa,WAAW,EAAY;cAAlC,SAAS,EAAe,QAAQ;OAChC,EAAA,gBAAgB,EAAA;OAClB,EAAE,UAAU,EAAE;OACd,EAAE,kBAAkB,EAAE,iBAAiB,EAAE;AAEhD,IAAI,QAAQ,EAAE,iBAAiB,CAAC;AAGhC,MAAM,OAAO,iBAAkB,SAAQ,UAAU,CAAC,iBAAiB,CAAC;IAClE,OAAO,CAAC,QAAQ,CAAC,EAAE,MAAM,GAAG,SAAS,CAAC;IAEtC,MAAM,CAAC,UAAU,CAAC,KAAK,EAAE,MAAM,GAAG,SAAS;QACzC,IAAI,KAAK,EAAE;YACT,IAAI,CAAC,QAAQ,GAAG,KAAK,CAAC;SACvB;QACD,OAAO,IAAI,CAAA;IACb,CAAC;IAED,MAAM,CAAC,MAAM,CAAC,WAAW,CAAC,SAAS,EAAE,SAAS;QAC5C,IAAI,QAAQ,IAAI,IAAI,EAAE;YACpB,QAAQ,GAAG,IAAI,iBAAiB,CAAC,SAAS,CAAC,CAAC;SAC7C;QACD,OAAO,QAAQ,CAAC;IAClB,CAAC;IAED,IAAI,CAAC,QAAQ,CAAC,EAAE,SAAS;QACvB,IAAI,IAAI,GAAG,IAAI,iBAAiB,CAAC,CAAC,CAAC,EAAE,EAAE;YACrC,IAAI,GAAG,GAAG;gBACR,IAAI,EAAE,WAAW,CAAC,EAAE;gBACpB,OAAO,EAAE,IAAI;aACd,IAAI,QAAQ,CAAA;YACb,QAAQ,EAAE,CAAG,GAAG,CAAE,CAAA;YAClB,IAAI,CAAC,UAAU,EAAE,CAAC,GAAG,IAAI,QAAQ,CAAC,CAAA;YAClC,IAAI,CAAC,KAAK,EAAE,CAAA;QACd,CAAC,CAAC,CAAA;QACF,IAAI,IAAI,CAAC,QAAQ,EAAE;YACjB,IAAI,CAAC,WAAW,GAAG,IAAI,CAAC,QAAQ,CAAA;SACjC;QACD,IAAI,IAAI,CAAC,WAAW,EAAE;YACpB,IAAI,CAAC,WAAW,CAAC,MAAM,CAAC,IAAI,CAAC,CAAA;SAC9B;aAAM;YACL,IAAI,CAAC,WAAW,GAAG,IAAI,gBAAgB,CAAC,IAAI,CAAC,SAAS,EAAE,WAAW,CAAC,kBAAkB,CAAC,EAAE,IAAI,CAAC,CAAC;SAChG;QACD,IAAI,CAAC,KAAK,CAAC,IAAI,CAAC,WAAW,CAAC,CAAA;QAC5B,OAAO,IAAI,CAAA;IAEb,CAAC;CACF",
+    "entry-package-info": "hmssdk|4.0.0"
+  }
+}

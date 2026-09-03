@@ -1,0 +1,20 @@
+{
+  "moduleInfo": {
+    "content": "class PathUtil {\n    //console.log(MyClass.getFileName('/path/to/file.txt'));       // 输出: file.txt\n    public getFileName(filePath: string) {\n        // 从路径的最后一个 '/' 或 '\\\\' 开始查找文件名\n        const lastIndex = filePath.lastIndexOf('/') === -1 ? filePath.lastIndexOf('\\\\') : filePath.lastIndexOf('/');\n        // 如果找不到 '/' 或 '\\\\'，则整个字符串就是文件名\n        if (lastIndex === -1) {\n            return filePath;\n        }\n        // // 正则表达式提取文件名（包括扩展名）\n        // const match = filePath.match(/([^/]+)$/);\n        // const fileName = match ? match[0] : '';\n        // 返回从最后一个 '/' 或 '\\\\' 后面的部分开始到字符串末尾的所有字符\n        return filePath.substring(lastIndex + 1);\n    }\n    public joinPath(dirPath: string, fileName: string): string {\n        const cleanDirPath = dirPath?.replace(/\\/+$/, '');\n        const cleanFileName = fileName?.replace(/^\\/+/, '');\n        return `${cleanDirPath}/${cleanFileName}`;\n    }\n    public join(...paths: string[]): string {\n        return paths\n            .filter((path) => path.trim() !== '')\n            .map((path, index) => {\n            if (index === 0) {\n                return path.replace(/\\/+$/, '');\n            }\n            else {\n                return path.replace(/^\\/+/, '');\n            }\n        })\n            .join('/');\n    }\n}\nexport default new PathUtil();\n",
+    "buildFilePath": "/Users/chenhan/Desktop/Git/RXSDK/RXSDK-Harmony-Native/HmsSdk/build/default/cache/default/default@HarCompileArkTS/esmodule/release/hmssdk/src/main/ets/utils/PathUtil.ts",
+    "relativeSourceFilePath": "HmsSdk/src/main/ets/utils/PathUtil.ts",
+    "originSourceFilePath": "/Users/chenhan/Desktop/Git/RXSDK/RXSDK-Harmony-Native/HmsSdk/src/main/ets/utils/PathUtil.ts",
+    "rollupModuleId": "/Users/chenhan/Desktop/Git/RXSDK/RXSDK-Harmony-Native/HmsSdk/src/main/ets/utils/PathUtil.ts"
+  },
+  "previousStageSourceMap": {
+    "version": 3,
+    "file": "PathUtil.ts",
+    "sourceRoot": "",
+    "sources": [
+      "HmsSdk/src/main/ets/utils/PathUtil.ts"
+    ],
+    "names": [],
+    "mappings": "AACA,MAAM,QAAQ;IACZ,8EAA8E;IAC9E,MAAM,CAAC,WAAW,CAAC,QAAQ,EAAE,MAAM;QACjC,8BAA8B;QAC9B,MAAM,SAAS,GAAG,QAAQ,CAAC,WAAW,CAAC,GAAG,CAAC,KAAK,CAAC,CAAC,CAAC,CAAC,CAAC,QAAQ,CAAC,WAAW,CAAC,IAAI,CAAC,CAAC,CAAC,CAAC,QAAQ,CAAC,WAAW,CAAC,GAAG,CAAC,CAAC;QAE5G,+BAA+B;QAC/B,IAAI,SAAS,KAAK,CAAC,CAAC,EAAE;YACpB,OAAO,QAAQ,CAAC;SACjB;QACD,uBAAuB;QACvB,4CAA4C;QAC5C,0CAA0C;QAC1C,wCAAwC;QACxC,OAAO,QAAQ,CAAC,SAAS,CAAC,SAAS,GAAG,CAAC,CAAC,CAAC;IAC3C,CAAC;IAED,MAAM,CAAC,QAAQ,CAAC,OAAO,EAAE,MAAM,EAAE,QAAQ,EAAE,MAAM,GAAG,MAAM;QACxD,MAAM,YAAY,GAAG,OAAO,EAAE,OAAO,CAAC,MAAM,EAAE,EAAE,CAAC,CAAC;QAClD,MAAM,aAAa,GAAG,QAAQ,EAAE,OAAO,CAAC,MAAM,EAAE,EAAE,CAAC,CAAC;QACpD,OAAO,GAAG,YAAY,IAAI,aAAa,EAAE,CAAC;IAC5C,CAAC;IAED,MAAM,CAAC,IAAI,CAAC,GAAG,KAAK,EAAE,MAAM,EAAE,GAAG,MAAM;QACrC,OAAO,KAAK;aACT,MAAM,CAAC,CAAC,IAAI,EAAE,EAAE,CAAC,IAAI,CAAC,IAAI,EAAE,KAAK,EAAE,CAAC;aACpC,GAAG,CAAC,CAAC,IAAI,EAAE,KAAK,EAAE,EAAE;YACnB,IAAI,KAAK,KAAK,CAAC,EAAE;gBACf,OAAO,IAAI,CAAC,OAAO,CAAC,MAAM,EAAE,EAAE,CAAC,CAAC;aACjC;iBAAM;gBACL,OAAO,IAAI,CAAC,OAAO,CAAC,MAAM,EAAE,EAAE,CAAC,CAAC;aACjC;QACH,CAAC,CAAC;aACD,IAAI,CAAC,GAAG,CAAC,CAAC;IACf,CAAC;CACF;AAED,eAAe,IAAI,QAAQ,EAAE,CAAA",
+    "entry-package-info": "hmssdk|4.0.0"
+  }
+}

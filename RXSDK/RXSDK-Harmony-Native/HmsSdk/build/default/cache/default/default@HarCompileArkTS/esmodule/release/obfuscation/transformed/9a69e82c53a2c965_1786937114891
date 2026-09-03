@@ -1,0 +1,20 @@
+{
+  "moduleInfo": {
+    "content": "import { RXError, RXErrorCode } from \"@normalized:N&&&hmssdk/src/main/ets/types/Index&4.0.0\";\nimport type { ShareParams } from \"@normalized:N&&&hmssdk/src/main/ets/types/Index&4.0.0\";\nimport type { IShareTarget } from \"../share/ISharableTarget\";\nimport type common from \"@ohos:app.ability.common\";\nimport type { Context } from \"@ohos:abilityAccessCtrl\";\nimport { ShareObject } from \"@normalized:N&&&hmssdk/src/main/ets/share/ShareObject&4.0.0\";\nimport { WXApi } from \"@normalized:N&&&hmssdk/src/main/ets/wx/WXApi&4.0.0\";\nimport { Logger } from \"@normalized:N&&&hmssdk/src/main/ets/utils/Logger&4.0.0\";\nexport default class WXShare implements IShareTarget {\n    async doShare(params: ShareParams, context?: Context): Promise<void> {\n        try {\n            const resp = await WXApi.getInstance(params.wx_appid).share(new ShareObject(params), context as common.UIAbilityContext);\n            if (resp.errCode === 0) {\n                console.log(\"Share successful\");\n            }\n            else {\n                Logger.e(`Share failed with error code: ${resp.errCode}`);\n                throw new RXError(`Share failed with error code: ${resp.errCode}`, RXErrorCode.SHARE_PARAMS_ERROR, resp.errCode, resp.errStr);\n            }\n        }\n        catch (e) {\n            if (e instanceof Error) {\n                throw e;\n            }\n            else {\n                throw new RXError(`wx share error code: ${e}`, RXErrorCode.SHARE_PARAMS_ERROR);\n            }\n        }\n    }\n}\n",
+    "buildFilePath": "/Users/chenhan/Desktop/Git/RXSDK/RXSDK-Harmony-Native/HmsSdk/build/default/cache/default/default@HarCompileArkTS/esmodule/release/hmssdk/src/main/ets/wx/WXShare.ts",
+    "relativeSourceFilePath": "HmsSdk/src/main/ets/wx/WXShare.ets",
+    "originSourceFilePath": "/Users/chenhan/Desktop/Git/RXSDK/RXSDK-Harmony-Native/HmsSdk/src/main/ets/wx/WXShare.ets",
+    "rollupModuleId": "/Users/chenhan/Desktop/Git/RXSDK/RXSDK-Harmony-Native/HmsSdk/src/main/ets/wx/WXShare.ets"
+  },
+  "previousStageSourceMap": {
+    "version": 3,
+    "file": "WXShare.ets",
+    "sourceRoot": "",
+    "sources": [
+      "HmsSdk/src/main/ets/wx/WXShare.ets"
+    ],
+    "names": [],
+    "mappings": "OAAO,EAAE,OAAO,EAAE,WAAW,EAAe;cAAb,WAAW;cACjC,YAAY,QAAQ,0BAA0B;YAC9C,MAAM;cAAE,OAAO;OACjB,EAAE,WAAW,EAAE;OACf,EAAE,KAAK,EAAE;OACT,EAAE,MAAM,EAAE;AAEjB,MAAM,CAAC,OAAO,OAAO,OAAQ,YAAW,YAAY;IAClD,KAAK,CAAC,OAAO,CAAC,MAAM,EAAE,WAAW,EAAE,OAAO,CAAC,EAAE,OAAO,GAAG,OAAO,CAAC,IAAI,CAAC;QAClE,IAAI;YACF,MAAM,IAAI,GAAG,MAAM,KAAK,CAAC,WAAW,CAAC,MAAM,CAAC,QAAQ,CAAC,CAAC,KAAK,CACzD,IAAI,WAAW,CAAC,MAAM,CAAC,EACvB,OAAO,IAAI,MAAM,CAAC,gBAAgB,CACnC,CAAC;YACF,IAAI,IAAI,CAAC,OAAO,KAAK,CAAC,EAAE;gBACtB,OAAO,CAAC,GAAG,CAAC,kBAAkB,CAAC,CAAC;aACjC;iBAAM;gBACL,MAAM,CAAC,CAAC,CAAC,iCAAiC,IAAI,CAAC,OAAO,EAAE,CAAC,CAAC;gBAC1D,MAAM,IAAI,OAAO,CAAC,iCAAiC,IAAI,CAAC,OAAO,EAAE,EAAE,WAAW,CAAC,kBAAkB,EAAE,IAAI,CAAC,OAAO,EAAE,IAAI,CAAC,MAAM,CAAC,CAAC;aAC/H;SACF;QAAC,OAAO,CAAC,EAAE;YACV,IAAI,CAAC,YAAY,KAAK,EAAE;gBACtB,MAAM,CAAC,CAAC;aACT;iBAAM;gBACL,MAAM,IAAI,OAAO,CAAC,wBAAwB,CAAC,EAAE,EAAE,WAAW,CAAC,kBAAkB,CAAC,CAAC;aAChF;SACF;IACH,CAAC;CACF",
+    "entry-package-info": "hmssdk|4.0.0"
+  }
+}

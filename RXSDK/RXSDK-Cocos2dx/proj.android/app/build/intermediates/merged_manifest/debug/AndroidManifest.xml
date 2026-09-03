@@ -1,0 +1,822 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="com.wl.rx"
+    android:installLocation="auto"
+    android:versionCode="1"
+    android:versionName="1.0" >
+
+    <uses-sdk
+        android:minSdkVersion="22"
+        android:targetSdkVersion="30" />
+
+    <uses-permission android:name="android.permission.INTERNET" />
+
+    <uses-feature android:glEsVersion="0x00020000" />
+
+    <uses-permission android:name="android.permission.VIBRATE" />
+    <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <uses-permission android:name="android.permission.REQUEST_INSTALL_PACKAGES" />
+    <uses-permission android:name="android.permission.SEND_SMS" />
+    <uses-permission android:name="android.permission.READ_PHONE_STATE" />
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.GET_TASKS" />
+    <uses-permission android:name="android.permission.READ_CONTACTS" />
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.CHANGE_NETWORK_STATE" />
+    <uses-permission android:name="android.permission.WRITE_SETTINGS" /> <!-- 百度pass定位 -->
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" /> <!-- 百度PUSH 适配Android N系统必需的ContentProvider写权限声明，写权限包含应用包名 -->
+    <uses-permission android:name="baidu.push.permission.WRITE_PUSHINFOPROVIDER.com.wl.rx" />
+
+    <permission
+        android:name="baidu.push.permission.WRITE_PUSHINFOPROVIDER.com.wl.rx"
+        android:protectionLevel="normal" />
+
+    <uses-permission android:name="android.permission.CAMERA" />
+    <!--
+    SCHEDULE_EXACT_ALARM 精准闹钟（exact alarm）权限 保活调度倒计时使⽤，
+    解决Android 12（API 31）及以上由于缺少该权限引起的蒙层不消失问题
+    -->
+    <uses-permission android:name="android.permission.SCHEDULE_EXACT_ALARM" /> <!-- 仅针对 API 级别 33 及以上版本 -->
+    <uses-permission
+        android:name="android.permission.READ_MEDIA_IMAGES"
+        android:minSdkVersion="33" />
+    <uses-permission
+        android:name="android.permission.READ_MEDIA_VIDEO"
+        android:minSdkVersion="33" />
+
+    <queries>
+
+        <!-- Android 11 微信分享无法拉起问题 -->
+        <package android:name="com.tencent.mm" />
+        <!-- google -->
+        <package android:name="com.google.android.gms" />
+        <package android:name="com.android.vending" /> <!-- freeme -->
+        <package android:name="com.android.creator" /> <!-- zte -->
+        <package android:name="com.mdid.msa" /> <!-- samsung -->
+        <package android:name="com.samsung.android.deviceidservice" /> <!-- coolpad -->
+        <package android:name="com.coolpad.deviceidsupport" /> <!-- oppo -->
+        <package android:name="com.heytap.openid" /> <!-- huawei -->
+        <package android:name="com.huawei.hwid" />
+        <package android:name="com.huawei.hwid.tv" />
+        <package android:name="com.huawei.hms" /> <!-- asus -->
+        <package android:name="com.asus.msa.SupplementaryDID" /> <!-- lenovo -->
+        <package android:name="com.zui.deviceidservice" /> <!-- QQ -->
+        <package android:name="com.tencent.mobileqq" /> <!-- 手机百度 -->
+        <package android:name="com.baidu.searchbox" /> <!-- 支付宝 -->
+        <package android:name="com.eg.android.AlipayGphone" /> <!-- 登录插件 -->
+        <package android:name="com.baidu.gameplugin" /> <!-- 手助 -->
+        <package android:name="com.baidu.appsearch" /> <!-- 网盘 -->
+        <package android:name="com.baidu.netdisk" /> <!-- 数币人民币App -->
+        <package android:name="cn.gov.pbc.dcep" />
+
+        <intent> <!-- H5 支持手淘登录 -->
+            <action android:name="*" />
+
+            <data android:scheme="tbopen" />
+        </intent> <!-- 支付宝 app -->
+        <package android:name="com.eg.android.AlipayGphoneRC" /> <!-- 沙箱支付宝 app -->
+        <package android:name="hk.alipay.wallet" /> <!-- 香港版支付宝 app -->
+        <package android:name="hk.alipay.walletRC" />
+    </queries>
+
+    <uses-permission android:name="com.asus.msa.SupplementaryDID.ACCESS" />
+    <uses-permission android:name="freemme.permission.msa" />
+
+    <supports-screens
+        android:anyDensity="true"
+        android:largeScreens="true"
+        android:normalScreens="true"
+        android:resizeable="true"
+        android:smallScreens="true" />
+
+    <uses-permission android:name="android.permission.REORDER_TASKS" />
+    <uses-permission android:name="android.permission.CHANGE_WIFI_STATE" />
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+    <uses-permission android:name="android.permission.QUERY_ALL_PACKAGES" />
+    <uses-permission android:name="com.android.permission.GET_INSTALLED_APPS" />
+
+    <permission
+        android:name="com.wl.rx.permission.sofire.RECEIVE"
+        android:protectionLevel="signatureOrSystem" />
+
+    <uses-permission android:name="com.wl.rx.permission.sofire.RECEIVE" /> <!-- 指纹登录 -->
+    <uses-permission android:name="android.permission.USE_FINGERPRINT" />
+
+    <permission
+        android:name="com.wl.rx.gdt.qq.SEND_PERMISSION"
+        android:protectionLevel="signature" />
+    <permission
+        android:name="com.wl.rx.gdt.qq.RECEIVE_PERMISSION"
+        android:protectionLevel="signature" /> <!-- 文件读取权限 -->
+    <uses-permission android:name="com.wl.rx.gdt.qq.SEND_PERMISSION" />
+    <uses-permission android:name="com.wl.rx.gdt.qq.RECEIVE_PERMISSION" />
+
+    <application
+        android:name="com.wl.rx.GameApplication"
+        android:allowBackup="true"
+        android:appComponentFactory="androidx.core.app.CoreComponentFactory"
+        android:debuggable="true"
+        android:icon="@mipmap/ic_launcher"
+        android:label="@string/app_name"
+        android:requestLegacyExternalStorage="true"
+        android:usesCleartextTraffic="true" >
+
+        <!-- Tell Cocos2dxActivity the name of our .so -->
+        <meta-data
+            android:name="android.app.lib_name"
+            android:value="MyGame" />
+
+        <activity
+            android:name="org.cocos2dx.cpp.AppActivity"
+            android:configChanges="orientation|keyboardHidden|screenSize"
+            android:label="@string/app_name"
+            android:screenOrientation="portrait"
+            android:theme="@style/AppTheme" >
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+
+        <!-- ========== 微信配置（登录 + 支付） ========== -->
+
+
+        <!-- 微信回调 Activity -->
+        <activity
+            android:name="com.ruixue.wechat.WXEntryActivity"
+            android:enabled="true"
+            android:exported="true"
+            android:launchMode="singleTask"
+            android:taskAffinity="com.wl.rx"
+            android:theme="@android:style/Theme.Translucent.NoTitleBar" /> <!-- 微信支付回调 Activity 别名 -->
+        <activity-alias
+            android:name="com.wl.rx.wxapi.WXPayEntryActivity"
+            android:enabled="true"
+            android:exported="true"
+            android:targetActivity="com.ruixue.wechat.WXEntryActivity" /> <!-- 微信登录回调 Activity 别名 -->
+        <activity-alias
+            android:name="com.wl.rx.wxapi.WXEntryActivity"
+            android:enabled="true"
+            android:exported="true"
+            android:targetActivity="com.ruixue.wechat.WXEntryActivity" />
+
+        <meta-data
+            android:name="RX_PLUGIN_HQ"
+            android:value="com.ruixue.hq.HQSdkWrapper" />
+
+        <activity
+            android:name="com.ruixue.realauth.IdCardKeyboardActivity"
+            android:excludeFromRecents="true"
+            android:exported="false"
+            android:launchMode="singleTop"
+            android:taskAffinity=""
+            android:theme="@style/RuiXueIdCardKeyboardActivityTheme" /> <!-- 适配Android P，否则系统缺少相关类会崩溃 -->
+        <uses-library
+            android:name="org.apache.http.legacy"
+            android:required="false" />
+
+        <meta-data
+            android:name="android.notch_support"
+            android:value="true" /> <!-- 0-百度 1-多酷 2-91 -->
+        <provider
+            android:name="com.ruixue.baidu.BaiduFileProvider"
+            android:authorities="com.wl.rx.fileprovider"
+            android:exported="false"
+            android:grantUriPermissions="true" >
+
+            <!-- 元数据 -->
+            <meta-data
+                android:name="android.support.FILE_PROVIDER_PATHS"
+                android:resource="@xml/provider_paths" />
+        </provider>
+
+        <meta-data
+            android:name="RX_WECHAT_PAY"
+            android:value="com.ruixue.wechat.WechatBillingImpl" />
+        <meta-data
+            android:name="RX_PLUGIN_WECHAT"
+            android:value="com.ruixue.wechat.WXSdkWrapper" /> <!-- 表示当前项目已经适配了分区存储特性 -->
+        <meta-data
+            android:name="ScopedStorage"
+            android:value="true" />
+
+        <activity
+            android:name="com.ruixue.callback.RXEntryActivity"
+            android:enabled="true"
+            android:exported="true"
+            android:launchMode="singleTask"
+            android:theme="@android:style/Theme.Translucent.NoTitleBar" />
+
+        <provider
+            android:name="com.ruixue.internal.RXFileProvider"
+            android:authorities="com.wl.rx.rxfileprovider"
+            android:exported="false"
+            android:grantUriPermissions="true" >
+            <meta-data
+                android:name="android.support.FILE_PROVIDER_PATHS"
+                android:resource="@xml/rx_file_provider_paths" />
+        </provider>
+        <provider
+            android:name="androidx.startup.InitializationProvider"
+            android:authorities="com.wl.rx.androidx-startup"
+            android:exported="false" >
+            <meta-data
+                android:name="androidx.emoji2.text.EmojiCompatInitializer"
+                android:value="androidx.startup" />
+            <meta-data
+                android:name="androidx.lifecycle.ProcessLifecycleInitializer"
+                android:value="androidx.startup" />
+            <meta-data
+                android:name="androidx.profileinstaller.ProfileInstallerInitializer"
+                android:value="androidx.startup" />
+        </provider> <!-- ↓↓↓ SDK ↓↓↓ -->
+        <!-- 0-百度 -->
+        <meta-data
+            android:name="BDPlatformType"
+            android:value="0" />
+        <meta-data
+            android:name="BDGameVersion"
+            android:value="1.9.0.6" />
+        <meta-data
+            android:name="notch.config"
+            android:value="portrait|landscape" /> <!-- 适配Android 21 和 22 WebView 渲染异常问题 -->
+        <meta-data
+            android:name="android.webkit.WebView.EnableSafeBrowsing"
+            android:value="true" >
+        </meta-data>
+
+        <activity
+            android:name="com.baidu.platformsdk.LoginActivity"
+            android:configChanges="orientation|navigation|screenSize|keyboard|keyboardHidden"
+            android:excludeFromRecents="true"
+            android:exported="false"
+            android:theme="@style/bdp_dialog_style_fullscreen" />
+        <activity
+            android:name="com.baidu.platformsdk.AssistActivity"
+            android:configChanges="orientation|navigation|screenSize|keyboard|keyboardHidden"
+            android:excludeFromRecents="true"
+            android:exported="false"
+            android:theme="@style/bdp_dialog_style_fullscreen" />
+        <activity
+            android:name="com.baidu.platformsdk.ConcertActivity"
+            android:configChanges="orientation|navigation|screenSize|keyboard|keyboardHidden"
+            android:excludeFromRecents="true"
+            android:exported="false"
+            android:theme="@style/bdp_style_transparent" />
+        <activity
+            android:name="com.baidu.platformsdk.BindPhoneActivity"
+            android:configChanges="orientation|navigation|screenSize|keyboard|keyboardHidden"
+            android:excludeFromRecents="true"
+            android:exported="false"
+            android:theme="@style/bdp_dialog_style_fullscreen" />
+        <activity
+            android:name="com.baidu.platformsdk.CashierDeskActivity"
+            android:configChanges="orientation|navigation|screenSize|keyboard|keyboardHidden"
+            android:exported="false"
+            android:theme="@style/bdp_dialog_style_fullscreen"
+            android:windowSoftInputMode="adjustPan" />
+        <activity
+            android:name="com.baidu.platformsdk.WebActivity"
+            android:configChanges="orientation|navigation|screenSize|keyboard|keyboardHidden"
+            android:exported="false"
+            android:theme="@style/bdp_dialog_style_fullscreen"
+            android:windowSoftInputMode="adjustPan" />
+        <activity
+            android:name="com.baidu.platformsdk.VisitorBindActivity"
+            android:configChanges="orientation|navigation|screenSize|keyboard|keyboardHidden"
+            android:excludeFromRecents="true"
+            android:exported="false"
+            android:theme="@style/bdp_dialog_style_fullscreen" />
+        <activity
+            android:name="com.baidu.platformsdk.BaiduBeanDetailActivity"
+            android:configChanges="orientation|navigation|screenSize|keyboard|keyboardHidden"
+            android:exported="false"
+            android:theme="@style/bdp_dialog_style_fullscreen"
+            android:windowSoftInputMode="adjustPan" />
+        <activity
+            android:name="com.baidu.platformsdk.OrderDetailActivity"
+            android:configChanges="orientation|navigation|screenSize|keyboard|keyboardHidden"
+            android:exported="false"
+            android:theme="@style/bdp_dialog_style_fullscreen"
+            android:windowSoftInputMode="adjustPan" />
+        <activity
+            android:name="com.baidu.platformsdk.SapiWebActivityNew"
+            android:configChanges="orientation|navigation|screenSize|keyboard|keyboardHidden"
+            android:exported="true"
+            android:theme="@style/bdp_dialog_style_fullscreen"
+            android:windowSoftInputMode="adjustResize" />
+        <activity
+            android:name="com.baidu.platformsdk.wxpay.PayActivity"
+            android:configChanges="orientation|navigation|screenSize|keyboard|keyboardHidden"
+            android:exported="false"
+            android:theme="@style/bdp_style_transparent"
+            android:windowSoftInputMode="adjustPan" />
+        <activity
+            android:name="com.baidu.platformsdk.AuthenticateActivity"
+            android:configChanges="orientation|navigation|screenSize|keyboard|keyboardHidden"
+            android:exported="false"
+            android:theme="@style/bdp_dialog_style_fullscreen"
+            android:windowSoftInputMode="adjustPan" />
+        <activity
+            android:name="com.baidu.platformsdk.ErrorDialogActivity"
+            android:configChanges="orientation|navigation|screenSize|keyboard|keyboardHidden"
+            android:exported="false"
+            android:theme="@style/bdp_dialog_style_fullscreen"
+            android:windowSoftInputMode="stateHidden|adjustResize" />
+        <activity
+            android:name="com.baidu.platform.ui.BDContainerActivity"
+            android:configChanges="orientation|keyboardHidden|navigation|screenSize"
+            android:launchMode="singleTop"
+            android:theme="@style/bd_webcontainer" />
+        <activity
+            android:name="com.baidu.platform.ui.FullWebViewActivity"
+            android:configChanges="orientation|navigation|screenSize|keyboard|keyboardHidden"
+            android:exported="false"
+            android:theme="@style/bdp_dialog_style_fullscreen"
+            android:windowSoftInputMode="stateHidden|adjustResize" >
+        </activity>
+        <activity
+            android:name="com.baidu.platformsdk.wxpay.wxapi.WXCallBackActivity"
+            android:configChanges="orientation|keyboardHidden|navigation|screenSize"
+            android:exported="true" />
+        <activity
+            android:name="com.baidu.platform.ui.BdMultipleActivity"
+            android:configChanges="orientation|keyboardHidden|navigation|screenSize"
+            android:launchMode="singleTop"
+            android:theme="@style/bd_webcontainer" />
+        <activity
+            android:name="com.baidu.platform.ui.BdPayResultActivity"
+            android:configChanges="orientation|keyboardHidden|navigation|screenSize"
+            android:launchMode="singleTop"
+            android:theme="@style/bd_webcontainer" />
+
+        <service
+            android:name="com.baidu.platformsdk.BDPlatformService"
+            android:exported="false" /> <!-- 需修改<data android:scheme="bdpsdk+packagename" /> -->
+        <activity
+            android:name="com.baidu.platformsdk.pay.channel.ali.AliPayActivity"
+            android:configChanges="orientation|navigation|screenSize|keyboard|keyboardHidden"
+            android:exported="true"
+            android:launchMode="singleTop"
+            android:screenOrientation="behind" >
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+
+                <data
+                    android:host="alipay.app"
+                    android:pathPrefix="/result"
+                    android:scheme="bdpsdk+packagename" />
+            </intent-filter>
+        </activity> <!-- ↓↓↓ QQ插件 />↓↓↓ -->
+        <activity
+            android:name="com.baidu.sapi2.activity.social.QQSSOLoginActivity"
+            android:configChanges="keyboardHidden|orientation"
+            android:launchMode="singleTop"
+            android:screenOrientation="portrait"
+            android:theme="@android:style/Theme.Translucent.NoTitleBar" />
+        <activity
+            android:name="com.baidu.sapi2.activity.social.WXLoginActivity"
+            android:configChanges="keyboardHidden|orientation|screenSize"
+            android:launchMode="singleTop"
+            android:screenOrientation="portrait"
+            android:theme="@android:style/Theme.Translucent.NoTitleBar" />
+        <activity
+            android:name="com.baidu.platformsdk.pay.channel.qqwallet.QQPayActivity"
+            android:configChanges="orientation|navigation|screenSize|keyboard|keyboardHidden"
+            android:exported="true"
+            android:launchMode="singleTop"
+            android:theme="@android:style/Theme.Translucent.NoTitleBar" >
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+
+                <category android:name="android.intent.category.BROWSABLE" />
+                <category android:name="android.intent.category.DEFAULT" />
+
+                <data android:scheme="qwallet+packagename" />
+            </intent-filter>
+        </activity>
+        <activity
+            android:name="com.alipay.sdk.app.AlipayResultActivity"
+            android:configChanges="orientation|keyboardHidden|navigation|screenSize|locale|keyboard|screenLayout|density|fontScale|layoutDirection|smallestScreenSize"
+            android:exported="true"
+            android:launchMode="singleTask"
+            android:theme="@android:style/Theme.Translucent.NoTitleBar" >
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+
+                <data android:scheme="com_baidu_poly_cashier_for_ali_pay_result_activity" />
+            </intent-filter>
+        </activity>
+        <activity
+            android:name="com.baidu.poly3.widget.PayWebActivity"
+            android:exported="false"
+            android:launchMode="standard"
+            android:multiprocess="true"
+            android:screenOrientation="behind"
+            android:theme="@style/PolyTheme" />
+        <activity
+            android:name="com.baidu.poly3.widget.PolyActivity"
+            android:configChanges="orientation|screenSize|keyboardHidden"
+            android:exported="false"
+            android:launchMode="standard"
+            android:multiprocess="true"
+            android:theme="@style/PolyTranslucentTheme" />
+        <activity
+            android:name="com.baidu.poly3.widget.AgreeNoPwdPayAuthActivity"
+            android:theme="@style/poly_sdk_result_proxy_activity" />
+        <activity
+            android:name="com.baidu.poly3.widget.WechatSignAutoRenewActivity"
+            android:exported="false"
+            android:launchMode="standard"
+            android:multiprocess="true"
+            android:screenOrientation="portrait"
+            android:theme="@style/PolyTheme" >
+            <intent-filter>
+                <data android:scheme="com_baidu_poly_cashier_wechat_sign_suto_renew_activity" />
+            </intent-filter>
+        </activity> <!-- 收银台通用WebView -->
+        <!-- android:multiprocess="true" 不要加这个 -->
+        <activity
+            android:name="com.baidu.poly3.widget.activity.PolyWebViewActivity"
+            android:exported="false"
+            android:launchMode="standard"
+            android:screenOrientation="portrait"
+            android:theme="@style/PolyTheme" /> <!-- 签约页 -->
+        <activity
+            android:name="com.baidu.poly3.widget.activity.PolyApplySignActivity"
+            android:configChanges="orientation|screenSize|keyboardHidden"
+            android:exported="false"
+            android:launchMode="standard"
+            android:multiprocess="true"
+            android:theme="@style/PolyTranslucentTheme" /> <!-- 自动签约页 -->
+        <activity
+            android:name="com.baidu.poly3.widget.activity.PolyAutoSignActivity"
+            android:configChanges="orientation|screenSize|keyboardHidden"
+            android:exported="false"
+            android:launchMode="standard"
+            android:multiprocess="true"
+            android:theme="@style/PolyTranslucentTheme" />
+        <activity
+            android:name="com.baidu.sofire.MyActivity"
+            android:configChanges="mcc|mnc|locale|touchscreen|keyboard|keyboardHidden|navigation|orientation|screenLayout|uiMode|screenSize|smallestScreenSize|fontScale"
+            android:excludeFromRecents="true"
+            android:exported="false"
+            android:launchMode="standard"
+            android:theme="@android:style/Theme.Translucent" >
+            <intent-filter>
+                <action android:name="com.baidu.action.SOFIRE.VIEW" />
+
+                <category android:name="com.baidu.category.SOFIRE" />
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </activity>
+
+        <service
+            android:name="com.baidu.sofire.MyService"
+            android:exported="false" >
+            <intent-filter>
+                <action android:name="com.baidu.action.SOFIRE.VIEW" />
+
+                <category android:name="com.baidu.category.SOFIRE" />
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </service>
+
+        <provider
+            android:name="com.baidu.sofire.MyProvider"
+            android:authorities="com.wl.rx.sofire.ac.provider"
+            android:exported="false" />
+
+        <meta-data
+            android:name="seckey_avscan"
+            android:value="660346260f8a841a04ec2a56815b421b" />
+        <meta-data
+            android:name="appkey_avscan"
+            android:value="100034" />
+
+        <activity
+            android:name="com.baidu.sapi2.activity.ShareActivity"
+            android:configChanges="keyboardHidden|orientation"
+            android:exported="true"
+            android:screenOrientation="portrait"
+            android:theme="@style/PassportSdkTheme"
+            android:windowSoftInputMode="stateHidden" >
+
+            <!-- 等旧的互通授权页面没有调用，即share_auth_invoked的统计为0 -->
+            <!-- 将intent-filter配置给com.baidu.sapi2.share.ShareActivity -->
+            <intent-filter>
+                <action android:name="baidu.intent.action.account.SHARE_ACTIVITY" />
+            </intent-filter>
+        </activity>
+        <activity
+            android:name="com.baidu.sapi2.share.ShareActivity"
+            android:configChanges="keyboardHidden|orientation|screenSize"
+            android:exported="true"
+            android:theme="@style/sapi_sdk_result_proxy_activity" />
+        <activity
+            android:name="com.baidu.sapi2.activity.OauthActivity"
+            android:configChanges="keyboardHidden|orientation"
+            android:exported="true"
+            android:screenOrientation="portrait"
+            android:theme="@style/PassportSdkTheme"
+            android:windowSoftInputMode="stateHidden" >
+            <intent-filter>
+                <action android:name="baidu.intent.action.account.OAUTH_ACTIVITY" />
+            </intent-filter>
+        </activity>
+        <activity
+            android:name="com.baidu.sapi2.activity.LoginActivity"
+            android:configChanges="keyboardHidden|orientation|screenSize"
+            android:exported="false"
+            android:launchMode="singleTop"
+            android:theme="@style/PassportSdkTheme"
+            android:windowSoftInputMode="adjustPan|stateHidden" />
+        <activity
+            android:name="com.baidu.sapi2.activity.YouthStyleLoginActivity"
+            android:configChanges="keyboardHidden|orientation|screenSize"
+            android:exported="false"
+            android:launchMode="singleTop"
+            android:theme="@style/PassportSdkThemeYouthStyle"
+            android:windowSoftInputMode="adjustPan|stateHidden" />
+        <activity
+            android:name="com.baidu.sapi2.activity.HorizontalScreenLoginActivity"
+            android:configChanges="keyboardHidden|orientation|screenSize"
+            android:exported="false"
+            android:launchMode="singleTop"
+            android:screenOrientation="landscape"
+            android:theme="@style/sapi_sdk_translucent_activity_dialog"
+            android:windowSoftInputMode="adjustPan|stateHidden" />
+        <activity
+            android:name="com.baidu.sapi2.activity.LoadExternalWebViewActivity"
+            android:configChanges="keyboardHidden|orientation"
+            android:exported="false"
+            android:launchMode="singleTop"
+            android:screenOrientation="portrait"
+            android:theme="@style/PassportSdkTheme"
+            android:windowSoftInputMode="stateHidden" />
+        <activity
+            android:name="com.baidu.sapi2.activity.ForgetPwdActivity"
+            android:configChanges="keyboardHidden|orientation"
+            android:exported="false"
+            android:launchMode="singleTop"
+            android:screenOrientation="portrait"
+            android:theme="@style/PassportSdkTheme"
+            android:windowSoftInputMode="stateHidden" />
+        <activity
+            android:name="com.baidu.sapi2.activity.RegisterActivity"
+            android:configChanges="keyboardHidden|orientation"
+            android:exported="false"
+            android:launchMode="singleTop"
+            android:screenOrientation="portrait"
+            android:theme="@style/PassportSdkTheme"
+            android:windowSoftInputMode="stateHidden" />
+        <activity
+            android:name="com.baidu.sapi2.activity.AccountCenterActivity"
+            android:configChanges="keyboardHidden|orientation"
+            android:exported="false"
+            android:launchMode="singleTop"
+            android:screenOrientation="portrait"
+            android:theme="@android:style/Theme.Translucent.NoTitleBar"
+            android:windowSoftInputMode="stateHidden" />
+        <activity
+            android:name="com.baidu.sapi2.activity.AccountCenterExternalActivity"
+            android:configChanges="keyboardHidden|orientation"
+            android:exported="false"
+            android:launchMode="standard"
+            android:screenOrientation="portrait"
+            android:theme="@android:style/Theme.Translucent.NoTitleBar"
+            android:windowSoftInputMode="stateHidden" />
+        <activity
+            android:name="com.baidu.sapi2.activity.AccountRealNameActivity"
+            android:configChanges="keyboardHidden|orientation"
+            android:exported="false"
+            android:launchMode="singleTop"
+            android:screenOrientation="portrait"
+            android:theme="@style/PassportSdkTheme"
+            android:windowSoftInputMode="stateHidden" />
+        <activity
+            android:name="com.baidu.sapi2.activity.BindWidgetActivity"
+            android:configChanges="keyboardHidden|orientation"
+            android:exported="false"
+            android:launchMode="singleTop"
+            android:screenOrientation="portrait"
+            android:theme="@style/PassportSdkTheme"
+            android:windowSoftInputMode="stateHidden" />
+        <activity
+            android:name="com.baidu.sapi2.activity.QrLoginActivity"
+            android:configChanges="keyboardHidden|orientation"
+            android:exported="false"
+            android:launchMode="singleTop"
+            android:screenOrientation="portrait"
+            android:theme="@style/PassportSdkTheme"
+            android:windowSoftInputMode="stateHidden" />
+        <activity
+            android:name="com.baidu.sapi2.activity.AccountToolsActivity"
+            android:exported="false"
+            android:launchMode="singleTop"
+            android:theme="@android:style/Theme.Translucent.NoTitleBar" />
+        <activity
+            android:name="com.baidu.sapi2.activity.NormalizeGuestAccountActivity"
+            android:configChanges="keyboardHidden|orientation"
+            android:exported="false"
+            android:launchMode="singleTop"
+            android:screenOrientation="portrait"
+            android:theme="@style/PassportSdkTheme"
+            android:windowSoftInputMode="stateHidden" />
+        <activity
+            android:name="com.baidu.sapi2.activity.AuthWidgetActivity"
+            android:configChanges="keyboardHidden|orientation"
+            android:exported="false"
+            android:launchMode="singleTop"
+            android:screenOrientation="portrait"
+            android:theme="@style/PassportSdkTheme"
+            android:windowSoftInputMode="stateHidden" />
+        <activity
+            android:name="com.baidu.sapi2.activity.AuthWidgetForCashierActivity"
+            android:configChanges="keyboardHidden|orientation"
+            android:exported="false"
+            android:launchMode="singleTop"
+            android:screenOrientation="portrait"
+            android:theme="@style/PassportSdkTheme"
+            android:windowSoftInputMode="stateHidden" >
+            <intent-filter>
+                <action android:name="baidu.intent.action.account.AUTH_WIDGET_FOR_CASHIER" />
+            </intent-filter>
+        </activity>
+        <activity
+            android:name="com.baidu.sapi2.activity.ImageClipActivity"
+            android:configChanges="keyboardHidden|orientation|screenSize"
+            android:launchMode="singleTop"
+            android:screenOrientation="portrait"
+            android:theme="@style/PassportSdkTheme" />
+        <activity
+            android:name="com.baidu.sapi2.activity.GrantWebActivity"
+            android:configChanges="keyboardHidden|orientation"
+            android:excludeFromRecents="true"
+            android:exported="true"
+            android:launchMode="singleTop"
+            android:screenOrientation="portrait"
+            android:theme="@style/PassportSdkTheme"
+            android:windowSoftInputMode="stateHidden" >
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+
+                <data
+                    android:host="com.wl.rx"
+                    android:path="/passport/grantweb"
+                    android:scheme="openapp" />
+            </intent-filter>
+        </activity>
+        <activity
+            android:name="com.baidu.sapi2.activity.SwitchAccountActivity"
+            android:configChanges="keyboardHidden|orientation"
+            android:exported="false"
+            android:launchMode="singleTop"
+            android:screenOrientation="portrait"
+            android:theme="@style/PassportSdkTheme"
+            android:windowSoftInputMode="stateHidden" />
+        <activity
+            android:name="com.baidu.sapi2.activity.RemoteProcessWebviewActivity"
+            android:configChanges="keyboardHidden|orientation"
+            android:exported="false"
+            android:launchMode="singleTop"
+            android:process=":pass"
+            android:screenOrientation="portrait"
+            android:theme="@style/PassportSdkTheme"
+            android:windowSoftInputMode="stateHidden" />
+        <activity
+            android:name="com.baidu.sapi2.activity.CurrentProcessWebviewActivity"
+            android:configChanges="keyboardHidden|orientation"
+            android:exported="false"
+            android:launchMode="singleTop"
+            android:screenOrientation="portrait"
+            android:theme="@style/PassportSdkTheme"
+            android:windowSoftInputMode="stateHidden" />
+        <activity
+            android:name="com.baidu.sapi2.activity.ShareResultProxyActivity"
+            android:theme="@style/sapi_sdk_result_proxy_activity" />
+        <activity
+            android:name="com.baidu.sapi2.activity.ChildVerifyActivity"
+            android:configChanges="keyboardHidden|orientation"
+            android:exported="false"
+            android:launchMode="singleTop"
+            android:screenOrientation="portrait"
+            android:theme="@style/PassportSdkTheme"
+            android:windowSoftInputMode="stateHidden" />
+        <activity
+            android:name="com.baidu.sapi2.activity.IdCardOcrCameraActivity"
+            android:exported="false"
+            android:launchMode="singleTask"
+            android:screenOrientation="portrait"
+            android:theme="@style/PassportSdkTheme" />
+        <activity
+            android:name="com.baidu.sapi2.activity.AuthWidgetOnlyPhoneActivity"
+            android:configChanges="keyboardHidden|orientation"
+            android:exported="false"
+            android:launchMode="singleTop"
+            android:screenOrientation="portrait"
+            android:theme="@style/PassportSdkTheme"
+            android:windowSoftInputMode="stateHidden" />
+        <activity
+            android:name="com.baidu.sapi2.activity.BindVerifyActivity"
+            android:exported="false"
+            android:theme="@style/PassportSdkTranslucentTheme" >
+            <intent-filter>
+                <action android:name="baidu.intent.action.account.BIND_VERIFY" />
+            </intent-filter>
+        </activity>
+        <activity
+            android:name="com.baidu.sapi2.activity.CertGuardianActivity"
+            android:configChanges="keyboardHidden|orientation"
+            android:exported="false"
+            android:launchMode="singleTop"
+            android:screenOrientation="portrait"
+            android:theme="@style/PassportSdkTheme"
+            android:windowSoftInputMode="stateHidden" />
+
+        <provider
+            android:name="com.baidu.sapi2.provider.FileProvider"
+            android:authorities="com.wl.rx.passfileprovider"
+            android:exported="false"
+            android:grantUriPermissions="true" >
+            <meta-data
+                android:name="android.support.FILE_PROVIDER_PATHS"
+                android:resource="@xml/pass_sdk_file_provider" />
+        </provider>
+
+        <activity
+            android:name="com.baidu.pass.permissions.PermissionsHelperActivity"
+            android:launchMode="singleTop"
+            android:theme="@android:style/Theme.Translucent.NoTitleBar" />
+        <activity
+            android:name="com.alipay.sdk.app.H5PayActivity"
+            android:configChanges="orientation|keyboardHidden|navigation|screenSize|locale|keyboard|screenLayout|density|fontScale|layoutDirection|smallestScreenSize"
+            android:exported="false"
+            android:theme="@android:style/Theme.NoTitleBar" >
+        </activity>
+        <activity
+            android:name="com.alipay.sdk.app.H5AuthActivity"
+            android:configChanges="orientation|keyboardHidden|navigation|screenSize|locale|keyboard|screenLayout|density|fontScale|layoutDirection|smallestScreenSize"
+            android:exported="false"
+            android:theme="@android:style/Theme.NoTitleBar" >
+        </activity>
+        <activity
+            android:name="com.alipay.sdk.app.PayResultActivity"
+            android:configChanges="orientation|keyboardHidden|navigation|screenSize|locale|keyboard|screenLayout|density|fontScale|layoutDirection|smallestScreenSize"
+            android:exported="true"
+            android:launchMode="singleInstance"
+            android:theme="@android:style/Theme.Translucent.NoTitleBar" >
+        </activity>
+        <activity
+            android:name="com.alipay.sdk.app.H5OpenAuthActivity"
+            android:configChanges="orientation|keyboardHidden|navigation|screenSize|locale|keyboard|screenLayout|density|fontScale|layoutDirection|smallestScreenSize"
+            android:exported="false"
+            android:screenOrientation="behind"
+            android:windowSoftInputMode="adjustResize|stateHidden" >
+        </activity>
+        <activity
+            android:name="com.alipay.sdk.app.APayEntranceActivity"
+            android:configChanges="orientation|keyboardHidden|navigation|screenSize|locale|keyboard|screenLayout|density|fontScale|layoutDirection|smallestScreenSize"
+            android:exported="false"
+            android:theme="@android:style/Theme.Translucent.NoTitleBar" >
+        </activity>
+
+        <provider
+            android:name="com.qq.gdt.action.GDTInitProvider"
+            android:authorities="com.wl.rx.GDTInitProvider"
+            android:exported="false" >
+        </provider>
+
+        <receiver
+            android:name="androidx.profileinstaller.ProfileInstallReceiver"
+            android:directBootAware="false"
+            android:enabled="true"
+            android:exported="true"
+            android:permission="android.permission.DUMP" >
+            <intent-filter>
+                <action android:name="androidx.profileinstaller.action.INSTALL_PROFILE" />
+            </intent-filter>
+            <intent-filter>
+                <action android:name="androidx.profileinstaller.action.SKIP_FILE" />
+            </intent-filter>
+            <intent-filter>
+                <action android:name="androidx.profileinstaller.action.SAVE_PROFILE" />
+            </intent-filter>
+            <intent-filter>
+                <action android:name="androidx.profileinstaller.action.BENCHMARK_OPERATION" />
+            </intent-filter>
+        </receiver>
+    </application>
+
+</manifest>

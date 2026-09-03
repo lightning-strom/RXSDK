@@ -1,0 +1,20 @@
+{
+  "moduleInfo": {
+    "content": "import { RXErrorCode } from \"@normalized:N&&&hmssdk/src/main/ets/types/Index&4.0.0\";\nimport type { RCallback, RXResult } from \"@normalized:N&&&hmssdk/src/main/ets/types/Index&4.0.0\";\nimport { ComponentContent } from \"@ohos:arkui.node\";\nimport { BaseDialog } from \"@normalized:N&&&hmssdk/src/main/ets/pages/BaseDialog&4.0.0\";\nimport { captchaVerifyBuilder, CaptchaVerifyParams } from \"@normalized:N&&&hmssdk/src/main/ets/pages/CaptchaVerifyBuilder&4.0.0\";\nlet Instance: CaptchaVerifyDialog;\nexport class CaptchaVerifyDialog extends BaseDialog<CaptchaVerifyParams, object> {\n    appid: string = \"\";\n    public setAppid(appid: string) {\n        this.appid = appid;\n        return this;\n    }\n    public static getInstance(uiContext: UIContext) {\n        if (Instance == null) {\n            Instance = new CaptchaVerifyDialog(uiContext);\n        }\n        return Instance;\n    }\n    async show(callback?: RCallback) {\n        let args = new CaptchaVerifyParams(this.appid, () => {\n            this.close();\n            callback?.({ code: RXErrorCode.UI_CLOSE } as RXResult<object>);\n        });\n        args.onSliderCaptchaCallback = (obj) => {\n            callback?.(obj as RXResult<object>);\n            this.close();\n        };\n        // if (this.contentNode) {\n        //   this.contentNode.update(args)\n        // } else {\n        this.contentNode = new ComponentContent(this.uiContext, wrapBuilder(captchaVerifyBuilder), args);\n        // }\n        this._show(this.contentNode);\n        return this;\n    }\n}\n",
+    "buildFilePath": "/Users/chenhan/Desktop/Git/RXSDK/RXSDK-Harmony-Native/HmsSdk/build/default/cache/default/default@HarCompileArkTS/esmodule/release/hmssdk/src/main/ets/pages/CaptchaVerifyDialog.ts",
+    "relativeSourceFilePath": "HmsSdk/src/main/ets/pages/CaptchaVerifyDialog.ets",
+    "originSourceFilePath": "/Users/chenhan/Desktop/Git/RXSDK/RXSDK-Harmony-Native/HmsSdk/src/main/ets/pages/CaptchaVerifyDialog.ets",
+    "rollupModuleId": "/Users/chenhan/Desktop/Git/RXSDK/RXSDK-Harmony-Native/HmsSdk/src/main/ets/pages/CaptchaVerifyDialog.ets"
+  },
+  "previousStageSourceMap": {
+    "version": 3,
+    "file": "CaptchaVerifyDialog.ets",
+    "sourceRoot": "",
+    "sources": [
+      "HmsSdk/src/main/ets/pages/CaptchaVerifyDialog.ets"
+    ],
+    "names": [],
+    "mappings": "OAAO,EAAa,WAAW,EAAY;cAAlC,SAAS,EAAe,QAAQ;OAChC,EAAA,gBAAgB,EAAA;OAElB,EAAE,UAAU,EAAE;OACd,EAAE,oBAAoB,EAAE,mBAAmB,EAAE;AAEpD,IAAI,QAAQ,EAAE,mBAAmB,CAAC;AAElC,MAAM,OAAO,mBAAoB,SAAQ,UAAU,CAAC,mBAAmB,EAAE,MAAM,CAAC;IAC9E,KAAK,EAAE,MAAM,GAAG,EAAE,CAAA;IAElB,MAAM,CAAC,QAAQ,CAAC,KAAK,EAAE,MAAM;QAC3B,IAAI,CAAC,KAAK,GAAG,KAAK,CAAA;QAClB,OAAO,IAAI,CAAC;IACd,CAAC;IAED,MAAM,CAAC,MAAM,CAAC,WAAW,CAAC,SAAS,EAAE,SAAS;QAC5C,IAAI,QAAQ,IAAI,IAAI,EAAE;YACpB,QAAQ,GAAG,IAAI,mBAAmB,CAAC,SAAS,CAAC,CAAC;SAC/C;QACD,OAAO,QAAQ,CAAC;IAClB,CAAC;IAED,KAAK,CAAC,IAAI,CAAC,QAAQ,CAAC,EAAE,SAAS;QAC7B,IAAI,IAAI,GAAG,IAAI,mBAAmB,CAAC,IAAI,CAAC,KAAK,EAAE,GAAG,EAAE;YAClD,IAAI,CAAC,KAAK,EAAE,CAAA;YACZ,QAAQ,EAAE,CAAC,EAAE,IAAI,EAAE,WAAW,CAAC,QAAQ,EAAE,IAAI,QAAQ,CAAC,MAAM,CAAC,CAAC,CAAA;QAChE,CAAC,CAAC,CAAA;QACF,IAAI,CAAC,uBAAuB,GAAG,CAAC,GAAG,EAAE,EAAE;YACrC,QAAQ,EAAE,CAAE,GAAG,IAAI,QAAQ,CAAC,MAAM,CAAC,CAAC,CAAA;YACpC,IAAI,CAAC,KAAK,EAAE,CAAA;QACd,CAAC,CAAA;QACD,0BAA0B;QAC1B,kCAAkC;QAClC,WAAW;QACX,IAAI,CAAC,WAAW,GAAG,IAAI,gBAAgB,CAAC,IAAI,CAAC,SAAS,EAAE,WAAW,CAAC,oBAAoB,CAAC,EAAE,IAAI,CAAC,CAAC;QACjG,IAAI;QACJ,IAAI,CAAC,KAAK,CAAC,IAAI,CAAC,WAAW,CAAC,CAAA;QAC5B,OAAO,IAAI,CAAA;IACb,CAAC;CACF",
+    "entry-package-info": "hmssdk|4.0.0"
+  }
+}

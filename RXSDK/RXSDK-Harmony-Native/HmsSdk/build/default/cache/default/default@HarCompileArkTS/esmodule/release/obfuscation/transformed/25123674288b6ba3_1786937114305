@@ -1,0 +1,20 @@
+{
+  "moduleInfo": {
+    "content": "import { RXErrorCode } from \"@normalized:N&&&hmssdk/src/main/ets/types/Index&4.0.0\";\nimport type { RCallback, RXResult } from \"@normalized:N&&&hmssdk/src/main/ets/types/Index&4.0.0\";\nimport { ComponentContent } from \"@ohos:arkui.node\";\nimport { BaseDialog } from \"@normalized:N&&&hmssdk/src/main/ets/pages/BaseDialog&4.0.0\";\nimport { forgotPasswordBuilder, ForgotPasswordParams } from \"@normalized:N&&&hmssdk/src/main/ets/pages/ForgotPasswordBuilder&4.0.0\";\nlet Instance: ForgotPasswordDialog;\nexport class ForgotPasswordDialog extends BaseDialog<ForgotPasswordParams> {\n    public static getInstance(uiContext: UIContext) {\n        if (Instance == null) {\n            Instance = new ForgotPasswordDialog(uiContext);\n        }\n        return Instance;\n    }\n    show(callback?: RCallback | undefined) {\n        let args = new ForgotPasswordParams(() => {\n            this.close();\n            callback?.({ code: RXErrorCode.UI_CLOSE } as RXResult);\n        });\n        if (this.contentNode) {\n            this.contentNode.update(args);\n        }\n        else {\n            this.contentNode = new ComponentContent(this.uiContext, wrapBuilder(forgotPasswordBuilder), args);\n        }\n        this._show(this.contentNode);\n        return this;\n    }\n}\n",
+    "buildFilePath": "/Users/chenhan/Desktop/Git/RXSDK/RXSDK-Harmony-Native/HmsSdk/build/default/cache/default/default@HarCompileArkTS/esmodule/release/hmssdk/src/main/ets/pages/ForgotPasswordDialog.ts",
+    "relativeSourceFilePath": "HmsSdk/src/main/ets/pages/ForgotPasswordDialog.ets",
+    "originSourceFilePath": "/Users/chenhan/Desktop/Git/RXSDK/RXSDK-Harmony-Native/HmsSdk/src/main/ets/pages/ForgotPasswordDialog.ets",
+    "rollupModuleId": "/Users/chenhan/Desktop/Git/RXSDK/RXSDK-Harmony-Native/HmsSdk/src/main/ets/pages/ForgotPasswordDialog.ets"
+  },
+  "previousStageSourceMap": {
+    "version": 3,
+    "file": "ForgotPasswordDialog.ets",
+    "sourceRoot": "",
+    "sources": [
+      "HmsSdk/src/main/ets/pages/ForgotPasswordDialog.ets"
+    ],
+    "names": [],
+    "mappings": "OAAO,EAAa,WAAW,EAAY;cAAlC,SAAS,EAAe,QAAQ;OAChC,EAAA,gBAAgB,EAAA;OAElB,EAAE,UAAU,EAAE;OACd,EAAE,qBAAqB,EAAE,oBAAoB,EAAE;AAEtD,IAAI,QAAQ,EAAE,oBAAoB,CAAC;AAEnC,MAAM,OAAO,oBAAqB,SAAQ,UAAU,CAAC,oBAAoB,CAAC;IACxE,MAAM,CAAC,MAAM,CAAC,WAAW,CAAC,SAAS,EAAE,SAAS;QAC5C,IAAI,QAAQ,IAAI,IAAI,EAAE;YACpB,QAAQ,GAAG,IAAI,oBAAoB,CAAC,SAAS,CAAC,CAAC;SAChD;QACD,OAAO,QAAQ,CAAC;IAClB,CAAC;IAED,IAAI,CAAC,QAAQ,CAAC,EAAE,SAAS,GAAG,SAAS;QACnC,IAAI,IAAI,GAAG,IAAI,oBAAoB,CAAC,GAAG,EAAE;YACvC,IAAI,CAAC,KAAK,EAAE,CAAA;YACZ,QAAQ,EAAE,CAAG,EAAE,IAAI,EAAE,WAAW,CAAC,QAAQ,EAAE,IAAI,QAAQ,CAAC,CAAA;QAC1D,CAAC,CAAC,CAAA;QACF,IAAI,IAAI,CAAC,WAAW,EAAE;YACpB,IAAI,CAAC,WAAW,CAAC,MAAM,CAAC,IAAI,CAAC,CAAA;SAC9B;aAAM;YACL,IAAI,CAAC,WAAW,GAAG,IAAI,gBAAgB,CAAC,IAAI,CAAC,SAAS,EAAE,WAAW,CAAC,qBAAqB,CAAC,EAAE,IAAI,CAAC,CAAC;SACnG;QACD,IAAI,CAAC,KAAK,CAAC,IAAI,CAAC,WAAW,CAAC,CAAA;QAC5B,OAAO,IAAI,CAAA;IACb,CAAC;CACF",
+    "entry-package-info": "hmssdk|4.0.0"
+  }
+}

@@ -1,0 +1,20 @@
+{
+  "moduleInfo": {
+    "content": "export default class Func {\n    static async wrapCall<T>(fn: (args: string) => Promise<string>, args: string): Promise<string> {\n        try {\n            const parsed = JSON.parse(args);\n            const result = await fn(parsed);\n            return JSON.stringify(result);\n        }\n        catch (e) {\n            return JSON.stringify({ error: e instanceof Error ? e.message : String(e) });\n        }\n    }\n    static async call<T>(fn: () => Promise<T>): Promise<string> {\n        try {\n            const ret = await fn();\n            return JSON.stringify(ret);\n        }\n        catch (e) {\n            return JSON.stringify(e);\n        }\n    }\n    public static getFunctionName(func: Function): string {\n        return func.toString().match(/function\\s*([^(]*)\\(/)[1];\n    }\n}\n",
+    "buildFilePath": "/Users/chenhan/Desktop/Git/RXSDK/RXSDK-Harmony-Native/HmsSdk/build/default/cache/default/default@HarCompileArkTS/esmodule/release/hmssdk/src/main/ets/utils/Func.ts",
+    "relativeSourceFilePath": "HmsSdk/src/main/ets/utils/Func.ts",
+    "originSourceFilePath": "/Users/chenhan/Desktop/Git/RXSDK/RXSDK-Harmony-Native/HmsSdk/src/main/ets/utils/Func.ts",
+    "rollupModuleId": "/Users/chenhan/Desktop/Git/RXSDK/RXSDK-Harmony-Native/HmsSdk/src/main/ets/utils/Func.ts"
+  },
+  "previousStageSourceMap": {
+    "version": 3,
+    "file": "Func.ts",
+    "sourceRoot": "",
+    "sources": [
+      "HmsSdk/src/main/ets/utils/Func.ts"
+    ],
+    "names": [],
+    "mappings": "AAAA,MAAM,CAAE,OAAO,OAAO,IAAI;IACxB,MAAM,CAAC,KAAK,CAAC,QAAQ,CAAC,CAAC,EAAE,EAAE,EAAE,CAAC,IAAI,EAAE,MAAM,KAAK,OAAO,CAAC,MAAM,CAAC,EAAE,IAAI,EAAE,MAAM,GAAG,OAAO,CAAC,MAAM,CAAC;QAC5F,IAAI;YACF,MAAM,MAAM,GAAG,IAAI,CAAC,KAAK,CAAC,IAAI,CAAC,CAAC;YAChC,MAAM,MAAM,GAAG,MAAM,EAAE,CAAC,MAAM,CAAC,CAAC;YAChC,OAAO,IAAI,CAAC,SAAS,CAAC,MAAM,CAAC,CAAC;SAC/B;QAAC,OAAO,CAAC,EAAE;YACV,OAAO,IAAI,CAAC,SAAS,CAAC,EAAE,KAAK,EAAE,CAAC,YAAY,KAAK,CAAC,CAAC,CAAC,CAAC,CAAC,OAAO,CAAC,CAAC,CAAC,MAAM,CAAC,CAAC,CAAC,EAAE,CAAC,CAAC;SAC9E;IACH,CAAC;IAED,MAAM,CAAE,KAAK,CAAC,IAAI,CAAC,CAAC,EAAE,EAAE,EAAE,MAAM,OAAO,CAAC,CAAC,CAAC,GAAG,OAAO,CAAC,MAAM,CAAC;QAC1D,IAAI;YACF,MAAM,GAAG,GAAG,MAAM,EAAE,EAAE,CAAC;YACvB,OAAO,IAAI,CAAC,SAAS,CAAC,GAAG,CAAC,CAAC;SAC5B;QAAC,OAAO,CAAC,EAAE;YACV,OAAO,IAAI,CAAC,SAAS,CAAC,CAAC,CAAC,CAAC;SAC1B;IACH,CAAC;IAGD,MAAM,CAAC,MAAM,CAAC,eAAe,CAAC,IAAI,EAAE,QAAQ,GAAG,MAAM;QAEnD,OAAO,IAAI,CAAC,QAAQ,EAAE,CAAC,KAAK,CAAC,sBAAsB,CAAC,CAAC,CAAC,CAAC,CAAC;IAC1D,CAAC;CACF",
+    "entry-package-info": "hmssdk|4.0.0"
+  }
+}

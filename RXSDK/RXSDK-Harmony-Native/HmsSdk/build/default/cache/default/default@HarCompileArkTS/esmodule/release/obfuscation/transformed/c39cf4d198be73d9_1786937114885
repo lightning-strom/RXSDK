@@ -1,0 +1,20 @@
+{
+  "moduleInfo": {
+    "content": "import type { ILogin } from '../types/ILogin';\nimport { RXError, RXErrorCode } from \"@normalized:N&&&hmssdk/src/main/ets/types/Index&4.0.0\";\nimport { WXApi } from \"@normalized:N&&&hmssdk/src/main/ets/wx/WXApi&4.0.0\";\ninterface WXResp {\n    code: string;\n    openId: string;\n    lang: string;\n}\nexport class WXLogin implements ILogin {\n    //   {\n    //     \"id\": 0,\n    //     \"name\": \"SendAuthResp\",\n    //     \"errCode\": 0,\n    //     \"authResult\": true,\n    //     \"errStr\": \"\",\n    //     \"transaction\": \"b349fa46-1084-45f0-b799-7942648a4f0c\",\n    //     \"openId\": \"oYmrx6kLXPUegpbKUZt1zsN3Iys0\",\n    //     \"code\": \"0715Gyll2UaVTe4xlcol25AYCF45Gyly\",\n    //     \"state\": \"wx_login\",\n    //     \"url\": \"wx2634a4144ccbe556://oauth?code=0715Gyll2UaVTe4xlcol25AYCF45Gyly&state=wx_login\",\n    //     \"lang\": \"zh_CN\",\n    //     \"country\": \"\"\n    // }\n    async doLogin(params: Record<string, any>): Promise<object> {\n        let resp = await WXApi.getInstance(params[\"wx_appid\"]).login(params);\n        if (resp.errCode == 0) {\n            return {\n                code: resp.code,\n                openId: resp.openId,\n                lang: resp.lang\n            } as WXResp;\n        }\n        else {\n            throw new RXError(resp.errStr, RXErrorCode.THIRD_LOGIN_ERROR, resp.errCode);\n        }\n        // return Promise.resolve(Object);\n    }\n}\n",
+    "buildFilePath": "/Users/chenhan/Desktop/Git/RXSDK/RXSDK-Harmony-Native/HmsSdk/build/default/cache/default/default@HarCompileArkTS/esmodule/release/hmssdk/src/main/ets/wx/WXLogin.ts",
+    "relativeSourceFilePath": "HmsSdk/src/main/ets/wx/WXLogin.ets",
+    "originSourceFilePath": "/Users/chenhan/Desktop/Git/RXSDK/RXSDK-Harmony-Native/HmsSdk/src/main/ets/wx/WXLogin.ets",
+    "rollupModuleId": "/Users/chenhan/Desktop/Git/RXSDK/RXSDK-Harmony-Native/HmsSdk/src/main/ets/wx/WXLogin.ets"
+  },
+  "previousStageSourceMap": {
+    "version": 3,
+    "file": "WXLogin.ets",
+    "sourceRoot": "",
+    "sources": [
+      "HmsSdk/src/main/ets/wx/WXLogin.ets"
+    ],
+    "names": [],
+    "mappings": "cAAS,MAAM,QAAQ,iBAAiB;OACjC,EAAE,OAAO,EAAE,WAAW,EAAE;OACxB,EAAE,KAAK,EAAE;AAEhB,UAAU,MAAM;IACd,IAAI,EAAE,MAAM,CAAA;IACZ,MAAM,EAAE,MAAM,CAAA;IACd,IAAI,EAAE,MAAM,CAAA;CACb;AAED,MAAM,OAAO,OAAQ,YAAW,MAAM;IACpC,MAAM;IACN,eAAe;IACf,8BAA8B;IAC9B,oBAAoB;IACpB,0BAA0B;IAC1B,oBAAoB;IACpB,6DAA6D;IAC7D,gDAAgD;IAChD,kDAAkD;IAClD,2BAA2B;IAC3B,gGAAgG;IAChG,uBAAuB;IACvB,oBAAoB;IACpB,IAAI;IACJ,KAAK,CAAC,OAAO,CAAC,MAAM,EAAE,MAAM,CAAC,MAAM,MAAW,GAAG,OAAO,CAAC,MAAM,CAAC;QAC9D,IAAI,IAAI,GAAG,MAAM,KAAK,CAAC,WAAW,CAAC,MAAM,CAAC,UAAU,CAAC,CAAC,CAAC,KAAK,CAAC,MAAM,CAAC,CAAA;QACpE,IAAI,IAAI,CAAC,OAAO,IAAI,CAAC,EAAE;YACrB,OAAO;gBACL,IAAI,EAAE,IAAI,CAAC,IAAI;gBACf,MAAM,EAAE,IAAI,CAAC,MAAM;gBACnB,IAAI,EAAE,IAAI,CAAC,IAAI;aAChB,IAAI,MAAM,CAAC;SACb;aAAM;YACL,MAAM,IAAI,OAAO,CAAC,IAAI,CAAC,MAAM,EAAE,WAAW,CAAC,iBAAiB,EAAE,IAAI,CAAC,OAAO,CAAC,CAAA;SAC5E;QACD,kCAAkC;IACpC,CAAC;CACF",
+    "entry-package-info": "hmssdk|4.0.0"
+  }
+}

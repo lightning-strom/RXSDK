@@ -1,0 +1,20 @@
+{
+  "moduleInfo": {
+    "content": "import { RXErrorCode } from \"@normalized:N&&&hmssdk/src/main/ets/types/Index&4.0.0\";\nimport type { RCallback, RXResult } from \"@normalized:N&&&hmssdk/src/main/ets/types/Index&4.0.0\";\nimport { ComponentContent } from \"@ohos:arkui.node\";\nimport { BaseDialog } from \"@normalized:N&&&hmssdk/src/main/ets/pages/BaseDialog&4.0.0\";\nimport { previewBuilder, PreviewParams } from \"@normalized:N&&&hmssdk/src/main/ets/pages/PreviewBuilder&4.0.0\";\nlet Instance: PreviewDialog;\nexport class PreviewDialog extends BaseDialog<PreviewParams> {\n    list?: string[];\n    index?: number;\n    public setList(list?: string[], index: number = 0) {\n        this.list = list;\n        this.index = index;\n        return this;\n    }\n    public static getInstance(uiContext: UIContext) {\n        if (Instance == null) {\n            Instance = new PreviewDialog(uiContext);\n        }\n        return Instance;\n    }\n    async show(callback?: RCallback) {\n        let args = new PreviewParams(this.list || [], () => {\n            this.close();\n            callback?.({ code: RXErrorCode.UI_CLOSE } as RXResult);\n        }, this.index);\n        if (this.contentNode) {\n            this.contentNode.update(args);\n        }\n        else {\n            this.contentNode = new ComponentContent(this.uiContext, wrapBuilder(previewBuilder), args);\n        }\n        this._show(this.contentNode);\n        return this;\n    }\n}\n",
+    "buildFilePath": "/Users/chenhan/Desktop/Git/RXSDK/RXSDK-Harmony-Native/HmsSdk/build/default/cache/default/default@HarCompileArkTS/esmodule/release/hmssdk/src/main/ets/pages/PreviewDialog.ts",
+    "relativeSourceFilePath": "HmsSdk/src/main/ets/pages/PreviewDialog.ets",
+    "originSourceFilePath": "/Users/chenhan/Desktop/Git/RXSDK/RXSDK-Harmony-Native/HmsSdk/src/main/ets/pages/PreviewDialog.ets",
+    "rollupModuleId": "/Users/chenhan/Desktop/Git/RXSDK/RXSDK-Harmony-Native/HmsSdk/src/main/ets/pages/PreviewDialog.ets"
+  },
+  "previousStageSourceMap": {
+    "version": 3,
+    "file": "PreviewDialog.ets",
+    "sourceRoot": "",
+    "sources": [
+      "HmsSdk/src/main/ets/pages/PreviewDialog.ets"
+    ],
+    "names": [],
+    "mappings": "OAAO,EAAa,WAAW,EAAY;cAAlC,SAAS,EAAe,QAAQ;OAChC,EAAA,gBAAgB,EAAA;OAClB,EAAE,UAAU,EAAE;OAEd,EAAE,cAAc,EAAE,aAAa,EAAE;AAExC,IAAI,QAAQ,EAAE,aAAa,CAAC;AAG5B,MAAM,OAAO,aAAc,SAAQ,UAAU,CAAC,aAAa,CAAC;IAC1D,IAAI,CAAC,EAAE,MAAM,EAAE,CAAA;IACf,KAAK,CAAC,EAAE,MAAM,CAAA;IAEd,MAAM,CAAC,OAAO,CAAC,IAAI,CAAC,EAAE,MAAM,EAAE,EAAE,KAAK,EAAE,MAAM,GAAG,CAAC;QAC/C,IAAI,CAAC,IAAI,GAAG,IAAI,CAAA;QAChB,IAAI,CAAC,KAAK,GAAG,KAAK,CAAA;QAClB,OAAO,IAAI,CAAA;IACb,CAAC;IAED,MAAM,CAAC,MAAM,CAAC,WAAW,CAAC,SAAS,EAAE,SAAS;QAC5C,IAAI,QAAQ,IAAI,IAAI,EAAE;YACpB,QAAQ,GAAG,IAAI,aAAa,CAAC,SAAS,CAAC,CAAC;SACzC;QACD,OAAO,QAAQ,CAAC;IAClB,CAAC;IAED,KAAK,CAAC,IAAI,CAAC,QAAQ,CAAC,EAAE,SAAS;QAC7B,IAAI,IAAI,GAAG,IAAI,aAAa,CAAC,IAAI,CAAC,IAAI,IAAI,EAAE,EAAE,GAAG,EAAE;YACjD,IAAI,CAAC,KAAK,EAAE,CAAA;YACZ,QAAQ,EAAE,CAAG,EAAE,IAAI,EAAE,WAAW,CAAC,QAAQ,EAAE,IAAI,QAAQ,CAAC,CAAA;QAC1D,CAAC,EAAE,IAAI,CAAC,KAAK,CAAC,CAAA;QAEd,IAAI,IAAI,CAAC,WAAW,EAAE;YACpB,IAAI,CAAC,WAAW,CAAC,MAAM,CAAC,IAAI,CAAC,CAAA;SAC9B;aAAM;YACL,IAAI,CAAC,WAAW,GAAG,IAAI,gBAAgB,CAAC,IAAI,CAAC,SAAS,EAAE,WAAW,CAAC,cAAc,CAAC,EAAE,IAAI,CAAC,CAAC;SAC5F;QACD,IAAI,CAAC,KAAK,CAAC,IAAI,CAAC,WAAW,CAAC,CAAA;QAC5B,OAAO,IAAI,CAAA;IAEb,CAAC;CACF",
+    "entry-package-info": "hmssdk|4.0.0"
+  }
+}

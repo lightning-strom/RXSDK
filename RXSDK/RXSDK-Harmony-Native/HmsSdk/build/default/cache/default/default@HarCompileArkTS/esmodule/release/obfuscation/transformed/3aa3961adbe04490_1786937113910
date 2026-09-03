@@ -1,0 +1,20 @@
+{
+  "moduleInfo": {
+    "content": "import type { ILogin } from '../types/ILogin';\nimport { LoginMethod } from \"@normalized:N&&&hmssdk/src/main/ets/types/Index&4.0.0\";\nimport { Logger } from \"@normalized:N&&&hmssdk/src/main/ets/utils/Logger&4.0.0\";\nimport { WXLogin } from \"@normalized:N&&&hmssdk/src/main/ets/wx/WXLogin&4.0.0\";\nimport { HmsLogin } from \"@normalized:N&&&hmssdk/src/main/ets/base/HmsLogin&4.0.0\";\nclass LoginDefault implements ILogin {\n    doLogin(_params: Record<string, any>): Promise<object> {\n        return Promise.resolve(new Object);\n    }\n}\nlet defaultLogin = new LoginDefault();\nclass LoginProvider implements ILogin {\n    private loginMap: Record<LoginMethod, ILogin> = {\n        [LoginMethod.Guest]: defaultLogin,\n        [LoginMethod.Harmony]: new HmsLogin,\n        [LoginMethod.Hwjos]: new HmsLogin,\n        [LoginMethod.UserName]: defaultLogin,\n        [LoginMethod.CaptchaCode]: defaultLogin,\n        [LoginMethod.Wechat]: new WXLogin\n    };\n    async doLogin(params: Record<string, any>): Promise<object> {\n        const method = params.method as LoginMethod;\n        const loginHandler = this.loginMap[method];\n        if (loginHandler) {\n            return loginHandler.doLogin(params);\n        }\n        else {\n            Logger.w(`Login method not supported: ${method}`);\n            return Object;\n        }\n    }\n}\nexport default new LoginProvider();\n",
+    "buildFilePath": "/Users/chenhan/Desktop/Git/RXSDK/RXSDK-Harmony-Native/HmsSdk/build/default/cache/default/default@HarCompileArkTS/esmodule/release/hmssdk/src/main/ets/base/LoginProvider.ts",
+    "relativeSourceFilePath": "HmsSdk/src/main/ets/base/LoginProvider.ets",
+    "originSourceFilePath": "/Users/chenhan/Desktop/Git/RXSDK/RXSDK-Harmony-Native/HmsSdk/src/main/ets/base/LoginProvider.ets",
+    "rollupModuleId": "/Users/chenhan/Desktop/Git/RXSDK/RXSDK-Harmony-Native/HmsSdk/src/main/ets/base/LoginProvider.ets"
+  },
+  "previousStageSourceMap": {
+    "version": 3,
+    "file": "LoginProvider.ets",
+    "sourceRoot": "",
+    "sources": [
+      "HmsSdk/src/main/ets/base/LoginProvider.ets"
+    ],
+    "names": [],
+    "mappings": "cAAS,MAAM,QAAQ,iBAAiB;OACjC,EAAE,WAAW,EAAE;OACf,EAAE,MAAM,EAAE;OACV,EAAE,OAAO,EAAE;OACX,EAAE,QAAQ,EAAE;AAEnB,MAAM,YAAa,YAAW,MAAM;IAClC,OAAO,CAAC,OAAO,EAAE,MAAM,CAAC,MAAM,MAAW,GAAG,OAAO,CAAC,MAAM,CAAC;QACzD,OAAO,OAAO,CAAC,OAAO,CAAC,IAAI,MAAM,CAAC,CAAC;IACrC,CAAC;CACF;AAED,IAAI,YAAY,GAAG,IAAI,YAAY,EAAE,CAAA;AAErC,MAAM,aAAc,YAAW,MAAM;IACnC,OAAO,CAAC,QAAQ,EAAE,MAAM,CAAC,WAAW,EAAE,MAAM,CAAC,GAAG;QAC9C,CAAC,WAAW,CAAC,KAAK,CAAC,EAAE,YAAY;QACjC,CAAC,WAAW,CAAC,OAAO,CAAC,EAAE,IAAI,QAAQ;QACnC,CAAC,WAAW,CAAC,KAAK,CAAC,EAAE,IAAI,QAAQ;QACjC,CAAC,WAAW,CAAC,QAAQ,CAAC,EAAE,YAAY;QACpC,CAAC,WAAW,CAAC,WAAW,CAAC,EAAE,YAAY;QACvC,CAAC,WAAW,CAAC,MAAM,CAAC,EAAE,IAAI,OAAO;KAClC,CAAA;IAED,KAAK,CAAC,OAAO,CAAC,MAAM,EAAE,MAAM,CAAC,MAAM,MAAW,GAAG,OAAO,CAAC,MAAM,CAAC;QAC9D,MAAM,MAAM,GAAG,MAAM,CAAC,MAAM,IAAI,WAAW,CAAC;QAC5C,MAAM,YAAY,GAAG,IAAI,CAAC,QAAQ,CAAC,MAAM,CAAC,CAAC;QAC3C,IAAI,YAAY,EAAE;YAChB,OAAO,YAAY,CAAC,OAAO,CAAC,MAAM,CAAC,CAAC;SACrC;aAAM;YACL,MAAM,CAAC,CAAC,CAAC,+BAA+B,MAAM,EAAE,CAAC,CAAC;YAClD,OAAO,MAAM,CAAA;SACd;IACH,CAAC;CACF;AAED,eAAe,IAAI,aAAa,EAAE,CAAA",
+    "entry-package-info": "hmssdk|4.0.0"
+  }
+}

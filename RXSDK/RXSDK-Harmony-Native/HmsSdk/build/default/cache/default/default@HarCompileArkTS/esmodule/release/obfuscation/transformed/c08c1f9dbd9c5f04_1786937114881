@@ -1,0 +1,20 @@
+{
+  "moduleInfo": {
+    "content": "import * as wxopensdk from \"@normalized:N&&&@tencent/wechat_open_sdk/Index&1.0.16\";\nimport SDKConfig from \"@normalized:N&&&hmssdk/src/main/ets/sdk/SDKConfig&4.0.0\";\nconst kTag = SDKConfig.TAG;\nexport type OnWXReq = (req: wxopensdk.BaseReq) => void;\nexport type OnWXResp = (resp: wxopensdk.BaseResp) => void;\nclass WXApiEventHandlerImpl implements wxopensdk.WXApiEventHandler {\n    private onReqCallbacks: Map<OnWXReq, OnWXReq> = new Map;\n    private onRespCallbacks: Map<OnWXResp, OnWXResp> = new Map;\n    registerOnWXReqCallback(on: OnWXReq) {\n        this.onReqCallbacks.set(on, on);\n    }\n    unregisterOnWXReqCallback(on: OnWXReq) {\n        this.onReqCallbacks.delete(on);\n    }\n    registerOnWXRespCallback(on: OnWXResp) {\n        wxopensdk.Log.i(kTag, \"onResp:%s\", JSON.stringify(this.onRespCallbacks));\n        this.onRespCallbacks.set(on, on);\n    }\n    unregisterOnWXRespCallback(on: OnWXResp) {\n        this.onRespCallbacks.delete(on);\n    }\n    onReq(req: wxopensdk.BaseReq): void {\n        wxopensdk.Log.i(kTag, \"onReq:%s\", JSON.stringify(req));\n        this.onReqCallbacks.forEach((on) => {\n            on(req);\n        });\n    }\n    onResp(resp: wxopensdk.BaseResp): void {\n        wxopensdk.Log.i(kTag, \"onResp:%s\", JSON.stringify(resp));\n        this.onRespCallbacks.forEach((on) => {\n            on(resp);\n        });\n    }\n}\nexport const WXEventHandler = new WXApiEventHandlerImpl;\n",
+    "buildFilePath": "/Users/chenhan/Desktop/Git/RXSDK/RXSDK-Harmony-Native/HmsSdk/build/default/cache/default/default@HarCompileArkTS/esmodule/release/hmssdk/src/main/ets/wx/WXApiEventHandler.ts",
+    "relativeSourceFilePath": "HmsSdk/src/main/ets/wx/WXApiEventHandler.ets",
+    "originSourceFilePath": "/Users/chenhan/Desktop/Git/RXSDK/RXSDK-Harmony-Native/HmsSdk/src/main/ets/wx/WXApiEventHandler.ets",
+    "rollupModuleId": "/Users/chenhan/Desktop/Git/RXSDK/RXSDK-Harmony-Native/HmsSdk/src/main/ets/wx/WXApiEventHandler.ets"
+  },
+  "previousStageSourceMap": {
+    "version": 3,
+    "file": "WXApiEventHandler.ets",
+    "sourceRoot": "",
+    "sources": [
+      "HmsSdk/src/main/ets/wx/WXApiEventHandler.ets"
+    ],
+    "names": [],
+    "mappings": "OAAO,KAAK,SAAS;OAEd,SAAS;AAChB,MAAM,IAAI,GAAG,SAAS,CAAC,GAAG,CAAA;AAE1B,MAAM,MAAM,OAAO,GAAG,CAAC,GAAG,EAAE,SAAS,CAAC,OAAO,KAAK,IAAI,CAAA;AAEtD,MAAM,MAAM,QAAQ,GAAG,CAAC,IAAI,EAAE,SAAS,CAAC,QAAQ,KAAK,IAAI,CAAA;AAEzD,MAAM,qBAAsB,YAAW,SAAS,CAAC,iBAAiB;IAChE,OAAO,CAAC,cAAc,EAAE,GAAG,CAAC,OAAO,EAAE,OAAO,CAAC,GAAG,IAAI,GAAG,CAAA;IACvD,OAAO,CAAC,eAAe,EAAE,GAAG,CAAC,QAAQ,EAAE,QAAQ,CAAC,GAAG,IAAI,GAAG,CAAA;IAE1D,uBAAuB,CAAC,EAAE,EAAE,OAAO;QACjC,IAAI,CAAC,cAAc,CAAC,GAAG,CAAC,EAAE,EAAE,EAAE,CAAC,CAAA;IACjC,CAAC;IAED,yBAAyB,CAAC,EAAE,EAAE,OAAO;QACnC,IAAI,CAAC,cAAc,CAAC,MAAM,CAAC,EAAE,CAAC,CAAA;IAChC,CAAC;IAED,wBAAwB,CAAC,EAAE,EAAE,QAAQ;QACnC,SAAS,CAAC,GAAG,CAAC,CAAC,CAAC,IAAI,EAAE,WAAW,EAAE,IAAI,CAAC,SAAS,CAAC,IAAI,CAAC,eAAe,CAAC,CAAC,CAAA;QACxE,IAAI,CAAC,eAAe,CAAC,GAAG,CAAC,EAAE,EAAE,EAAE,CAAC,CAAA;IAClC,CAAC;IAED,0BAA0B,CAAC,EAAE,EAAE,QAAQ;QACrC,IAAI,CAAC,eAAe,CAAC,MAAM,CAAC,EAAE,CAAC,CAAA;IACjC,CAAC;IAED,KAAK,CAAC,GAAG,EAAE,SAAS,CAAC,OAAO,GAAG,IAAI;QACjC,SAAS,CAAC,GAAG,CAAC,CAAC,CAAC,IAAI,EAAE,UAAU,EAAE,IAAI,CAAC,SAAS,CAAC,GAAG,CAAC,CAAC,CAAA;QACtD,IAAI,CAAC,cAAc,CAAC,OAAO,CAAC,CAAC,EAAE,EAAE,EAAE;YACjC,EAAE,CAAC,GAAG,CAAC,CAAA;QACT,CAAC,CAAC,CAAA;IACJ,CAAC;IAED,MAAM,CAAC,IAAI,EAAE,SAAS,CAAC,QAAQ,GAAG,IAAI;QACpC,SAAS,CAAC,GAAG,CAAC,CAAC,CAAC,IAAI,EAAE,WAAW,EAAE,IAAI,CAAC,SAAS,CAAC,IAAI,CAAC,CAAC,CAAA;QACxD,IAAI,CAAC,eAAe,CAAC,OAAO,CAAC,CAAC,EAAE,EAAE,EAAE;YAClC,EAAE,CAAC,IAAI,CAAC,CAAA;QACV,CAAC,CAAC,CAAA;IACJ,CAAC;CACF;AACD,MAAM,CAAC,MAAM,cAAc,GAAG,IAAI,qBAAqB,CAAA",
+    "entry-package-info": "hmssdk|4.0.0"
+  }
+}

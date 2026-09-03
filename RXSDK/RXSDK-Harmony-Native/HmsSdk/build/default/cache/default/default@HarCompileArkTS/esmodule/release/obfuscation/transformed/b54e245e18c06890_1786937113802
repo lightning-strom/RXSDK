@@ -1,0 +1,20 @@
+{
+  "moduleInfo": {
+    "content": "import { RequestMethod, RXRequest } from \"@normalized:N&&&hmssdk/src/main/ets/net/RXRequest&4.0.0\";\nimport SDKConfig from \"@normalized:N&&&hmssdk/src/main/ets/sdk/SDKConfig&4.0.0\";\nimport type { RCallback } from '../types/Index';\nimport { Logger } from \"@normalized:N&&&hmssdk/src/main/ets/utils/Logger&4.0.0\";\nconst LEGAL = \"v1/operationapi/legal\";\nconst LEGAL_TERMS = \"v1/operationapi/legal/terms\";\nclass Legal {\n    legal(callback?: RCallback) {\n        return RXRequest.request({\n            path: LEGAL,\n            data: { channel_id: SDKConfig.channelId, product_id: SDKConfig.productId },\n            withToken: false,\n            method: RequestMethod.GET,\n        }, callback);\n    }\n    // keys ， position 二选一\n    legalTerms(args: {\n        product_id?: string;\n        channel_id?: string;\n        keys?: string;\n        position?: string;\n    }, callback?: RCallback) {\n        args.product_id ??= SDKConfig.productId;\n        args.channel_id ??= SDKConfig.channelId;\n        if (!args.keys && !args.position) {\n            Logger.e(\"keys 和 position 参数必须二选一\");\n        }\n        return RXRequest.request({\n            path: LEGAL_TERMS,\n            data: args,\n            withToken: false,\n            method: RequestMethod.GET,\n        }, callback);\n    }\n}\nexport default new Legal();\n",
+    "buildFilePath": "/Users/chenhan/Desktop/Git/RXSDK/RXSDK-Harmony-Native/HmsSdk/build/default/cache/default/default@HarCompileArkTS/esmodule/release/hmssdk/src/main/ets/api/Legal.ts",
+    "relativeSourceFilePath": "HmsSdk/src/main/ets/api/Legal.ts",
+    "originSourceFilePath": "/Users/chenhan/Desktop/Git/RXSDK/RXSDK-Harmony-Native/HmsSdk/src/main/ets/api/Legal.ts",
+    "rollupModuleId": "/Users/chenhan/Desktop/Git/RXSDK/RXSDK-Harmony-Native/HmsSdk/src/main/ets/api/Legal.ts"
+  },
+  "previousStageSourceMap": {
+    "version": 3,
+    "file": "Legal.ts",
+    "sourceRoot": "",
+    "sources": [
+      "HmsSdk/src/main/ets/api/Legal.ts"
+    ],
+    "names": [],
+    "mappings": "OAAO,EAAE,aAAa,EAAE,SAAS,EAAE;OAC5B,SAAS;cACP,SAAS,QAAQ,gBAAgB;OACnC,EAAE,MAAM,EAAE;AAEjB,MAAM,KAAK,GAAG,uBAAuB,CAAC;AAEtC,MAAM,WAAW,GAAG,6BAA6B,CAAC;AAElD,MAAM,KAAK;IAET,KAAK,CAAC,QAAQ,CAAC,EAAE,SAAS;QACxB,OAAO,SAAS,CAAC,OAAO,CAAC;YACvB,IAAI,EAAE,KAAK;YACX,IAAI,EAAE,EAAE,UAAU,EAAE,SAAS,CAAC,SAAS,EAAE,UAAU,EAAE,SAAS,CAAC,SAAS,EAAE;YAC1E,SAAS,EAAE,KAAK;YAChB,MAAM,EAAE,aAAa,CAAC,GAAG;SAC1B,EAAE,QAAQ,CAAC,CAAC;IACf,CAAC;IAED,sBAAsB;IACtB,UAAU,CAAC,IAAI,EAAE;QAAE,UAAU,CAAC,EAAE,MAAM,CAAC;QAAC,UAAU,CAAC,EAAE,MAAM,CAAC;QAAC,IAAI,CAAC,EAAE,MAAM,CAAC;QAAC,QAAQ,CAAC,EAAE,MAAM,CAAA;KAAE,EAAE,QAAQ,CAAC,EAAE,SAAS;QACnH,IAAI,CAAC,UAAU,KAAK,SAAS,CAAC,SAAS,CAAA;QACvC,IAAI,CAAC,UAAU,KAAK,SAAS,CAAC,SAAS,CAAA;QACvC,IAAI,CAAC,IAAI,CAAC,IAAI,IAAI,CAAC,IAAI,CAAC,QAAQ,EAAE;YAChC,MAAM,CAAC,CAAC,CAAC,yBAAyB,CAAC,CAAC;SACrC;QACD,OAAO,SAAS,CAAC,OAAO,CAAC;YACvB,IAAI,EAAE,WAAW;YACjB,IAAI,EAAE,IAAI;YACV,SAAS,EAAE,KAAK;YAChB,MAAM,EAAE,aAAa,CAAC,GAAG;SAC1B,EAAE,QAAQ,CAAC,CAAC;IACf,CAAC;CAGF;AAED,eAAe,IAAI,KAAK,EAAE,CAAA",
+    "entry-package-info": "hmssdk|4.0.0"
+  }
+}

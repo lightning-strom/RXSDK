@@ -1,0 +1,22 @@
+dependencies: \
+  /Users/chenhan/Desktop/Git/RXSDK/RXSDK-iOS/RXOSUIKitCode/lipo/RXSDK_Pure.framework/Modules/module.modulemap \
+  /Users/chenhan/Desktop/Git/RXSDK/RXSDK-iOS/build/cocoapods/RXOSUIKit/Build/Intermediates.noindex/RXUIKit-OS.build/Release-iphoneos/RXUIKit-OS.build/module.modulemap \
+  /Users/chenhan/Desktop/Git/RXSDK/RXSDK-iOS/RXOSUIKitCode/RXUIKit-OS/View/View(邮件)/RXOSEmailPictureView.m \
+  /Users/chenhan/Desktop/Git/RXSDK/RXSDK-iOS/RXOSUIKitCode/RXUIKit-OS/View/View(邮件)/RXOSEmailPictureView.h \
+  /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS.sdk/System/Library/Frameworks/UIKit.framework/Modules/module.modulemap \
+  /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS.sdk/System/Library/Frameworks/Foundation.framework/Modules/module.modulemap \
+  /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS.sdk/System/Library/Frameworks/CoreGraphics.framework/Modules/module.modulemap \
+  /Users/chenhan/Desktop/Git/RXSDK/RXSDK-iOS/RXOSUIKitCode/RXUIKit-OS/Utils（常用工具）/RXOSCommonTool.h \
+  /Users/chenhan/Desktop/Git/RXSDK/RXSDK-iOS/RXOSUIKitCode/RXUIKit-OS/Utils（常用工具）/RXOSCommonHeader.h \
+  /Users/chenhan/Desktop/Git/RXSDK/RXSDK-iOS/RXOSUIKitCode/RXUIKit-OS/Category/UIColor+RXOSColorUtility.h \
+  /Users/chenhan/Desktop/Git/RXSDK/RXSDK-iOS/RXOSUIKitCode/RXUIKit-OS/UIKit/RXOSTextField.h \
+  /Users/chenhan/Desktop/Git/RXSDK/RXSDK-iOS/RXOSUIKitCode/RXUIKit-OS/Category/UIViewController+RXOSExtension.h \
+  /Users/chenhan/Desktop/Git/RXSDK/RXSDK-iOS/RXOSUIKitCode/RXUIKit-OS/Category/NSString+RXOSAddition.h \
+  /Users/chenhan/Desktop/Git/RXSDK/RXSDK-iOS/RXOSUIKitCode/RXUIKit-OS/Category/UIImage+RXOSAddition.h \
+  /Users/chenhan/Desktop/Git/RXSDK/RXSDK-iOS/RXOSUIKitCode/RXUIKit-OS/Utils（常用工具）/MBOSProgressHUD.h \
+  /Users/chenhan/Desktop/Git/RXSDK/RXSDK-iOS/RXOSUIKitCode/RXUIKit-OS/Utils（常用工具）/RXOSUserUtility.h \
+  /Users/chenhan/Desktop/Git/RXSDK/RXSDK-iOS/RXOSUIKitCode/RXUIKit-OS/RXOSUILoginConfig.h \
+  /Users/chenhan/Desktop/Git/RXSDK/RXSDK-iOS/RXOSUIKitCode/RXUIKit-OS/RXOSUserCenterConfig.h \
+  /Users/chenhan/Desktop/Git/RXSDK/RXSDK-iOS/RXOSUIKitCode/RXUIKit-OS/Utils（常用工具）/RXOSHUD.h \
+  /Users/chenhan/Desktop/Git/RXSDK/RXSDK-iOS/RXOSUIKitCode/RXUIKit-OS/Utils（常用工具）/OSConfig（国际化）/RXLocation.h \
+  /Users/chenhan/Desktop/Git/RXSDK/RXSDK-iOS/RXOSUIKitCode/RXUIKit-OS/Utils（常用工具）/OSConfig（国际化）/UILabel+RXLoaction.h

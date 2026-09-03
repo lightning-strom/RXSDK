@@ -1,0 +1,20 @@
+{
+  "moduleInfo": {
+    "content": "import fs from \"@ohos:file.fs\";\nimport { NearbyLog } from \"@normalized:N&&&hmssdk/src/main/ets/nearby/common/NearbyLog&4.0.0\";\nexport class DataUtil {\n    static toMB(size: number): string {\n        return (size / 1024 / 1024).toFixed(2);\n    }\n    static getFolderSize(dirPath: string): number {\n        let totalSize = 0;\n        try {\n            // 获取目录下所有文件项\n            const files = fs.listFileSync(dirPath);\n            files.forEach((file: string) => {\n                const fullPath = `${dirPath}${dirPath.endsWith('/') ? '' : '/'}${file}`;\n                const stat = fs.statSync(fullPath);\n                if (stat.isDirectory()) {\n                    // 递归计算子目录\n                    totalSize += DataUtil.getFolderSize(fullPath);\n                }\n                else {\n                    // 累加文件大小\n                    totalSize += stat.size;\n                }\n            });\n        }\n        catch (e) {\n            NearbyLog.error(`Error calculating folder size: ${e.message}`);\n        }\n        return totalSize;\n    }\n}\n",
+    "buildFilePath": "/Users/chenhan/Desktop/Git/RXSDK/RXSDK-Harmony-Native/HmsSdk/build/default/cache/default/default@HarCompileArkTS/esmodule/release/hmssdk/src/main/ets/nearby/common/DataUtil.ts",
+    "relativeSourceFilePath": "HmsSdk/src/main/ets/nearby/common/DataUtil.ets",
+    "originSourceFilePath": "/Users/chenhan/Desktop/Git/RXSDK/RXSDK-Harmony-Native/HmsSdk/src/main/ets/nearby/common/DataUtil.ets",
+    "rollupModuleId": "/Users/chenhan/Desktop/Git/RXSDK/RXSDK-Harmony-Native/HmsSdk/src/main/ets/nearby/common/DataUtil.ets"
+  },
+  "previousStageSourceMap": {
+    "version": 3,
+    "file": "DataUtil.ets",
+    "sourceRoot": "",
+    "sources": [
+      "HmsSdk/src/main/ets/nearby/common/DataUtil.ets"
+    ],
+    "names": [],
+    "mappings": "OAAO,EAAE;OACF,EAAE,SAAS,EAAE;AAGpB,MAAM,OAAO,QAAQ;IACnB,MAAM,CAAC,IAAI,CAAC,IAAI,EAAE,MAAM,GAAG,MAAM;QAC/B,OAAO,CAAC,IAAI,GAAG,IAAI,GAAG,IAAI,CAAC,CAAC,OAAO,CAAC,CAAC,CAAC,CAAC;IACzC,CAAC;IAED,MAAM,CAAC,aAAa,CAAC,OAAO,EAAE,MAAM,GAAG,MAAM;QAC3C,IAAI,SAAS,GAAG,CAAC,CAAC;QAClB,IAAI;YACF,aAAa;YACb,MAAM,KAAK,GAAG,EAAE,CAAC,YAAY,CAAC,OAAO,CAAC,CAAC;YACvC,KAAK,CAAC,OAAO,CAAC,CAAC,IAAI,EAAE,MAAM,EAAE,EAAE;gBAC7B,MAAM,QAAQ,GAAG,GAAG,OAAO,GAAG,OAAO,CAAC,QAAQ,CAAC,GAAG,CAAC,CAAC,CAAC,CAAC,EAAE,CAAC,CAAC,CAAC,GAAG,GAAG,IAAI,EAAE,CAAC;gBACxE,MAAM,IAAI,GAAG,EAAE,CAAC,QAAQ,CAAC,QAAQ,CAAC,CAAC;gBAEnC,IAAI,IAAI,CAAC,WAAW,EAAE,EAAE;oBACtB,UAAU;oBACV,SAAS,IAAI,QAAQ,CAAC,aAAa,CAAC,QAAQ,CAAC,CAAC;iBAC/C;qBAAM;oBACL,SAAS;oBACT,SAAS,IAAI,IAAI,CAAC,IAAI,CAAC;iBACxB;YACH,CAAC,CAAC,CAAC;SACJ;QAAC,OAAO,CAAC,EAAE;YACV,SAAS,CAAC,KAAK,CAAC,kCAAkC,CAAC,CAAC,OAAO,EAAE,CAAC,CAAC;SAChE;QACD,OAAO,SAAS,CAAC;IACnB,CAAC;CACF",
+    "entry-package-info": "hmssdk|4.0.0"
+  }
+}

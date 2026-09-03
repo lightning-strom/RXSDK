@@ -1,0 +1,37 @@
+moduledependenciestarget: \
+  /Users/chenhan/Desktop/Git/RXSDK/RXSDK-iOS/RXOSUIKitCode/lipo/RXSDK_Pure.framework/Modules/module.modulemap \
+  /Users/chenhan/Desktop/Git/RXSDK/RXSDK-iOS/RXOSUIKitCode/lipo/RXSDK_Pure.framework/Headers/RXSDK_Pure.h \
+  /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS26.1.sdk/System/Library/Frameworks/Foundation.framework/Modules/module.modulemap \
+  /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/17/include/module.modulemap \
+  /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS26.1.sdk/usr/include/DarwinFoundation2.modulemap \
+  /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS26.1.sdk/usr/include/ObjectiveC.modulemap \
+  /Users/chenhan/Desktop/Git/RXSDK/RXSDK-iOS/RXOSUIKitCode/Lipo/RXSDK_Pure.framework/Headers/RXService.h \
+  /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS26.1.sdk/System/Library/Frameworks/UIKit.framework/Modules/module.modulemap \
+  /Users/chenhan/Desktop/Git/RXSDK/RXSDK-iOS/RXOSUIKitCode/Lipo/RXSDK_Pure.framework/Headers/RXPublicHeader.h \
+  /Users/chenhan/Desktop/Git/RXSDK/RXSDK-iOS/RXOSUIKitCode/Lipo/RXSDK_Pure.framework/Headers/RX_CommonRequestError.h \
+  /Users/chenhan/Desktop/Git/RXSDK/RXSDK-iOS/RXOSUIKitCode/Lipo/RXSDK_Pure.framework/Headers/RXSdkInitConfig.h \
+  /Users/chenhan/Desktop/Git/RXSDK/RXSDK-iOS/RXOSUIKitCode/Lipo/RXSDK_Pure.framework/Headers/RXError.h \
+  /Users/chenhan/Desktop/Git/RXSDK/RXSDK-iOS/RXOSUIKitCode/Lipo/RXSDK_Pure.framework/Headers/RXSDK.h \
+  /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS26.1.sdk/System/Library/Frameworks/StoreKit.framework/Modules/module.modulemap \
+  /Users/chenhan/Desktop/Git/RXSDK/RXSDK-iOS/RXOSUIKitCode/Lipo/RXSDK_Pure.framework/Headers/RXShareConfig.h \
+  /Users/chenhan/Desktop/Git/RXSDK/RXSDK-iOS/RXOSUIKitCode/Lipo/RXSDK_Pure.framework/Headers/RXCustomShareConfig.h \
+  /Users/chenhan/Desktop/Git/RXSDK/RXSDK-iOS/RXOSUIKitCode/Lipo/RXSDK_Pure.framework/Headers/RXDeregisterConfig.h \
+  /Users/chenhan/Desktop/Git/RXSDK/RXSDK-iOS/RXOSUIKitCode/Lipo/RXSDK_Pure.framework/Headers/RXLoginConfig.h \
+  /Users/chenhan/Desktop/Git/RXSDK/RXSDK-iOS/RXOSUIKitCode/Lipo/RXSDK_Pure.framework/Headers/RXApiService.h \
+  /Users/chenhan/Desktop/Git/RXSDK/RXSDK-iOS/RXOSUIKitCode/Lipo/RXSDK_Pure.framework/Headers/RXShareService.h \
+  /Users/chenhan/Desktop/Git/RXSDK/RXSDK-iOS/RXOSUIKitCode/Lipo/RXSDK_Pure.framework/Headers/RXDestroyAccountService.h \
+  /Users/chenhan/Desktop/Git/RXSDK/RXSDK-iOS/RXOSUIKitCode/Lipo/RXSDK_Pure.framework/Headers/RXUpdateCheckService.h \
+  /Users/chenhan/Desktop/Git/RXSDK/RXSDK-iOS/RXOSUIKitCode/Lipo/RXSDK_Pure.framework/Headers/RXLogService.h \
+  /Users/chenhan/Desktop/Git/RXSDK/RXSDK-iOS/RXOSUIKitCode/Lipo/RXSDK_Pure.framework/Headers/RXIAPService.h \
+  /Users/chenhan/Desktop/Git/RXSDK/RXSDK-iOS/RXOSUIKitCode/Lipo/RXSDK_Pure.framework/Headers/RXErrorTool.h \
+  /Users/chenhan/Desktop/Git/RXSDK/RXSDK-iOS/RXOSUIKitCode/Lipo/RXSDK_Pure.framework/Headers/RXStoreKitService.h \
+  /Users/chenhan/Desktop/Git/RXSDK/RXSDK-iOS/RXOSUIKitCode/Lipo/RXSDK_Pure.framework/Headers/RXFeedbackService.h \
+  /Users/chenhan/Desktop/Git/RXSDK/RXSDK-iOS/RXOSUIKitCode/Lipo/RXSDK_Pure.framework/Headers/RXPrivateService.h \
+  /Users/chenhan/Desktop/Git/RXSDK/RXSDK-iOS/RXOSUIKitCode/Lipo/RXSDK_Pure.framework/Headers/RXLoginUIModel.h \
+  /Users/chenhan/Desktop/Git/RXSDK/RXSDK-iOS/RXOSUIKitCode/Lipo/RXSDK_Pure.framework/Headers/RXUWAService.h \
+  /Users/chenhan/Desktop/Git/RXSDK/RXSDK-iOS/RXOSUIKitCode/Lipo/RXSDK_Pure.framework/Headers/RXOSSPutManager.h \
+  /Users/chenhan/Desktop/Git/RXSDK/RXSDK-iOS/RXOSUIKitCode/Lipo/RXSDK_Pure.framework/Headers/RXLogManager.h \
+  /Users/chenhan/Desktop/Git/RXSDK/RXSDK-iOS/RXOSUIKitCode/Lipo/RXSDK_Pure.framework/Headers/RXUserActionLogManager.h \
+  /Users/chenhan/Desktop/Git/RXSDK/RXSDK-iOS/RXOSUIKitCode/Lipo/RXSDK_Pure.framework/Headers/RXKeyboard.h \
+  /Users/chenhan/Desktop/Git/RXSDK/RXSDK-iOS/RXOSUIKitCode/Lipo/RXSDK_Pure.framework/Headers/RXKeyboardPanel.h \
+  /Users/chenhan/Desktop/Git/RXSDK/RXSDK-iOS/RXOSUIKitCode/lipo/RXSDK_Pure.framework/Headers/RXSDK_Pure-Swift.h

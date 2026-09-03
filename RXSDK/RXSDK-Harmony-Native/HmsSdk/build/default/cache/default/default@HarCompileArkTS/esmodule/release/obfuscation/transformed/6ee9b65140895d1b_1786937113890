@@ -1,0 +1,20 @@
+{
+  "moduleInfo": {
+    "content": "import type { SDKEventType } from \"../types/Index\";\nimport { RXEvent } from \"@normalized:N&&&hmssdk/src/main/ets/utils/RXEvent&4.0.0\";\nconst sensitiveKey = Symbol('_event');\nexport default class EventBus extends RXEvent<Record<string | number | symbol, any>> {\n    private static instance: EventBus;\n    public static getInstance(): EventBus {\n        if (!EventBus.instance) {\n            EventBus.instance = new EventBus();\n        }\n        return EventBus.instance;\n    }\n    public dispatchEvent<T = any>(type: SDKEventType, data?: T) {\n        this.emit(type, data);\n    }\n    public registerEvent<T = any>(type: SDKEventType, data: (event: T) => void | boolean) {\n        this.on(type, data);\n    }\n    unregisterEvent<T = any>(type: SDKEventType, handler: (event: T) => void | boolean) {\n        this.off(type, handler);\n    }\n}\n",
+    "buildFilePath": "/Users/chenhan/Desktop/Git/RXSDK/RXSDK-Harmony-Native/HmsSdk/build/default/cache/default/default@HarCompileArkTS/esmodule/release/hmssdk/src/main/ets/base/EventBus.ts",
+    "relativeSourceFilePath": "HmsSdk/src/main/ets/base/EventBus.ts",
+    "originSourceFilePath": "/Users/chenhan/Desktop/Git/RXSDK/RXSDK-Harmony-Native/HmsSdk/src/main/ets/base/EventBus.ts",
+    "rollupModuleId": "/Users/chenhan/Desktop/Git/RXSDK/RXSDK-Harmony-Native/HmsSdk/src/main/ets/base/EventBus.ts"
+  },
+  "previousStageSourceMap": {
+    "version": 3,
+    "file": "EventBus.ts",
+    "sourceRoot": "",
+    "sources": [
+      "HmsSdk/src/main/ets/base/EventBus.ts"
+    ],
+    "names": [],
+    "mappings": "cAAS,YAAY,QAAQ,gBAAgB;OAEtC,EAAE,OAAO,EAAE;AAElB,MAAM,YAAY,GAAG,MAAM,CAAC,QAAQ,CAAC,CAAC;AAEtC,MAAM,CAAC,OAAO,OAAO,QAAS,SAAQ,OAAO,CAAC,MAAM,CAAC,MAAM,GAAG,MAAM,GAAG,MAAM,EAAE,GAAG,CAAC,CAAC;IAClF,OAAO,CAAC,MAAM,CAAC,QAAQ,EAAE,QAAQ,CAAC;IAElC,MAAM,CAAC,MAAM,CAAC,WAAW,IAAI,QAAQ;QACnC,IAAI,CAAC,QAAQ,CAAC,QAAQ,EAAE;YACtB,QAAQ,CAAC,QAAQ,GAAG,IAAI,QAAQ,EAAE,CAAC;SACpC;QACD,OAAO,QAAQ,CAAC,QAAQ,CAAC;IAC3B,CAAC;IAED,MAAM,CAAC,aAAa,CAAC,CAAC,GAAG,GAAG,EAAE,IAAI,EAAE,YAAY,EAAE,IAAI,CAAC,EAAE,CAAC;QACxD,IAAI,CAAC,IAAI,CAAC,IAAI,EAAE,IAAI,CAAC,CAAA;IACvB,CAAC;IAED,MAAM,CAAC,aAAa,CAAC,CAAC,GAAG,GAAG,EAAE,IAAI,EAAE,YAAY,EAAE,IAAI,EAAE,CAAC,KAAK,EAAE,CAAC,KAAK,IAAI,GAAG,OAAO;QAClF,IAAI,CAAC,EAAE,CAAC,IAAI,EAAE,IAAI,CAAC,CAAA;IACrB,CAAC;IAED,eAAe,CAAC,CAAC,GAAG,GAAG,EAAE,IAAI,EAAE,YAAY,EAAE,OAAO,EAAE,CAAC,KAAK,EAAE,CAAC,KAAK,IAAI,GAAG,OAAO;QAChF,IAAI,CAAC,GAAG,CAAC,IAAI,EAAE,OAAO,CAAC,CAAA;IACzB,CAAC;CACF",
+    "entry-package-info": "hmssdk|4.0.0"
+  }
+}

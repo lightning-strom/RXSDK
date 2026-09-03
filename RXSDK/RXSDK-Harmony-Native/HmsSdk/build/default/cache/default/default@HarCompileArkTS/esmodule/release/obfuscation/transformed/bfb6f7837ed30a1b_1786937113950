@@ -1,0 +1,20 @@
+{
+  "moduleInfo": {
+    "content": "// reflection.ts\nexport class Reflection {\n    // 模拟类注册表\n    private static classMap: {\n        [key: string]: any;\n    } = {};\n    /**\n     * 注册类\n     * @param className 字符串类名\n     * @param clazz 类本身\n     */\n    static registerClass(className: string, clazz: any) {\n        this.classMap[className] = clazz;\n    }\n    /**\n     * 根据类名字符串实例化对象\n     * @param className 字符串类名\n     */\n    static newInstance<T = any>(className: string, ...args: any[]): T | null {\n        const Cls = this.classMap[className];\n        if (!Cls) {\n            console.warn(`Class ${className} not found in registry`);\n            return null;\n        }\n        return new Cls(...args) as T;\n    }\n    /**\n     * 获取对象字段\n     * @param obj 对象实例\n     * @param fieldName 字段名\n     */\n    static getField(obj: any, fieldName: string): any {\n        if (obj && fieldName in obj) {\n            return obj[fieldName];\n        }\n        console.warn(`Field ${fieldName} not found in object`);\n        return undefined;\n    }\n    /**\n     * 设置对象字段\n     * @param obj 对象实例\n     * @param fieldName 字段名\n     * @param value 要设置的值\n     */\n    static setField(obj: any, fieldName: string, value: any): boolean {\n        if (obj) {\n            obj[fieldName] = value;\n            return true;\n        }\n        return false;\n    }\n    /**\n     * 调用对象方法\n     * @param obj 对象实例\n     * @param methodName 方法名\n     * @param args 参数数组\n     */\n    static invokeMethod(obj: any, methodName: string, ...args: any[]): any {\n        if (obj && typeof obj[methodName] === \"function\") {\n            return obj[methodName](...args);\n        }\n        console.warn(`Method ${methodName} not found in object`);\n        return undefined;\n    }\n}\n",
+    "buildFilePath": "/Users/chenhan/Desktop/Git/RXSDK/RXSDK-Harmony-Native/HmsSdk/build/default/cache/default/default@HarCompileArkTS/esmodule/release/hmssdk/src/main/ets/base/Reflection.ts",
+    "relativeSourceFilePath": "HmsSdk/src/main/ets/base/Reflection.ts",
+    "originSourceFilePath": "/Users/chenhan/Desktop/Git/RXSDK/RXSDK-Harmony-Native/HmsSdk/src/main/ets/base/Reflection.ts",
+    "rollupModuleId": "/Users/chenhan/Desktop/Git/RXSDK/RXSDK-Harmony-Native/HmsSdk/src/main/ets/base/Reflection.ts"
+  },
+  "previousStageSourceMap": {
+    "version": 3,
+    "file": "Reflection.ts",
+    "sourceRoot": "",
+    "sources": [
+      "HmsSdk/src/main/ets/base/Reflection.ts"
+    ],
+    "names": [],
+    "mappings": "AAAA,gBAAgB;AAChB,MAAM,OAAO,UAAU;IACnB,SAAS;IACT,OAAO,CAAC,MAAM,CAAC,QAAQ,EAAE;QAAE,CAAC,GAAG,EAAE,MAAM,GAAG,GAAG,CAAA;KAAE,GAAG,EAAE,CAAC;IAErD;;;;OAIG;IACH,MAAM,CAAC,aAAa,CAAC,SAAS,EAAE,MAAM,EAAE,KAAK,EAAE,GAAG;QAC9C,IAAI,CAAC,QAAQ,CAAC,SAAS,CAAC,GAAG,KAAK,CAAC;IACrC,CAAC;IAED;;;OAGG;IACH,MAAM,CAAC,WAAW,CAAC,CAAC,GAAG,GAAG,EAAE,SAAS,EAAE,MAAM,EAAE,GAAG,IAAI,EAAE,GAAG,EAAE,GAAG,CAAC,GAAG,IAAI;QACpE,MAAM,GAAG,GAAG,IAAI,CAAC,QAAQ,CAAC,SAAS,CAAC,CAAC;QACrC,IAAI,CAAC,GAAG,EAAE;YACN,OAAO,CAAC,IAAI,CAAC,SAAS,SAAS,wBAAwB,CAAC,CAAC;YACzD,OAAO,IAAI,CAAC;SACf;QACD,OAAO,IAAI,GAAG,CAAC,GAAG,IAAI,CAAC,IAAI,CAAC,CAAC;IACjC,CAAC;IAED;;;;OAIG;IACH,MAAM,CAAC,QAAQ,CAAC,GAAG,EAAE,GAAG,EAAE,SAAS,EAAE,MAAM,GAAG,GAAG;QAC7C,IAAI,GAAG,IAAI,SAAS,IAAI,GAAG,EAAE;YACzB,OAAO,GAAG,CAAC,SAAS,CAAC,CAAC;SACzB;QACD,OAAO,CAAC,IAAI,CAAC,SAAS,SAAS,sBAAsB,CAAC,CAAC;QACvD,OAAO,SAAS,CAAC;IACrB,CAAC;IAED;;;;;OAKG;IACH,MAAM,CAAC,QAAQ,CAAC,GAAG,EAAE,GAAG,EAAE,SAAS,EAAE,MAAM,EAAE,KAAK,EAAE,GAAG,GAAG,OAAO;QAC7D,IAAI,GAAG,EAAE;YACL,GAAG,CAAC,SAAS,CAAC,GAAG,KAAK,CAAC;YACvB,OAAO,IAAI,CAAC;SACf;QACD,OAAO,KAAK,CAAC;IACjB,CAAC;IAED;;;;;OAKG;IACH,MAAM,CAAC,YAAY,CAAC,GAAG,EAAE,GAAG,EAAE,UAAU,EAAE,MAAM,EAAE,GAAG,IAAI,EAAE,GAAG,EAAE,GAAG,GAAG;QAClE,IAAI,GAAG,IAAI,OAAO,GAAG,CAAC,UAAU,CAAC,KAAK,UAAU,EAAE;YAC9C,OAAO,GAAG,CAAC,UAAU,CAAC,CAAC,GAAG,IAAI,CAAC,CAAC;SACnC;QACD,OAAO,CAAC,IAAI,CAAC,UAAU,UAAU,sBAAsB,CAAC,CAAC;QACzD,OAAO,SAAS,CAAC;IACrB,CAAC;CACJ",
+    "entry-package-info": "hmssdk|4.0.0"
+  }
+}

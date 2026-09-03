@@ -1,0 +1,12 @@
+// @keepTs
+// @ts-nocheck
+export const HAR_VERSION = '4.0.0';
+export const BUILD_MODE_NAME = 'release';
+export const DEBUG = false;
+export const TARGET_NAME = 'default';
+export default class BuildProfile {
+    static readonly HAR_VERSION = HAR_VERSION;
+    static readonly BUILD_MODE_NAME = BUILD_MODE_NAME;
+    static readonly DEBUG = DEBUG;
+    static readonly TARGET_NAME = TARGET_NAME;
+}

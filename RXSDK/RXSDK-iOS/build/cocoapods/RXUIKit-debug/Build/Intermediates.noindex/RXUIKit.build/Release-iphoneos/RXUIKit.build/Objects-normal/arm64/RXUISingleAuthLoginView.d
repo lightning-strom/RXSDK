@@ -1,0 +1,30 @@
+dependencies: \
+  /Users/chenhan/Desktop/Git/RXSDK/RXSDK-iOS/RXUIKitCode/RXUIKitDemo/Lipo/RXSDK_Pure.framework/Modules/module.modulemap \
+  /Users/chenhan/Desktop/Git/RXSDK/RXSDK-iOS/build/cocoapods/RXUIKit-debug/Build/Intermediates.noindex/RXUIKit.build/Release-iphoneos/RXUIKit.build/module.modulemap \
+  /Users/chenhan/Desktop/Git/RXSDK/RXSDK-iOS/RXUIKitCode/RXUIKit/View/View（一键登录）/RXUISingleAuthLoginView.m \
+  /Users/chenhan/Desktop/Git/RXSDK/RXSDK-iOS/RXUIKitCode/RXUIKit/View/View（一键登录）/RXUISingleAuthLoginView.h \
+  /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS.sdk/System/Library/Frameworks/UIKit.framework/Modules/module.modulemap \
+  /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS.sdk/System/Library/Frameworks/Foundation.framework/Modules/module.modulemap \
+  /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS.sdk/System/Library/Frameworks/CoreGraphics.framework/Modules/module.modulemap \
+  /Users/chenhan/Desktop/Git/RXSDK/RXSDK-iOS/RXUIKitCode/RXUIKit/RXLoginUIConfig.h \
+  /Users/chenhan/Desktop/Git/RXSDK/RXSDK-iOS/RXUIKitCode/RXUIKit/RXUICommonHeader.h \
+  /Users/chenhan/Desktop/Git/RXSDK/RXSDK-iOS/RXUIKitCode/RXUIKit/Category/UIColor+RXColorUtility.h \
+  /Users/chenhan/Desktop/Git/RXSDK/RXSDK-iOS/RXUIKitCode/RXUIKit/RXUICommonTool.h \
+  /Users/chenhan/Desktop/Git/RXSDK/RXSDK-iOS/RXUIKitCode/RXUIKit/RXUIUserInfo.h \
+  /Users/chenhan/Desktop/Git/RXSDK/RXSDK-iOS/RXUIKitCode/RXUIKit/UIKit/RXTextField.h \
+  /Users/chenhan/Desktop/Git/RXSDK/RXSDK-iOS/RXUIKitCode/RXUIKit/Category/UIViewController+RXUIExtension.h \
+  /Users/chenhan/Desktop/Git/RXSDK/RXSDK-iOS/RXUIKitCode/RXUIKit/Category/NSString+RXAddition.h \
+  /Users/chenhan/Desktop/Git/RXSDK/RXSDK-iOS/RXUIKitCode/RXUIKit/Category/UIImage+RXAddition.h \
+  /Users/chenhan/Desktop/Git/RXSDK/RXSDK-iOS/RXUIKitCode/RXUIKit/RXUIUserUtility.h \
+  /Users/chenhan/Desktop/Git/RXSDK/RXSDK-iOS/RXUIKitCode/RXUIKit/RXUserCenterConfig.h \
+  /Users/chenhan/Desktop/Git/RXSDK/RXSDK-iOS/RXUIKitCode/RXUIKit/Utils（常用工具）/RXHUD.h \
+  /Users/chenhan/Desktop/Git/RXSDK/RXSDK-iOS/RXUIKitCode/RXUIKit/Utils（常用工具）/Third/MBProgressHUD/MBProgressHUD.h \
+  /Users/chenhan/Desktop/Git/RXSDK/RXSDK-iOS/RXUIKitCode/Pods/RXAuthSDK_official/ATAuthSDK.framework/Modules/module.modulemap \
+  /Users/chenhan/Desktop/Git/RXSDK/RXSDK-iOS/RXUIKitCode/RXUIKit/View/View（登录）/RXQuickLoginView.h \
+  /Users/chenhan/Desktop/Git/RXSDK/RXSDK-iOS/RXUIKitCode/RXUIKit/View/View（登录）/RXPriView.h \
+  /Users/chenhan/Desktop/Git/RXSDK/RXSDK-iOS/RXUIKitCode/RXUIKit/View/View（登录）/Manager/RXLoginViewManager.h \
+  /Users/chenhan/Desktop/Git/RXSDK/RXSDK-iOS/RXUIKitCode/RXUIKit/View/View（登录）/RXLoginView.h \
+  /Users/chenhan/Desktop/Git/RXSDK/RXSDK-iOS/RXUIKitCode/RXUIKit/RXUIKitService.h \
+  /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS.sdk/System/Cryptexes/OS/System/Library/Frameworks/WebKit.framework/Modules/module.modulemap \
+  /Users/chenhan/Desktop/Git/RXSDK/RXSDK-iOS/RXUIKitCode/RXUIKit/View/View（隐私政策）/RXCommonWKWebView.h \
+  /Users/chenhan/Desktop/Git/RXSDK/RXSDK-iOS/RXUIKitCode/RXUIKit/View/View（一键登录）/RXUIAuthLoginFailView.h

@@ -1,0 +1,20 @@
+{
+  "moduleInfo": {
+    "content": "import { ComponentContent } from \"@ohos:arkui.node\";\nimport { BaseDialog } from \"@normalized:N&&&hmssdk/src/main/ets/pages/BaseDialog&4.0.0\";\nimport { loadingBuilder, LoadingParams } from \"@normalized:N&&&hmssdk/src/main/ets/pages/LoadingBuilder&4.0.0\";\nlet Instance: LoadingDialog;\nexport class LoadingDialog extends BaseDialog<LoadingParams> {\n    timeout?: number;\n    text?: string;\n    bgColor?: ResourceColor;\n    public setBackgroundColor(col: ResourceColor) {\n        this.bgColor = col;\n        return this;\n    }\n    public setText(text: string) {\n        this.text = text;\n        return this;\n    }\n    public setTimeout(timeMilli: number) {\n        this.timeout = timeMilli;\n        return this;\n    }\n    public static getInstance(uiContext: UIContext) {\n        if (Instance == null) {\n            Instance = new LoadingDialog(uiContext);\n        }\n        return Instance;\n    }\n    show() {\n        let args = new LoadingParams(async () => {\n            this.close();\n        });\n        if (this.timeout) {\n            args.timeout = this.timeout;\n        }\n        if (this.text) {\n            args.text = this.text;\n        }\n        if (this.bgColor) {\n            args.bgColor = this.bgColor;\n        }\n        if (this.contentNode) {\n            this.contentNode.update(args);\n        }\n        else {\n            this.contentNode = new ComponentContent(this.uiContext, wrapBuilder(loadingBuilder), args);\n        }\n        this._show(this.contentNode);\n        return this;\n    }\n}\n",
+    "buildFilePath": "/Users/chenhan/Desktop/Git/RXSDK/RXSDK-Harmony-Native/HmsSdk/build/default/cache/default/default@HarCompileArkTS/esmodule/release/hmssdk/src/main/ets/pages/LoadingDialog.ts",
+    "relativeSourceFilePath": "HmsSdk/src/main/ets/pages/LoadingDialog.ets",
+    "originSourceFilePath": "/Users/chenhan/Desktop/Git/RXSDK/RXSDK-Harmony-Native/HmsSdk/src/main/ets/pages/LoadingDialog.ets",
+    "rollupModuleId": "/Users/chenhan/Desktop/Git/RXSDK/RXSDK-Harmony-Native/HmsSdk/src/main/ets/pages/LoadingDialog.ets"
+  },
+  "previousStageSourceMap": {
+    "version": 3,
+    "file": "LoadingDialog.ets",
+    "sourceRoot": "",
+    "sources": [
+      "HmsSdk/src/main/ets/pages/LoadingDialog.ets"
+    ],
+    "names": [],
+    "mappings": "OAAS,EAAA,gBAAgB,EAAA;OAElB,EAAE,UAAU,EAAE;OACd,EAAE,cAAc,EAAE,aAAa,EAAE;AAExC,IAAI,QAAQ,EAAE,aAAa,CAAC;AAE5B,MAAM,OAAO,aAAc,SAAQ,UAAU,CAAC,aAAa,CAAC;IAC1D,OAAO,CAAC,EAAE,MAAM,CAAA;IAChB,IAAI,CAAC,EAAE,MAAM,CAAA;IACb,OAAO,CAAC,EAAE,aAAa,CAAA;IAEvB,MAAM,CAAC,kBAAkB,CAAC,GAAG,EAAE,aAAa;QAC1C,IAAI,CAAC,OAAO,GAAG,GAAG,CAAA;QAClB,OAAO,IAAI,CAAA;IACb,CAAC;IAED,MAAM,CAAC,OAAO,CAAC,IAAI,EAAE,MAAM;QACzB,IAAI,CAAC,IAAI,GAAG,IAAI,CAAA;QAChB,OAAO,IAAI,CAAA;IACb,CAAC;IAED,MAAM,CAAC,UAAU,CAAC,SAAS,EAAE,MAAM;QACjC,IAAI,CAAC,OAAO,GAAG,SAAS,CAAA;QACxB,OAAO,IAAI,CAAA;IACb,CAAC;IAED,MAAM,CAAC,MAAM,CAAC,WAAW,CAAC,SAAS,EAAE,SAAS;QAC5C,IAAI,QAAQ,IAAI,IAAI,EAAE;YACpB,QAAQ,GAAG,IAAI,aAAa,CAAC,SAAS,CAAC,CAAC;SACzC;QACD,OAAO,QAAQ,CAAC;IAClB,CAAC;IAED,IAAI;QACF,IAAI,IAAI,GAAG,IAAI,aAAa,CAAC,KAAK,IAAI,EAAE;YACtC,IAAI,CAAC,KAAK,EAAE,CAAA;QACd,CAAC,CAAC,CAAA;QACF,IAAI,IAAI,CAAC,OAAO,EAAE;YAChB,IAAI,CAAC,OAAO,GAAG,IAAI,CAAC,OAAO,CAAA;SAC5B;QACD,IAAI,IAAI,CAAC,IAAI,EAAE;YACb,IAAI,CAAC,IAAI,GAAG,IAAI,CAAC,IAAI,CAAA;SACtB;QACD,IAAI,IAAI,CAAC,OAAO,EAAE;YAChB,IAAI,CAAC,OAAO,GAAG,IAAI,CAAC,OAAO,CAAA;SAC5B;QACD,IAAI,IAAI,CAAC,WAAW,EAAE;YACpB,IAAI,CAAC,WAAW,CAAC,MAAM,CAAC,IAAI,CAAC,CAAA;SAC9B;aAAM;YACL,IAAI,CAAC,WAAW,GAAG,IAAI,gBAAgB,CAAC,IAAI,CAAC,SAAS,EAAE,WAAW,CAAC,cAAc,CAAC,EAAE,IAAI,CAAC,CAAC;SAC5F;QACD,IAAI,CAAC,KAAK,CAAC,IAAI,CAAC,WAAW,CAAC,CAAA;QAC5B,OAAO,IAAI,CAAA;IAEb,CAAC;CACF",
+    "entry-package-info": "hmssdk|4.0.0"
+  }
+}

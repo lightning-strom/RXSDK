@@ -1,0 +1,35 @@
+dependencies: \
+  /Users/chenhan/Desktop/Git/RXSDK/RXSDK-iOS/RXOSUIKitCode/lipo/RXSDK_Pure.framework/Modules/module.modulemap \
+  /Users/chenhan/Desktop/Git/RXSDK/RXSDK-iOS/build/cocoapods/RXOSUIKit/Build/Intermediates.noindex/RXUIKit-OS.build/Release-iphoneos/RXUIKit-OS.build/module.modulemap \
+  /Users/chenhan/Desktop/Git/RXSDK/RXSDK-iOS/RXOSUIKitCode/RXUIKit-OS/View/View（登录）/RXOSHistoryLoginView.m \
+  /Users/chenhan/Desktop/Git/RXSDK/RXSDK-iOS/RXOSUIKitCode/RXUIKit-OS/View/View（登录）/RXOSHistoryLoginView.h \
+  /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS.sdk/System/Library/Frameworks/UIKit.framework/Modules/module.modulemap \
+  /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS.sdk/System/Library/Frameworks/Foundation.framework/Modules/module.modulemap \
+  /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS.sdk/System/Library/Frameworks/CoreGraphics.framework/Modules/module.modulemap \
+  /Users/chenhan/Desktop/Git/RXSDK/RXSDK-iOS/RXOSUIKitCode/RXUIKit-OS/RXOSUILoginConfig.h \
+  /Users/chenhan/Desktop/Git/RXSDK/RXSDK-iOS/RXOSUIKitCode/RXUIKit-OS/Utils（常用工具）/RXOSCommonHeader.h \
+  /Users/chenhan/Desktop/Git/RXSDK/RXSDK-iOS/RXOSUIKitCode/RXUIKit-OS/Category/UIColor+RXOSColorUtility.h \
+  /Users/chenhan/Desktop/Git/RXSDK/RXSDK-iOS/RXOSUIKitCode/RXUIKit-OS/Utils（常用工具）/RXOSCommonTool.h \
+  /Users/chenhan/Desktop/Git/RXSDK/RXSDK-iOS/RXOSUIKitCode/RXUIKit-OS/UIKit/RXOSTextField.h \
+  /Users/chenhan/Desktop/Git/RXSDK/RXSDK-iOS/RXOSUIKitCode/RXUIKit-OS/Category/UIViewController+RXOSExtension.h \
+  /Users/chenhan/Desktop/Git/RXSDK/RXSDK-iOS/RXOSUIKitCode/RXUIKit-OS/Category/NSString+RXOSAddition.h \
+  /Users/chenhan/Desktop/Git/RXSDK/RXSDK-iOS/RXOSUIKitCode/RXUIKit-OS/Category/UIImage+RXOSAddition.h \
+  /Users/chenhan/Desktop/Git/RXSDK/RXSDK-iOS/RXOSUIKitCode/RXUIKit-OS/Utils（常用工具）/MBOSProgressHUD.h \
+  /Users/chenhan/Desktop/Git/RXSDK/RXSDK-iOS/RXOSUIKitCode/RXUIKit-OS/Utils（常用工具）/RXOSUserUtility.h \
+  /Users/chenhan/Desktop/Git/RXSDK/RXSDK-iOS/RXOSUIKitCode/RXUIKit-OS/RXOSUserCenterConfig.h \
+  /Users/chenhan/Desktop/Git/RXSDK/RXSDK-iOS/RXOSUIKitCode/RXUIKit-OS/Utils（常用工具）/RXOSHUD.h \
+  /Users/chenhan/Desktop/Git/RXSDK/RXSDK-iOS/RXOSUIKitCode/RXUIKit-OS/Utils（常用工具）/OSConfig（国际化）/RXLocation.h \
+  /Users/chenhan/Desktop/Git/RXSDK/RXSDK-iOS/RXOSUIKitCode/RXUIKit-OS/Utils（常用工具）/OSConfig（国际化）/UILabel+RXLoaction.h \
+  /Users/chenhan/Desktop/Git/RXSDK/RXSDK-iOS/RXOSUIKitCode/RXUIKit-OS/UIKit/RXOSAttributeLabel.h \
+  /Users/chenhan/Desktop/Git/RXSDK/RXSDK-iOS/RXOSUIKitCode/RXUIKit-OS/View/View（隐私政策）/RXOSPrivacyView.h \
+  /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS.sdk/System/Cryptexes/OS/System/Library/Frameworks/WebKit.framework/Modules/module.modulemap \
+  /Users/chenhan/Desktop/Git/RXSDK/RXSDK-iOS/RXOSUIKitCode/RXUIKit-OS/View/View（登录）/RXOSPriView.h \
+  /Users/chenhan/Desktop/Git/RXSDK/RXSDK-iOS/RXOSUIKitCode/RXUIKit-OS/View/View（隐私政策）/RXOSCommonWKWebView.h \
+  /Users/chenhan/Desktop/Git/RXSDK/RXSDK-iOS/RXOSUIKitCode/RXUIKit-OS/View/View（找回密码）/RXOSGetBackPasswordView.h \
+  /Users/chenhan/Desktop/Git/RXSDK/RXSDK-iOS/RXOSUIKitCode/RXUIKit-OS/View/View（登录）/Manager/RXOSLoginViewManager.h \
+  /Users/chenhan/Desktop/Git/RXSDK/RXSDK-iOS/RXOSUIKitCode/RXUIKit-OS/View/View（登录）/RXOSQuickLoginView.h \
+  /Users/chenhan/Desktop/Git/RXSDK/RXSDK-iOS/RXOSUIKitCode/RXUIKit-OS/View/View（登录）/RXOSHistoryListLoginView.h \
+  /Users/chenhan/Desktop/Git/RXSDK/RXSDK-iOS/RXOSUIKitCode/RXUIKit-OS/View/View（登录）/RXOSLoginView.h \
+  /Users/chenhan/Desktop/Git/RXSDK/RXSDK-iOS/RXOSUIKitCode/RXUIKit-OS/UIKit/RXOSCloseBtn.h \
+  /Users/chenhan/Desktop/Git/RXSDK/RXSDK-iOS/RXOSUIKitCode/RXUIKit-OS/View/View（登录）/RXOSMoreLoginView.h \
+  /Users/chenhan/Desktop/Git/RXSDK/RXSDK-iOS/RXOSUIKitCode/RXUIKit-OS/View/View（登录）/RXOSEmailLoginView.h

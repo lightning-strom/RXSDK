@@ -1,0 +1,20 @@
+{
+  "moduleInfo": {
+    "content": "import { Singleton } from \"@normalized:N&&&hmssdk/src/main/ets/types/Types&4.0.0\";\nimport { Logger } from \"@normalized:N&&&hmssdk/src/main/ets/utils/Logger&4.0.0\";\nimport type { Obj } from \"./RXIndex\";\nimport type worker from \"@ohos:worker\";\ntype NativeCallback = (type: string, status: string, data: string) => void;\nexport class TuanjieBridge extends Singleton<TuanjieBridge> {\n    InitMessageBind(worker: worker.ThreadWorker) {\n        // if (SDKManager.MessageInitialized == true) {\n        //   return;\n        // }\n        // SDKManager.threadWorker = worker;\n        let postMessage = (type: Obj, data: Obj) => {\n            Logger.info('postMessageToWorker: type:' + type + \" ,data:\" + data);\n            // 向worker线程发送消息\n            worker.postMessage({\n                'type': \"syncHMSSDKResult\",\n                'data_type': type,\n                'data': data\n            });\n        };\n        worker.addEventListener(\"message\", async (e) => {\n            let msg: Obj = JSON.parse(JSON.stringify(e));\n            const data: Obj = msg[\"data\"];\n            let type: string = data[\"type\"];\n            const paramData: string = data[\"data\"];\n            let param: any = paramData ? JSON.parse(paramData) : {};\n            let uiContext: UIContext = globalThis.UIContext;\n            try {\n                // let result: string = await SDKHandler.Invoke?.[type]?.(param)\n                // if (result) {\n                //   postMessage(SDKHandler.Invoke?.[type]?.name, result)\n                // } else {\n                //   let ret: string\n                //\n                // }\n            }\n            catch (e) {\n                Logger.e(e);\n                postMessage(type, JSON.stringify(e));\n            }\n        });\n    }\n}\n",
+    "buildFilePath": "/Users/chenhan/Desktop/Git/RXSDK/RXSDK-Harmony-Native/HmsSdk/build/default/cache/default/default@HarCompileArkTS/esmodule/release/hmssdk/src/main/ets/sdk/TuanjieBridge.ts",
+    "relativeSourceFilePath": "HmsSdk/src/main/ets/sdk/TuanjieBridge.ets",
+    "originSourceFilePath": "/Users/chenhan/Desktop/Git/RXSDK/RXSDK-Harmony-Native/HmsSdk/src/main/ets/sdk/TuanjieBridge.ets",
+    "rollupModuleId": "/Users/chenhan/Desktop/Git/RXSDK/RXSDK-Harmony-Native/HmsSdk/src/main/ets/sdk/TuanjieBridge.ets"
+  },
+  "previousStageSourceMap": {
+    "version": 3,
+    "file": "TuanjieBridge.ets",
+    "sourceRoot": "",
+    "sources": [
+      "HmsSdk/src/main/ets/sdk/TuanjieBridge.ets"
+    ],
+    "names": [],
+    "mappings": "OAAO,EAAE,SAAS,EAAE;OACb,EAAE,MAAM,EAAE;cACR,GAAG,QAAQ,WAAW;YACtB,MAAM;AAEf,KAAK,cAAc,GAAG,CAAC,IAAI,EAAE,MAAM,EAAE,MAAM,EAAE,MAAM,EAAE,IAAI,EAAE,MAAM,KAAK,IAAI,CAAA;AAE1E,MAAM,OAAO,aAAc,SAAQ,SAAS,CAAC,aAAa,CAAC;IAEzD,eAAe,CAAC,MAAM,EAAE,MAAM,CAAC,YAAY;QAEzC,+CAA+C;QAC/C,YAAY;QACZ,IAAI;QACJ,oCAAoC;QAEpC,IAAI,WAAW,GAAG,CAAC,IAAI,EAAE,GAAG,EAAE,IAAI,EAAE,GAAG,EAAE,EAAE;YACzC,MAAM,CAAC,IAAI,CAAC,4BAA4B,GAAG,IAAI,GAAG,SAAS,GAAG,IAAI,CAAC,CAAC;YACpE,gBAAgB;YAChB,MAAM,CAAC,WAAW,CAAC;gBACjB,MAAM,EAAE,kBAAkB;gBAC1B,WAAW,EAAE,IAAI;gBACjB,MAAM,EAAE,IAAI;aACb,CAAC,CAAC;QACL,CAAC,CAAA;QACD,MAAM,CAAC,gBAAgB,CAAC,SAAS,EAAE,KAAK,EAAE,CAAC,EAAE,EAAE;YAC7C,IAAI,GAAG,EAAE,GAAG,GAAG,IAAI,CAAC,KAAK,CAAC,IAAI,CAAC,SAAS,CAAC,CAAC,CAAC,CAAC,CAAC;YAC7C,MAAM,IAAI,EAAE,GAAG,GAAG,GAAG,CAAC,MAAM,CAAC,CAAC;YAC9B,IAAI,IAAI,EAAE,MAAM,GAAG,IAAI,CAAC,MAAM,CAAC,CAAC;YAChC,MAAM,SAAS,EAAE,MAAM,GAAG,IAAI,CAAC,MAAM,CAAC,CAAC;YAEvC,IAAI,KAAK,QAAa,SAAS,CAAC,CAAC,CAAC,IAAI,CAAC,KAAK,CAAC,SAAS,CAAC,CAAC,CAAC,CAAC,EAAE,CAAC;YAC7D,IAAI,SAAS,EAAE,SAAS,GAAG,UAAU,CAAC,SAAS,CAAC;YAChD,IAAI;gBACF,gEAAgE;gBAChE,gBAAgB;gBAChB,yDAAyD;gBACzD,WAAW;gBACX,oBAAoB;gBACpB,EAAE;gBACF,IAAI;aACL;YAAC,OAAO,CAAC,EAAE;gBACV,MAAM,CAAC,CAAC,CAAC,CAAC,CAAC,CAAA;gBACX,WAAW,CAAC,IAAI,EAAE,IAAI,CAAC,SAAS,CAAC,CAAC,CAAC,CAAC,CAAA;aACrC;QACH,CAAC,CAAC,CAAC;IAEL,CAAC;CACF",
+    "entry-package-info": "hmssdk|4.0.0"
+  }
+}

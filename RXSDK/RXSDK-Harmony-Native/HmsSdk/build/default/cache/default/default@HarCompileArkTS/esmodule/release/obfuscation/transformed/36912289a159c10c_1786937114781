@@ -1,0 +1,20 @@
+{
+  "moduleInfo": {
+    "content": "import image from \"@ohos:multimedia.image\";\nimport { FileUtil } from \"@normalized:N&&&hmssdk/src/main/ets/utils/FileUtil&4.0.0\";\nexport default class ImageUtil {\n    private static readonly THUMB_SIZE: number = 32 * 1024;\n    static async getThumbBuffer(params: {\n        filePath: string;\n        quality?: number;\n    } & image.InitializationOptions): Promise<ArrayBuffer> {\n        const filePath = params.filePath;\n        if (!filePath) {\n            throw new Error(\"Invalid file path provided.\");\n        }\n        const imageSourceApi: image.ImageSource = image.createImageSource(filePath);\n        const opts: image.InitializationOptions = {\n            size: {\n                height: params.size?.height || 20,\n                width: params.size?.width || 20, // 默认宽度为 20\n            },\n        };\n        try {\n            // 创建 PixelMap 对象\n            const pixelMap: image.PixelMap = await imageSourceApi.createPixelMap(opts);\n            const imagePackerApi: image.ImagePacker = image.createImagePacker();\n            let quality = params.quality ?? 100;\n            let buffer: ArrayBuffer;\n            do {\n                buffer = await imagePackerApi.packToData(pixelMap, {\n                    format: FileUtil.extensionToMime(FileUtil.getFileExtensionFromPath(filePath, false), \"image/png\"),\n                    quality: quality,\n                });\n                if (buffer.byteLength < this.THUMB_SIZE || quality <= 10) {\n                    break;\n                }\n                // 每次降低质量 10\n                quality -= 10;\n            } while (true);\n            return buffer;\n        }\n        catch (error) {\n            console.error(\"Error generating thumbnail buffer:\", error);\n            throw new Error(\"Failed to generate thumbnail buffer.\");\n        }\n    }\n}\n",
+    "buildFilePath": "/Users/chenhan/Desktop/Git/RXSDK/RXSDK-Harmony-Native/HmsSdk/build/default/cache/default/default@HarCompileArkTS/esmodule/release/hmssdk/src/main/ets/utils/ImageUtil.ts",
+    "relativeSourceFilePath": "HmsSdk/src/main/ets/utils/ImageUtil.ts",
+    "originSourceFilePath": "/Users/chenhan/Desktop/Git/RXSDK/RXSDK-Harmony-Native/HmsSdk/src/main/ets/utils/ImageUtil.ts",
+    "rollupModuleId": "/Users/chenhan/Desktop/Git/RXSDK/RXSDK-Harmony-Native/HmsSdk/src/main/ets/utils/ImageUtil.ts"
+  },
+  "previousStageSourceMap": {
+    "version": 3,
+    "file": "ImageUtil.ts",
+    "sourceRoot": "",
+    "sources": [
+      "HmsSdk/src/main/ets/utils/ImageUtil.ts"
+    ],
+    "names": [],
+    "mappings": "OAAS,KAAK;OACP,EAAE,QAAQ,EAAE;AAEnB,MAAM,CAAC,OAAO,OAAO,SAAS;IAC5B,OAAO,CAAC,MAAM,CAAC,QAAQ,CAAC,UAAU,EAAE,MAAM,GAAG,EAAE,GAAG,IAAI,CAAA;IAEtD,MAAM,CAAC,KAAK,CAAC,cAAc,CAAC,MAAM,EAAE;QAAE,QAAQ,EAAE,MAAM,CAAC;QAAC,OAAO,CAAC,EAAE,MAAM,CAAA;KAAE,GAAG,KAAK,CAAC,qBAAqB,GAAG,OAAO,CAAC,WAAW,CAAC;QAC7H,MAAM,QAAQ,GAAG,MAAM,CAAC,QAAQ,CAAC;QACjC,IAAI,CAAC,QAAQ,EAAE;YACb,MAAM,IAAI,KAAK,CAAC,6BAA6B,CAAC,CAAC;SAChD;QACD,MAAM,cAAc,EAAE,KAAK,CAAC,WAAW,GAAG,KAAK,CAAC,iBAAiB,CAAC,QAAQ,CAAC,CAAC;QAC5E,MAAM,IAAI,EAAE,KAAK,CAAC,qBAAqB,GAAG;YACxC,IAAI,EAAE;gBACJ,MAAM,EAAE,MAAM,CAAC,IAAI,EAAE,MAAM,IAAI,EAAE;gBACjC,KAAK,EAAE,MAAM,CAAC,IAAI,EAAE,KAAK,IAAI,EAAE,EAAE,WAAW;aAC7C;SACF,CAAC;QAEF,IAAI;YACF,iBAAiB;YACjB,MAAM,QAAQ,EAAE,KAAK,CAAC,QAAQ,GAAG,MAAM,cAAc,CAAC,cAAc,CAAC,IAAI,CAAC,CAAC;YAC3E,MAAM,cAAc,EAAE,KAAK,CAAC,WAAW,GAAG,KAAK,CAAC,iBAAiB,EAAE,CAAC;YAEpE,IAAI,OAAO,GAAG,MAAM,CAAC,OAAO,IAAI,GAAG,CAAC;YACpC,IAAI,MAAM,EAAE,WAAW,CAAC;YACxB,GAAG;gBACD,MAAM,GAAG,MAAM,cAAc,CAAC,UAAU,CAAC,QAAQ,EAAE;oBACjD,MAAM,EAAE,QAAQ,CAAC,eAAe,CAAC,QAAQ,CAAC,wBAAwB,CAAC,QAAQ,EAAE,KAAK,CAAC,EAAE,WAAW,CAAC;oBACjG,OAAO,EAAE,OAAO;iBACjB,CAAC,CAAC;gBAEH,IAAI,MAAM,CAAC,UAAU,GAAG,IAAI,CAAC,UAAU,IAAI,OAAO,IAAI,EAAE,EAAE;oBACxD,MAAM;iBACP;gBACD,YAAY;gBACZ,OAAO,IAAI,EAAE,CAAC;aACf,QAAQ,IAAI,EAAE;YAEf,OAAO,MAAM,CAAC;SACf;QAAC,OAAO,KAAK,EAAE;YACd,OAAO,CAAC,KAAK,CAAC,oCAAoC,EAAE,KAAK,CAAC,CAAC;YAC3D,MAAM,IAAI,KAAK,CAAC,sCAAsC,CAAC,CAAC;SACzD;IACH,CAAC;CACF",
+    "entry-package-info": "hmssdk|4.0.0"
+  }
+}

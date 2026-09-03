@@ -1,0 +1,20 @@
+{
+  "moduleInfo": {
+    "content": "let NextID: number = 1;\n//邮件状态：1-已读 2-已领 3-已发送\nexport enum MailStatus {\n    Read = 1,\n    Received = 2,\n    Unread = 3\n}\n@ObservedV2\nexport class ObservedArray<T> extends Array<T> {\n    constructor(args?: T[]) {\n        if (args instanceof Array) {\n            super(...args);\n        }\n        else {\n            super();\n        }\n    }\n}\nexport interface MailDetail {\n    rx_mail_id: number;\n    title: string;\n    content: string;\n    sign: string;\n    props: MailPropItem[];\n    status: MailStatus;\n}\nexport interface MailPropItem {\n    name: string;\n    describe: string;\n    icon: string;\n    tag: string;\n    count: number;\n    count_format: string;\n    is_permanent: number;\n    time_limit: number;\n}\n@ObservedV2\nexport class Mail {\n    all_count: number = 0;\n    not_received_count: number = 0;\n    not_read_count: number = 0;\n    @Trace\n    list: MailItem[] = [];\n}\n@ObservedV2\nexport class MailItem {\n    rx_mail_id: number = 0;\n    title: string = '';\n    send_at: string = '';\n    @Trace\n    status: MailStatus = 3;\n    @Trace\n    has_reward: number = 0;\n}\n",
+    "buildFilePath": "/Users/chenhan/Desktop/Git/RXSDK/RXSDK-Harmony-Native/HmsSdk/build/default/cache/default/default@HarCompileArkTS/esmodule/release/hmssdk/src/main/ets/types/MailInterfaces.ts",
+    "relativeSourceFilePath": "HmsSdk/src/main/ets/types/MailInterfaces.ets",
+    "originSourceFilePath": "/Users/chenhan/Desktop/Git/RXSDK/RXSDK-Harmony-Native/HmsSdk/src/main/ets/types/MailInterfaces.ets",
+    "rollupModuleId": "/Users/chenhan/Desktop/Git/RXSDK/RXSDK-Harmony-Native/HmsSdk/src/main/ets/types/MailInterfaces.ets"
+  },
+  "previousStageSourceMap": {
+    "version": 3,
+    "file": "MailInterfaces.ets",
+    "sourceRoot": "",
+    "sources": [
+      "HmsSdk/src/main/ets/types/MailInterfaces.ets"
+    ],
+    "names": [],
+    "mappings": "AAAA,IAAI,MAAM,EAAE,MAAM,GAAG,CAAC,CAAC;AAEvB,sBAAsB;AACtB,MAAM,MAAM,UAAU;IACpB,IAAI,IAAI;IACR,QAAQ,IAAI;IACZ,MAAM,IAAI;CACX;AAED,CAAC,UAAU;AACX,MAAM,OAAO,aAAa,CAAC,CAAC,CAAE,SAAQ,KAAK,CAAC,CAAC,CAAC;IAC5C,YAAY,IAAI,CAAC,EAAE,CAAC,EAAE;QACpB,IAAI,IAAI,YAAY,KAAK,EAAE;YACzB,KAAK,CAAC,GAAG,IAAI,CAAC,CAAC;SAChB;aAAM;YACL,KAAK,EAAE,CAAC;SACT;IACH,CAAC;CACF;AAID,MAAM,WAAW,UAAU;IACzB,UAAU,EAAE,MAAM,CAAC;IACnB,KAAK,EAAE,MAAM,CAAC;IACd,OAAO,EAAE,MAAM,CAAC;IAChB,IAAI,EAAE,MAAM,CAAC;IACb,KAAK,EAAE,YAAY,EAAE,CAAC;IACtB,MAAM,EAAE,UAAU,CAAA;CACnB;AAGD,MAAM,WAAW,YAAY;IAC3B,IAAI,EAAE,MAAM,CAAC;IACb,QAAQ,EAAE,MAAM,CAAC;IACjB,IAAI,EAAE,MAAM,CAAC;IACb,GAAG,EAAE,MAAM,CAAC;IACZ,KAAK,EAAE,MAAM,CAAC;IACd,YAAY,EAAE,MAAM,CAAC;IACrB,YAAY,EAAE,MAAM,CAAC;IACrB,UAAU,EAAE,MAAM,CAAA;CACnB;AAED,CAAC,UAAU;AACX,MAAM,OAAO,IAAI;IACf,SAAS,EAAE,MAAM,GAAG,CAAC,CAAC;IACtB,kBAAkB,EAAE,MAAM,GAAG,CAAC,CAAC;IAC/B,cAAc,EAAE,MAAM,GAAG,CAAC,CAAC;IAC3B,CAAC,KAAK;IAAC,IAAI,EAAE,QAAQ,EAAE,GAAG,EAAE,CAAC;CAC9B;AAED,CAAC,UAAU;AACX,MAAM,OAAO,QAAQ;IACnB,UAAU,EAAE,MAAM,GAAG,CAAC,CAAA;IACtB,KAAK,EAAE,MAAM,GAAG,EAAE,CAAA;IAClB,OAAO,EAAE,MAAM,GAAG,EAAE,CAAA;IACpB,CAAC,KAAK;IAAC,MAAM,EAAE,UAAU,GAAG,CAAC,CAAC;IAC9B,CAAC,KAAK;IAAC,UAAU,EAAE,MAAM,GAAG,CAAC,CAAA;CAQ9B",
+    "entry-package-info": "hmssdk|4.0.0"
+  }
+}

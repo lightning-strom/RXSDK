@@ -1,0 +1,25 @@
+dependencies: \
+  /Users/chenhan/Desktop/Git/RXSDK/RXSDK-iOS/build/cocoapods/RXSDK_Pure/Build/Intermediates.noindex/RXSDK.build/Release-iphoneos/RXSDK-Pure.build/module.modulemap \
+  /Users/chenhan/Desktop/Git/RXSDK/RXSDK-iOS/RXSDKCode/RXSDK/Common/RXSDK.m \
+  /Users/chenhan/Desktop/Git/RXSDK/RXSDK-iOS/RXSDKCode/RXSDK/Common/RXSDK.h \
+  /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS.sdk/System/Library/Frameworks/Foundation.framework/Modules/module.modulemap \
+  /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS.sdk/System/Library/Frameworks/UIKit.framework/Modules/module.modulemap \
+  /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS.sdk/System/Library/Frameworks/StoreKit.framework/Modules/module.modulemap \
+  /Users/chenhan/Desktop/Git/RXSDK/RXSDK-iOS/RXSDKCode/RXSDK/Common/RXPublicHeader.h \
+  /Users/chenhan/Desktop/Git/RXSDK/RXSDK-iOS/RXSDKCode/RXSDK/Utils（常用工具）/RXNetwork（网络）/RX_CommonRequestError.h \
+  /Users/chenhan/Desktop/Git/RXSDK/RXSDK-iOS/RXSDKCode/RXSDK/Common/Model/RXSdkInitConfig.h \
+  /Users/chenhan/Desktop/Git/RXSDK/RXSDK-iOS/RXSDKCode/RXSDK/Common/RXError.h \
+  /Users/chenhan/Desktop/Git/RXSDK/RXSDK-iOS/RXSDKCode/RXSDK/Common/Model/RXShareConfig.h \
+  /Users/chenhan/Desktop/Git/RXSDK/RXSDK-iOS/RXSDKCode/RXSDK/Common/Model/RXCustomShareConfig.h \
+  /Users/chenhan/Desktop/Git/RXSDK/RXSDK-iOS/RXSDKCode/RXSDK/Common/Model/RXDeregisterConfig.h \
+  /Users/chenhan/Desktop/Git/RXSDK/RXSDK-iOS/RXSDKCode/RXSDK/Common/Model/RXLoginConfig.h \
+  /Users/chenhan/Desktop/Git/RXSDK/RXSDK-iOS/RXSDKCode/RXSDK/Common/RXApiService.h \
+  /Users/chenhan/Desktop/Git/RXSDK/RXSDK-iOS/RXSDKCode/RXSDK/Common/RXService.h \
+  /Users/chenhan/Desktop/Git/RXSDK/RXSDK-iOS/RXSDKCode/RXSDK/Common/RXIAPService.h \
+  /Users/chenhan/Desktop/Git/RXSDK/RXSDK-iOS/RXSDKCode/RXSDK/Common/RXShareService.h \
+  /Users/chenhan/Desktop/Git/RXSDK/RXSDK-iOS/RXSDKCode/RXSDK/Common/RXLogService.h \
+  /Users/chenhan/Desktop/Git/RXSDK/RXSDK-iOS/RXSDKCode/RXSDK/Common/RXDestroyAccountService.h \
+  /Users/chenhan/Desktop/Git/RXSDK/RXSDK-iOS/RXSDKCode/RXSDK/Common/RXFeedbackService.h \
+  /Users/chenhan/Desktop/Git/RXSDK/RXSDK-iOS/RXSDKCode/RXSDK/Common/RXStoreKitService.h \
+  /Users/chenhan/Desktop/Git/RXSDK/RXSDK-iOS/RXSDKCode/RXSDK/Common/RXPrivateService.h \
+  /Users/chenhan/Desktop/Git/RXSDK/RXSDK-iOS/RXSDKCode/RXSDK/Common/RXContactService.h

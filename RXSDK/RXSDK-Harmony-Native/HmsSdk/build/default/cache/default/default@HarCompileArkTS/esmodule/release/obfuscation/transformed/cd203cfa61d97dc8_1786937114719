@@ -1,0 +1,20 @@
+{
+  "moduleInfo": {
+    "content": "import { CipherMode, CryptoUtil } from \"@normalized:N&&&hmssdk/src/main/ets/utils/CryptoUtil&4.0.0\";\nimport Devices from \"@normalized:N&&&hmssdk/src/main/ets/utils/Devices&4.0.0\";\nconst aesKey = \"4ca7dacc9332d74e1292c83f0aa3b376\";\nexport default class AESUtil {\n    private static _aesKey;\n    public static set aesKey(value) {\n        AESUtil._aesKey = CryptoUtil.md5Sync(value + aesKey).toLowerCase();\n    }\n    static generateSymKey(aesKey: string, algName: string = \"AES128\") {\n        return CryptoUtil.generateSymKey(aesKey, algName);\n    }\n    //ecb\n    static encrypt(text: string, puKey?: string) {\n        return CryptoUtil.aesEncrypt(text, puKey || this.getAesKey());\n    }\n    //ecb\n    static decrypt(text: string, puKey?: string) {\n        return CryptoUtil.aesDecrypt(text, puKey || this.getAesKey());\n    }\n    static encryptCBC(text: string | Uint8Array | ArrayBuffer, puKey?: string) {\n        let key = puKey || this.getAesKey();\n        // Logger.debug(key);\n        // Logger.debug(\"原文:\" + text);\n        let d = CryptoUtil.aesEncrypt(text, key, CipherMode.CBC);\n        // Logger.debug(\"密文:\" + d);\n        return d;\n    }\n    static decryptCBC(text: string, puKey?: string) {\n        return CryptoUtil.aesDecrypt(text, puKey || this.getAesKey(), CipherMode.CBC);\n    }\n    public static getAesKey(): string {\n        if (!this._aesKey) {\n            this.aesKey = Devices.deviceCode;\n            // console.log(`rxsdk 设备码： ${Devices.deviceCode} 密钥： ${aesKey} 加密密钥： ${this._aesKey}`)\n        }\n        return this._aesKey;\n    }\n}\n",
+    "buildFilePath": "/Users/chenhan/Desktop/Git/RXSDK/RXSDK-Harmony-Native/HmsSdk/build/default/cache/default/default@HarCompileArkTS/esmodule/release/hmssdk/src/main/ets/utils/AESUtil.ts",
+    "relativeSourceFilePath": "HmsSdk/src/main/ets/utils/AESUtil.ts",
+    "originSourceFilePath": "/Users/chenhan/Desktop/Git/RXSDK/RXSDK-Harmony-Native/HmsSdk/src/main/ets/utils/AESUtil.ts",
+    "rollupModuleId": "/Users/chenhan/Desktop/Git/RXSDK/RXSDK-Harmony-Native/HmsSdk/src/main/ets/utils/AESUtil.ts"
+  },
+  "previousStageSourceMap": {
+    "version": 3,
+    "file": "AESUtil.ts",
+    "sourceRoot": "",
+    "sources": [
+      "HmsSdk/src/main/ets/utils/AESUtil.ts"
+    ],
+    "names": [],
+    "mappings": "OAAO,EAAE,UAAU,EAAE,UAAU,EAAE;OAC1B,OAAO;AAGd,MAAM,MAAM,GAAG,kCAAkC,CAAA;AAEjD,MAAM,CAAC,OAAO,OAAO,OAAO;IAC1B,OAAO,CAAC,MAAM,CAAC,OAAO,CAAC;IAEvB,MAAM,CAAC,MAAM,KAAK,MAAM,CAAC,KAAK;QAC5B,OAAO,CAAC,OAAO,GAAG,UAAU,CAAC,OAAO,CAAC,KAAK,GAAG,MAAM,CAAC,CAAC,WAAW,EAAE,CAAA;IACpE,CAAC;IAED,MAAM,CAAC,cAAc,CAAC,MAAM,EAAE,MAAM,EAAE,OAAO,EAAE,MAAM,GAAG,QAAQ;QAC9D,OAAO,UAAU,CAAC,cAAc,CAAC,MAAM,EAAE,OAAO,CAAC,CAAC;IACpD,CAAC;IAED,KAAK;IACL,MAAM,CAAC,OAAO,CAAC,IAAI,EAAE,MAAM,EAAE,KAAK,CAAC,EAAE,MAAM;QACzC,OAAO,UAAU,CAAC,UAAU,CAAC,IAAI,EAAE,KAAK,IAAI,IAAI,CAAC,SAAS,EAAE,CAAC,CAAC;IAChE,CAAC;IAED,KAAK;IACL,MAAM,CAAC,OAAO,CAAC,IAAI,EAAE,MAAM,EAAE,KAAK,CAAC,EAAE,MAAM;QACzC,OAAO,UAAU,CAAC,UAAU,CAAC,IAAI,EAAE,KAAK,IAAI,IAAI,CAAC,SAAS,EAAE,CAAC,CAAC;IAChE,CAAC;IAED,MAAM,CAAC,UAAU,CAAC,IAAI,EAAE,MAAM,GAAG,UAAU,GAAG,WAAW,EAAE,KAAK,CAAC,EAAE,MAAM;QACvE,IAAI,GAAG,GAAG,KAAK,IAAI,IAAI,CAAC,SAAS,EAAE,CAAA;QACnC,qBAAqB;QACrB,8BAA8B;QAC9B,IAAI,CAAC,GAAG,UAAU,CAAC,UAAU,CAAC,IAAI,EAAE,GAAG,EAAE,UAAU,CAAC,GAAG,CAAC,CAAC;QACzD,2BAA2B;QAC3B,OAAO,CAAC,CAAA;IACV,CAAC;IAED,MAAM,CAAC,UAAU,CAAC,IAAI,EAAE,MAAM,EAAE,KAAK,CAAC,EAAE,MAAM;QAC5C,OAAO,UAAU,CAAC,UAAU,CAAC,IAAI,EAAE,KAAK,IAAI,IAAI,CAAC,SAAS,EAAE,EAAE,UAAU,CAAC,GAAG,CAAC,CAAC;IAChF,CAAC;IAED,MAAM,CAAC,MAAM,CAAC,SAAS,IAAI,MAAM;QAC/B,IAAI,CAAC,IAAI,CAAC,OAAO,EAAE;YACjB,IAAI,CAAC,MAAM,GAAG,OAAO,CAAC,UAAU,CAAA;YAChC,sFAAsF;SACvF;QACD,OAAO,IAAI,CAAC,OAAO,CAAA;IACrB,CAAC;CACF",
+    "entry-package-info": "hmssdk|4.0.0"
+  }
+}
