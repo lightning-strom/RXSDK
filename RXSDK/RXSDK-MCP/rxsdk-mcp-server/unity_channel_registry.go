@@ -236,7 +236,7 @@ var unityChannelSpecs = map[string]unityChannelSpec{
     url 'https://maven.columbus.heytapmobi.com/repository/releases/'
     credentials {
         username 'nexus'
-        password '<REDACTED>'
+        password 'c0b08da17e3ec36c3870fed674a0bcb36abc2e23'
     }
 }`,
 		},
@@ -264,7 +264,7 @@ var unityChannelSpecs = map[string]unityChannelSpec{
     url "https://repos.xiaomi.com/maven"
     credentials {
         username 'mi-gamesdk'
-        password '<REDACTED>'
+        password 'AKCp8mYeLuhuaGj6bK1XK7t2w4CsPuGwg6GpQdZ9cat7K59y5sD7Tx3dHjJcFrBGj3TQ4vi7g'
     }
 }`,
 		},
