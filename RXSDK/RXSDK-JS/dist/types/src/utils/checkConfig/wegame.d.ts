@@ -1,0 +1,10 @@
+import { Rules } from '@/utils/async-validator';
+export declare const wegameLoginParamsCheck: Rules;
+export declare const wegameShareCheckParams: Rules;
+export declare const compensateOrderCheckParams: Rules;
+export declare const ReportLoactionCheckParams: Rules;
+export declare const DeleteLoactionCheckParams2: Rules;
+export declare const getNearlyRediusCheckParams: Rules;
+export declare const msgSecCheck: Rules;
+export declare const mediaCheckAsyncCheck: Rules;
+export declare const wegamePayCheckParams: Rules;

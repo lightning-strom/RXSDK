@@ -1,0 +1,14 @@
+import { Rules } from '@/utils/async-validator';
+export declare const setcustomCheck: Rules;
+export declare const addRelationCheck: Rules;
+export declare const deleteRelationCheck: Rules;
+export declare const updateremarksCheck: Rules;
+export declare const hasRelationCheck: Rules;
+export declare const relationListCheck: Rules;
+export declare const addFriendCheck: Rules;
+export declare const delfriendCheck: Rules;
+export declare const updatefriendremarksCheck: Rules;
+export declare const addscoreCheck: Rules;
+export declare const queryuserrankCheck: Rules;
+export declare const getranklimitlistCheck: Rules;
+export declare const getranklistCheck: Rules;

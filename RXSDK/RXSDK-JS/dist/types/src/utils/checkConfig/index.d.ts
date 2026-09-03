@@ -1,0 +1,13 @@
+import { Rules } from '@/utils/async-validator';
+export declare function TypeOfValue(value: any): string;
+export declare const initParamsCheck: Rules;
+export declare const huaweiInitParamsCheck: Rules;
+export declare const taobaoInitParamsCheck: Rules;
+export declare const checkTrackParams: Rules;
+export declare const checkAppVersionParams: Rules;
+export declare const checkGameVersionParams: Rules;
+export declare const checkActivityVersionParams: Rules;
+export declare const checkIReqBusinessData: Rules;
+export declare const checkIReqBusinessOrder: Rules;
+export declare const shareScheduleReportParams: Rules;
+export declare const shareScheduleInitParams: Rules;

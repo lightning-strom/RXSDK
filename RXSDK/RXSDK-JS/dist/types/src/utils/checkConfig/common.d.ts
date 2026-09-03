@@ -1,0 +1,10 @@
+import { Rules } from 'async-validator';
+export declare const sendCaptchaParamsCheck: Rules;
+export declare const bindPhoneParamsCheck: Rules;
+export declare const changePhoneParamsCheck: Rules;
+export declare const verifyCodeParamsCheck: Rules;
+export declare const unBindPhoneParamsCheck: Rules;
+export declare const bindEmailParamsCheck: Rules;
+export declare const unbindemailParamsCheck: Rules;
+export declare const deregisterParamsCheck: Rules;
+export declare const update_infoCheck: Rules;

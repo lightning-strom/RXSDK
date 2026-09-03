@@ -1,0 +1,217 @@
+<!doctype html>
+<html lang="zh">
+  <head>
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <title></title>
+    <style>
+      .hljs { padding: 20px; border-radius: 4px }
+      .markdown-body {
+        min-width: 838px;
+        max-width: 838px;
+        background-color: rgb(255, 255, 255);
+        overflow: auto;
+        border-width: 1px;
+        border-style: solid;
+        border-color: rgb(225, 228, 232);
+        border-image: initial;
+        padding: 32px;
+        margin: 20px auto;
+      }
+      .table-of-contents {
+        position: fixed;
+        top: 0px;
+        bottom: 0px;
+        left: 0px;
+        width: 300px;
+        height: 100%;
+        overflow-y: auto;
+        overflow-x: hidden;
+        background: rgb(250, 250, 250);
+        padding: 20px;
+      }
+    </style>
+    <link href="./github.css" rel="stylesheet">
+  </head>
+  <body>
+    <section class="markdown-body">
+      <ol>
+<li>Object wx.getDirectAdStatusSync()</li>
+</ol>
+<p>基础库 3.11.2 开始支持，低版本需做兼容处理。</p>
+<p>功能描述</p>
+<p>获取直玩广告组件展示状态。</p>
+<p>返回值</p>
+<p>Object</p>
+<p>直玩广告状态信息</p>
+<p>属性	类型	说明
+isInMask	boolean	当前是否处于蒙层阶段
+isInDirectGameAd	boolean	当前是否处于直接广告中
+示例代码</p>
+<p>const statusInfo = wx.getDirectAdStatusSync();
+console.log(statusInfo.isInMask) // 当前是否在蒙层阶段
+console.log(statusInfo.isInDirectGameAd) // 当前是否在直玩广告中</p>
+<ol start="2">
+<li>wx.onDirectAdStatusChange(function listener)</li>
+</ol>
+<p>基础库 3.11.2 开始支持，低版本需做兼容处理。</p>
+<p>功能描述</p>
+<p>监听监听直玩广告状态变化</p>
+<p>参数</p>
+<p>function listener</p>
+<p>的监听函数</p>
+<p>参数</p>
+<p>Object res</p>
+<p>属性	类型	说明
+isInMask	boolean	当前是否处于蒙层阶段
+isInDirectGameAd	boolean	当前是否处于直接广告中
+isEndByAbnormal	boolean	当前直玩广告是否由于异常流程而结束（如 下拉/搜索 进入正在直玩广告流程中的游戏）
+示例代码</p>
+<p>wx.onDirectAdStatusChange(res =&gt; {
+// 会有如下的几种状态值组合
+// a) { isInMask: true, isInDirectGameAd: true } -&gt; 表示当前正在直玩广告 且 未戳破蒙层
+// b) { isInMask: false, isInDirectGameAd: true } -&gt; 表示当前正在直玩广告 且 戳破了蒙层
+// c) { isInMask: false, isInDirectGameAd: false, isEndByAbnormal: false }, -&gt; 表示倒计时结束了，并且选择了继续玩
+// d) { isInMask: false, isInDirectGameAd: false, isEndByAbnormal: true }, -&gt; 表示由于异常流程而结束
+console.log(res.isInMask)
+console.log(res.isInDirectGameAd)
+console.log(res.isEndByAbnormal)
+})</p>
+<ol start="3">
+<li>直玩逻辑调整</li>
+</ol>
+<ul>
+<li><code>getDirectAdStatusSync</code> 中返回数据 <code>isInDirectGameAd: false</code> <code>isInMask: false</code>，表示正常用户未进入直玩，广点通上报逻辑保持不变</li>
+<li><code>isInDirectGameAd</code> <code>isInMask</code> 首次通过 <code>getDirectAdStatusSync</code> 获取，之后通过 <code>onDirectAdStatusChange</code> 监听获取</li>
+<li><code>isInMask: true</code> <code>isInDirectGameAd: true</code> 表示正在直玩广告且未戳破蒙层，将广点通 注册&amp;登录&amp;回流 事件保存，等玩家戳破蒙层进入游戏再上报，保存的事件不需要写入 storage 持久化，存变量即可
+<ul>
+<li><code>isInMask: false</code> <code>isInDirectGameAd: true</code> 表示正在直玩广告且戳破蒙层，戳破蒙层上报数据后将保存的 注册&amp;登录&amp;回流 事件数据清除</li>
+</ul>
+</li>
+<li>将 <code>getDirectAdStatusSync</code> 和 <code>onDirectAdStatusChange</code> 产生的数据 <code>isInMask</code> <code>isInDirectGameAd</code> <code>isEndByAbnormal</code> 上报到瑞雪大数据 <code>sdk.track</code>，参数 <code>event: direct_ad</code>，三个数据放到 properties 中，类型 bool</li>
+</ul>
+
+    </section>
+
+    <style>pre code.hljs {
+  display: block;
+  overflow-x: auto;
+  padding: 1em
+}
+code.hljs {
+  padding: 3px 5px
+}
+/*!
+  Theme: GitHub Dark
+  Description: Dark theme as seen on github.com
+  Author: github.com
+  Maintainer: @Hirse
+  Updated: 2021-05-15
+
+  Outdated base version: https://github.com/primer/github-syntax-dark
+  Current colors taken from GitHub&#x27;s CSS
+*/
+.hljs {
+  color: #c9d1d9;
+  background: #0d1117
+}
+.hljs-doctag,
+.hljs-keyword,
+.hljs-meta .hljs-keyword,
+.hljs-template-tag,
+.hljs-template-variable,
+.hljs-type,
+.hljs-variable.language_ {
+  /* prettylights-syntax-keyword */
+  color: #ff7b72
+}
+.hljs-title,
+.hljs-title.class_,
+.hljs-title.class_.inherited__,
+.hljs-title.function_ {
+  /* prettylights-syntax-entity */
+  color: #d2a8ff
+}
+.hljs-attr,
+.hljs-attribute,
+.hljs-literal,
+.hljs-meta,
+.hljs-number,
+.hljs-operator,
+.hljs-variable,
+.hljs-selector-attr,
+.hljs-selector-class,
+.hljs-selector-id {
+  /* prettylights-syntax-constant */
+  color: #79c0ff
+}
+.hljs-regexp,
+.hljs-string,
+.hljs-meta .hljs-string {
+  /* prettylights-syntax-string */
+  color: #a5d6ff
+}
+.hljs-built_in,
+.hljs-symbol {
+  /* prettylights-syntax-variable */
+  color: #ffa657
+}
+.hljs-comment,
+.hljs-code,
+.hljs-formula {
+  /* prettylights-syntax-comment */
+  color: #8b949e
+}
+.hljs-name,
+.hljs-quote,
+.hljs-selector-tag,
+.hljs-selector-pseudo {
+  /* prettylights-syntax-entity-tag */
+  color: #7ee787
+}
+.hljs-subst {
+  /* prettylights-syntax-storage-modifier-import */
+  color: #c9d1d9
+}
+.hljs-section {
+  /* prettylights-syntax-markup-heading */
+  color: #1f6feb;
+  font-weight: bold
+}
+.hljs-bullet {
+  /* prettylights-syntax-markup-list */
+  color: #f2cc60
+}
+.hljs-emphasis {
+  /* prettylights-syntax-markup-italic */
+  color: #c9d1d9;
+  font-style: italic
+}
+.hljs-strong {
+  /* prettylights-syntax-markup-bold */
+  color: #c9d1d9;
+  font-weight: bold
+}
+.hljs-addition {
+  /* prettylights-syntax-markup-inserted */
+  color: #aff5b4;
+  background-color: #033a16
+}
+.hljs-deletion {
+  /* prettylights-syntax-markup-deleted */
+  color: #ffdcd7;
+  background-color: #67060c
+}
+.hljs-char.escape_,
+.hljs-link,
+.hljs-params,
+.hljs-property,
+.hljs-punctuation,
+.hljs-tag {
+  /* purposely ignored */
+  
+}</style>
+  </body>
+</html>

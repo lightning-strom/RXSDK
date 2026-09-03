@@ -1,0 +1,307 @@
+<!doctype html>
+<html lang="zh">
+  <head>
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <title>4. 请求参数</title>
+    <style>
+      .hljs { padding: 20px; border-radius: 4px }
+      .markdown-body {
+        min-width: 838px;
+        max-width: 838px;
+        background-color: rgb(255, 255, 255);
+        overflow: auto;
+        border-width: 1px;
+        border-style: solid;
+        border-color: rgb(225, 228, 232);
+        border-image: initial;
+        padding: 32px;
+        margin: 20px auto;
+      }
+      .table-of-contents {
+        position: fixed;
+        top: 0px;
+        bottom: 0px;
+        left: 0px;
+        width: 300px;
+        height: 100%;
+        overflow-y: auto;
+        overflow-x: hidden;
+        background: rgb(250, 250, 250);
+        padding: 20px;
+      }
+    </style>
+    <link href="./github.css" rel="stylesheet">
+  </head>
+  <body>
+    <section class="markdown-body">
+      <p>wx.getRelationFriendList 回调数据
+object.success 回调函数</p>
+<p>参数</p>
+<p>Object res</p>
+<table>
+<thead>
+<tr>
+<th>属性</th>
+<th>类型</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>signature</td>
+<td>string</td>
+<td>使用 sha1( rawData + sessionkey ) 得到字符串，用于校验用户信息</td>
+</tr>
+<tr>
+<td>encryptedData</td>
+<td>string</td>
+<td>包括 RelationFriendData 在内的加密数据，详见加密数据解密算法</td>
+</tr>
+<tr>
+<td>iv</td>
+<td>string</td>
+<td>加密算法的初始向量</td>
+</tr>
+</tbody>
+</table>
+<p>接口地址</p>
+<table>
+<thead>
+<tr>
+<th>场景</th>
+<th>方法</th>
+<th>路径</th>
+<th>鉴权</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>小游戏客户端</td>
+<td>POST</td>
+<td><code>/v1/social/gameinteraction/info</code></td>
+<td>AccessToken</td>
+</tr>
+</tbody>
+</table>
+<h2 id="4.-%E8%AF%B7%E6%B1%82%E5%8F%82%E6%95%B0" tabindex="-1">4. 请求参数</h2>
+<table>
+<thead>
+<tr>
+<th>字段</th>
+<th>类型</th>
+<th>必填</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>iv</code></td>
+<td>string</td>
+<td>是</td>
+<td>微信回调 <code>iv</code></td>
+</tr>
+<tr>
+<td><code>encrypted_data</code></td>
+<td>string</td>
+<td>是</td>
+<td>微信回调 <code>encryptedData</code></td>
+</tr>
+<tr>
+<td><code>signature</code></td>
+<td>string</td>
+<td>是</td>
+<td>微信回调 <code>signature</code></td>
+</tr>
+<tr>
+<td><code>raw_data</code></td>
+<td>string</td>
+<td>是</td>
+<td>微信签名校验原始字符串；回调无 <code>rawData</code> 时传 <code>&quot;&quot;</code></td>
+</tr>
+<tr>
+<td><code>openid</code></td>
+<td>string</td>
+<td>CP 服必填</td>
+<td>当前用户瑞雪 openid（客户端鉴权时由网关注入，无需传）</td>
+</tr>
+<tr>
+<td><code>cp_user_id</code></td>
+<td>string</td>
+<td>否</td>
+<td>CP 用户 ID，可替代 openid</td>
+</tr>
+</tbody>
+</table>
+<hr>
+<h2 id="5.-%E5%93%8D%E5%BA%94%E5%8F%82%E6%95%B0" tabindex="-1">5. 响应参数</h2>
+<pre class="hljs"><code><span class="hljs-punctuation">{</span>
+  <span class="hljs-attr">&quot;code&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-number">0</span><span class="hljs-punctuation">,</span>
+  <span class="hljs-attr">&quot;data&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-punctuation">{</span>
+    <span class="hljs-attr">&quot;openid&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;当前用户瑞雪openid&quot;</span><span class="hljs-punctuation">,</span>
+    <span class="hljs-attr">&quot;friends&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-punctuation">[</span>
+      <span class="hljs-punctuation">{</span>
+        <span class="hljs-attr">&quot;external_openid&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;微信好友openid&quot;</span><span class="hljs-punctuation">,</span>
+        <span class="hljs-attr">&quot;rx_openid&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;好友瑞雪openid&quot;</span><span class="hljs-punctuation">,</span>
+        <span class="hljs-attr">&quot;cp_user_id&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;好友CP用户ID&quot;</span><span class="hljs-punctuation">,</span>
+        <span class="hljs-attr">&quot;nickname&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;好友昵称&quot;</span>
+      <span class="hljs-punctuation">}</span>
+    <span class="hljs-punctuation">]</span>
+  <span class="hljs-punctuation">}</span>
+<span class="hljs-punctuation">}</span>
+</code></pre>
+<table>
+<thead>
+<tr>
+<th>字段</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>openid</code></td>
+<td>当前登录用户的瑞雪 openid</td>
+</tr>
+<tr>
+<td><code>friends[].external_openid</code></td>
+<td>微信侧好友 openid（解密原始数据）</td>
+</tr>
+<tr>
+<td><code>friends[].rx_openid</code></td>
+<td>好友瑞雪 openid（Passport 查询，未注册可能为空）</td>
+</tr>
+<tr>
+<td><code>friends[].cp_user_id</code></td>
+<td>好友 CP 用户 ID</td>
+</tr>
+<tr>
+<td><code>friends[].nickname</code></td>
+<td>好友昵称</td>
+</tr>
+</tbody>
+</table>
+
+    </section>
+
+    <style>pre code.hljs {
+  display: block;
+  overflow-x: auto;
+  padding: 1em
+}
+code.hljs {
+  padding: 3px 5px
+}
+/*!
+  Theme: GitHub Dark
+  Description: Dark theme as seen on github.com
+  Author: github.com
+  Maintainer: @Hirse
+  Updated: 2021-05-15
+
+  Outdated base version: https://github.com/primer/github-syntax-dark
+  Current colors taken from GitHub&#x27;s CSS
+*/
+.hljs {
+  color: #c9d1d9;
+  background: #0d1117
+}
+.hljs-doctag,
+.hljs-keyword,
+.hljs-meta .hljs-keyword,
+.hljs-template-tag,
+.hljs-template-variable,
+.hljs-type,
+.hljs-variable.language_ {
+  /* prettylights-syntax-keyword */
+  color: #ff7b72
+}
+.hljs-title,
+.hljs-title.class_,
+.hljs-title.class_.inherited__,
+.hljs-title.function_ {
+  /* prettylights-syntax-entity */
+  color: #d2a8ff
+}
+.hljs-attr,
+.hljs-attribute,
+.hljs-literal,
+.hljs-meta,
+.hljs-number,
+.hljs-operator,
+.hljs-variable,
+.hljs-selector-attr,
+.hljs-selector-class,
+.hljs-selector-id {
+  /* prettylights-syntax-constant */
+  color: #79c0ff
+}
+.hljs-regexp,
+.hljs-string,
+.hljs-meta .hljs-string {
+  /* prettylights-syntax-string */
+  color: #a5d6ff
+}
+.hljs-built_in,
+.hljs-symbol {
+  /* prettylights-syntax-variable */
+  color: #ffa657
+}
+.hljs-comment,
+.hljs-code,
+.hljs-formula {
+  /* prettylights-syntax-comment */
+  color: #8b949e
+}
+.hljs-name,
+.hljs-quote,
+.hljs-selector-tag,
+.hljs-selector-pseudo {
+  /* prettylights-syntax-entity-tag */
+  color: #7ee787
+}
+.hljs-subst {
+  /* prettylights-syntax-storage-modifier-import */
+  color: #c9d1d9
+}
+.hljs-section {
+  /* prettylights-syntax-markup-heading */
+  color: #1f6feb;
+  font-weight: bold
+}
+.hljs-bullet {
+  /* prettylights-syntax-markup-list */
+  color: #f2cc60
+}
+.hljs-emphasis {
+  /* prettylights-syntax-markup-italic */
+  color: #c9d1d9;
+  font-style: italic
+}
+.hljs-strong {
+  /* prettylights-syntax-markup-bold */
+  color: #c9d1d9;
+  font-weight: bold
+}
+.hljs-addition {
+  /* prettylights-syntax-markup-inserted */
+  color: #aff5b4;
+  background-color: #033a16
+}
+.hljs-deletion {
+  /* prettylights-syntax-markup-deleted */
+  color: #ffdcd7;
+  background-color: #67060c
+}
+.hljs-char.escape_,
+.hljs-link,
+.hljs-params,
+.hljs-property,
+.hljs-punctuation,
+.hljs-tag {
+  /* purposely ignored */
+  
+}</style>
+  </body>
+</html>

@@ -1,0 +1,2459 @@
+<!doctype html>
+<html lang="zh">
+  <head>
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <title>瑞雪 Javascript SDK 接入指南</title>
+    <style>
+      .hljs { padding: 20px; border-radius: 4px }
+      .markdown-body {
+        min-width: 838px;
+        max-width: 838px;
+        background-color: rgb(255, 255, 255);
+        overflow: auto;
+        border-width: 1px;
+        border-style: solid;
+        border-color: rgb(225, 228, 232);
+        border-image: initial;
+        padding: 32px;
+        margin: 20px auto;
+      }
+      .table-of-contents {
+        position: fixed;
+        top: 0px;
+        bottom: 0px;
+        left: 0px;
+        width: 300px;
+        height: 100%;
+        overflow-y: auto;
+        overflow-x: hidden;
+        background: rgb(250, 250, 250);
+        padding: 20px;
+      }
+    </style>
+    <link href="./github.css" rel="stylesheet">
+  </head>
+  <body>
+    <section class="markdown-body">
+      <h1 id="%E7%91%9E%E9%9B%AA-javascript-sdk-%E6%8E%A5%E5%85%A5%E6%8C%87%E5%8D%97" tabindex="-1">瑞雪 Javascript SDK 接入指南</h1>
+<p><div class="table-of-contents"><ul><li><a href="#1.-sdk-%E4%B8%8B%E8%BD%BD%E5%9C%B0%E5%9D%80">1. SDK 下载地址</a></li><li><a href="#2.-%E8%AF%B4%E6%98%8E">2. 说明</a></li><li><a href="#3.-%E6%8E%A5%E5%85%A5%E6%B5%81%E7%A8%8B">3. 接入流程</a></li><li><a href="#4.-%E7%99%BB%E5%BD%95">4. 登录</a></li><li><a href="#5.-%E5%88%86%E4%BA%AB(2.0)">5. 分享(2.0)</a></li><li><a href="#6.-%E8%8E%B7%E5%8F%96%E5%9F%8B%E7%82%B9%E4%BF%A1%E6%81%AF">6. 获取埋点信息</a></li><li><a href="#7.-%E8%8E%B7%E5%8F%96%E5%88%86%E4%BA%AB%E6%95%B0%E6%8D%AE">7. 获取分享数据</a></li><li><a href="#8.-%E6%94%AF%E4%BB%98">8. 支付</a></li><li><a href="#9-%E8%8E%B7%E5%8F%96%E7%94%A8%E6%88%B7%E4%BF%A1%E6%81%AF">9 获取用户信息</a></li><li><a href="#10-%E5%B9%BF%E5%91%8A">10 广告</a></li><li><a href="#11.-%E6%A0%A1%E9%AA%8C%E5%85%AC%E4%BC%97%E5%8F%B7%E5%8F%8A%E5%B0%8F%E6%B8%B8%E6%88%8F%E6%8E%88%E6%9D%83(%E7%BA%A2%E5%8C%85)">11. 校验公众号及小游戏授权(红包)</a></li><li><a href="#12.-%E6%89%93%E5%BC%80-web-%E5%AE%A2%E6%9C%8D">12. 打开 WEB 客服</a></li><li><a href="#13.-%E8%84%8F%E8%AF%8D%E6%A3%80%E6%B5%8B">13. 脏词检测</a></li><li><a href="#14.-%E5%85%B3%E9%97%AD%E6%B8%B8%E6%88%8F%E6%8E%A5%E5%8F%A3">14. 关闭游戏接口</a></li><li><a href="#15.-%E8%A7%92%E8%89%B2%E4%B8%8A%E4%BC%A0">15. 角色上传</a></li><li><a href="#%E9%94%99%E8%AF%AF%E7%A0%81%E5%AE%9A%E4%B9%89">错误码定义</a></li></ul></div></p>
+<h2 id="1.-sdk-%E4%B8%8B%E8%BD%BD%E5%9C%B0%E5%9D%80" tabindex="-1">1. SDK 下载地址</h2>
+<p>开发版相比正式版仅多了一些控制台日志</p>
+<table>
+<thead>
+<tr>
+<th>名称</th>
+<th>正式版</th>
+<th>开发版</th>
+<th>变更日志</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>微信小游戏</td>
+<td><a href="https://res.weileapp.com/file/wegame/?version=2" target="_blank">v2.7.6</a></td>
+<td><a href="https://res.weileapp.com/file/wegame/?version=2&amp;dev=1" target="_blank">v2.7.6</a></td>
+<td><a href="./CHANGELOG.html" target="_blank">CHANGELOG</a></td>
+</tr>
+</tbody>
+</table>
+<h2 id="2.-%E8%AF%B4%E6%98%8E" tabindex="-1">2. 说明</h2>
+<h3 id="2.1-%E6%94%AF%E6%8C%81%E5%B9%B3%E5%8F%B0" tabindex="-1">2.1 支持平台</h3>
+<table>
+<thead>
+<tr>
+<th>名称</th>
+<th>标识</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>微信小游戏</td>
+<td>wegame</td>
+<td>-</td>
+</tr>
+</tbody>
+</table>
+<h3 id="2.2-%E6%96%B9%E6%B3%95%E8%B0%83%E7%94%A8%E5%8F%82%E6%95%B0-callbacks" tabindex="-1">2.2 方法调用参数 <code>callbacks</code></h3>
+<p>无特殊说明外, <code>callbacks</code> 都为以下结构</p>
+<table>
+<thead>
+<tr>
+<th>名称</th>
+<th>说明</th>
+<th>类型</th>
+<th>可选</th>
+<th>可选值</th>
+<th>默认值</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>complete</td>
+<td>执行后的回调方法</td>
+<td>function({code, msg, data})</td>
+<td>否</td>
+<td>-</td>
+<td>-</td>
+</tr>
+</tbody>
+</table>
+<h3 id="2.3-%E5%9B%9E%E8%B0%83%E8%BF%94%E5%9B%9E%E5%80%BC" tabindex="-1">2.3 回调返回值</h3>
+<p>无特殊说明外, 回调(<code>complete</code>)都会返回下面的数据</p>
+<table>
+<thead>
+<tr>
+<th>名称</th>
+<th>说明</th>
+<th>类型</th>
+<th>可能为空</th>
+<th>可选值</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>code</td>
+<td>0 为成功, 其他为失败(1000000 为 SDK 未知错误码)</td>
+<td>number</td>
+<td>否</td>
+<td>-</td>
+</tr>
+<tr>
+<td>msg</td>
+<td>结果消息</td>
+<td>string</td>
+<td>否</td>
+<td>-</td>
+</tr>
+</tbody>
+</table>
+<h2 id="3.-%E6%8E%A5%E5%85%A5%E6%B5%81%E7%A8%8B" tabindex="-1">3. 接入流程</h2>
+<blockquote>
+<p>PLATFORM 替换成对应平台标识(2.1 支持平台)</p>
+</blockquote>
+<h3 id="3.1-%E5%88%9D%E5%A7%8B%E5%8C%96%E5%8F%82%E6%95%B0%E8%AF%B4%E6%98%8E" tabindex="-1">3.1 初始化参数说明</h3>
+<table>
+<thead>
+<tr>
+<th>名称</th>
+<th>说明</th>
+<th>类型</th>
+<th>可选</th>
+<th>可选值</th>
+<th>默认值</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>appId</td>
+<td>瑞雪提供的唯一标识</td>
+<td>string</td>
+<td>否</td>
+<td>-</td>
+<td>-</td>
+</tr>
+<tr>
+<td>httpApi</td>
+<td>瑞雪提供的 <code>API</code> 地址</td>
+<td>string</td>
+<td>否</td>
+<td>-</td>
+<td></td>
+</tr>
+<tr>
+<td>channelAppId</td>
+<td>三方渠道(如爱奇艺)的 <code>APPID</code></td>
+<td>string</td>
+<td>是</td>
+<td>-</td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<h3 id="3.2-%E9%A1%B9%E7%9B%AE%E4%B8%AD%E5%BC%95%E5%85%A5" tabindex="-1">3.2 项目中引入</h3>
+<pre class="hljs"><code><span class="hljs-keyword">import</span> <span class="hljs-variable constant_">SDK</span> <span class="hljs-keyword">from</span> <span class="hljs-string">&#x27;path/to/channel-sdk.PLATFORM.umd.js&#x27;</span>
+
+<span class="hljs-keyword">const</span> sdk = <span class="hljs-keyword">new</span> <span class="hljs-title function_">SDK</span>({
+    <span class="hljs-attr">appId</span>: <span class="hljs-string">&#x27;xxxxxx&#x27;</span>,
+    <span class="hljs-attr">httpApi</span>: <span class="hljs-string">&#x27;https://xxx.com&#x27;</span>,
+    <span class="hljs-attr">channelAppId</span>: <span class="hljs-string">&#x27;xxxx&#x27;</span>,
+})
+<span class="hljs-comment">// =&gt; See this in your browser console: ChannelSDK Launched</span>
+</code></pre>
+<h3 id="3.3-%E9%80%9A%E8%BF%87-%3Cscript%3E-%E5%BC%95%E5%85%A5" tabindex="-1">3.3 通过 <code>&lt;script&gt;</code> 引入</h3>
+<pre class="hljs"><code><span class="hljs-comment">&lt;!-- 引入 SDK --&gt;</span>
+<span class="hljs-tag">&lt;<span class="hljs-name">script</span> <span class="hljs-attr">type</span>=<span class="hljs-string">&quot;text/javascript&quot;</span> <span class="hljs-attr">src</span>=<span class="hljs-string">&quot;js/channel-sdk.PLATFORM.umd.js&quot;</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-name">script</span>&gt;</span>
+
+<span class="hljs-comment">&lt;!-- 初始化SDK --&gt;</span>
+<span class="hljs-tag">&lt;<span class="hljs-name">script</span>&gt;</span><span class="language-javascript">
+<span class="hljs-variable language_">window</span>.<span class="hljs-property">SDK</span> = <span class="hljs-keyword">new</span> <span class="hljs-title function_">channelSDK</span>({
+    <span class="hljs-attr">appId</span>: <span class="hljs-string">&#x27;xxxxxx&#x27;</span>,
+    <span class="hljs-attr">httpApi</span>: <span class="hljs-string">&#x27;https://xxx.com&#x27;</span>,
+    <span class="hljs-attr">channelAppId</span>: <span class="hljs-string">&#x27;xxxx&#x27;</span>,
+})
+<span class="hljs-comment">// =&gt; See this in your browser console: ChannelSDK Launched</span>
+</span><span class="hljs-tag">&lt;/<span class="hljs-name">script</span>&gt;</span>
+</code></pre>
+<h3 id="3.4-%E5%85%B3%E4%BA%8E-.dev-%E6%96%87%E4%BB%B6" tabindex="-1">3.4 关于 <code>.dev</code> 文件</h3>
+<blockquote>
+<p>该文件为开发对接时使用版本, 与正式版本区别:</p>
+<ol>
+<li>在控制台输出 SDK 自身的一些日志</li>
+<li>米大师支付默认为沙箱环境, 详见 8.2.1.1</li>
+</ol>
+</blockquote>
+<h2 id="4.-%E7%99%BB%E5%BD%95" tabindex="-1">4. 登录</h2>
+<p>登录并获取用户信息</p>
+<h3 id="4.1-%E6%8E%A5%E5%8F%A3%E5%8E%9F%E5%9E%8B" tabindex="-1">4.1 接口原型</h3>
+<pre class="hljs"><code><span class="hljs-keyword">public</span> <span class="hljs-keyword">async</span> <span class="hljs-title function_">login</span> (callbacks, params)
+</code></pre>
+<h3 id="4.2-%E5%8F%82%E6%95%B0%E8%AF%B4%E6%98%8E" tabindex="-1">4.2 参数说明</h3>
+<h4 id="4.2.1-params" tabindex="-1">4.2.1 params</h4>
+<table>
+<thead>
+<tr>
+<th>名称</th>
+<th>说明</th>
+<th>类型</th>
+<th>可选</th>
+<th>可选值</th>
+<th>默认值</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>version</td>
+<td>登录方式, 为 <code>normal</code> 时会弹出授权确认</td>
+<td>string</td>
+<td>是</td>
+<td>base/normal(仅微信小游戏)</td>
+<td>base</td>
+</tr>
+<tr>
+<td>desc</td>
+<td>声明获取用户个人信息后的用途，不超过30个字符</td>
+<td>string</td>
+<td>是</td>
+<td>-</td>
+<td>用于获取用户昵称和头像</td>
+</tr>
+</tbody>
+</table>
+<h3 id="4.3-%E5%9B%9E%E8%B0%83%E8%BF%94%E5%9B%9E%E5%80%BC" tabindex="-1">4.3 回调返回值</h3>
+<table>
+<thead>
+<tr>
+<th>名称</th>
+<th>说明</th>
+<th>类型</th>
+<th>可能为空</th>
+<th>可选值</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>token</td>
+<td>登录 token</td>
+<td>string</td>
+<td>否</td>
+<td>-</td>
+</tr>
+<tr>
+<td>openid</td>
+<td>瑞雪 openid</td>
+<td>string</td>
+<td>否</td>
+<td>-</td>
+</tr>
+<tr>
+<td>username</td>
+<td>用户名</td>
+<td>string</td>
+<td>否</td>
+<td>-</td>
+</tr>
+<tr>
+<td>nickname</td>
+<td>昵称</td>
+<td>string</td>
+<td>否</td>
+<td>-</td>
+</tr>
+<tr>
+<td>avtarUrl</td>
+<td>头像</td>
+<td>string</td>
+<td>否</td>
+<td>-</td>
+</tr>
+<tr>
+<td>wechatAvatarUrl</td>
+<td>微信头像</td>
+<td>string</td>
+<td>否</td>
+<td>-</td>
+</tr>
+<tr>
+<td>sex</td>
+<td>性别</td>
+<td>number</td>
+<td>否</td>
+<td>0(女)/1(男)</td>
+</tr>
+<tr>
+<td>timestamp</td>
+<td>登录时间戳</td>
+<td>number</td>
+<td>否</td>
+<td>-</td>
+</tr>
+<tr>
+<td>ext</td>
+<td>其他数据</td>
+<td>object</td>
+<td>否</td>
+<td>-</td>
+</tr>
+<tr>
+<td>ext.switchIgf</td>
+<td>是否开启支付</td>
+<td>boolean</td>
+<td>否</td>
+<td>-</td>
+</tr>
+<tr>
+<td>ext.switchIgfLevel</td>
+<td>开启支付最低等级</td>
+<td>number</td>
+<td>否</td>
+<td>-</td>
+</tr>
+<tr>
+<td>ext.switchIgfMaxLevel</td>
+<td>开启支付最高等级</td>
+<td>number</td>
+<td>否</td>
+<td>-</td>
+</tr>
+</tbody>
+</table>
+<h3 id="4.4-%E7%A4%BA%E4%BE%8B" tabindex="-1">4.4 示例</h3>
+<pre class="hljs"><code>sdk.<span class="hljs-title function_">login</span>({
+  <span class="hljs-attr">complete</span>: <span class="hljs-function">(<span class="hljs-params"><span class="hljs-attr">data</span>: <span class="hljs-title class_">IResponseLogin</span></span>) =&gt;</span> {
+    <span class="hljs-variable language_">console</span>.<span class="hljs-title function_">log</span>(data)
+  },
+})
+</code></pre>
+<h2 id="5.-%E5%88%86%E4%BA%AB(2.0)" tabindex="-1">5. 分享(2.0)</h2>
+<p>调用分享。通过参数中的 <code>method</code> 控制，传入 <code>method</code> 后，分享行为以 <code>method</code> 为准。不传入的时候走后台埋点调度(普通分享达到配置次数后会转为定向分享)。</p>
+<ol>
+<li>好友/群分享, SDK 会自动拉起好友列表(method === 2, 默认行为)</li>
+<li>指定分享需要游戏自行绘制好友列表并显示(method === 8)</li>
+</ol>
+<h3 id="5.1-%E6%8E%A5%E5%8F%A3%E5%8E%9F%E5%9E%8B" tabindex="-1">5.1 接口原型</h3>
+<pre class="hljs"><code><span class="hljs-keyword">public</span> <span class="hljs-keyword">async</span> <span class="hljs-title function_">share</span> (callbacks, params)
+</code></pre>
+<h3 id="5.2-%E5%8F%82%E6%95%B0%E8%AF%B4%E6%98%8E" tabindex="-1">5.2 参数说明</h3>
+<h4 id="5.2.1-params" tabindex="-1">5.2.1 params</h4>
+<table>
+<thead>
+<tr>
+<th>名称</th>
+<th>说明</th>
+<th>类型</th>
+<th>可选</th>
+<th>可选值</th>
+<th>默认值</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>func</td>
+<td>管理后台配置的埋点名称</td>
+<td>string</td>
+<td>否</td>
+<td>-</td>
+<td>-</td>
+</tr>
+<tr>
+<td>method</td>
+<td>分享方法, 小游戏仅支持2、8</td>
+<td>number</td>
+<td>是</td>
+<td>1(朋友圈) / 2(群、好友消息) / 8(指定好友)</td>
+<td>2</td>
+</tr>
+<tr>
+<td>query</td>
+<td>拼接到分享 url 的参数(foo=bar&amp;count=1)</td>
+<td>string</td>
+<td>是</td>
+<td>-</td>
+<td>-</td>
+</tr>
+<tr>
+<td>transmitargs</td>
+<td>透传参数, 原样返回</td>
+<td>string</td>
+<td>是</td>
+<td>-</td>
+<td>-</td>
+</tr>
+<tr>
+<td>custom</td>
+<td>自定义参数, 统计用</td>
+<td>string</td>
+<td>是</td>
+<td>-</td>
+<td>-</td>
+</tr>
+<tr>
+<td>title</td>
+<td>自定义分享标题, 覆盖后台埋点标题</td>
+<td>string</td>
+<td>是</td>
+<td>-</td>
+<td>-</td>
+</tr>
+<tr>
+<td>imageUrl</td>
+<td>自定义分享图片, 覆盖后台埋点图片</td>
+<td>string</td>
+<td>是</td>
+<td>-</td>
+<td>-</td>
+</tr>
+</tbody>
+</table>
+<h3 id="5.3-%E5%9B%9E%E8%B0%83%E8%BF%94%E5%9B%9E%E5%80%BC" tabindex="-1">5.3 回调返回值</h3>
+<h4 id="5.3.1-%E6%99%AE%E9%80%9A%E5%88%86%E4%BA%AB" tabindex="-1">5.3.1 普通分享</h4>
+<table>
+<thead>
+<tr>
+<th>名称</th>
+<th>说明</th>
+<th>类型</th>
+<th>可能为空</th>
+<th>可选值</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>data</td>
+<td>埋点及分享次数等相关信息</td>
+<td>object</td>
+<td>否</td>
+<td>-</td>
+</tr>
+<tr>
+<td>data.share_limit</td>
+<td>埋点次数信息</td>
+<td>object</td>
+<td>否</td>
+<td>-</td>
+</tr>
+<tr>
+<td>data.share_limit.funcs_num</td>
+<td>该埋点该用户累计拉取数据总次数</td>
+<td>number</td>
+<td>否</td>
+<td>-</td>
+</tr>
+<tr>
+<td>data.share_limit.funcs_sn</td>
+<td>该埋点该用户累计成功总次数(正常分享)</td>
+<td>number</td>
+<td>否</td>
+<td>-</td>
+</tr>
+<tr>
+<td>data.share_limit.funcs_fn</td>
+<td>该埋点该用户累计失败总次数(正常分享)</td>
+<td>number</td>
+<td>否</td>
+<td>-</td>
+</tr>
+<tr>
+<td>data.share_limit.funcs_stf_sn</td>
+<td>埋点指定好友成功次数(指定分享)</td>
+<td>number</td>
+<td>否</td>
+<td>-</td>
+</tr>
+<tr>
+<td>data.share_limit.funcs_stf_fn</td>
+<td>埋点指定好友失败次数(指定分享)(取消分享看有上报就记录)</td>
+<td>number</td>
+<td>否</td>
+<td>-</td>
+</tr>
+<tr>
+<td>data.share_limit.funcs_ad_sn</td>
+<td>埋点广告成功次数</td>
+<td>number</td>
+<td>否</td>
+<td>-</td>
+</tr>
+<tr>
+<td>data.share_limit.funcs_ad_fn</td>
+<td>埋点广告失败次数</td>
+<td>number</td>
+<td>否</td>
+<td>-</td>
+</tr>
+<tr>
+<td>data.share_limit.funcs_day_num</td>
+<td>该埋点该用户当天累计拉取数据总次数</td>
+<td>number</td>
+<td>否</td>
+<td>-</td>
+</tr>
+<tr>
+<td>data.share_limit.funcs_day_sn</td>
+<td>该埋点该用户当天累计成功总次数(正常分享)</td>
+<td>number</td>
+<td>否</td>
+<td>-</td>
+</tr>
+<tr>
+<td>data.share_limit.funcs_day_fn</td>
+<td>该埋点该用户当天累计失败次数(正常分享)</td>
+<td>number</td>
+<td>否</td>
+<td>-</td>
+</tr>
+<tr>
+<td>data.share_limit.funcs_stf_day_sn</td>
+<td>埋点该用户当天指定好友成功次数(指定分享)</td>
+<td>number</td>
+<td>否</td>
+<td>-</td>
+</tr>
+<tr>
+<td>data.share_limit.funcs_stf_day_fn</td>
+<td>埋点该用户当天指定好友失败次数(指定分享)(取消分享看有上报就记录)</td>
+<td>number</td>
+<td>否</td>
+<td>-</td>
+</tr>
+<tr>
+<td>data.share_limit.funcs_ad_day_sn</td>
+<td>埋点该用户当天广告成功次数</td>
+<td>number</td>
+<td>否</td>
+<td>-</td>
+</tr>
+<tr>
+<td>data.share_limit.funcs_ad_day_fn</td>
+<td>埋点该用户当天广告失败次数</td>
+<td>number</td>
+<td>否</td>
+<td>-</td>
+</tr>
+<tr>
+<td>data.share_limit.share_day_num</td>
+<td>该用户所有埋点当天总拉取分享次数</td>
+<td>number</td>
+<td>否</td>
+<td>-</td>
+</tr>
+<tr>
+<td>data.share_limit.share_day_sn</td>
+<td>该用户所有埋点当天总分享成功次数(正常分享)</td>
+<td>number</td>
+<td>否</td>
+<td>-</td>
+</tr>
+<tr>
+<td>data.share_limit.share_day_fn</td>
+<td>该用户所有埋点当天总分享失败次数(正常分享)</td>
+<td>number</td>
+<td>否</td>
+<td>-</td>
+</tr>
+<tr>
+<td>data.share_limit.stf_day_sn</td>
+<td>该用户当天指定分享好友成功总次数(指定分享)</td>
+<td>number</td>
+<td>否</td>
+<td>-</td>
+</tr>
+<tr>
+<td>data.share_limit.stf_day_fn</td>
+<td>该用户当天指定分享好友失败总次数(指定分享)(取消分享看有上报就记录)</td>
+<td>number</td>
+<td>否</td>
+<td>-</td>
+</tr>
+<tr>
+<td>data.share_limit.ad_day_sn</td>
+<td>用户当天看广告成功次数</td>
+<td>number</td>
+<td>否</td>
+<td>-</td>
+</tr>
+<tr>
+<td>data.share_limit.ad_day_fn</td>
+<td>用户当天看广告失败次数(关闭广告或者其他错误)</td>
+<td>number</td>
+<td>否</td>
+<td>-</td>
+</tr>
+<tr>
+<td>data.share_limit.active_day_sn</td>
+<td>该用户所有活动埋点的当天成功次数</td>
+<td>number</td>
+<td>否</td>
+<td>-</td>
+</tr>
+<tr>
+<td>data.share_limit.share_num</td>
+<td>该用户所有埋点总拉取分享次数</td>
+<td>number</td>
+<td>否</td>
+<td>-</td>
+</tr>
+<tr>
+<td>data.share_limit.share_sn</td>
+<td>该用户所有埋点总分享成功次数(正常分享)</td>
+<td>number</td>
+<td>否</td>
+<td>-</td>
+</tr>
+<tr>
+<td>data.share_limit.share_fn</td>
+<td>该用户所有埋点总分享失败次数(正常分享)</td>
+<td>number</td>
+<td>否</td>
+<td>-</td>
+</tr>
+<tr>
+<td>data.share_limit.stf_sn</td>
+<td>该用户总的指定分享好友成功总次数(指定分享)</td>
+<td>number</td>
+<td>否</td>
+<td>-</td>
+</tr>
+<tr>
+<td>data.share_limit.stf_fn</td>
+<td>该用户所有埋点当天总拉取分享次数(指定分享)(取消分享看有上报就记录)</td>
+<td>number</td>
+<td>否</td>
+<td>-</td>
+</tr>
+<tr>
+<td>data.share_limit.ad_sn</td>
+<td>该用户总的看广告成功次数</td>
+<td>number</td>
+<td>否</td>
+<td>-</td>
+</tr>
+<tr>
+<td>data.share_limit.ad_fn</td>
+<td>该用户总的看广告失败次数</td>
+<td>number</td>
+<td>否</td>
+<td>-</td>
+</tr>
+<tr>
+<td>data.share_limit.fission_num</td>
+<td>用户总共拉新人数</td>
+<td>number</td>
+<td>否</td>
+<td>-</td>
+</tr>
+<tr>
+<td>data.funcs</td>
+<td>埋点信息</td>
+<td>object</td>
+<td>否</td>
+<td>-</td>
+</tr>
+<tr>
+<td>data.funcs.id</td>
+<td>埋点 ID</td>
+<td>number</td>
+<td>否</td>
+<td>-</td>
+</tr>
+<tr>
+<td>data.funcs.appid</td>
+<td>埋点所属应用 ID</td>
+<td>string</td>
+<td>否</td>
+<td>-</td>
+</tr>
+<tr>
+<td>data.funcs.funcTag</td>
+<td>埋点标识</td>
+<td>string</td>
+<td>否</td>
+<td>-</td>
+</tr>
+<tr>
+<td>data.funcs.funcTitle</td>
+<td>埋点标题</td>
+<td>string</td>
+<td>否</td>
+<td>-</td>
+</tr>
+<tr>
+<td>data.funcs.shareType</td>
+<td>埋点配置的分享类型</td>
+<td>number</td>
+<td>否</td>
+<td>1(正常)/2(定向)/3(调度)</td>
+</tr>
+<tr>
+<td>data.funcs.active</td>
+<td>是否活动埋点</td>
+<td>number</td>
+<td>否</td>
+<td>1(活动)/2(非活动)</td>
+</tr>
+<tr>
+<td>data.funcs.rejectMsg</td>
+<td>拒绝信息</td>
+<td>string</td>
+<td>否</td>
+<td>-</td>
+</tr>
+<tr>
+<td>data.funcs.status</td>
+<td>状态</td>
+<td>number</td>
+<td>否</td>
+<td>1</td>
+</tr>
+<tr>
+<td>data.funcs.ctime</td>
+<td>创建时间</td>
+<td>string</td>
+<td>否</td>
+<td>-</td>
+</tr>
+<tr>
+<td>data.share_content</td>
+<td>埋点内容</td>
+<td>object</td>
+<td>否</td>
+<td>-</td>
+</tr>
+<tr>
+<td>data.share_content.title</td>
+<td>分享标题</td>
+<td>string</td>
+<td>否</td>
+<td>-</td>
+</tr>
+<tr>
+<td>data.share_content.url</td>
+<td>分享地址</td>
+<td>string</td>
+<td>否</td>
+<td>-</td>
+</tr>
+<tr>
+<td>data.share_content.wxid</td>
+<td>内容 WXID</td>
+<td>string</td>
+<td>否</td>
+<td>-</td>
+</tr>
+<tr>
+<td>data.share_content.domain</td>
+<td>内容域名</td>
+<td>string</td>
+<td>否</td>
+<td>-</td>
+</tr>
+<tr>
+<td>data.share_content.material</td>
+<td>分享素材类型</td>
+<td>string</td>
+<td>否</td>
+<td>url/image/card/a2m(app分享到小游戏)/text</td>
+</tr>
+<tr>
+<td>data.share_content.materialid</td>
+<td>分享素材 ID</td>
+<td>number</td>
+<td>否</td>
+<td>-</td>
+</tr>
+<tr>
+<td>data.share_content.image</td>
+<td>素材图标或图片地址</td>
+<td>string</td>
+<td>否</td>
+<td>-</td>
+</tr>
+<tr>
+<td>data.share_content.content</td>
+<td>分享内容</td>
+<td>string</td>
+<td>否</td>
+<td>-</td>
+</tr>
+<tr>
+<td>data.share_content.gh_id</td>
+<td>material a2m使用</td>
+<td>string</td>
+<td>否</td>
+<td>-</td>
+</tr>
+<tr>
+<td>data.share_content.active</td>
+<td>是否活动埋点</td>
+<td>number</td>
+<td>否</td>
+<td>1(活动)/2(非活动)</td>
+</tr>
+<tr>
+<td>data.transmitargs</td>
+<td>透传参数</td>
+<td>string</td>
+<td>否</td>
+<td>-</td>
+</tr>
+<tr>
+<td>data.custom</td>
+<td>自定义参数</td>
+<td>string</td>
+<td>否</td>
+<td>-</td>
+</tr>
+<tr>
+<td>data.share_type</td>
+<td>分享方式(普通/指定分享)</td>
+<td>string</td>
+<td>否</td>
+<td>normal/stf</td>
+</tr>
+</tbody>
+</table>
+<h4 id="5.3.2-%E6%8C%87%E5%AE%9A%E5%88%86%E4%BA%AB(method-%3D%3D%3D-8%2C-%E4%BB%85%E5%BE%AE%E4%BF%A1)" tabindex="-1">5.3.2 指定分享(method === 8, 仅微信)</h4>
+<p>除以上数据外, 有以下额外数据</p>
+<table>
+<thead>
+<tr>
+<th>名称</th>
+<th>说明</th>
+<th>类型</th>
+<th>可能为空</th>
+<th>可选值</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>method</td>
+<td>分享方法</td>
+<td>number</td>
+<td>否</td>
+<td>8</td>
+</tr>
+</tbody>
+</table>
+<h3 id="5.4-%E7%A4%BA%E4%BE%8B" tabindex="-1">5.4 示例</h3>
+<pre class="hljs"><code><span class="hljs-comment">// ====== 普通分享 ======</span>
+sdk.<span class="hljs-title function_">share</span>({
+  <span class="hljs-attr">complete</span>: <span class="hljs-function">(<span class="hljs-params">data</span>) =&gt;</span> {
+    <span class="hljs-variable language_">console</span>.<span class="hljs-title function_">log</span>(data)
+  },
+}, {
+  <span class="hljs-attr">func</span>: <span class="hljs-string">&#x27;sign&#x27;</span>,
+  <span class="hljs-attr">method</span>: <span class="hljs-number">2</span>, <span class="hljs-comment">// 可不传</span>
+  <span class="hljs-attr">transmitargs</span>: <span class="hljs-string">&#x27;demo&#x27;</span>,
+  <span class="hljs-attr">custom</span>: <span class="hljs-string">&#x27;demo-custom&#x27;</span>,
+  <span class="hljs-attr">query</span>: <span class="hljs-string">&#x27;foo=bar&amp;do=1&#x27;</span>
+})
+<span class="hljs-comment">// 成功示例 =&gt; {&quot;code&quot;:0,&quot;msg&quot;:&quot;ok&quot;,&quot;data&quot;:{&quot;share_limit&quot;:{&quot;funcs_num&quot;:0,...}...}}</span>
+<span class="hljs-comment">// 失败示例 =&gt; {&quot;code&quot;:5000005,&quot;msg&quot;:&quot;分享至不同好友或群即可领取奖励, 请重新分析!&quot;,&quot;data&quot;:{&quot;share_limit&quot;:{&quot;funcs_num&quot;:0,...}...}}</span>
+
+<span class="hljs-comment">// ===== 指定分享 ======</span>
+sdk.<span class="hljs-title function_">share</span>({
+  <span class="hljs-attr">complete</span>: <span class="hljs-function">(<span class="hljs-params">data</span>) =&gt;</span> {
+    <span class="hljs-variable language_">console</span>.<span class="hljs-title function_">log</span>(data)
+  },
+}, {
+  <span class="hljs-attr">func</span>: <span class="hljs-string">&#x27;sign&#x27;</span>,
+  <span class="hljs-attr">forcemethod</span>: <span class="hljs-number">8</span>, <span class="hljs-comment">// 此处为8</span>
+  <span class="hljs-attr">transmitargs</span>: <span class="hljs-string">&#x27;demo&#x27;</span>,
+  <span class="hljs-attr">custom</span>: <span class="hljs-string">&#x27;demo-custom&#x27;</span>,
+})
+<span class="hljs-comment">// 成功示例 =&gt; {&quot;code&quot;:0,&quot;msg&quot;:&quot;ok&quot;,&quot;method&quot;:8,&quot;data&quot;:{&quot;share_limit&quot;:{&quot;funcs_num&quot;:0,...}...}}</span>
+<span class="hljs-comment">// 失败示例 =&gt; 同普通分享</span>
+</code></pre>
+<h2 id="6.-%E8%8E%B7%E5%8F%96%E5%9F%8B%E7%82%B9%E4%BF%A1%E6%81%AF" tabindex="-1">6. 获取埋点信息</h2>
+<h3 id="6.1-%E6%8E%A5%E5%8F%A3%E5%8E%9F%E5%9E%8B" tabindex="-1">6.1 接口原型</h3>
+<pre class="hljs"><code><span class="hljs-keyword">public</span> <span class="hljs-keyword">async</span> <span class="hljs-title function_">getShareLimit</span> (callbacks, params)
+</code></pre>
+<h3 id="6.2-%E5%8F%82%E6%95%B0%E8%AF%B4%E6%98%8E" tabindex="-1">6.2 参数说明</h3>
+<h4 id="6.2.1-params" tabindex="-1">6.2.1 params</h4>
+<table>
+<thead>
+<tr>
+<th>名称</th>
+<th>说明</th>
+<th>类型</th>
+<th>可选</th>
+<th>可选值</th>
+<th>默认值</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>func_tags</td>
+<td>管理后台配置的埋点名称</td>
+<td>string[]</td>
+<td>是</td>
+<td>-</td>
+<td>-</td>
+</tr>
+</tbody>
+</table>
+<h3 id="6.3-%E5%9B%9E%E8%B0%83%E8%BF%94%E5%9B%9E%E5%80%BC" tabindex="-1">6.3 回调返回值</h3>
+<table>
+<thead>
+<tr>
+<th>名称</th>
+<th>说明</th>
+<th>类型</th>
+<th>可能为空</th>
+<th>可选值</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>funcs</td>
+<td>各埋点信息, <code>key</code>为参数<code>func_tags</code>的值</td>
+<td>object</td>
+<td>否</td>
+<td>-</td>
+</tr>
+<tr>
+<td>funcs[key]</td>
+<td>具体埋点信息</td>
+<td>object</td>
+<td>否</td>
+<td>-</td>
+</tr>
+<tr>
+<td>funcs[key].funcs_num</td>
+<td>该埋点该用户累计拉取数据总次数</td>
+<td>number</td>
+<td>否</td>
+<td>-</td>
+</tr>
+<tr>
+<td>funcs[key].funcs_sn</td>
+<td>该埋点该用户累计成功总次数(正常分享)</td>
+<td>number</td>
+<td>否</td>
+<td>-</td>
+</tr>
+<tr>
+<td>funcs[key].funcs_fn</td>
+<td>该埋点该用户累计失败总次数(正常分享)</td>
+<td>number</td>
+<td>否</td>
+<td>-</td>
+</tr>
+<tr>
+<td>funcs[key].funcs_stf_sn</td>
+<td>埋点指定好友成功次数(指定分享)</td>
+<td>number</td>
+<td>否</td>
+<td>-</td>
+</tr>
+<tr>
+<td>funcs[key].funcs_stf_fn</td>
+<td>埋点指定好友失败次数(指定分享)(取消分享看有上报就记录)</td>
+<td>number</td>
+<td>否</td>
+<td>-</td>
+</tr>
+<tr>
+<td>funcs[key].funcs_ad_sn</td>
+<td>埋点广告成功次数</td>
+<td>number</td>
+<td>否</td>
+<td>-</td>
+</tr>
+<tr>
+<td>funcs[key].funcs_ad_fn</td>
+<td>埋点广告失败次数</td>
+<td>number</td>
+<td>否</td>
+<td>-</td>
+</tr>
+<tr>
+<td>funcs[key].funcs_day_num</td>
+<td>该埋点该用户当天累计拉取数据总次数</td>
+<td>number</td>
+<td>否</td>
+<td>-</td>
+</tr>
+<tr>
+<td>funcs[key].funcs_day_sn</td>
+<td>该埋点该用户当天累计成功总次数(正常分享)</td>
+<td>number</td>
+<td>否</td>
+<td>-</td>
+</tr>
+<tr>
+<td>funcs[key].funcs_day_fn</td>
+<td>该埋点该用户当天累计失败次数(正常分享)</td>
+<td>number</td>
+<td>否</td>
+<td>-</td>
+</tr>
+<tr>
+<td>funcs[key].funcs_stf_day_sn</td>
+<td>埋点该用户当天指定好友成功次数(指定分享)</td>
+<td>number</td>
+<td>否</td>
+<td>-</td>
+</tr>
+<tr>
+<td>funcs[key].funcs_stf_day_fn</td>
+<td>埋点该用户当天指定好友失败次数(指定分享)(取消分享看有上报就记录)</td>
+<td>number</td>
+<td>否</td>
+<td>-</td>
+</tr>
+<tr>
+<td>funcs[key].funcs_ad_day_sn</td>
+<td>埋点该用户当天广告成功次数</td>
+<td>number</td>
+<td>否</td>
+<td>-</td>
+</tr>
+<tr>
+<td>funcs[key].funcs_ad_day_fn</td>
+<td>埋点该用户当天广告失败次数</td>
+<td>number</td>
+<td>否</td>
+<td>-</td>
+</tr>
+<tr>
+<td>---------分割线----------</td>
+<td>以上参数同分享返回参数 <code>data.share_limit</code> 的部分参数</td>
+<td>-</td>
+<td>-</td>
+<td>-</td>
+</tr>
+<tr>
+<td>limit</td>
+<td>所有埋点总次数, 当天次数</td>
+<td>object</td>
+<td>否</td>
+<td>-</td>
+</tr>
+<tr>
+<td>limit.share_day_num</td>
+<td>该用户所有埋点当天总拉取分享次数</td>
+<td>number</td>
+<td>否</td>
+<td>-</td>
+</tr>
+<tr>
+<td>limit.share_day_sn</td>
+<td>该用户所有埋点当天总分享成功次数(正常分享)</td>
+<td>number</td>
+<td>否</td>
+<td>-</td>
+</tr>
+<tr>
+<td>limit.share_day_fn</td>
+<td>该用户所有埋点当天总分享失败次数(正常分享)</td>
+<td>number</td>
+<td>否</td>
+<td>-</td>
+</tr>
+<tr>
+<td>limit.stf_day_sn</td>
+<td>该用户当天指定分享好友成功总次数(指定分享)</td>
+<td>number</td>
+<td>否</td>
+<td>-</td>
+</tr>
+<tr>
+<td>limit.stf_day_fn</td>
+<td>该用户当天指定分享好友失败总次数(指定分享)(取消分享看有上报就记录)</td>
+<td>number</td>
+<td>否</td>
+<td>-</td>
+</tr>
+<tr>
+<td>limit.ad_day_sn</td>
+<td>用户当天看广告成功次数</td>
+<td>number</td>
+<td>否</td>
+<td>-</td>
+</tr>
+<tr>
+<td>limit.ad_day_fn</td>
+<td>用户当天看广告失败次数(关闭广告或者其他错误)</td>
+<td>number</td>
+<td>否</td>
+<td>-</td>
+</tr>
+<tr>
+<td>limit.active_day_sn</td>
+<td>该用户所有活动埋点的当天成功次数</td>
+<td>number</td>
+<td>否</td>
+<td>-</td>
+</tr>
+<tr>
+<td>limit.share_num</td>
+<td>该用户所有埋点总拉取分享次数</td>
+<td>number</td>
+<td>否</td>
+<td>-</td>
+</tr>
+<tr>
+<td>limit.share_sn</td>
+<td>该用户所有埋点总分享成功次数(正常分享)</td>
+<td>number</td>
+<td>否</td>
+<td>-</td>
+</tr>
+<tr>
+<td>limit.share_fn</td>
+<td>该用户所有埋点总分享失败次数(正常分享)</td>
+<td>number</td>
+<td>否</td>
+<td>-</td>
+</tr>
+<tr>
+<td>limit.stf_sn</td>
+<td>该用户总的指定分享好友成功总次数(指定分享)</td>
+<td>number</td>
+<td>否</td>
+<td>-</td>
+</tr>
+<tr>
+<td>limit.stf_fn</td>
+<td>该用户所有埋点当天总拉取分享次数(指定分享)(取消分享看有上报就记录)</td>
+<td>number</td>
+<td>否</td>
+<td>-</td>
+</tr>
+<tr>
+<td>limit.ad_sn</td>
+<td>该用户总的看广告成功次数</td>
+<td>number</td>
+<td>否</td>
+<td>-</td>
+</tr>
+<tr>
+<td>limit.ad_fn</td>
+<td>该用户总的看广告失败次数</td>
+<td>number</td>
+<td>否</td>
+<td>-</td>
+</tr>
+<tr>
+<td>limit.fission_num</td>
+<td>用户总共拉新人数</td>
+<td>number</td>
+<td>否</td>
+<td>-</td>
+</tr>
+<tr>
+<td>---------分割线----------</td>
+<td>以上参数同分享返回参数 <code>data.share_limit</code> 的其余参数</td>
+<td>-</td>
+<td>-</td>
+<td>-</td>
+</tr>
+<tr>
+<td>limit.dispatch_share_num</td>
+<td>调度用累计总次数, 普通分享转为指定分享次数, 拉新后清零</td>
+<td>number</td>
+<td>否</td>
+<td>-</td>
+</tr>
+<tr>
+<td>limit.reject_num</td>
+<td>用户普通分享连续失败次数</td>
+<td>number</td>
+<td>否</td>
+<td>-</td>
+</tr>
+</tbody>
+</table>
+<h3 id="6.4-%E7%A4%BA%E4%BE%8B" tabindex="-1">6.4 示例</h3>
+<pre class="hljs"><code>sdk.<span class="hljs-title function_">getShareLimit</span>({
+  <span class="hljs-attr">complete</span>: <span class="hljs-function">(<span class="hljs-params">data</span>) =&gt;</span> {
+    <span class="hljs-keyword">if</span> (data.<span class="hljs-property">code</span> === <span class="hljs-number">0</span>) {
+      <span class="hljs-variable language_">console</span>.<span class="hljs-title function_">log</span>(data)
+    }
+  }
+}, {
+  <span class="hljs-attr">func_tags</span>: [<span class="hljs-string">&#x27;shareBuyStep&#x27;</span>, <span class="hljs-string">&#x27;test&#x27;</span>],
+})
+<span class="hljs-comment">// 返回示例</span>
+{
+  <span class="hljs-attr">code</span>: <span class="hljs-number">0</span>,
+  <span class="hljs-attr">msg</span>: <span class="hljs-string">&#x27;ok&#x27;</span>,
+  <span class="hljs-attr">data</span>: {
+    <span class="hljs-attr">funcs</span>: {
+      <span class="hljs-attr">shareBuyStep</span>: {
+        <span class="hljs-attr">funcs_num</span>: <span class="hljs-number">0</span>,
+        <span class="hljs-comment">// ...其余数据</span>
+      },
+      <span class="hljs-attr">test</span>: {
+        <span class="hljs-attr">funcs_num</span>: <span class="hljs-number">0</span>,
+        <span class="hljs-comment">// ...其余数据</span>
+      },
+    },
+    <span class="hljs-attr">limit</span>: {
+      <span class="hljs-attr">share_day_num</span>: <span class="hljs-number">0</span>,
+      <span class="hljs-comment">// ...其余数据</span>
+    },
+  }
+}
+</code></pre>
+<h2 id="7.-%E8%8E%B7%E5%8F%96%E5%88%86%E4%BA%AB%E6%95%B0%E6%8D%AE" tabindex="-1">7. 获取分享数据</h2>
+<h3 id="7.1-%E6%8E%A5%E5%8F%A3%E5%8E%9F%E5%9E%8B" tabindex="-1">7.1 接口原型</h3>
+<pre class="hljs"><code><span class="hljs-keyword">public</span> <span class="hljs-keyword">async</span> <span class="hljs-title function_">getShareData</span> (callbacks, params)
+</code></pre>
+<h3 id="7.2-%E5%8F%82%E6%95%B0%E8%AF%B4%E6%98%8E" tabindex="-1">7.2 参数说明</h3>
+<h4 id="7.2.1-params" tabindex="-1">7.2.1 params</h4>
+<p>与分享 <code>share</code> 方法相同</p>
+<h3 id="7.3-%E5%9B%9E%E8%B0%83%E8%BF%94%E5%9B%9E%E5%80%BC" tabindex="-1">7.3 回调返回值</h3>
+<p>与分享 <code>share</code> 普通分享结果相同</p>
+<h3 id="7.4-%E7%A4%BA%E4%BE%8B" tabindex="-1">7.4 示例</h3>
+<p>参考 <code>share</code> 示例</p>
+<h2 id="8.-%E6%94%AF%E4%BB%98" tabindex="-1">8. 支付</h2>
+<p>下单并拉起支付</p>
+<h3 id="8.1-%E6%8E%A5%E5%8F%A3%E5%8E%9F%E5%9E%8B" tabindex="-1">8.1 接口原型</h3>
+<pre class="hljs"><code><span class="hljs-keyword">public</span> <span class="hljs-keyword">async</span> <span class="hljs-title function_">pay</span> (callbacks, params)
+</code></pre>
+<h3 id="8.2-%E5%8F%82%E6%95%B0%E8%AF%B4%E6%98%8E" tabindex="-1">8.2 参数说明</h3>
+<h4 id="8.2.1-params" tabindex="-1">8.2.1 params</h4>
+<table>
+<thead>
+<tr>
+<th>名称</th>
+<th>说明</th>
+<th>类型</th>
+<th>可选</th>
+<th>可选值</th>
+<th>默认值</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>goodsTag</td>
+<td>瑞雪配置的商品 tag</td>
+<td>string</td>
+<td>否</td>
+<td>-</td>
+<td>-</td>
+</tr>
+<tr>
+<td>goodsName</td>
+<td>商品名称</td>
+<td>string</td>
+<td>否</td>
+<td>-</td>
+<td>-</td>
+</tr>
+<tr>
+<td>tradeNo</td>
+<td>游戏订单号</td>
+<td>string</td>
+<td>否</td>
+<td>-</td>
+<td>-</td>
+</tr>
+<tr>
+<td>amount</td>
+<td>金额/分</td>
+<td>number</td>
+<td>否</td>
+<td>-</td>
+<td>-</td>
+</tr>
+<tr>
+<td>type</td>
+<td>支付方式</td>
+<td>string</td>
+<td>是</td>
+<td>wechath5(H5微信支付)/minigame(米大师)/weile(微乐客户端)/ios_minigame(iOS动态调度)/qq/wxpub(微信公众号)/jxzx(小程序吉祥臻选)</td>
+<td>见具体渠道</td>
+</tr>
+<tr>
+<td>transmitArgs</td>
+<td>透传参数, 为字符串时需要为 <code>JSON</code> 字符串</td>
+<td>string/object</td>
+<td>是</td>
+<td>-</td>
+<td>-</td>
+</tr>
+<tr>
+<td>land</td>
+<td>游戏方向</td>
+<td>number</td>
+<td>是</td>
+<td>0(竖屏)/1(横屏)</td>
+<td>-</td>
+</tr>
+<tr>
+<td>is_debug</td>
+<td>是否调试</td>
+<td>number</td>
+<td>是</td>
+<td>0/1</td>
+<td>0</td>
+</tr>
+<tr>
+<td>ext</td>
+<td>其他, 详见具体渠道</td>
+<td>object</td>
+<td>-</td>
+<td>-</td>
+<td>-</td>
+</tr>
+<tr>
+<td>ext[ext.payChannel]</td>
+<td>支付渠道</td>
+<td>number</td>
+<td>是</td>
+<td>0(钻石支付)/1(微信)/2(支付宝)/3(iap支付)/4(微信公众号)</td>
+<td>-</td>
+</tr>
+<tr>
+<td>ext.order_level</td>
+<td>支付等级, 与策划定义的IOS小程序支付不同等级走不同的小程序支付</td>
+<td>number/string</td>
+<td>是</td>
+<td>-</td>
+<td>-</td>
+</tr>
+</tbody>
+</table>
+<h5 id="8.2.1.1-%E5%BE%AE%E4%BF%A1%E5%B0%8F%E6%B8%B8%E6%88%8F" tabindex="-1">8.2.1.1 微信小游戏</h5>
+<table>
+<thead>
+<tr>
+<th>名称</th>
+<th>说明</th>
+<th>类型</th>
+<th>可选</th>
+<th>可选值</th>
+<th>默认值</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>envVersion</td>
+<td>小程序支付时打开的小程序版本</td>
+<td>string</td>
+<td>是</td>
+<td>develop(开发)/trial(体验)/release(正式)</td>
+<td>0</td>
+</tr>
+<tr>
+<td>env</td>
+<td>米大师支付环境</td>
+<td>number</td>
+<td>是</td>
+<td>0/1</td>
+<td>开发版 SDK 为1, 正式版 SDK 为 0</td>
+</tr>
+<tr>
+<td>type</td>
+<td>-</td>
+<td>-</td>
+<td>-</td>
+<td>-</td>
+<td>iOS: ios_minigame/安卓: minigame</td>
+</tr>
+</tbody>
+</table>
+<h5 id="8.2.1.2-%E5%BE%AE%E4%B9%90%E5%AE%A2%E6%88%B7%E7%AB%AF" tabindex="-1">8.2.1.2 微乐客户端</h5>
+<table>
+<thead>
+<tr>
+<th>名称</th>
+<th>说明</th>
+<th>类型</th>
+<th>可选</th>
+<th>可选值</th>
+<th>默认值</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>autoExchange</td>
+<td>自动兑换钻石</td>
+<td>boolean</td>
+<td>是</td>
+<td>-</td>
+<td>-</td>
+</tr>
+<tr>
+<td>ext[ext.feeType]</td>
+<td>支付方式</td>
+<td>number</td>
+<td>是</td>
+<td>0(钻石)/1(人民币)</td>
+<td>-</td>
+</tr>
+<tr>
+<td>type</td>
+<td>-</td>
+<td>-</td>
+<td>-</td>
+<td>-</td>
+<td>weile</td>
+</tr>
+</tbody>
+</table>
+<h5 id="8.2.1.3-qq" tabindex="-1">8.2.1.3 QQ</h5>
+<table>
+<thead>
+<tr>
+<th>名称</th>
+<th>说明</th>
+<th>类型</th>
+<th>可选</th>
+<th>可选值</th>
+<th>默认值</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>ext.zone_id</td>
+<td>游戏服务器大区 ID</td>
+<td>string</td>
+<td>否</td>
+<td>-</td>
+<td>-</td>
+</tr>
+<tr>
+<td>type</td>
+<td>-</td>
+<td>-</td>
+<td>-</td>
+<td>-</td>
+<td>iOS: wxpub/安卓: minigame</td>
+</tr>
+</tbody>
+</table>
+<h5 id="8.2.1.4-%E7%BE%8E%E5%9B%A2" tabindex="-1">8.2.1.4 美团</h5>
+<table>
+<thead>
+<tr>
+<th>名称</th>
+<th>说明</th>
+<th>类型</th>
+<th>可选</th>
+<th>可选值</th>
+<th>默认值</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>goodsDesc</td>
+<td>商品描述</td>
+<td>string</td>
+<td>否</td>
+<td>-</td>
+<td>-</td>
+</tr>
+<tr>
+<td>goodsUrl</td>
+<td>商品图片</td>
+<td>string</td>
+<td>否</td>
+<td>-</td>
+<td>-</td>
+</tr>
+</tbody>
+</table>
+<h3 id="8.3-%E5%9B%9E%E8%B0%83%E8%BF%94%E5%9B%9E%E5%80%BC" tabindex="-1">8.3 回调返回值</h3>
+<blockquote>
+<p><strong>此处成功回调仅代表拉起支付成功, 实际支付结果请从服务端确认</strong></p>
+</blockquote>
+<h3 id="8.4-%E7%A4%BA%E4%BE%8B" tabindex="-1">8.4 示例</h3>
+<pre class="hljs"><code>sdk.<span class="hljs-title function_">pay</span>({
+  <span class="hljs-attr">complete</span>: <span class="hljs-function">(<span class="hljs-params"><span class="hljs-attr">data</span>: <span class="hljs-built_in">any</span></span>) =&gt;</span> {
+    <span class="hljs-variable language_">console</span>.<span class="hljs-title function_">log</span>(data)
+  },
+}, {
+  <span class="hljs-attr">goodsTag</span>: <span class="hljs-string">&#x27;zs10&#x27;</span>,
+  <span class="hljs-attr">goodsName</span>: <span class="hljs-string">&#x27;测试商品&#x27;</span>,
+  <span class="hljs-attr">tradeNo</span>: <span class="hljs-string">&#x27;demo&#x27;</span>,
+  <span class="hljs-attr">transmitArgs</span>: <span class="hljs-string">&#x27;demo&#x27;</span>,
+  <span class="hljs-attr">amount</span>: <span class="hljs-number">100</span>, <span class="hljs-comment">// 1元</span>
+
+  <span class="hljs-comment">// *** QQ 小游戏时必须传 ***</span>
+  <span class="hljs-attr">ext</span>: {
+    <span class="hljs-attr">zone_id</span>: <span class="hljs-string">&#x27;1&#x27;</span>, <span class="hljs-comment">// 游戏服务器大区 ID</span>
+  },
+})
+<span class="hljs-comment">// =&gt; {&quot;code&quot;: 0}</span>
+</code></pre>
+<h2 id="9-%E8%8E%B7%E5%8F%96%E7%94%A8%E6%88%B7%E4%BF%A1%E6%81%AF" tabindex="-1">9 获取用户信息</h2>
+<h3 id="9.1-%E6%8E%A5%E5%8F%A3%E5%8E%9F%E5%9E%8B" tabindex="-1">9.1 接口原型</h3>
+<pre class="hljs"><code><span class="hljs-keyword">public</span> <span class="hljs-title function_">getUserInfo</span> ()
+</code></pre>
+<h3 id="9.2-%E5%8F%82%E6%95%B0%E8%AF%B4%E6%98%8E" tabindex="-1">9.2 参数说明</h3>
+<p>无</p>
+<h3 id="9.3-%E8%BF%94%E5%9B%9E%E5%80%BC" tabindex="-1">9.3 返回值</h3>
+<p>与登录(login)返回结果相同</p>
+<h3 id="9.4-%E7%A4%BA%E4%BE%8B" tabindex="-1">9.4 示例</h3>
+<pre class="hljs"><code><span class="hljs-keyword">const</span> userInfo = sdk.<span class="hljs-title function_">getUserInfo</span>()
+</code></pre>
+<h2 id="10-%E5%B9%BF%E5%91%8A" tabindex="-1">10 广告</h2>
+<h3 id="10.1-%E8%BE%85%E5%8A%A9%E6%96%B9%E6%B3%95" tabindex="-1">10.1 辅助方法</h3>
+<p>以下辅助方法参数都为广告类型, 可选值为 <code>rewarded</code>(激励视频, 默认), <code>banner</code>(横幅), <code>interstitial</code>(插屏)</p>
+<table>
+<thead>
+<tr>
+<th>名称</th>
+<th>说明</th>
+<th>示例</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>hasAd</td>
+<td>检测是否有可用广告</td>
+<td><code>sdk.hasAd()</code> / <code>sdk.hasAd('banner')</code></td>
+</tr>
+<tr>
+<td>getAd</td>
+<td>获取广告实例, <strong>请不要用 <code>desctory</code> 方法销毁广告实例</strong></td>
+<td><code>sdk.getAd()</code> / <code>sdk.getAd('banner')</code></td>
+</tr>
+</tbody>
+</table>
+<h3 id="10.2-%E6%BF%80%E5%8A%B1%E8%A7%86%E9%A2%91%E5%B9%BF%E5%91%8A" tabindex="-1">10.2 激励视频广告</h3>
+<h4 id="10.2.1-%E6%8E%A5%E5%8F%A3%E5%8E%9F%E5%9E%8B" tabindex="-1">10.2.1 接口原型</h4>
+<pre class="hljs"><code><span class="hljs-keyword">public</span> <span class="hljs-keyword">async</span> <span class="hljs-title function_">rewardedVideoAd</span> (callbacks, params)
+</code></pre>
+<h4 id="10.2.2-%E5%8F%82%E6%95%B0%E8%AF%B4%E6%98%8E" tabindex="-1">10.2.2 参数说明</h4>
+<table>
+<thead>
+<tr>
+<th>名称</th>
+<th>说明</th>
+<th>类型</th>
+<th>可选</th>
+<th>可选值</th>
+<th>默认值</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>func</td>
+<td>瑞雪配置的埋点名称</td>
+<td>string</td>
+<td>否</td>
+<td>-</td>
+<td>-</td>
+</tr>
+<tr>
+<td>transmitargs</td>
+<td>透传参数</td>
+<td>string</td>
+<td>是</td>
+<td>-</td>
+<td>-</td>
+</tr>
+<tr>
+<td>custom</td>
+<td>自定义参数</td>
+<td>string</td>
+<td>是</td>
+<td>-</td>
+<td>-</td>
+</tr>
+<tr>
+<td>adUnitId</td>
+<td>微信小游戏广告ID</td>
+<td>string</td>
+<td>微信小游戏必传</td>
+<td>-</td>
+<td>-</td>
+</tr>
+<tr>
+<td>isCheck</td>
+<td>首次检测用户是否有可用广告, 之后请使用 <code>hasAd</code></td>
+<td>boolean</td>
+<td>是</td>
+<td>-</td>
+<td>-</td>
+</tr>
+</tbody>
+</table>
+<h4 id="10.2.3-%E8%BF%94%E5%9B%9E%E5%80%BC" tabindex="-1">10.2.3 返回值</h4>
+<table>
+<thead>
+<tr>
+<th>名称</th>
+<th>说明</th>
+<th>类型</th>
+<th>可能为空</th>
+<th>可选值</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>isEnded</td>
+<td>是否看完</td>
+<td>boolean</td>
+<td>否</td>
+<td>-</td>
+</tr>
+<tr>
+<td>ad_days_limit</td>
+<td>控制类广告埋点每日可看广告总数, 0 代表不限制</td>
+<td>number</td>
+<td>否</td>
+<td>-</td>
+</tr>
+<tr>
+<td>share_days_limit</td>
+<td>控制类分享埋点每日可分享总数, 0 代表不限制</td>
+<td>number</td>
+<td>否</td>
+<td>-</td>
+</tr>
+<tr>
+<td>use_controller_ad</td>
+<td>控制类广告埋点用户当天已看广告数, 0 代表不限制</td>
+<td>number</td>
+<td>否</td>
+<td>-</td>
+</tr>
+<tr>
+<td>use_controller_share</td>
+<td>控制类分享埋点用户当天已分享数, 0 代表不限制</td>
+<td>number</td>
+<td>否</td>
+<td>-</td>
+</tr>
+<tr>
+<td>transmitargs</td>
+<td>透传参数</td>
+<td>string</td>
+<td>是</td>
+<td>-</td>
+</tr>
+</tbody>
+</table>
+<p>此处会原样返回小游戏的 <code>code</code>, 释义及解决方案见<a href="https://developers.weixin.qq.com/miniprogram/dev/api/ad/RewardedVideoAd.onError.html" target="_blank">小游戏视频广告错误码</a></p>
+<h4 id="10.2.4-%E7%A4%BA%E4%BE%8B" tabindex="-1">10.2.4 示例</h4>
+<pre class="hljs"><code>sdk.<span class="hljs-title function_">rewardedVideoAd</span>({
+  <span class="hljs-attr">complete</span>: <span class="hljs-function">(<span class="hljs-params">data</span>) =&gt;</span> {
+    <span class="hljs-variable language_">console</span>.<span class="hljs-title function_">log</span>(data)
+  },
+}, {
+  <span class="hljs-attr">func</span>: <span class="hljs-string">&#x27;sign&#x27;</span>,
+  <span class="hljs-attr">transmitargs</span>: <span class="hljs-string">&#x27;demo&#x27;</span>,
+  <span class="hljs-attr">custom</span>: <span class="hljs-string">&#x27;demo-custom&#x27;</span>,
+  <span class="hljs-attr">adUnitId</span>: <span class="hljs-string">&#x27;adunit-c337136xxx&#x27;</span>,
+})
+<span class="hljs-comment">// =&gt; {&quot;code&quot;:0,&quot;msg&quot;:&quot;ok&quot;,&quot;transmitargs&quot;:&quot;demo&quot;,&quot;isEnded&quot;:true}</span>
+</code></pre>
+<h3 id="10.3-%E6%A8%AA%E5%B9%85%E5%B9%BF%E5%91%8A" tabindex="-1">10.3 横幅广告</h3>
+<h4 id="10.3.1-%E6%8E%A5%E5%8F%A3%E5%8E%9F%E5%9E%8B" tabindex="-1">10.3.1 接口原型</h4>
+<pre class="hljs"><code><span class="hljs-keyword">public</span> <span class="hljs-keyword">async</span> <span class="hljs-title function_">bannerAd</span> (callbacks, params)
+</code></pre>
+<h4 id="10.3.2-%E5%8F%82%E6%95%B0%E8%AF%B4%E6%98%8E" tabindex="-1">10.3.2 参数说明</h4>
+<table>
+<thead>
+<tr>
+<th>名称</th>
+<th>说明</th>
+<th>类型</th>
+<th>可选</th>
+<th>可选值</th>
+<th>默认值</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>-</td>
+<td>同视频激励广告</td>
+<td>-</td>
+<td>-</td>
+<td>-</td>
+<td>-</td>
+</tr>
+<tr>
+<td>adIntervals</td>
+<td>广告显示时间</td>
+<td>number</td>
+<td>是</td>
+<td>-</td>
+<td>-</td>
+</tr>
+<tr>
+<td>style</td>
+<td>广告样式</td>
+<td>object</td>
+<td>否</td>
+<td>-</td>
+<td>-</td>
+</tr>
+<tr>
+<td>style.left</td>
+<td>广告左上角坐标</td>
+<td>number</td>
+<td>否</td>
+<td>-</td>
+<td>-</td>
+</tr>
+<tr>
+<td>style.top</td>
+<td>广告左上角坐标</td>
+<td>number</td>
+<td>否</td>
+<td>-</td>
+<td>-</td>
+</tr>
+<tr>
+<td>style.width</td>
+<td>广告宽度</td>
+<td>number</td>
+<td>否</td>
+<td>-</td>
+<td>-</td>
+</tr>
+<tr>
+<td>style.height</td>
+<td>广告高度</td>
+<td>number</td>
+<td>否</td>
+<td>-</td>
+<td>-</td>
+</tr>
+</tbody>
+</table>
+<h4 id="10.3.3-%E8%BF%94%E5%9B%9E%E5%80%BC" tabindex="-1">10.3.3 返回值</h4>
+<table>
+<thead>
+<tr>
+<th>名称</th>
+<th>说明</th>
+<th>类型</th>
+<th>可能为空</th>
+<th>可选值</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>ad</td>
+<td>广告实例</td>
+<td>object</td>
+<td>否</td>
+<td>-</td>
+</tr>
+</tbody>
+</table>
+<h4 id="10.3.4-%E7%A4%BA%E4%BE%8B" tabindex="-1">10.3.4 示例</h4>
+<pre class="hljs"><code>sdk.<span class="hljs-title function_">bannerAd</span>({
+  <span class="hljs-attr">complete</span>: <span class="hljs-function">(<span class="hljs-params">data</span>) =&gt;</span> {
+    <span class="hljs-variable language_">console</span>.<span class="hljs-title function_">log</span>(data)
+  },
+}, {
+  <span class="hljs-attr">adUnitId</span>: <span class="hljs-string">&#x27;adunit-c337136xxx&#x27;</span>,
+  <span class="hljs-attr">style</span>: {
+    <span class="hljs-attr">left</span>: <span class="hljs-number">0</span>,
+    <span class="hljs-attr">top</span>: <span class="hljs-number">0</span>,
+    <span class="hljs-attr">width</span>: <span class="hljs-number">375</span>,
+    <span class="hljs-attr">height</span>: <span class="hljs-number">100</span>,
+  },
+  <span class="hljs-attr">adIntervals</span>: <span class="hljs-number">30</span>,
+})
+<span class="hljs-comment">// =&gt; {&quot;code&quot;:0,&quot;msg&quot;:&quot;ok&quot;,&quot;ad&quot;:XXX}</span>
+</code></pre>
+<h3 id="10.4-%E6%8F%92%E5%B1%8F%E5%B9%BF%E5%91%8A" tabindex="-1">10.4 插屏广告</h3>
+<h4 id="10.4.1-%E6%8E%A5%E5%8F%A3%E5%8E%9F%E5%9E%8B" tabindex="-1">10.4.1 接口原型</h4>
+<pre class="hljs"><code><span class="hljs-keyword">public</span> <span class="hljs-keyword">async</span> <span class="hljs-title function_">interstitialAd</span> (callbacks, params)
+</code></pre>
+<h4 id="10.4.2-%E5%8F%82%E6%95%B0%E8%AF%B4%E6%98%8E" tabindex="-1">10.4.2 参数说明</h4>
+<table>
+<thead>
+<tr>
+<th>名称</th>
+<th>说明</th>
+<th>类型</th>
+<th>可选</th>
+<th>可选值</th>
+<th>默认值</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>-</td>
+<td>同视频激励广告</td>
+<td>-</td>
+<td>-</td>
+<td>-</td>
+<td>-</td>
+</tr>
+</tbody>
+</table>
+<h4 id="10.4.3-%E8%BF%94%E5%9B%9E%E5%80%BC" tabindex="-1">10.4.3 返回值</h4>
+<table>
+<thead>
+<tr>
+<th>名称</th>
+<th>说明</th>
+<th>类型</th>
+<th>可能为空</th>
+<th>可选值</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>ad</td>
+<td>广告实例</td>
+<td>object</td>
+<td>否</td>
+<td>-</td>
+</tr>
+</tbody>
+</table>
+<h4 id="10.4.4-%E7%A4%BA%E4%BE%8B" tabindex="-1">10.4.4 示例</h4>
+<pre class="hljs"><code>sdk.<span class="hljs-title function_">interstitialAd</span>({
+  <span class="hljs-attr">complete</span>: <span class="hljs-function">(<span class="hljs-params">data</span>) =&gt;</span> {
+    <span class="hljs-variable language_">console</span>.<span class="hljs-title function_">log</span>(data)
+  },
+}, {
+  <span class="hljs-attr">adUnitId</span>: <span class="hljs-string">&#x27;adunit-c337136xxx&#x27;</span>,
+})
+<span class="hljs-comment">// =&gt; {&quot;code&quot;:0,&quot;msg&quot;:&quot;ok&quot;,&quot;ad&quot;:XXX}</span>
+</code></pre>
+<h2 id="11.-%E6%A0%A1%E9%AA%8C%E5%85%AC%E4%BC%97%E5%8F%B7%E5%8F%8A%E5%B0%8F%E6%B8%B8%E6%88%8F%E6%8E%88%E6%9D%83(%E7%BA%A2%E5%8C%85)" tabindex="-1">11. 校验公众号及小游戏授权(红包)</h2>
+<p>检测用户是否关注公众号、公众号授权及小游戏强制授权过</p>
+<h3 id="11.1-%E6%8E%A5%E5%8F%A3%E5%8E%9F%E5%9E%8B" tabindex="-1">11.1 接口原型</h3>
+<pre class="hljs"><code><span class="hljs-keyword">public</span> <span class="hljs-keyword">async</span> <span class="hljs-title function_">checkAuthorization</span>  (callbacks)
+</code></pre>
+<h3 id="11.2-%E5%8F%82%E6%95%B0%E8%AF%B4%E6%98%8E" tabindex="-1">11.2 参数说明</h3>
+<p>无</p>
+<h3 id="11.3-%E8%BF%94%E5%9B%9E%E5%80%BC" tabindex="-1">11.3 返回值</h3>
+<table>
+<thead>
+<tr>
+<th>名称</th>
+<th>说明</th>
+<th>类型</th>
+<th>可能为空</th>
+<th>可选值</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>data</td>
+<td>返回数据</td>
+<td>object</td>
+<td>否</td>
+<td>-</td>
+</tr>
+<tr>
+<td>data.code</td>
+<td>授权结果<code>code</code></td>
+<td>number</td>
+<td>否</td>
+<td>0(授权且关注)/6000011(小游戏未授权)/6000012(已关注未授权)/6000013(未关注)</td>
+</tr>
+</tbody>
+</table>
+<p>当 <code>code</code> 为 <code>6000011</code> 时需要强制授权登录一次，<code>6000012</code> 及 <code>6000013</code> 时 SDK 会跳转到公众号关注界面，游戏继续显示操作按钮即可</p>
+<h3 id="11.4-%E7%A4%BA%E4%BE%8B" tabindex="-1">11.4 示例</h3>
+<pre class="hljs"><code>sdk.<span class="hljs-title function_">checkAuthorization</span>({
+  <span class="hljs-attr">complete</span>: <span class="hljs-function">(<span class="hljs-params">data</span>) =&gt;</span> {
+    <span class="hljs-keyword">if</span> (data.<span class="hljs-property">code</span> === <span class="hljs-number">0</span>) {
+      <span class="hljs-variable language_">console</span>.<span class="hljs-title function_">log</span>(<span class="hljs-string">&#x27;授权正常&#x27;</span>)
+      <span class="hljs-comment">// 正常操作...</span>
+      <span class="hljs-keyword">return</span>
+    }
+    <span class="hljs-keyword">if</span> (data.<span class="hljs-property">code</span> === <span class="hljs-number">6000011</span>) {
+      sdk.<span class="hljs-title function_">login</span>({
+        <span class="hljs-attr">complete</span>: <span class="hljs-function">() =&gt;</span> {
+          <span class="hljs-comment">// 登录后可重新检测</span>
+        }
+      }, { <span class="hljs-attr">version</span>: <span class="hljs-string">&#x27;normal&#x27;</span> })
+    }
+  }
+})
+</code></pre>
+<h2 id="12.-%E6%89%93%E5%BC%80-web-%E5%AE%A2%E6%9C%8D" tabindex="-1">12. 打开 WEB 客服</h2>
+<p>通过客服会话打开 web 客服</p>
+<h3 id="12.1-%E6%8E%A5%E5%8F%A3%E5%8E%9F%E5%9E%8B" tabindex="-1">12.1 接口原型</h3>
+<pre class="hljs"><code><span class="hljs-keyword">public</span> <span class="hljs-keyword">async</span> <span class="hljs-title function_">openCustomerService</span>  (callbacks)
+</code></pre>
+<h3 id="12.2-%E5%8F%82%E6%95%B0%E8%AF%B4%E6%98%8E" tabindex="-1">12.2 参数说明</h3>
+<p>无</p>
+<h3 id="12.3-%E8%BF%94%E5%9B%9E%E5%80%BC" tabindex="-1">12.3 返回值</h3>
+<p>无</p>
+<h3 id="12.4-%E7%A4%BA%E4%BE%8B" tabindex="-1">12.4 示例</h3>
+<pre class="hljs"><code>sdk.<span class="hljs-title function_">openCustomerService</span>({
+  <span class="hljs-attr">complete</span>: <span class="hljs-function">(<span class="hljs-params">data</span>) =&gt;</span> {
+    <span class="hljs-keyword">if</span> (data.<span class="hljs-property">code</span> === <span class="hljs-number">0</span>) {
+      <span class="hljs-variable language_">console</span>.<span class="hljs-title function_">log</span>(<span class="hljs-string">&#x27;调用正常&#x27;</span>)
+      <span class="hljs-comment">// 正常操作...</span>
+      <span class="hljs-keyword">return</span>
+    }
+  }
+})
+</code></pre>
+<h2 id="13.-%E8%84%8F%E8%AF%8D%E6%A3%80%E6%B5%8B" tabindex="-1">13. 脏词检测</h2>
+<p>检测文本是否含有脏词</p>
+<h3 id="13.1-%E6%8E%A5%E5%8F%A3%E5%8E%9F%E5%9E%8B" tabindex="-1">13.1 接口原型</h3>
+<pre class="hljs"><code><span class="hljs-keyword">public</span> <span class="hljs-keyword">async</span> <span class="hljs-title function_">checkMsgSecurity</span>(callbacks, params)
+</code></pre>
+<h3 id="13.2-%E5%8F%82%E6%95%B0%E8%AF%B4%E6%98%8E" tabindex="-1">13.2 参数说明</h3>
+<table>
+<thead>
+<tr>
+<th>名称</th>
+<th>说明</th>
+<th>类型</th>
+<th>可选</th>
+<th>可选值</th>
+<th>默认值</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>content</td>
+<td>检测字符串</td>
+<td>string</td>
+<td>否</td>
+<td>-</td>
+<td>-</td>
+</tr>
+</tbody>
+</table>
+<h3 id="13.3-%E8%BF%94%E5%9B%9E%E5%80%BC" tabindex="-1">13.3 返回值</h3>
+<table>
+<thead>
+<tr>
+<th>名称</th>
+<th>说明</th>
+<th>类型</th>
+<th>可能为空</th>
+<th>可选值</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>first_sensitive</td>
+<td>检测出的第一个敏感词(不能作为是否有脏词的依据, 请使用 <code>code !== 0</code>)</td>
+<td>string</td>
+<td>是</td>
+<td>-</td>
+</tr>
+</tbody>
+</table>
+<h3 id="13.4-%E7%A4%BA%E4%BE%8B" tabindex="-1">13.4 示例</h3>
+<pre class="hljs"><code>sdk.<span class="hljs-title function_">checkMsgSecurity</span>({
+  <span class="hljs-attr">complete</span>: <span class="hljs-variable language_">console</span>.<span class="hljs-property">log</span>,
+}, {
+  <span class="hljs-attr">content</span>: <span class="hljs-string">&#x27;***&#x27;</span>,
+})
+<span class="hljs-comment">// =&gt; {&quot;code&quot;:8000001,&quot;msg&quot;:&quot;risky content rid: 6006bdcf-08193f0b&quot;,&quot;first_sentive&quot;:&quot;&quot;}</span>
+</code></pre>
+<h2 id="14.-%E5%85%B3%E9%97%AD%E6%B8%B8%E6%88%8F%E6%8E%A5%E5%8F%A3" tabindex="-1">14. 关闭游戏接口</h2>
+<p>关闭退出当前游戏(不是所有渠道都支持)</p>
+<h3 id="14.1-%E6%8E%A5%E5%8F%A3%E5%8E%9F%E5%9E%8B" tabindex="-1">14.1 接口原型</h3>
+<pre class="hljs"><code><span class="hljs-keyword">public</span> <span class="hljs-keyword">async</span> <span class="hljs-title function_">closeGame</span>(callbacks, params)
+</code></pre>
+<h3 id="14.2-%E5%8F%82%E6%95%B0%E8%AF%B4%E6%98%8E" tabindex="-1">14.2 参数说明</h3>
+<p>无</p>
+<h3 id="14.3-%E8%BF%94%E5%9B%9E%E5%80%BC" tabindex="-1">14.3 返回值</h3>
+<p>无</p>
+<h3 id="14.4-%E7%A4%BA%E4%BE%8B" tabindex="-1">14.4 示例</h3>
+<pre class="hljs"><code>sdk.<span class="hljs-title function_">closeGame</span>({
+  <span class="hljs-attr">complete</span>: <span class="hljs-function">(<span class="hljs-params"><span class="hljs-attr">data</span>: <span class="hljs-built_in">any</span></span>) =&gt;</span> {
+    <span class="hljs-variable language_">console</span>.<span class="hljs-title function_">log</span>(data)
+  }
+})
+</code></pre>
+<h2 id="15.-%E8%A7%92%E8%89%B2%E4%B8%8A%E4%BC%A0" tabindex="-1">15. 角色上传</h2>
+<p>特殊渠道需要上传角色信息</p>
+<h3 id="15.1-%E6%8E%A5%E5%8F%A3%E5%8E%9F%E5%9E%8B" tabindex="-1">15.1 接口原型</h3>
+<pre class="hljs"><code><span class="hljs-keyword">public</span> <span class="hljs-keyword">async</span> <span class="hljs-title function_">roleLogin</span>(callbacks, params)
+</code></pre>
+<h3 id="15.2-%E5%8F%82%E6%95%B0%E8%AF%B4%E6%98%8E" tabindex="-1">15.2 参数说明</h3>
+<table>
+<thead>
+<tr>
+<th>名称</th>
+<th>说明</th>
+<th>类型</th>
+<th>可选</th>
+<th>可选值</th>
+<th>默认值</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>id</td>
+<td>用户 ID</td>
+<td>string/number</td>
+<td>否</td>
+<td>-</td>
+<td>-</td>
+</tr>
+<tr>
+<td>nickname</td>
+<td>昵称</td>
+<td>string</td>
+<td>否</td>
+<td>-</td>
+<td>-</td>
+</tr>
+<tr>
+<td>sex</td>
+<td>性别</td>
+<td>number</td>
+<td>是</td>
+<td>0/1</td>
+<td>-</td>
+</tr>
+<tr>
+<td>isNew</td>
+<td>是否新用户</td>
+<td>number</td>
+<td>是</td>
+<td>0/1</td>
+<td>-</td>
+</tr>
+<tr>
+<td>level</td>
+<td>等级</td>
+<td>number</td>
+<td>是</td>
+<td>-</td>
+<td>-</td>
+</tr>
+<tr>
+<td>isVip</td>
+<td>是否 VIP</td>
+<td>number</td>
+<td>是</td>
+<td>0/1</td>
+<td>-</td>
+</tr>
+<tr>
+<td>vipLevel</td>
+<td>VIP 等级</td>
+<td>number</td>
+<td>是</td>
+<td>-</td>
+<td>-</td>
+</tr>
+<tr>
+<td>type</td>
+<td>游戏类型</td>
+<td>string</td>
+<td>是</td>
+<td>-</td>
+<td>休闲</td>
+</tr>
+<tr>
+<td>power</td>
+<td>综合能力, 如战斗力</td>
+<td>string/number</td>
+<td>是</td>
+<td>-</td>
+<td>0</td>
+</tr>
+<tr>
+<td>money</td>
+<td>钻石或金币等数量</td>
+<td>number</td>
+<td>是</td>
+<td>-</td>
+<td>-</td>
+</tr>
+<tr>
+<td>act</td>
+<td>动作</td>
+<td>number</td>
+<td>是</td>
+<td>1(创建)/2(登录)</td>
+<td>-</td>
+</tr>
+<tr>
+<td>serverId</td>
+<td>所在大区(服务器)</td>
+<td>string/number</td>
+<td>是</td>
+<td>-</td>
+<td>0</td>
+</tr>
+<tr>
+<td>serverName</td>
+<td>所在大区(服务器)名称</td>
+<td>string</td>
+<td>是</td>
+<td>-</td>
+<td>''</td>
+</tr>
+</tbody>
+</table>
+<h3 id="15.3-%E8%BF%94%E5%9B%9E%E5%80%BC" tabindex="-1">15.3 返回值</h3>
+<p>无</p>
+<h3 id="15.4-%E7%A4%BA%E4%BE%8B" tabindex="-1">15.4 示例</h3>
+<pre class="hljs"><code>sdk.<span class="hljs-title function_">roleLogin</span>({
+  <span class="hljs-attr">complete</span>: <span class="hljs-function">(<span class="hljs-params"><span class="hljs-attr">data</span>: <span class="hljs-built_in">any</span></span>) =&gt;</span> {
+    <span class="hljs-variable language_">console</span>.<span class="hljs-title function_">log</span>(data)
+  },
+  {
+    <span class="hljs-attr">id</span>: <span class="hljs-number">123</span>,
+    <span class="hljs-attr">level</span>: <span class="hljs-number">1</span>,
+    <span class="hljs-attr">nickname</span>: <span class="hljs-string">&#x27;测试&#x27;</span>,
+    <span class="hljs-attr">serverId</span>: <span class="hljs-number">123</span>,
+    <span class="hljs-attr">serverName</span>: <span class="hljs-string">&#x27;大区&#x27;</span>,
+    <span class="hljs-attr">act</span>: <span class="hljs-number">1</span>,
+    <span class="hljs-attr">power</span>: <span class="hljs-number">100</span>,
+  }
+})
+</code></pre>
+<h2 id="%E9%94%99%E8%AF%AF%E7%A0%81%E5%AE%9A%E4%B9%89" tabindex="-1">错误码定义</h2>
+<table>
+<thead>
+<tr>
+<th>错误码</th>
+<th>错误消息</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1000000</td>
+<td>系统错误</td>
+<td>服务器系统错误及 SDK 默认错误</td>
+</tr>
+<tr>
+<td>1000001</td>
+<td>接口未找到</td>
+<td>-</td>
+</tr>
+<tr>
+<td>1000002</td>
+<td>请求超时</td>
+<td>-</td>
+</tr>
+<tr>
+<td>1000003</td>
+<td>未授权</td>
+<td>-</td>
+</tr>
+<tr>
+<td>1000004</td>
+<td>参数错误</td>
+<td>-</td>
+</tr>
+<tr>
+<td>2000001</td>
+<td>短信验证码发送失败</td>
+<td>-</td>
+</tr>
+<tr>
+<td>2000002</td>
+<td>响应消息解码失败</td>
+<td>-</td>
+</tr>
+<tr>
+<td>2000003</td>
+<td>短信验证码校验失败</td>
+<td>-</td>
+</tr>
+<tr>
+<td>3000001</td>
+<td>用户已存在</td>
+<td>-</td>
+</tr>
+<tr>
+<td>3000002</td>
+<td>用户注册失败</td>
+<td>-</td>
+</tr>
+<tr>
+<td>3000003</td>
+<td>用户不存在</td>
+<td>-</td>
+</tr>
+<tr>
+<td>3000004</td>
+<td>用户密码错误</td>
+<td>-</td>
+</tr>
+<tr>
+<td>3000005</td>
+<td>用户封停</td>
+<td>-</td>
+</tr>
+<tr>
+<td>3000006</td>
+<td>三方渠道不支持</td>
+<td>-</td>
+</tr>
+<tr>
+<td>3000007</td>
+<td>三方验证失败</td>
+<td>-</td>
+</tr>
+<tr>
+<td>3000008</td>
+<td>三方验证失败（小米会话错误，客户端收到此错误码时引导玩家重新授权）</td>
+<td>-</td>
+</tr>
+<tr>
+<td>3000009</td>
+<td>三方用户注册失败</td>
+<td>-</td>
+</tr>
+<tr>
+<td>4000001</td>
+<td>支付验证错误</td>
+<td>-</td>
+</tr>
+<tr>
+<td>4000002</td>
+<td>商品数据错误</td>
+<td>-</td>
+</tr>
+<tr>
+<td>4000003</td>
+<td>订单处理失败</td>
+<td>-</td>
+</tr>
+<tr>
+<td>4000004</td>
+<td>服务下单失败</td>
+<td>-</td>
+</tr>
+<tr>
+<td>4000005</td>
+<td>订单保存失败</td>
+<td>-</td>
+</tr>
+<tr>
+<td>4000006</td>
+<td>支付方式错误</td>
+<td>-</td>
+</tr>
+<tr>
+<td>4000007</td>
+<td>订单获取失败（订单不存在）</td>
+<td>-</td>
+</tr>
+<tr>
+<td>4000008</td>
+<td>订单已经完成，重复请求</td>
+<td>-</td>
+</tr>
+<tr>
+<td>4000009</td>
+<td>订单校验失败</td>
+<td>-</td>
+</tr>
+<tr>
+<td>4000010</td>
+<td>订单更新失败，重复请求</td>
+<td>-</td>
+</tr>
+<tr>
+<td>5000001</td>
+<td>功能点无效</td>
+<td>-</td>
+</tr>
+<tr>
+<td>5000002</td>
+<td>没有分享内容</td>
+<td>-</td>
+</tr>
+<tr>
+<td>5000003</td>
+<td>验证错误</td>
+<td>-</td>
+</tr>
+<tr>
+<td>5000004</td>
+<td>分享失败</td>
+<td>-</td>
+</tr>
+<tr>
+<td>5000005</td>
+<td>分享失败</td>
+<td>-</td>
+</tr>
+<tr>
+<td>5000006</td>
+<td>用户主动关闭广告</td>
+<td>-</td>
+</tr>
+<tr>
+<td>5000007</td>
+<td>没有获取可用广告</td>
+<td>-</td>
+</tr>
+<tr>
+<td>5000008</td>
+<td>分享类型错误</td>
+<td>-</td>
+</tr>
+<tr>
+<td>5000010</td>
+<td>用户信息错误</td>
+<td>-</td>
+</tr>
+<tr>
+<td>5000011</td>
+<td>功能点已经停用</td>
+<td>-</td>
+</tr>
+<tr>
+<td>5000012</td>
+<td>用户信息获取失败</td>
+<td>-</td>
+</tr>
+<tr>
+<td>5000013</td>
+<td>该奖励的次数已达本日限额</td>
+<td>-</td>
+</tr>
+</tbody>
+</table>
+
+    </section>
+
+    <style>pre code.hljs {
+  display: block;
+  overflow-x: auto;
+  padding: 1em
+}
+code.hljs {
+  padding: 3px 5px
+}
+/*!
+  Theme: GitHub Dark
+  Description: Dark theme as seen on github.com
+  Author: github.com
+  Maintainer: @Hirse
+  Updated: 2021-05-15
+
+  Outdated base version: https://github.com/primer/github-syntax-dark
+  Current colors taken from GitHub&#x27;s CSS
+*/
+.hljs {
+  color: #c9d1d9;
+  background: #0d1117
+}
+.hljs-doctag,
+.hljs-keyword,
+.hljs-meta .hljs-keyword,
+.hljs-template-tag,
+.hljs-template-variable,
+.hljs-type,
+.hljs-variable.language_ {
+  /* prettylights-syntax-keyword */
+  color: #ff7b72
+}
+.hljs-title,
+.hljs-title.class_,
+.hljs-title.class_.inherited__,
+.hljs-title.function_ {
+  /* prettylights-syntax-entity */
+  color: #d2a8ff
+}
+.hljs-attr,
+.hljs-attribute,
+.hljs-literal,
+.hljs-meta,
+.hljs-number,
+.hljs-operator,
+.hljs-variable,
+.hljs-selector-attr,
+.hljs-selector-class,
+.hljs-selector-id {
+  /* prettylights-syntax-constant */
+  color: #79c0ff
+}
+.hljs-regexp,
+.hljs-string,
+.hljs-meta .hljs-string {
+  /* prettylights-syntax-string */
+  color: #a5d6ff
+}
+.hljs-built_in,
+.hljs-symbol {
+  /* prettylights-syntax-variable */
+  color: #ffa657
+}
+.hljs-comment,
+.hljs-code,
+.hljs-formula {
+  /* prettylights-syntax-comment */
+  color: #8b949e
+}
+.hljs-name,
+.hljs-quote,
+.hljs-selector-tag,
+.hljs-selector-pseudo {
+  /* prettylights-syntax-entity-tag */
+  color: #7ee787
+}
+.hljs-subst {
+  /* prettylights-syntax-storage-modifier-import */
+  color: #c9d1d9
+}
+.hljs-section {
+  /* prettylights-syntax-markup-heading */
+  color: #1f6feb;
+  font-weight: bold
+}
+.hljs-bullet {
+  /* prettylights-syntax-markup-list */
+  color: #f2cc60
+}
+.hljs-emphasis {
+  /* prettylights-syntax-markup-italic */
+  color: #c9d1d9;
+  font-style: italic
+}
+.hljs-strong {
+  /* prettylights-syntax-markup-bold */
+  color: #c9d1d9;
+  font-weight: bold
+}
+.hljs-addition {
+  /* prettylights-syntax-markup-inserted */
+  color: #aff5b4;
+  background-color: #033a16
+}
+.hljs-deletion {
+  /* prettylights-syntax-markup-deleted */
+  color: #ffdcd7;
+  background-color: #67060c
+}
+.hljs-char.escape_,
+.hljs-link,
+.hljs-params,
+.hljs-property,
+.hljs-punctuation,
+.hljs-tag {
+  /* purposely ignored */
+  
+}</style>
+  </body>
+</html>
